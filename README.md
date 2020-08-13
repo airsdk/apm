@@ -71,7 +71,7 @@ apm generate app-descriptor
 
 Documentation:
 
-- [Building](Building.md)
+- [APM](APM.md)
 - [Package Definition](PackageDefinition.md)
 - [Package Repository](PackageRepository.md)
 - [Generate App-Descriptor](GenerateAppDescriptor.md)
