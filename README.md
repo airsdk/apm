@@ -10,7 +10,7 @@ The AIR Package Manager allows management of AIR libraries and extensions and as
 >
 > If AIR is to progress as a modern development tool I believe it is well past time that we have some similar tools at our disposal and as a community agree upon a series of standards around component descriptions. 
 >
-> I know there are propriatary tools that manage certain aspects of this process such as ane-lab and [Adobe Air Assistant](https://github.com/SaffronCode/Adobe-Air-Assistant) however these tools are highly customised to the integrated ANEs and would probably be better suited as UI components built upon a common standard.
+> I know there are proprietary tools that manage certain aspects of this process such as ane-lab and [Adobe Air Assistant](https://github.com/SaffronCode/Adobe-Air-Assistant) however these tools are highly customised to the integrated ANEs and would probably be better suited as UI components built upon a common standard.
 >
 > **This repository is designed to form the starting point of an open source "AIR package manager" - `apm`.**
 > 
