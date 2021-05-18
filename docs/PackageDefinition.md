@@ -12,12 +12,8 @@ A package defines a library and it's dependencies.
 - required configuration variables to be inserted into the above
 
 
->
-> It may be advantageous to leverage an existing packaging management platform here, something like a Maven Repository potentially combined with Gradle?
->
+A package most likely will be made of a series of files in a structure with a main "index" file. 
 
-
-A package most likely will be made of a series of files in a structure with a main "index" file. A package 
 
 
 ## Index
@@ -33,7 +29,6 @@ A file(s) containing information about the library.
     "name": "Example package definition",
     "url": "https://example.com/package/",
     "description": "An example of a package definition",
-    "type": "ane",
     "version":"1.0",
     "type": "swc",
     "dependencies": [
@@ -45,6 +40,9 @@ A file(s) containing information about the library.
             "id": "com.package.dependency.b", 
             "version": "3.1"
         }
+    ],
+    "configuration": [
+        "packageParam"
     ],
     "source": "https://example.com/package/swc/v1.0/com.package.example.swc"
 }
