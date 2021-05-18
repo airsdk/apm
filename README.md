@@ -25,43 +25,4 @@ The goals of `apm` are to:
 This project also aims to provide a repository server to be the store for packages.
 
 
-Some examples:
-
-### Search for a library
-
-```
-apm search starling
-```
-
-
-### Install a library:
-
-```
-apm install starling
-```
-
-
-### Update installed libraries:
-
-```
-apm update 
-```
-
-
-### Create descriptor
-
-```
-apm generate app-descriptor 
-```
-
-
-
-Documentation:
-
-- [APM](docs/APM.md)
-- [Package Definition](docs/PackageDefinition.md)
-- [Package Repository](docs/PackageRepository.md)
-- [Project Definition](docs/ProjectDefinition.md)
-- [Generate App-Descriptor](docs/GenerateAppDescriptor.md)
-
-
+See the [wiki](https://github.com/airsdk/apm/wiki) for details.
