@@ -9,47 +9,57 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		18/5/21
+ * @created		31/5/21
  */
-package
+package com.apm.data
 {
-	import com.apm.client.APMCore;
-	import com.apm.client.events.APMEvent;
 	
-	import flash.desktop.NativeApplication;
-	import flash.events.InvokeEvent;
-	
-	
-	public class APM extends APMCore
+	public class Repository
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "APM";
+		private static const TAG:String = "Repository";
 		
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
 		
+		public var url : String;
+		
+		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		
-		public function APM()
+		public function Repository()
 		{
-			NativeApplication.nativeApplication.addEventListener( InvokeEvent.INVOKE, invokeHandler );
 		}
 		
 		
-		private function invokeHandler( event:InvokeEvent ):void
+		public function toObject():Object
 		{
-			main( event.arguments );
+			return {
+				url: url,
+				credentials: {}
+			};
 		}
-
+		
+		
+		public static function fromObject( data:Object ):Repository
+		{
+			var rep:Repository = new Repository();
+			
+			rep.url = data.url;
+			
+			// TODO::
+			
+			return rep;
+		}
+		
 		
 	}
 	

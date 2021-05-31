@@ -11,24 +11,25 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		18/5/21
  */
-package com.apm.client.commands
+package com.apm.client.commands.install
 {
 	import com.apm.client.APMCore;
-	import com.apm.client.Command;
 	import com.apm.client.IO;
+	import com.apm.client.commands.Command;
 	
 	
-	public class HelpCommand implements Command
+	public class InstallCommand implements Command
 	{
 		
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "HelpCommand";
+		private static const TAG:String = "InstallCommand";
 		
 		
-		public static const NAME:String = "help";
+		public static const NAME:String = "install";
+		
 		
 		
 		////////////////////////////////////////////////////////
@@ -37,12 +38,11 @@ package com.apm.client.commands
 		
 		private var _parameters:Array;
 		
-		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function HelpCommand()
+		public function InstallCommand()
 		{
 			super();
 		}
@@ -68,36 +68,31 @@ package com.apm.client.commands
 		
 		public function get requiresNetwork():Boolean
 		{
-			return true;
+			return false;
 		}
 		
 		
 		public function get description():String
 		{
-			return "print apm usage information";
+			return "add and install a dependency to your project";
 		}
 		
 		
 		public function get usage():String
 		{
-			return "details usage \n" +
-					"asdf\n" +
-					"asd";
+			return  description + "\n" +
+					"\n" +
+					"apm install          install all the dependencies in your project\n" +
+					"apm install <foo>    install the <foo> dependency to your project\n";
 		}
+		
+		
 		
 		
 		public function execute( core:APMCore ):void
 		{
-			if (_parameters && _parameters.length > 0)
-			{
-				core.usage( _parameters[0] );
-			}
-			else
-			{
-				core.usage();
-			}
+			IO.out( "installing : " + (_parameters.length > 0 ? _parameters[0] : "...") + "\n");
 		}
-		
 		
 	}
 	

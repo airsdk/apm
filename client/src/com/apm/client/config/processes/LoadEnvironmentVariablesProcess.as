@@ -9,24 +9,25 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		18/5/21
+ * @created		28/5/21
  */
-package
+package com.apm.client.config.processes
 {
-	import com.apm.client.APMCore;
-	import com.apm.client.events.APMEvent;
+	import com.apm.client.logging.Log;
+	import com.apm.client.processes.Process;
+	import com.apm.client.processes.events.ProcessEvent;
 	
-	import flash.desktop.NativeApplication;
-	import flash.events.InvokeEvent;
+	import flash.events.EventDispatcher;
+	import flash.utils.setTimeout;
 	
 	
-	public class APM extends APMCore
+	public class LoadEnvironmentVariablesProcess extends EventDispatcher implements Process
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "APM";
+		private static const TAG:String = "LoadEnvironmentVariablesProcess";
 		
 		
 		////////////////////////////////////////////////////////
@@ -38,18 +39,18 @@ package
 		//  FUNCTIONALITY
 		//
 		
-		
-		public function APM()
+		public function LoadEnvironmentVariablesProcess()
 		{
-			NativeApplication.nativeApplication.addEventListener( InvokeEvent.INVOKE, invokeHandler );
 		}
 		
 		
-		private function invokeHandler( event:InvokeEvent ):void
+		public function start():void
 		{
-			main( event.arguments );
+			Log.d( TAG, "start()" );
+			
+			dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ))
 		}
-
+		
 		
 	}
 	

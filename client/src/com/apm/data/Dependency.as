@@ -9,24 +9,18 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		18/5/21
+ * @created		31/5/21
  */
-package
+package com.apm.data
 {
-	import com.apm.client.APMCore;
-	import com.apm.client.events.APMEvent;
 	
-	import flash.desktop.NativeApplication;
-	import flash.events.InvokeEvent;
-	
-	
-	public class APM extends APMCore
+	public class Dependency
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "APM";
+		private static const TAG:String = "Dependency";
 		
 		
 		////////////////////////////////////////////////////////
@@ -38,18 +32,25 @@ package
 		//  FUNCTIONALITY
 		//
 		
-		
-		public function APM()
+		public function Dependency()
 		{
-			NativeApplication.nativeApplication.addEventListener( InvokeEvent.INVOKE, invokeHandler );
 		}
 		
 		
-		private function invokeHandler( event:InvokeEvent ):void
+		public function toObject():Object
 		{
-			main( event.arguments );
+			return "com.example.test:1.0";
 		}
-
+		
+		
+		public static function fromObject( data:Object ):Dependency
+		{
+			var dep:Dependency = new Dependency();
+			
+			// TODO::
+			
+			return dep;
+		}
 		
 	}
 	

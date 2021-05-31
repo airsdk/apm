@@ -9,24 +9,23 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		18/5/21
+ * @created		31/5/21
  */
-package
+package com.apm.client.processes.events
 {
-	import com.apm.client.APMCore;
-	import com.apm.client.events.APMEvent;
-	
-	import flash.desktop.NativeApplication;
-	import flash.events.InvokeEvent;
+	import flash.events.Event;
 	
 	
-	public class APM extends APMCore
+	public class ProcessEvent extends Event
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "APM";
+		private static const TAG:String = "ProcessEvent";
+		
+		
+		public static const COMPLETE : String = "process_complete";
 		
 		
 		////////////////////////////////////////////////////////
@@ -39,18 +38,16 @@ package
 		//
 		
 		
-		public function APM()
+		public function ProcessEvent( type:String, bubbles:Boolean = false, cancelable:Boolean = false )
 		{
-			NativeApplication.nativeApplication.addEventListener( InvokeEvent.INVOKE, invokeHandler );
+			super( type, bubbles, cancelable );
 		}
 		
 		
-		private function invokeHandler( event:InvokeEvent ):void
+		override public function clone():Event
 		{
-			main( event.arguments );
+			return super.clone();
 		}
-
 		
 	}
-	
 }

@@ -13,10 +13,16 @@
  */
 package com.apm.client
 {
-	import com.apm.client.commands.HelpCommand;
-	import com.apm.client.commands.InstallCommand;
-	import com.apm.client.commands.SearchCommand;
+	import com.apm.client.commands.Command;
+	import com.apm.client.commands.help.HelpCommand;
+	import com.apm.client.commands.init.InitCommand;
+	import com.apm.client.commands.install.InstallCommand;
+	import com.apm.client.commands.project.ProjectConfigCommand;
+	import com.apm.client.commands.search.SearchCommand;
+	import com.apm.client.config.RunConfig;
+	import com.apm.client.logging.Log;
 	
+	import flash.desktop.NativeApplication;
 	import flash.display.Sprite;
 	
 	
@@ -36,10 +42,13 @@ package com.apm.client
 		//  VARIABLES
 		//
 		
+		private var _instance:APMCore;
 		private var _arguments:Array;
-		private var _workingDir:String;
 		private var _command:Command;
 		
+		private var _config:RunConfig;
+		
+		public function get config():RunConfig { return _config; }
 		
 		
 		////////////////////////////////////////////////////////
@@ -48,13 +57,18 @@ package com.apm.client
 		
 		public function APMCore()
 		{
+			_instance = this;
+			_config = new RunConfig();
+			
 			addCommand( InstallCommand.NAME, InstallCommand );
 			addCommand( SearchCommand.NAME, SearchCommand );
 			addCommand( HelpCommand.NAME, HelpCommand );
+			addCommand( InitCommand.NAME, InitCommand );
+			addCommand( ProjectConfigCommand.NAME, ProjectConfigCommand );
 		}
 		
 		
-		public function main( arguments:Array ):int
+		public function main( arguments:Array ):void
 		{
 			try
 			{
@@ -62,7 +76,7 @@ package com.apm.client
 				if (_arguments.length == 0)
 				{
 					usage();
-					return CODE_ERROR;
+					return exit( CODE_ERROR );
 				}
 				
 				for (var i:int = 0; i < arguments.length; i++)
@@ -72,12 +86,30 @@ package com.apm.client
 					{
 						case "-workingdir":
 						{
-							_workingDir = arguments[ ++i ];
+							_config.workingDir = arguments[ ++i ];
 							break;
 						}
 						
-						case "-k":
+						case "-loglevel":
+						case "-l":
 						{
+							var level:String = arguments[ ++i ];
+							switch (level)
+							{
+								case "v":
+								case "verbose":
+									Log.setLogLevel( Log.LEVEL_VERBOSE );
+									break;
+								
+								case "d":
+								case "debug":
+									Log.setLogLevel( Log.LEVEL_DEBUG );
+									break;
+								
+								default:
+									Log.setLogLevel( Log.LEVEL_NORMAL );
+									break;
+							}
 							break;
 						}
 						
@@ -85,6 +117,12 @@ package com.apm.client
 						{
 							// Check for command
 							var CommandClass:Class = getCommand( arg );
+							if (CommandClass == null && i + 1 < arguments.length)
+							{
+								CommandClass = getCommand( arg + "/" + arguments[ i + 1 ] )
+								if (CommandClass != null) i++;
+							}
+							
 							if (CommandClass != null)
 							{
 								_command = new CommandClass();
@@ -107,38 +145,34 @@ package com.apm.client
 			catch (e:Error)
 			{
 				IO.error( e );
-				return CODE_ERROR;
+				return exit( CODE_ERROR );
 			}
 			
 			
 			if (_command == null)
 			{
 				usage();
-				return CODE_ERROR;
+				return exit( CODE_ERROR );
 			}
-			
 			
 			try
 			{
-				_command.execute( this );
+				_config.loadEnvironment( function ():void {
+					_command.execute( _instance );
+				} );
 			}
 			catch (e:Error)
 			{
 				IO.error( e );
-				return CODE_ERROR;
+				return exit( CODE_ERROR );
 			}
-
-//			var projectFile:File = new File( _workingDir + File.separator + "project.apm" );
-//
-//			var project:ProjectDefinition = new ProjectDefinition()
-//					.load( projectFile );
-//
-//			var projectFileOut:File = new File( _workingDir + File.separator + "project.apm.out" );
-//			project.save( projectFileOut );
 			
-			return CODE_OK;
 		}
 		
+		
+		//
+		//	COMMAND HANDLING
+		//
 		
 		private var _commandMap:Object;
 		
@@ -152,7 +186,7 @@ package com.apm.client
 		
 		private function getCommand( name:String ):Class
 		{
-			if (_commandMap != null && _commandMap.hasOwnProperty( name ))
+			if (_commandMap != null && _commandMap[ name ] != null)
 			{
 				return _commandMap[ name ];
 			}
@@ -160,14 +194,19 @@ package com.apm.client
 		}
 		
 		
+		//
+		//	PROCESS HANDLING
+		//
+		
+		
 		public function usage( usageForCommand:String = null ):void
 		{
-			if (usageForCommand != null && _commandMap.hasOwnProperty(usageForCommand))
+			if (usageForCommand != null && _commandMap.hasOwnProperty( usageForCommand ))
 			{
 				var command:Command = new _commandMap[ usageForCommand ]();
 				if (command != null)
 				{
-					IO.out( "apm " + command.name + "\n" );
+					IO.out( "apm " + command.name.replace( "/", " " ) + "\n" );
 					IO.out( "\n" );
 					IO.out( command.usage );
 					return;
@@ -188,6 +227,18 @@ package com.apm.client
 				IO.out( commandUsage );
 			}
 		}
+		
+		
+		/**
+		 * This is called on the end of the process
+		 *
+		 * @param returnCode	Success or failure of the command
+		 */
+		public function exit( returnCode:int = CODE_OK ):void
+		{
+			NativeApplication.nativeApplication.exit( returnCode );
+		}
+		
 		
 	}
 }

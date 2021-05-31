@@ -9,24 +9,20 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		18/5/21
+ * @created		28/5/21
  */
-package
+package com.apm.client.events
 {
-	import com.apm.client.APMCore;
-	import com.apm.client.events.APMEvent;
-	
-	import flash.desktop.NativeApplication;
-	import flash.events.InvokeEvent;
+	import flash.events.Event;
 	
 	
-	public class APM extends APMCore
+	public class CommandEvent extends Event
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "APM";
+		private static const TAG:String = "CommandEvent";
 		
 		
 		////////////////////////////////////////////////////////
@@ -38,19 +34,16 @@ package
 		//  FUNCTIONALITY
 		//
 		
-		
-		public function APM()
+		public function CommandEvent( type:String, bubbles:Boolean, cancelable:Boolean )
 		{
-			NativeApplication.nativeApplication.addEventListener( InvokeEvent.INVOKE, invokeHandler );
+			super( type, bubbles, cancelable );
 		}
 		
 		
-		private function invokeHandler( event:InvokeEvent ):void
+		override public function clone():Event
 		{
-			main( event.arguments );
+			return new CommandEvent( type, bubbles, cancelable );
 		}
-
 		
 	}
-	
 }

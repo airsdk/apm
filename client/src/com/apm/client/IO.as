@@ -46,9 +46,23 @@ package com.apm.client
 		}
 		
 		
-		public static function input( s:String=null ):String
+		public static function input( s:String = null ):String
 		{
 			return System.input();
+		}
+		
+		
+		public static function question( question:String, defaultResponse:String = null ):String
+		{
+			if (defaultResponse != null)
+				out( question + " [" + defaultResponse + "]: " );
+			else
+				out( question + ": " );
+			
+			var resp:String = input();
+			if (resp.length == 0 && defaultResponse != null)
+				resp = defaultResponse;
+			return resp;
 		}
 		
 		

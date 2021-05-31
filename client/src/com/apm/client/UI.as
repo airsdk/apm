@@ -9,24 +9,18 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		18/5/21
+ * @created		31/5/21
  */
-package
+package com.apm.client
 {
-	import com.apm.client.APMCore;
-	import com.apm.client.events.APMEvent;
 	
-	import flash.desktop.NativeApplication;
-	import flash.events.InvokeEvent;
-	
-	
-	public class APM extends APMCore
+	public class UI
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "APM";
+		private static const TAG:String = "UI";
 		
 		
 		////////////////////////////////////////////////////////
@@ -38,19 +32,9 @@ package
 		//  FUNCTIONALITY
 		//
 		
-		
-		public function APM()
+		public function UI()
 		{
-			NativeApplication.nativeApplication.addEventListener( InvokeEvent.INVOKE, invokeHandler );
 		}
-		
-		
-		private function invokeHandler( event:InvokeEvent ):void
-		{
-			main( event.arguments );
-		}
-
 		
 	}
-	
 }

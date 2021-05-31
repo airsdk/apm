@@ -11,35 +11,37 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		18/5/21
  */
-package com.apm.client.commands
+package com.apm.client.commands.help
 {
 	import com.apm.client.APMCore;
-	import com.apm.client.Command;
+	import com.apm.client.commands.Command;
 	
 	
-	public class SearchCommand implements Command
+	public class HelpCommand implements Command
 	{
 		
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "SearchCommand";
+		private static const TAG:String = "HelpCommand";
 		
 		
-		public static const NAME:String = "search";
+		public static const NAME:String = "help";
 		
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
 		
+		private var _parameters:Array;
+		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function SearchCommand()
+		public function HelpCommand()
 		{
 			super();
 		}
@@ -47,6 +49,7 @@ package com.apm.client.commands
 		
 		public function setParameters( parameters:Array ):void
 		{
+			_parameters = parameters;
 		}
 		
 		
@@ -70,25 +73,31 @@ package com.apm.client.commands
 		
 		public function get description():String
 		{
-			return "search for a dependency in the repository";
+			return "print apm usage information";
 		}
 		
 		
 		public function get usage():String
 		{
-			return  description + "\n" +
+			return description + " \n" +
 					"\n" +
-					"apm search <foo>    search for a dependency called <foo> in the repository\n";
+					"apm help ";
 		}
-		
-		
-		
-		
 		
 		
 		public function execute( core:APMCore ):void
 		{
+			if (_parameters && _parameters.length > 0)
+			{
+				core.usage( _parameters.join("/") );
+			}
+			else
+			{
+				core.usage();
+			}
+			core.exit( APMCore.CODE_OK );
 		}
+		
 		
 	}
 	

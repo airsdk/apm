@@ -11,8 +11,10 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		18/5/21
  */
-package com.apm.client
+package com.apm.client.commands
 {
+	import com.apm.client.*;
+	
 	
 	public interface Command
 	{
@@ -20,22 +22,37 @@ package com.apm.client
 		//  FUNCTIONALITY
 		//
 		
+		/**
+		 * Starts the command execution with the current core configuration
+		 *
+		 * @param core
+		 */
 		function execute( core:APMCore ):void;
-
 		
+		
+		/**
+		 * Sets the command line parameters passed for this command
+		 *
+		 * @param parameters
+		 */
 		function setParameters( parameters:Array ):void;
 		
 		
 		function get name():String;
 		
+		
 		function get category():String;
+		
 		
 		function get requiresNetwork():Boolean;
 		
+		
 		function get description():String;
+		
 		
 		function get usage():String;
 		
 		
 	}
+	
 }
