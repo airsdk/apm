@@ -64,37 +64,29 @@ package com.apm.data
 		
 		public function parse( content:String ):void
 		{
-			try
+			_data = JSON.parse( content );
+			
+			if (_data.hasOwnProperty( "repositories" ))
 			{
-				_data = JSON.parse( content );
-				
-				if (_data.hasOwnProperty( "repositories" ))
+				_repositories = new Vector.<Repository>();
+				for each (var rep:Object in _data.repositories)
 				{
-					_repositories = new Vector.<Repository>();
-					for each (var rep:Object in _data.repositories)
-					{
-						_repositories.push( Repository.fromObject( rep ) );
-					}
+					_repositories.push( Repository.fromObject( rep ) );
 				}
-				
-				if (_data.hasOwnProperty( "dependencies" ))
-				{
-					_dependencies = new Vector.<Dependency>();
-					for each (var dep:Object in _data.dependencies)
-					{
-						_dependencies.push( Dependency.fromObject( dep ) );
-					}
-				}
-				
-				if (_data.hasOwnProperty("configuration"))
-				{
-					_configuration = _data.configuration;
-				}
-				
 			}
-			catch (e:Error)
+			
+			if (_data.hasOwnProperty( "dependencies" ))
 			{
-				IO.out( "Invalid project file - setting to defaults" );
+				_dependencies = new Vector.<Dependency>();
+				for each (var dep:Object in _data.dependencies)
+				{
+					_dependencies.push( Dependency.fromObject( dep ) );
+				}
+			}
+			
+			if (_data.hasOwnProperty("configuration"))
+			{
+				_configuration = _data.configuration;
 			}
 		}
 		

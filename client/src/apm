@@ -1,3 +1,3 @@
 #!/bin/bash
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-adl -cmd "$SCRIPT_DIR/apm.xml" -- -workingdir "`pwd`" $@
+adl -profile extendedDesktop -cmd "$SCRIPT_DIR/apm.xml" -- -workingdir "`pwd`" $@

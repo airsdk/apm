@@ -13,42 +13,44 @@
  */
 package com.apm.client.config.processes
 {
+	import com.apm.client.config.RunConfig;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.Process;
 	import com.apm.client.processes.events.ProcessEvent;
 	
 	import flash.events.EventDispatcher;
-	import flash.utils.setTimeout;
 	
 	
-	public class LoadEnvironmentVariablesProcess extends EventDispatcher implements Process
+	public class LoadWindowsEnvironmentVariablesProcess extends EventDispatcher implements Process
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "LoadEnvironmentVariablesProcess";
+		private static const TAG:String = "LoadWindowsEnvironmentVariablesProcess";
 		
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
 		
+		private var _config:RunConfig;
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function LoadEnvironmentVariablesProcess()
+		public function LoadWindowsEnvironmentVariablesProcess( config:RunConfig )
 		{
+			_config = config;
 		}
 		
 		
 		public function start():void
 		{
 			Log.d( TAG, "start()" );
-			
-			dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ))
+			// TODO
+			dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ) )
 		}
 		
 		

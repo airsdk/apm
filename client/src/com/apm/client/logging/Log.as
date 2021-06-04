@@ -13,7 +13,7 @@
  */
 package com.apm.client.logging
 {
-	import com.apm.client.IO;
+	import com.apm.client.APMCore;
 	
 	
 	public class Log
@@ -26,9 +26,8 @@ package com.apm.client.logging
 		
 		
 		public static const LEVEL_NORMAL:int = 0;
-		public static const LEVEL_DEBUG:int = 1;
-		public static const LEVEL_VERBOSE:int = 2;
-		
+		public static const LEVEL_VERBOSE:int = 1;
+		public static const LEVEL_DEBUG:int = 2;
 		
 		
 		////////////////////////////////////////////////////////
@@ -95,7 +94,7 @@ package com.apm.client.logging
 		public static function setLogLevel( level:int ):void
 		{
 			_logLevel = level;
-			l( TAG, "setLogLevel( " + logLevelDescription(level) + " ) ")
+			d( TAG, "setLogLevel( " + logLevelDescription( level ) + " ) " )
 		}
 		
 		
@@ -129,19 +128,8 @@ package com.apm.client.logging
 		 */
 		public static function l( tag:String, message:String ):void
 		{
-			IO.out( tag + "::" + message + "\n" );
-		}
-		
-		
-		/**
-		 * Debug level logging
-		 * @param tag
-		 * @param message
-		 */
-		public static function d( tag:String, message:String ):void
-		{
-			if (_logLevel >= LEVEL_DEBUG)
-				IO.out( "D::" + tag + "::" + message + "\n" );
+			APMCore.instance.io.writeLine( tag + "::" + message );
+//			trace( tag + "::" + message );
 		}
 		
 		
@@ -153,9 +141,37 @@ package com.apm.client.logging
 		public static function v( tag:String, message:String ):void
 		{
 			if (_logLevel >= LEVEL_VERBOSE)
-				IO.out( "D::" + tag + "::" + message + "\n" );
+			{
+				l( tag, message );
+			}
 		}
 		
+		
+		/**
+		 * Debug level logging
+		 * @param tag
+		 * @param message
+		 */
+		public static function d( tag:String, message:String ):void
+		{
+			if (_logLevel >= LEVEL_DEBUG)
+			{
+//				trace( tag + "::" + message );
+				APMCore.instance.io.writeLine( "D::" + tag + "::" + message );
+			}
+		}
+		
+		
+		/**
+		 * Print error information
+		 * @param tag
+		 * @param error
+		 */
+		public static function e( tag:String, error:Error ):void
+		{
+			// TODO
+			d( tag, error.message );
+		}
 		
 	}
 }

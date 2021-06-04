@@ -101,7 +101,7 @@ package com.apm.client.commands.project
 			{
 				if (core.config.projectDefinition == null)
 				{
-					IO.out( "No project file found, run 'apm init' first" );
+					core.io.out( "No project file found, run 'apm init' first" );
 					return core.exit( APMCore.CODE_ERROR );
 				}
 				
@@ -132,7 +132,7 @@ package com.apm.client.commands.project
 							{
 								var param:String = _parameters[++i];
 								var value:String = core.config.projectDefinition.getConfigurationParam( param );
-								IO.writeLine( param +"=" + (value == null ? "null" : value));
+								core.io.writeLine( param +"=" + (value == null ? "null" : value));
 							}
 							else
 							{
@@ -150,7 +150,7 @@ package com.apm.client.commands.project
 			}
 			catch (e:Error)
 			{
-				IO.error( e );
+				core.io.error( e );
 			}
 		}
 

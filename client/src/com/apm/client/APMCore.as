@@ -18,10 +18,12 @@ package com.apm.client
 	import com.apm.client.commands.general.HelpCommand;
 	import com.apm.client.commands.general.VersionCommand;
 	import com.apm.client.commands.packages.InstallCommand;
+	import com.apm.client.commands.packages.ListCommand;
 	import com.apm.client.commands.packages.SearchCommand;
 	import com.apm.client.commands.project.InitCommand;
 	import com.apm.client.commands.project.ProjectConfigCommand;
 	import com.apm.client.config.RunConfig;
+	import com.apm.client.io.IO;
 	import com.apm.client.logging.Log;
 	
 	import flash.desktop.NativeApplication;
@@ -40,17 +42,20 @@ package com.apm.client
 		public static const CODE_ERROR:int = 1;
 		
 		
+		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
 		
-		private var _instance:APMCore;
 		private var _arguments:Array;
 		private var _command:Command;
 		
 		private var _config:RunConfig;
-		
 		public function get config():RunConfig { return _config; }
+		
+		
+		private var _io:IO;
+		public function get io():IO { if (_io == null) _io = new IO(); return _io; }
 		
 		
 		////////////////////////////////////////////////////////
@@ -60,14 +65,23 @@ package com.apm.client
 		public function APMCore()
 		{
 			_instance = this;
+			
 			_config = new RunConfig();
 			
-			addCommand( InstallCommand.NAME, InstallCommand );
-			addCommand( SearchCommand.NAME, SearchCommand );
+			// general info commands
 			addCommand( HelpCommand.NAME, HelpCommand );
 			addCommand( VersionCommand.NAME, VersionCommand );
+			
+			// project commands
 			addCommand( InitCommand.NAME, InitCommand );
 			addCommand( ProjectConfigCommand.NAME, ProjectConfigCommand );
+			
+			// package commands
+			addCommand( InstallCommand.NAME, InstallCommand );
+			addCommand( SearchCommand.NAME, SearchCommand );
+			addCommand( ListCommand.NAME, ListCommand );
+			
+			
 		}
 		
 		
@@ -97,7 +111,7 @@ package com.apm.client
 						case "-version":
 						{
 							// PRINT VERSION
-							IO.writeLine( new SemVer( Consts.VERSION ).toString() );
+							io.writeLine( new SemVer( Consts.VERSION ).toString() );
 							return exit( CODE_OK );
 						}
 						
@@ -155,7 +169,7 @@ package com.apm.client
 			}
 			catch (e:Error)
 			{
-				IO.error( e );
+				io.error( e );
 				return exit( CODE_ERROR );
 			}
 			
@@ -168,14 +182,37 @@ package com.apm.client
 			
 			try
 			{
-				_config.loadEnvironment( function ():void {
-					_command.execute( _instance );
+				io.showSpinner( "loading environment ... " );
+				_config.loadEnvironment( function ( success:Boolean ):void {
+					io.stopSpinner( success,"loaded environment" );
+					if (success)
+					{
+						processEnvironment();
+						_command.execute( _instance );
+					}
+					else
+					{
+						io.writeLine( "failed to load environment, exiting...")
+						return exit( CODE_ERROR );
+					}
 				} );
 			}
 			catch (e:Error)
 			{
-				IO.error( e );
+				io.error( e );
 				return exit( CODE_ERROR );
+			}
+			
+		}
+		
+		
+		private function processEnvironment():void
+		{
+			if (_config.env.hasOwnProperty("TERM"))
+			{
+				// TODO:: improve this to detect if colour supported
+				var term:String = _config.env["TERM"];
+				io.setColourSupported( term.indexOf("color") >= 0 );
 			}
 			
 		}
@@ -217,25 +254,25 @@ package com.apm.client
 				var command:Command = new _commandMap[ usageForCommand ]();
 				if (command != null)
 				{
-					IO.out( "apm " + command.name.replace( "/", " " ) + "\n" );
-					IO.out( "\n" );
-					IO.out( command.usage );
+					io.writeLine( "apm " + command.name.replace( "/", " " ) );
+					io.writeLine( "" );
+					io.writeLine( command.usage );
 					return;
 				}
 			}
 			
-			IO.out( "apm <command>\n" );
-			IO.out( "\n" );
-			IO.out( "Usage:\n" );
-			IO.out( "\n" );
+			io.writeLine( "apm <command>" );
+			io.writeLine( "" );
+			io.writeLine( "Usage:" );
+			io.writeLine( "" );
 			
 			for (var commandName:String in _commandMap)
 			{
 				var command:Command = new _commandMap[ commandName ]();
 				var commandUsage:String = "apm " + commandName + " ";
 				while (commandUsage.length < 20) commandUsage += " ";
-				commandUsage += command.description + "\n";
-				IO.out( commandUsage );
+				commandUsage += command.description;
+				io.writeLine( commandUsage );
 			}
 		}
 		
@@ -249,6 +286,17 @@ package com.apm.client
 		{
 			NativeApplication.nativeApplication.exit( returnCode );
 		}
+		
+		
+		
+		
+		
+		////////////////////////////////////////////////////////
+		//	SIMPLE SINGLETON REFERENCE
+		//
+		
+		private static var _instance:APMCore;
+		public static function get instance():APMCore { return _instance; }
 		
 		
 	}

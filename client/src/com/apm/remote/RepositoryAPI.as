@@ -11,7 +11,7 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		18/5/21
  */
-package com.apm.api
+package com.apm.remote
 {
 	
 	public class RepositoryAPI

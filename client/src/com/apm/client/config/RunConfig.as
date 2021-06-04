@@ -13,11 +13,15 @@
  */
 package com.apm.client.config
 {
-	import com.apm.client.config.processes.LoadEnvironmentVariablesProcess;
+	import com.apm.client.config.processes.DebugDelayProcess;
+	import com.apm.client.config.processes.LoadMacOSEnvironmentVariablesProcess;
 	import com.apm.client.config.processes.LoadProjectDefinitionProcess;
+	import com.apm.client.config.processes.LoadWindowsEnvironmentVariablesProcess;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.ProjectDefinition;
+	
+	import flash.system.Capabilities;
 	
 	
 	/**
@@ -37,15 +41,17 @@ package com.apm.client.config
 		//  VARIABLES
 		//
 		
-		private var _loadEnvironmentQueue:ProcessQueue;
+		private var _loadQueue:ProcessQueue;
 		
 		
-		//
+		// The current working directory
 		public var workingDir:String;
 		
-		//
-		public var projectDefinition:ProjectDefinition;
+		// The current project definition file
+		public var projectDefinition:ProjectDefinition = null;
 		
+		// Loaded environment variables
+		public var env:Object = {};
 		
 		
 		////////////////////////////////////////////////////////
@@ -67,15 +73,57 @@ package com.apm.client.config
 		{
 			Log.d( TAG, "loadEnvironment()" );
 			
-			_loadEnvironmentQueue = new ProcessQueue();
+			_loadQueue = new ProcessQueue();
 			
-			_loadEnvironmentQueue.addProcess( new LoadEnvironmentVariablesProcess() )
-			_loadEnvironmentQueue.addProcess( new LoadProjectDefinitionProcess( this ) )
+			// Platform specific
+			if (isMacOS)
+			{
+				_loadQueue.addProcess( new LoadMacOSEnvironmentVariablesProcess( this ) );
+			}
+			if (isWindows)
+			{
+				_loadQueue.addProcess( new LoadWindowsEnvironmentVariablesProcess( this ) );
+			}
 			
-			_loadEnvironmentQueue.start( function ():void {
+			
+			// General
+			_loadQueue.addProcess( new LoadProjectDefinitionProcess( this ) );
+			_loadQueue.addProcess( new DebugDelayProcess( 3000 ) );
+			
+			_loadQueue.start( function ():void {
 				if (callback != null)
-					callback();
+					callback( true );
 			} );
+		}
+		
+		
+		//
+		//	UTILITIES
+		//
+		
+		public static function get os():String
+		{
+			if ((Capabilities.os.indexOf( "Windows" ) >= 0))
+			{
+				return "windows";
+			}
+			else if ((Capabilities.os.indexOf( "Mac" ) >= 0))
+			{
+				return "macos";
+			}
+			return "";
+		}
+		
+		
+		public static function get isMacOS():Boolean
+		{
+			return os == "macos";
+		}
+		
+		
+		public static function get isWindows():Boolean
+		{
+			return os == "windows";
 		}
 		
 		

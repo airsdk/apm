@@ -99,25 +99,25 @@ package com.apm.client.commands.project
 			{
 				if (core.config.projectDefinition != null)
 				{
-					IO.out( "Already have a config file \n" );
+					core.io.writeLine( "Already have a config file " );
 					
-					var response:String = IO.question( "Overwrite? Y/n", "n" )
+					var response:String = core.io.question( "Overwrite? Y/n", "n" )
 					if (response.toLowerCase() != "y")
 					{
 						return core.exit( APMCore.CODE_ERROR );
 					}
 				}
 				
-				IO.out( "Creating new project definition file\n" );
+				core.io.writeLine( "Creating new project definition file" );
 				
 				var project:ProjectDefinition = new ProjectDefinition();
 				
 				//
 				//	Walk through any questions
 				
-				project.applicationId = IO.question( "Application Identifier", "com.my.app")
-				project.applicationName = IO.question( "Application Name", "My Application")
-				project.version = IO.question( "Application Consts", "1.0.0" )
+				project.applicationId = core.io.question( "Application Identifier", "com.my.app")
+				project.applicationName = core.io.question( "Application Name", "My Application")
+				project.version = core.io.question( "Application Consts", "1.0.0" )
 	
 				// TODO
 			
@@ -129,7 +129,7 @@ package com.apm.client.commands.project
 			}
 			catch (e:Error)
 			{
-				IO.error( e );
+				core.io.error( e );
 			}
 		}
 

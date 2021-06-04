@@ -17,7 +17,10 @@ package
 	import com.apm.client.events.APMEvent;
 	
 	import flash.desktop.NativeApplication;
+	import flash.desktop.SystemIdleMode;
 	import flash.events.InvokeEvent;
+	import flash.system.System;
+	import flash.utils.setInterval;
 	
 	
 	public class APM extends APMCore
@@ -42,6 +45,10 @@ package
 		public function APM()
 		{
 			NativeApplication.nativeApplication.addEventListener( InvokeEvent.INVOKE, invokeHandler );
+			
+			NativeApplication.nativeApplication.executeInBackground = true;
+			NativeApplication.nativeApplication.systemIdleMode = SystemIdleMode.KEEP_AWAKE;
+			NativeApplication.nativeApplication.idleThreshold = 86400;
 		}
 		
 		
@@ -49,7 +56,7 @@ package
 		{
 			main( event.arguments );
 		}
-
+		
 		
 	}
 	

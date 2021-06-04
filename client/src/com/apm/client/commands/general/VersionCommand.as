@@ -90,7 +90,7 @@ package com.apm.client.commands.general
 		
 		public function execute( core:APMCore ):void
 		{
-			IO.writeLine( "apm: v" + new SemVer( Consts.VERSION ).toString() );
+			core.io.writeLine( "apm: v" + new SemVer( Consts.VERSION ).toString() );
 			core.exit( APMCore.CODE_OK );
 		}
 		

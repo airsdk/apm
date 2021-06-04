@@ -30,7 +30,7 @@ package com.apm.client.config.processes
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "LoadEnvironmentVariablesProcess";
+		private static const TAG:String = "LoadMacOSEnvironmentVariablesProcess";
 		
 		
 		////////////////////////////////////////////////////////
@@ -55,17 +55,23 @@ package com.apm.client.config.processes
 		{
 			Log.d( TAG, "start()" );
 			
-			var f:File = new File( _config.workingDir + File.separator + ProjectDefinition.DEFAULT_FILENAME );
-			if (f.exists)
+			try
 			{
-				Log.d( TAG, "found project file - loading ..." );
-				_config.projectDefinition = new ProjectDefinition();
-				_config.projectDefinition.load( f );
+				var f:File = new File( _config.workingDir + File.separator + ProjectDefinition.DEFAULT_FILENAME );
+				if (f.exists)
+				{
+					Log.d( TAG, "found project file - loading ..." );
+					_config.projectDefinition = new ProjectDefinition();
+					_config.projectDefinition.load( f );
+				}
+			}
+			catch (e:Error)
+			{
+				Log.e( TAG, e );
 			}
 			
 			dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ))
 		}
-		
 		
 	}
 	

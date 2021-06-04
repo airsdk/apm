@@ -18,17 +18,17 @@ package com.apm.client.commands.packages
 	import com.apm.client.commands.Command;
 	
 	
-	public class InstallCommand implements Command
+	public class ListCommand implements Command
 	{
 		
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "InstallCommand";
+		private static const TAG:String = "ListCommand";
 		
 		
-		public static const NAME:String = "install";
+		public static const NAME:String = "list";
 		
 		
 		
@@ -42,7 +42,7 @@ package com.apm.client.commands.packages
 		//  FUNCTIONALITY
 		//
 		
-		public function InstallCommand()
+		public function ListCommand()
 		{
 			super();
 		}
@@ -68,13 +68,13 @@ package com.apm.client.commands.packages
 		
 		public function get requiresNetwork():Boolean
 		{
-			return true;
+			return false;
 		}
 		
 		
 		public function get description():String
 		{
-			return "add and install a dependency to your project";
+			return "lists dependencies currently added to your project";
 		}
 		
 		
@@ -82,8 +82,7 @@ package com.apm.client.commands.packages
 		{
 			return  description + "\n" +
 					"\n" +
-					"apm install          install all the dependencies in your project\n" +
-					"apm install <foo>    install the <foo> dependency to your project\n";
+					"apm list          list all the dependencies in your project\n"
 		}
 		
 		
@@ -91,9 +90,8 @@ package com.apm.client.commands.packages
 		
 		public function execute( core:APMCore ):void
 		{
-			core.io.writeLine( "installing : " +
-									   (_parameters != null && _parameters.length > 0 ? _parameters[0] : "...")
-			);
+			core.io.showSpinner();
+//			core.exit( APMCore.CODE_OK );
 		}
 		
 	}
