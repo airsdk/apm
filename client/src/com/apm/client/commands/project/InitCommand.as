@@ -11,7 +11,7 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		18/5/21
  */
-package com.apm.client.commands.init
+package com.apm.client.commands.project
 {
 	import com.apm.client.APMCore;
 	import com.apm.client.IO;
@@ -117,7 +117,7 @@ package com.apm.client.commands.init
 				
 				project.applicationId = IO.question( "Application Identifier", "com.my.app")
 				project.applicationName = IO.question( "Application Name", "My Application")
-				project.version = IO.question( "Application Version", "1.0.0" )
+				project.version = IO.question( "Application Consts", "1.0.0" )
 	
 				// TODO
 			

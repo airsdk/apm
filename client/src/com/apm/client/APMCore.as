@@ -13,12 +13,14 @@
  */
 package com.apm.client
 {
+	import com.apm.SemVer;
 	import com.apm.client.commands.Command;
-	import com.apm.client.commands.help.HelpCommand;
-	import com.apm.client.commands.init.InitCommand;
-	import com.apm.client.commands.install.InstallCommand;
+	import com.apm.client.commands.general.HelpCommand;
+	import com.apm.client.commands.general.VersionCommand;
+	import com.apm.client.commands.packages.InstallCommand;
+	import com.apm.client.commands.packages.SearchCommand;
+	import com.apm.client.commands.project.InitCommand;
 	import com.apm.client.commands.project.ProjectConfigCommand;
-	import com.apm.client.commands.search.SearchCommand;
 	import com.apm.client.config.RunConfig;
 	import com.apm.client.logging.Log;
 	
@@ -63,6 +65,7 @@ package com.apm.client
 			addCommand( InstallCommand.NAME, InstallCommand );
 			addCommand( SearchCommand.NAME, SearchCommand );
 			addCommand( HelpCommand.NAME, HelpCommand );
+			addCommand( VersionCommand.NAME, VersionCommand );
 			addCommand( InitCommand.NAME, InitCommand );
 			addCommand( ProjectConfigCommand.NAME, ProjectConfigCommand );
 		}
@@ -88,6 +91,14 @@ package com.apm.client
 						{
 							_config.workingDir = arguments[ ++i ];
 							break;
+						}
+						
+						case "-v":
+						case "-version":
+						{
+							// PRINT VERSION
+							IO.writeLine( new SemVer( Consts.VERSION ).toString() );
+							return exit( CODE_OK );
 						}
 						
 						case "-loglevel":

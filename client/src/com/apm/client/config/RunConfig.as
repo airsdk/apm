@@ -40,9 +40,6 @@ package com.apm.client.config
 		private var _loadEnvironmentQueue:ProcessQueue;
 		
 		
-		// Controls the logging output
-		public var logLevel:int = 0;
-		
 		//
 		public var workingDir:String;
 		
@@ -76,7 +73,8 @@ package com.apm.client.config
 			_loadEnvironmentQueue.addProcess( new LoadProjectDefinitionProcess( this ) )
 			
 			_loadEnvironmentQueue.start( function ():void {
-				callback();
+				if (callback != null)
+					callback();
 			} );
 		}
 		

@@ -119,10 +119,10 @@ package com.apm.client.commands.project
 								return core.exit( APMCore.CODE_ERROR );
 							}
 							
-							var param:String = _parameters[++i];
-							var value:String = _parameters[++i];
+							var set_param:String = _parameters[++i];
+							var set_value:String = _parameters[++i];
 							
-							core.config.projectDefinition.setConfigurationParam( param, value );
+							core.config.projectDefinition.setConfigurationParam( set_param, set_value );
 							break;
 						}
 						
@@ -132,7 +132,7 @@ package com.apm.client.commands.project
 							{
 								var param:String = _parameters[++i];
 								var value:String = core.config.projectDefinition.getConfigurationParam( param );
-								IO.out( param +"=" + (value == null ? "null" : value));
+								IO.writeLine( param +"=" + (value == null ? "null" : value));
 							}
 							else
 							{

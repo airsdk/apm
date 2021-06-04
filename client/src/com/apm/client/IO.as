@@ -39,6 +39,12 @@ package com.apm.client
 		}
 		
 		
+		public static function writeLine( s:String ):void
+		{
+			out( s + "\n" );
+		}
+		
+		
 		public static function out( s:String ):void
 		{
 			System.output( s );

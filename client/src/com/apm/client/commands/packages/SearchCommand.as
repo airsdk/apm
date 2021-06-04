@@ -11,38 +11,35 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		18/5/21
  */
-package com.apm.client.commands.install
+package com.apm.client.commands.packages
 {
 	import com.apm.client.APMCore;
-	import com.apm.client.IO;
 	import com.apm.client.commands.Command;
 	
 	
-	public class InstallCommand implements Command
+	public class SearchCommand implements Command
 	{
 		
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "InstallCommand";
+		private static const TAG:String = "SearchCommand";
 		
 		
-		public static const NAME:String = "install";
-		
+		public static const NAME:String = "search";
 		
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
 		
-		private var _parameters:Array;
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function InstallCommand()
+		public function SearchCommand()
 		{
 			super();
 		}
@@ -50,7 +47,6 @@ package com.apm.client.commands.install
 		
 		public function setParameters( parameters:Array ):void
 		{
-			_parameters = parameters;
 		}
 		
 		
@@ -68,13 +64,13 @@ package com.apm.client.commands.install
 		
 		public function get requiresNetwork():Boolean
 		{
-			return false;
+			return true;
 		}
 		
 		
 		public function get description():String
 		{
-			return "add and install a dependency to your project";
+			return "search for a dependency in the repository";
 		}
 		
 		
@@ -82,16 +78,16 @@ package com.apm.client.commands.install
 		{
 			return  description + "\n" +
 					"\n" +
-					"apm install          install all the dependencies in your project\n" +
-					"apm install <foo>    install the <foo> dependency to your project\n";
+					"apm search <foo>    search for a dependency called <foo> in the repository\n";
 		}
+		
+		
 		
 		
 		
 		
 		public function execute( core:APMCore ):void
 		{
-			IO.out( "installing : " + (_parameters.length > 0 ? _parameters[0] : "...") + "\n");
 		}
 		
 	}

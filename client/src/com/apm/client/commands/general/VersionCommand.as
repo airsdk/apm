@@ -11,35 +11,40 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		18/5/21
  */
-package com.apm.client.commands.search
+package com.apm.client.commands.general
 {
+	import com.apm.SemVer;
 	import com.apm.client.APMCore;
+	import com.apm.client.Consts;
+	import com.apm.client.IO;
 	import com.apm.client.commands.Command;
 	
 	
-	public class SearchCommand implements Command
+	public class VersionCommand implements Command
 	{
 		
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "SearchCommand";
+		private static const TAG:String = "VersionCommand";
 		
 		
-		public static const NAME:String = "search";
+		public static const NAME:String = "version";
 		
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
 		
+		private var _parameters:Array;
+		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function SearchCommand()
+		public function VersionCommand()
 		{
 			super();
 		}
@@ -47,6 +52,7 @@ package com.apm.client.commands.search
 		
 		public function setParameters( parameters:Array ):void
 		{
+			_parameters = parameters;
 		}
 		
 		
@@ -64,31 +70,30 @@ package com.apm.client.commands.search
 		
 		public function get requiresNetwork():Boolean
 		{
-			return true;
+			return false;
 		}
 		
 		
 		public function get description():String
 		{
-			return "search for a dependency in the repository";
+			return "print apm version information";
 		}
 		
 		
 		public function get usage():String
 		{
-			return  description + "\n" +
+			return description + " \n" +
 					"\n" +
-					"apm search <foo>    search for a dependency called <foo> in the repository\n";
+					"apm version ";
 		}
-		
-		
-		
-		
 		
 		
 		public function execute( core:APMCore ):void
 		{
+			IO.writeLine( "apm: v" + new SemVer( Consts.VERSION ).toString() );
+			core.exit( APMCore.CODE_OK );
 		}
+		
 		
 	}
 	
