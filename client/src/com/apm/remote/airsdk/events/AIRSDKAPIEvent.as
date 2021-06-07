@@ -9,18 +9,20 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		18/5/21
+ * @created		7/6/21
  */
-package com.apm.remote
+package com.apm.remote.airsdk.events
 {
+	import flash.events.Event;
 	
-	public class RepositoryAPI
+	
+	public class AIRSDKAPIEvent extends Event
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "RepositoryAPI";
+		private static const TAG:String = "AIRSDKAPIEvent";
 		
 		
 		////////////////////////////////////////////////////////
@@ -32,9 +34,24 @@ package com.apm.remote
 		//  FUNCTIONALITY
 		//
 		
-		public function RepositoryAPI()
+		
+		public function AIRSDKAPIEvent( type:String, bubbles:Boolean = false, cancelable:Boolean = false )
 		{
+			super( type, bubbles, cancelable );
 		}
+		
+		
+		override public function clone():Event
+		{
+			return new AIRSDKAPIEvent( type, bubbles, cancelable );
+		}
+		
+		
+		
+		
+		
+		
+		
 		
 	}
 }

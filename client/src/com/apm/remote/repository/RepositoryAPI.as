@@ -9,23 +9,18 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		31/5/21
+ * @created		18/5/21
  */
-package com.apm.client.processes.events
+package com.apm.remote.repository
 {
-	import flash.events.Event;
 	
-	
-	public class ProcessEvent extends Event
+	public class RepositoryAPI
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "ProcessEvent";
-		
-		
-		public static const COMPLETE : String = "process_complete";
+		private static const TAG:String = "RepositoryAPI";
 		
 		
 		////////////////////////////////////////////////////////
@@ -37,18 +32,9 @@ package com.apm.client.processes.events
 		//  FUNCTIONALITY
 		//
 		
-		
-		public function ProcessEvent( type:String, bubbles:Boolean = false, cancelable:Boolean = false )
+		public function RepositoryAPI()
 		{
-			super( type, bubbles, cancelable );
-		}
-		
-		
-		override public function clone():Event
-		{
-			return super.clone();
 		}
 		
 	}
-	
 }

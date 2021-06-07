@@ -54,7 +54,6 @@ package com.apm.client.config.processes
 		public function start():void
 		{
 			Log.d( TAG, "start()" );
-			
 			try
 			{
 				var f:File = new File( _config.workingDir + File.separator + ProjectDefinition.DEFAULT_FILENAME );

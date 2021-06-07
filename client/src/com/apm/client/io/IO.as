@@ -97,14 +97,6 @@ package com.apm.client.io
 		//	UI elements
 		//
 		
-		private var _current:String = "";
-		
-		
-		public function setCurrentLineDisplay( s:String ):void
-		{
-			System.output( s );
-		}
-		
 		
 		// https://askubuntu.com/questions/831971/what-type-of-sequences-are-escape-sequences-starting-with-033
 		// https://stackoverflow.com/questions/2616906/how-do-i-output-coloured-text-to-a-linux-terminal
@@ -114,19 +106,27 @@ package com.apm.client.io
 		public function showSpinner( message:String = "" ):void
 		{
 			_spinnerMessage = message;
-			_spinnerInterval = setInterval( spinner_render, 150 );
+			spinner_render( true );
+			_spinnerInterval = setInterval( spinner_render, 250 );
+		}
+		
+		public function updateSpinner( message:String="" ):void
+		{
+			_spinnerMessage = message;
 		}
 		
 		
-		public function stopSpinner( success:Boolean, message:String="" ):void
+		public function stopSpinner( success:Boolean, message:String = "" ):void
 		{
 			clearInterval( _spinnerInterval );
-
+			
 			System.output( "\x1B[1A\x1B[K" +
 								   (success ? _successChar : _failedChar) +
 								   " " + message );
-			for (var i:int = 0; i < _spinnerMessage.length - message.length; i++) System.output( " " );
-			System.output( "\n\n" );
+			
+			var whitespace:String = "";
+			for (var i:int = 0; i < _spinnerMessage.length - message.length; i++) whitespace += " ";
+			System.output( whitespace + "\n" );
 		}
 		
 		
@@ -135,35 +135,50 @@ package com.apm.client.io
 		private var _spinnerComplete:String = "⣿";
 		private var _successChar:String = "\u2713";
 		private var _failedChar:String = "\u2717";
-//		private var _spinnerSequence:Array = [ "|", "\\", "-", "/" ];
 		private var _spinnerIndex:int = 0;
 		private var _spinnerMessage:String;
 		
-		private function spinner_render():void
+		private function spinner_render( initial:Boolean = false ):void
 		{
 			if (_spinnerIndex >= _spinnerSequence.length) _spinnerIndex = 0;
+			var output:String = "";
+			if (!initial)
+			{
+				output += "\x1B[1A\x1B[K";
+			}
 			if (_colourSupported)
-				System.output( "\x1B[1;31m\x1B[1A\x1B[K" + _spinnerSequence[ _spinnerIndex++ ] + " \x1B[0;37m" + _spinnerMessage + "\n" );
+			{
+				output += "\x1B[1;31m" + _spinnerSequence[ _spinnerIndex++ ] + " \x1B[0;37m" + _spinnerMessage + "\n";
+			}
 			else
-				System.output( "\x1B[1A\x1B[K" + _spinnerSequence[ _spinnerIndex++ ] + " " + _spinnerMessage + "\n" );
+			{
+				output += _spinnerSequence[ _spinnerIndex++ ] + " " + _spinnerMessage + "\n";
+			}
+			System.output( output );
 		}
 		
 		
+		//
+		//	PROGRESS BAR
+		//
 		
 		
 		public function showProgressBar( message:String = "" ):void
 		{
-		
+			System.output( message + "\n" );
 		}
 		
-		public function updateProgressBar( progress:Number, message:String="" ):void
-		{
 		
+		public function updateProgressBar( progress:Number, message:String = "" ):void
+		{
+			var percent:int = int(Math.floor(progress * 100));
+			System.output( "\x1B[1A\x1B[K" + percent + "% " + message + "\n" );
 		}
 		
-		public function completeProgressBar( success:Boolean, message:String="" ):void
-		{
 		
+		public function completeProgressBar( success:Boolean, message:String = "" ):void
+		{
+			System.output( "\x1B[1A\x1B[K" + (success ? _successChar : _failedChar) + " " + message + "\n" );
 		}
 		
 		

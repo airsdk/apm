@@ -88,7 +88,7 @@ package com.apm.client.config
 			
 			// General
 			_loadQueue.addProcess( new LoadProjectDefinitionProcess( this ) );
-			_loadQueue.addProcess( new DebugDelayProcess( 3000 ) );
+//			_loadQueue.addProcess( new DebugDelayProcess( 3000 ) );
 			
 			_loadQueue.start( function ():void {
 				if (callback != null)
@@ -115,13 +115,13 @@ package com.apm.client.config
 		}
 		
 		
-		public static function get isMacOS():Boolean
+		public function get isMacOS():Boolean
 		{
 			return os == "macos";
 		}
 		
 		
-		public static function get isWindows():Boolean
+		public function get isWindows():Boolean
 		{
 			return os == "windows";
 		}

@@ -11,12 +11,14 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		28/5/21
  */
-package com.apm.client.config.processes
+package com.apm.client.commands.airsdk.processes
 {
+	import com.apm.client.APMCore;
 	import com.apm.client.config.RunConfig;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.Process;
 	import com.apm.client.processes.events.ProcessEvent;
+	import com.apm.remote.airsdk.AIRSDKBuild;
 	
 	import flash.desktop.NativeProcess;
 	import flash.desktop.NativeProcessStartupInfo;
@@ -27,13 +29,13 @@ package com.apm.client.config.processes
 	import flash.filesystem.File;
 	
 	
-	public class LoadMacOSEnvironmentVariablesProcess extends EventDispatcher implements Process
+	public class ExtractAIRSDKMacOSProcess extends EventDispatcher implements Process
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "LoadMacOSEnvironmentVariablesProcess";
+		private static const TAG:String = "ExtractAIRSDKMacOSProcess";
 		
 		
 		////////////////////////////////////////////////////////
@@ -42,17 +44,22 @@ package com.apm.client.config.processes
 		
 		private var _process:NativeProcess;
 		
-		private var _environmentVariables:Object;
-		private var _config:RunConfig;
+		private var _core:APMCore;
+		private var _build:AIRSDKBuild;
+		private var _source:File;
+		private var _installPath:String;
+		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function LoadMacOSEnvironmentVariablesProcess( config:RunConfig )
+		public function ExtractAIRSDKMacOSProcess( core:APMCore, build:AIRSDKBuild, source:File, installPath:String )
 		{
-			_environmentVariables = {};
-			_config = config;
+			_core = core;
+			_build = build;
+			_source = source;
+			_installPath = installPath;
 		}
 		
 		
@@ -61,18 +68,23 @@ package com.apm.client.config.processes
 			Log.d( TAG, "start()" );
 			if (NativeProcess.isSupported)
 			{
-				var processStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
-				processStartupInfo.executable = new File( "/usr/bin/env" );
+				var processArgs:Vector.<String> = new Vector.<String>();
+				processArgs.push( "-o" );
+				processArgs.push( "-d" );
+				processArgs.push( _installPath );
+				processArgs.push( _source.nativePath );
 
-//				var processArgs:Vector.<String> = new Vector.<String>();
-//				processArgs[0] = "the parameter you are passing";
-//				processStartupInfo.arguments = processArgs;
-				
+				var processStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
+				processStartupInfo.executable = new File( "/usr/bin/unzip" );
+				processStartupInfo.arguments = processArgs;
+
 				if (!processStartupInfo.executable.exists)
 				{
 					// Error?
 					dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ) );
 				}
+				
+				_core.io.showSpinner( "Extracting AIR SDK" );
 				
 				_process = new NativeProcess();
 				_process.addEventListener( NativeProcessExitEvent.EXIT, onExit );
@@ -93,8 +105,12 @@ package com.apm.client.config.processes
 		
 		private function onOutputData( event:ProgressEvent ):void
 		{
-			var data:String = _process.standardOutput.readUTFBytes( _process.standardOutput.bytesAvailable );
-			processEnvironmentVariables( data );
+			var data:String = _process.standardOutput.readUTFBytes( _process.standardOutput.bytesAvailable )
+					.replace("\n", "" )
+					.replace("\r", "" )
+					.replace("\t", "" );
+
+			_core.io.updateSpinner( "Extracting AIR SDK : " + data );
 		}
 		
 		
@@ -107,12 +123,7 @@ package com.apm.client.config.processes
 		private function onExit( event:NativeProcessExitEvent ):void
 		{
 			Log.d( TAG, "Process exited with: " + event.exitCode );
-			
-			for (var key:String in _environmentVariables)
-			{
-				_config.env[key] = _environmentVariables[key];
-			}
-			
+			_core.io.stopSpinner( event.exitCode == 0, "Extracted AIR SDK" );
 			dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ) );
 		}
 		
@@ -123,22 +134,7 @@ package com.apm.client.config.processes
 		}
 		
 		
-		//
-		//
-		//
 		
-		private function processEnvironmentVariables( data:String ):void
-		{
-			var lines:Array = data.replace("\r", "" ).split("\n" );
-			for each (var line:String in lines)
-			{
-				var envVar:Array = line.split("=");
-				if (envVar.length == 2)
-				{
-					_environmentVariables[envVar[0]] = envVar[1];
-				}
-			}
-		}
 		
 	}
 	
