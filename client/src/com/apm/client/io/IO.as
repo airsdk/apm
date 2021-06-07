@@ -107,6 +107,8 @@ package com.apm.client.io
 		
 		
 		// https://askubuntu.com/questions/831971/what-type-of-sequences-are-escape-sequences-starting-with-033
+		// https://stackoverflow.com/questions/2616906/how-do-i-output-coloured-text-to-a-linux-terminal
+		// https://github.com/sindresorhus/cli-spinners/blob/HEAD/spinners.json
 		
 		
 		public function showSpinner( message:String = "" ):void
@@ -130,7 +132,6 @@ package com.apm.client.io
 		
 		private var _spinnerInterval:int;
 		private var _spinnerSequence:Array = ["⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"];
-		
 		private var _spinnerComplete:String = "⣿";
 		private var _successChar:String = "\u2713";
 		private var _failedChar:String = "\u2717";
@@ -145,6 +146,24 @@ package com.apm.client.io
 				System.output( "\x1B[1;31m\x1B[1A\x1B[K" + _spinnerSequence[ _spinnerIndex++ ] + " \x1B[0;37m" + _spinnerMessage + "\n" );
 			else
 				System.output( "\x1B[1A\x1B[K" + _spinnerSequence[ _spinnerIndex++ ] + " " + _spinnerMessage + "\n" );
+		}
+		
+		
+		
+		
+		public function showProgressBar( message:String = "" ):void
+		{
+		
+		}
+		
+		public function updateProgressBar( progress:Number, message:String="" ):void
+		{
+		
+		}
+		
+		public function completeProgressBar( success:Boolean, message:String="" ):void
+		{
+		
 		}
 		
 		

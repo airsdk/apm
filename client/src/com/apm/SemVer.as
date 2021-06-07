@@ -22,16 +22,14 @@ package com.apm
 		
 		private static const TAG:String = "SemVer";
 		
-//		public static const DEFAULT:SemVer = new SemVer( "0.0.0" );
+		public static const DEFAULT:SemVer = new SemVer( "0.0.0" );
 		
 		private var FORMAT:RegExp = /^(\d|[1-9]\d*)\.(\d|[1-9]\d*)\.(\d|[1-9]\d*)(-(alpha|beta|rc)(\.(\d|[1-9]\d*))?)?$/;
-//		private var FORMAT:RegExp = /^(\d|[1-9]\d*)\.(\d|[1-9]\d*)\.(\d|[1-9]\d*)?/;
 		
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
-		
 		
 		private var _major:int = 0;
 		private var _minor:int = 0;
