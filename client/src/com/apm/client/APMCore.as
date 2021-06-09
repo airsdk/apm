@@ -84,7 +84,6 @@ package com.apm.client
 			addCommand( SearchCommand.NAME, SearchCommand );
 			addCommand( ListCommand.NAME, ListCommand );
 			
-			
 			// air sdk commands
 			addCommand( AIRSDKListCommand.NAME, AIRSDKListCommand );
 			addCommand( AIRSDKInfoCommand.NAME, AIRSDKInfoCommand );
@@ -192,7 +191,7 @@ package com.apm.client
 			{
 				io.showSpinner( "loading environment ... " );
 				_config.loadEnvironment( function ( success:Boolean ):void {
-					io.stopSpinner( success,"loaded environment" );
+					io.stopSpinner( success,"loaded environment", true );
 					if (success)
 					{
 						processEnvironment();
@@ -231,12 +230,15 @@ package com.apm.client
 		//
 		
 		private var _commandMap:Object;
-		
+		private var _commandOrder:Array;
 		
 		private function addCommand( name:String, commandClass:Class ):void
 		{
 			if (_commandMap == null) _commandMap = {};
+			if (_commandOrder == null) _commandOrder = [];
+			
 			_commandMap[ name ] = commandClass;
+			_commandOrder.push( name );
 		}
 		
 		
@@ -248,6 +250,7 @@ package com.apm.client
 			}
 			return null;
 		}
+		
 		
 		
 		//
@@ -274,10 +277,10 @@ package com.apm.client
 			io.writeLine( "Usage:" );
 			io.writeLine( "" );
 			
-			for (var commandName:String in _commandMap)
+			for each (var commandName:String in _commandOrder)
 			{
 				var command:Command = new _commandMap[ commandName ]();
-				var commandUsage:String = "apm " + commandName + " ";
+				var commandUsage:String = "apm " + commandName.replace( "/", " " ) + " ";
 				while (commandUsage.length < 20) commandUsage += " ";
 				commandUsage += command.description;
 				io.writeLine( commandUsage );

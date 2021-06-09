@@ -116,17 +116,24 @@ package com.apm.client.io
 		}
 		
 		
-		public function stopSpinner( success:Boolean, message:String = "" ):void
+		public function stopSpinner( success:Boolean, message:String = "", removeSpinner:Boolean=false ):void
 		{
 			clearInterval( _spinnerInterval );
 			
-			System.output( "\x1B[1A\x1B[K" +
-								   (success ? _successChar : _failedChar) +
-								   " " + message );
-			
-			var whitespace:String = "";
-			for (var i:int = 0; i < _spinnerMessage.length - message.length; i++) whitespace += " ";
-			System.output( whitespace + "\n" );
+			if (removeSpinner)
+			{
+				System.output( "\x1B[1A\x1B[K \n\x1B[1A" );
+			}
+			else
+			{
+				System.output( "\x1B[1A\x1B[K" +
+									   (success ? _successChar : _failedChar) +
+									   " " + message );
+				
+				var whitespace:String = "";
+				for (var i:int = 0; i < _spinnerMessage.length - message.length; i++) whitespace += " ";
+				System.output( whitespace + "\n" );
+			}
 		}
 		
 		

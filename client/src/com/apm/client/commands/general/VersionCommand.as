@@ -84,7 +84,8 @@ package com.apm.client.commands.general
 		{
 			return description + " \n" +
 					"\n" +
-					"apm version ";
+					"apm -v          print the basic apm version number \n" +
+					"apm version     print the version information about apm";
 		}
 		
 		

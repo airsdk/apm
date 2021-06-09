@@ -88,7 +88,7 @@ package com.apm.client.config
 			
 			// General
 			_loadQueue.addProcess( new LoadProjectDefinitionProcess( this ) );
-//			_loadQueue.addProcess( new DebugDelayProcess( 3000 ) );
+			_loadQueue.addProcess( new DebugDelayProcess( 3000 ) );
 			
 			_loadQueue.start( function ():void {
 				if (callback != null)
