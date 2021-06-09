@@ -70,26 +70,31 @@ package com.apm.remote.repository
 			_requestQueue.add( req, "search", function ( success:Boolean, data:* ):void {
 				
 				var packages:Vector.<PackageDefinition> = new Vector.<PackageDefinition>();
-				
-				if (success)
+				try
 				{
-					var packagesArray:Array = JSON.parse(String(data)) as Array;
-					for each (var packageObject:Object in packagesArray)
+					if (success)
 					{
-						packages.push( new PackageDefinition().fromObject( packageObject ) );
+						var packagesArray:Array = JSON.parse( String( data ) ) as Array;
+						for each (var packageObject:Object in packagesArray)
+						{
+							packages.push( new PackageDefinition().fromObject( packageObject ) );
+						}
 					}
+				}
+				catch (e:Error)
+				{
+					success = false;
 				}
 				
 				if (callback != null)
 				{
 					callback( success, packages );
 				}
-			
 			} );
 		}
 		
 		
-		public function getPackage( identifier:String, callback:Function=null):void
+		public function getPackage( identifier:String, callback:Function = null ):void
 		{
 			var req:URLRequest = new URLRequest();
 			req.method = URLRequestMethod.GET;
@@ -115,11 +120,8 @@ package com.apm.remote.repository
 				{
 					callback( success, packageDefinition );
 				}
-				
 			} );
 		}
-		
-		
 		
 		
 	}
