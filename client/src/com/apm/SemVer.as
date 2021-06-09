@@ -22,9 +22,9 @@ package com.apm
 		
 		private static const TAG:String = "SemVer";
 		
-		public static const DEFAULT:SemVer = new SemVer( "0.0.0" );
+//		public static const DEFAULT:SemVer = new SemVer( "0.0.0" );
 		
-		private var FORMAT:RegExp = /^(\d|[1-9]\d*)\.(\d|[1-9]\d*)\.(\d|[1-9]\d*)(-(alpha|beta|rc)(\.(\d|[1-9]\d*))?)?$/;
+		private var FORMAT:RegExp = /^(\d|[1-9]\d*)\.(\d|[1-9]\d*)(\.(\d|[1-9]\d*))?(-(alpha|beta|rc)(\.(\d|[1-9]\d*))?)?$/;
 		
 		
 		////////////////////////////////////////////////////////
@@ -55,13 +55,13 @@ package com.apm
 					case 2:
 						_minor = results[ i ];
 						break;
-					case 3:
-						_patch = results[ i ];
+					case 4:
+						if (results[i] != undefined) _patch = results[ i ];
 						break;
-					case 5:
+					case 6:
 						if (results[i] != undefined) _preview = results[ i ];
 						break;
-					case 7:
+					case 8:
 						if (results[i] != undefined) _previewNum = results[ i ];
 						break;
 				}

@@ -14,8 +14,9 @@
 package com.apm.client.commands.packages
 {
 	import com.apm.client.APMCore;
-	import com.apm.client.IO;
 	import com.apm.client.commands.Command;
+	import com.apm.data.Dependency;
+	import com.apm.data.ProjectDefinition;
 	
 	
 	public class ListCommand implements Command
@@ -29,7 +30,6 @@ package com.apm.client.commands.packages
 		
 		
 		public static const NAME:String = "list";
-		
 		
 		
 		////////////////////////////////////////////////////////
@@ -80,18 +80,36 @@ package com.apm.client.commands.packages
 		
 		public function get usage():String
 		{
-			return  description + "\n" +
+			return description + "\n" +
 					"\n" +
 					"apm list          list all the dependencies in your project\n"
 		}
 		
 		
-		
-		
 		public function execute( core:APMCore ):void
 		{
-			core.io.showSpinner();
-//			core.exit( APMCore.CODE_OK );
+			var project:ProjectDefinition = core.config.projectDefinition;
+			if (project == null)
+			{
+				core.io.writeLine( "ERROR: project definition not found" );
+				return core.exit( APMCore.CODE_ERROR );
+			}
+			
+			core.io.writeLine( project.applicationName + "@" + project.version + " " + core.config.workingDir + "" );
+			if (project.dependencies.length == 0)
+			{
+				core.io.writeLine( "└── (empty)" );
+			}
+			else
+			{
+				for (var i:int = 0; i < project.dependencies.length; i++)
+				{
+					core.io.writeLine(
+							(i == project.dependencies.length - 1 ? "└──" : "├──")+
+							project.dependencies[i].toString() );
+				}
+			}
+			return core.exit( APMCore.CODE_OK );
 		}
 		
 	}
