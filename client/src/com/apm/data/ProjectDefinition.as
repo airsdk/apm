@@ -44,7 +44,7 @@ package com.apm.data
 		private var _sourceFile:File;
 		
 		private var _repositories:Vector.<Repository>;
-		private var _dependencies:Vector.<Dependency>;
+		private var _dependencies:Vector.<ProjectDependency>;
 		private var _configuration:Object;
 		
 		
@@ -57,7 +57,7 @@ package com.apm.data
 			_data = {};
 			
 			_repositories = new Vector.<Repository>();
-			_dependencies = new Vector.<Dependency>();
+			_dependencies = new Vector.<ProjectDependency>();
 			_configuration = {};
 		}
 		
@@ -77,10 +77,10 @@ package com.apm.data
 			
 			if (_data.hasOwnProperty( "dependencies" ))
 			{
-				_dependencies = new Vector.<Dependency>();
+				_dependencies = new Vector.<ProjectDependency>();
 				for each (var dep:Object in _data.dependencies)
 				{
-					_dependencies.push( Dependency.fromObject( dep ) );
+					_dependencies.push( ProjectDependency.fromObject( dep ) );
 				}
 			}
 			
@@ -101,7 +101,7 @@ package com.apm.data
 		{
 			var data:Object = {};
 			
-			data[ "id" ] = applicationId;
+			data[ "identifier" ] = applicationId;
 			data[ "name" ] = applicationName;
 			data[ "version" ] = version;
 			
@@ -113,7 +113,7 @@ package com.apm.data
 			data[ "repositories" ] = repos;
 			
 			var deps:Array = [];
-			for each (var dep:Dependency in _dependencies)
+			for each (var dep:ProjectDependency in _dependencies)
 			{
 				deps.push( dep.toObject() );
 			}
@@ -131,8 +131,8 @@ package com.apm.data
 		//	OPTIONS
 		//
 		
-		public function get applicationId():String { return _data[ "id" ]; }
-		public function set applicationId( value:String ):void { _data[ "id" ] = value; }
+		public function get applicationId():String { return _data[ "identifier" ]; }
+		public function set applicationId( value:String ):void { _data[ "identifier" ] = value; }
 		
 		
 		public function get applicationName():String { return _data[ "name" ]; }
@@ -145,7 +145,7 @@ package com.apm.data
 		
 		public function get repositories():Vector.<Repository> { return _repositories; }
 		
-		public function get dependencies():Vector.<Dependency> { return _dependencies; }
+		public function get dependencies():Vector.<ProjectDependency> { return _dependencies; }
 		
 		public function get configuration():Object { return _configuration; }
 		

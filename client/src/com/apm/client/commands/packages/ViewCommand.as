@@ -15,36 +15,39 @@ package com.apm.client.commands.packages
 {
 	import com.apm.client.APMCore;
 	import com.apm.client.commands.Command;
-	import com.apm.data.ProjectDependency;
-	import com.apm.data.ProjectDefinition;
+	import com.apm.data.PackageDefinition;
+	import com.apm.remote.repository.RepositoryAPI;
 	
 	
-	public class ListCommand implements Command
+	public class ViewCommand implements Command
 	{
 		
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "ListCommand";
+		private static const TAG:String = "ViewCommand";
 		
 		
-		public static const NAME:String = "list";
+		public static const NAME:String = "view";
 		
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
 		
+		private var _repositoryAPI:RepositoryAPI;
 		private var _parameters:Array;
+		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function ListCommand()
+		public function ViewCommand()
 		{
 			super();
+			_repositoryAPI = new RepositoryAPI();
 		}
 		
 		
@@ -68,48 +71,46 @@ package com.apm.client.commands.packages
 		
 		public function get requiresNetwork():Boolean
 		{
-			return false;
+			return true;
 		}
 		
 		
 		public function get description():String
 		{
-			return "lists dependencies currently added to your project";
+			return "search for a dependency in the repository";
 		}
 		
 		
 		public function get usage():String
 		{
-			return description + "\n" +
+			return  description + "\n" +
 					"\n" +
-					"apm list          list all the dependencies in your project\n"
+					"apm search <foo>    search for a dependency called <foo> in the repository\n";
 		}
+		
+		
 		
 		
 		public function execute( core:APMCore ):void
 		{
-			var project:ProjectDefinition = core.config.projectDefinition;
-			if (project == null)
+			if (_parameters == null && _parameters.length == 0)
 			{
-				core.io.writeLine( "ERROR: project definition not found" );
+				core.io.writeLine( "No search params provided" );
 				return core.exit( APMCore.CODE_ERROR );
 			}
 			
-			core.io.writeLine( project.applicationName + "@" + project.version + " " + core.config.workingDir + "" );
-			if (project.dependencies.length == 0)
-			{
-				core.io.writeLine( "└── (empty)" );
-			}
-			else
-			{
-				for (var i:int = 0; i < project.dependencies.length; i++)
+			var identifier:String = _parameters[0];
+			core.io.showSpinner( "Finding package : " + identifier );
+			
+			_repositoryAPI.getPackage( identifier, function( success:Boolean, packageDefinition:PackageDefinition ):void {
+				core.io.stopSpinner( success, "No package found matching : " + identifier, success );
+				if (success)
 				{
-					core.io.writeLine(
-							(i == project.dependencies.length - 1 ? "└──" : "├──")+
-							project.dependencies[i].toString() );
+					core.io.writeLine( packageDefinition.toString() );
+					// TODO detail output
 				}
-			}
-			return core.exit( APMCore.CODE_OK );
+				core.exit( APMCore.CODE_OK );
+			});
 		}
 		
 	}

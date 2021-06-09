@@ -15,6 +15,8 @@ package com.apm.client.commands.packages
 {
 	import com.apm.client.APMCore;
 	import com.apm.client.commands.Command;
+	import com.apm.data.PackageDefinition;
+	import com.apm.remote.repository.RepositoryAPI;
 	
 	
 	public class SearchCommand implements Command
@@ -34,6 +36,9 @@ package com.apm.client.commands.packages
 		//  VARIABLES
 		//
 		
+		private var _repositoryAPI:RepositoryAPI;
+		private var _parameters:Array;
+		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
@@ -42,11 +47,13 @@ package com.apm.client.commands.packages
 		public function SearchCommand()
 		{
 			super();
+			_repositoryAPI = new RepositoryAPI();
 		}
 		
 		
 		public function setParameters( parameters:Array ):void
 		{
+			_parameters = parameters;
 		}
 		
 		
@@ -84,10 +91,38 @@ package com.apm.client.commands.packages
 		
 		
 		
-		
-		
 		public function execute( core:APMCore ):void
 		{
+			if (_parameters == null && _parameters.length == 0)
+			{
+				core.io.writeLine( "No search params provided" );
+				return core.exit( APMCore.CODE_ERROR );
+			}
+			
+			var query:String = _parameters.join(" " );
+			core.io.showSpinner( "Searching packages for : " + query );
+			
+			_repositoryAPI.search( query, function( success:Boolean, packages:Vector.<PackageDefinition> ):void {
+				core.io.stopSpinner( success, "Search complete" );
+				
+				core.io.writeLine( "found [" + packages.length + "] matching package(s) for search '" + query + "'")
+				if (packages.length > 0)
+				{
+					for (var i:int = 0; i < packages.length; i++)
+					{
+						core.io.writeLine(
+								(i == packages.length - 1 ? "└──" : "├──")+
+								packages[i].toString()
+						);
+					}
+				}
+//				else
+//				{
+//					core.io.writeLine( "└── no matching packages found" );
+//				}
+
+				core.exit( APMCore.CODE_OK );
+			});
 		}
 		
 	}

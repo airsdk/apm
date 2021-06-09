@@ -85,7 +85,7 @@ package com.apm.remote.airsdk
 		}
 		
 		
-		private function processReleases( data:String ):Array
+		private static function processReleases( data:String ):Array
 		{
 			var releases:Array = [];
 			try

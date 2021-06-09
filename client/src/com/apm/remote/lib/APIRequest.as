@@ -141,7 +141,7 @@ package com.apm.remote.lib
 		
 		private function loader_completeHandler( event:Event ):void
 		{
-			_success = true;
+			_success = (_status == 200);
 			_data = _loader.data;
 			dispatchEvent( new APIRequestEvent( APIRequestEvent.COMPLETE, this, _data ));
 		}

@@ -16,20 +16,20 @@ package com.apm.data
 	import com.apm.SemVer;
 	
 	
-	public class Dependency
+	public class ProjectDependency
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "Dependency";
+		private static const TAG:String = "ProjectDependency";
 		
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
 		
-		public var id:String;
+		public var identifier:String;
 		public var version:SemVer;
 		
 		private var _singleLineOutput:Boolean = false;
@@ -39,14 +39,14 @@ package com.apm.data
 		//  FUNCTIONALITY
 		//
 		
-		public function Dependency()
+		public function ProjectDependency()
 		{
 		}
 		
 		
 		public function toString():String
 		{
-			return id + "@" + version.toString()
+			return identifier + "@" + version.toString()
 		}
 		
 		
@@ -54,33 +54,33 @@ package com.apm.data
 		{
 			if (_singleLineOutput)
 			{
-				return id + ":" + version.toString();
+				return identifier + ":" + version.toString();
 			}
 			else
 			{
 				return {
-					id:      id,
+					id:      identifier,
 					version: version.toString()
 				};
 			}
 		}
 		
 		
-		public static function fromObject( data:Object ):Dependency
+		public static function fromObject( data:Object ):ProjectDependency
 		{
-			var dep:Dependency = new Dependency();
+			var dep:ProjectDependency = new ProjectDependency();
 			if (data != null)
 			{
 				if (data instanceof String)
 				{
 					// single line format com.package.example:1.0.0
 					dep._singleLineOutput = true;
-					dep.id = data.substring( 0, String( data ).indexOf( ":" ) );
+					dep.identifier = data.substring( 0, String( data ).indexOf( ":" ) );
 					dep.version = SemVer.fromString( String( data ).substring( data.indexOf( ":" ) + 1 ) );
 				}
 				else
 				{
-					if (data.hasOwnProperty( "id" )) dep.id = data[ "id" ];
+					if (data.hasOwnProperty( "id" )) dep.identifier = data[ "id" ];
 					if (data.hasOwnProperty( "version" )) dep.version = SemVer.fromString( data[ "version" ] );
 				}
 			}

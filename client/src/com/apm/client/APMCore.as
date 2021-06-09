@@ -23,6 +23,7 @@ package com.apm.client
 	import com.apm.client.commands.packages.InstallCommand;
 	import com.apm.client.commands.packages.ListCommand;
 	import com.apm.client.commands.packages.SearchCommand;
+	import com.apm.client.commands.packages.ViewCommand;
 	import com.apm.client.commands.project.InitCommand;
 	import com.apm.client.commands.project.ProjectConfigCommand;
 	import com.apm.client.config.RunConfig;
@@ -80,9 +81,10 @@ package com.apm.client
 			addCommand( ProjectConfigCommand.NAME, ProjectConfigCommand );
 			
 			// package commands
-			addCommand( InstallCommand.NAME, InstallCommand );
-			addCommand( SearchCommand.NAME, SearchCommand );
 			addCommand( ListCommand.NAME, ListCommand );
+			addCommand( SearchCommand.NAME, SearchCommand );
+			addCommand( ViewCommand.NAME, ViewCommand );
+			addCommand( InstallCommand.NAME, InstallCommand );
 			
 			// air sdk commands
 			addCommand( AIRSDKListCommand.NAME, AIRSDKListCommand );

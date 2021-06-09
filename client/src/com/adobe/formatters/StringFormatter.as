@@ -42,7 +42,7 @@ public class StringFormatter
 	 *  @param extractTokenFunc The token 
 	 *  accessor method to call when formatting for display.
 	 *  The method signature is
-	 *  value: anything, tokenInfo: {token: id, begin: start, end: finish}.
+	 *  value: anything, tokenInfo: {token: identifier, begin: start, end: finish}.
 	 *  This method must return a String representation of value
 	 *  for the specified <code>tokenInfo</code>.
 	 */
