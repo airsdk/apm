@@ -17,6 +17,7 @@ package com.apm.client.commands.airsdk.processes
 	import com.apm.client.config.RunConfig;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.Process;
+	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.events.ProcessEvent;
 	import com.apm.remote.airsdk.AIRSDKBuild;
 	
@@ -29,7 +30,7 @@ package com.apm.client.commands.airsdk.processes
 	import flash.filesystem.File;
 	
 	
-	public class ExtractAIRSDKMacOSProcess extends EventDispatcher implements Process
+	public class ExtractAIRSDKMacOSProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
@@ -63,7 +64,7 @@ package com.apm.client.commands.airsdk.processes
 		}
 		
 		
-		public function start():void
+		override public function start():void
 		{
 			Log.d( TAG, "start()" );
 			if (NativeProcess.isSupported)

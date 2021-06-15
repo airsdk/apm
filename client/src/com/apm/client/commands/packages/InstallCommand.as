@@ -14,8 +14,10 @@
 package com.apm.client.commands.packages
 {
 	import com.apm.client.APMCore;
-	import com.apm.client.IO;
 	import com.apm.client.commands.Command;
+	import com.apm.client.commands.packages.processes.InstallPackageProcess;
+	import com.apm.client.processes.ProcessQueue;
+	import com.apm.data.ProjectDefinition;
 	
 	
 	public class InstallCommand implements Command
@@ -31,12 +33,13 @@ package com.apm.client.commands.packages
 		public static const NAME:String = "install";
 		
 		
-		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
 		
 		private var _parameters:Array;
+		private var _queue:ProcessQueue;
+		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
@@ -45,6 +48,7 @@ package com.apm.client.commands.packages
 		public function InstallCommand()
 		{
 			super();
+			_queue = new ProcessQueue();
 		}
 		
 		
@@ -80,20 +84,61 @@ package com.apm.client.commands.packages
 		
 		public function get usage():String
 		{
-			return  description + "\n" +
+			return description + "\n" +
 					"\n" +
-					"apm install          install all the dependencies in your project\n" +
-					"apm install <foo>    install the <foo> dependency to your project\n";
+					"apm install                   install all the dependencies in your project\n" +
+					"apm install <foo>             install the <foo> dependency to your project\n" +
+					"apm install <foo> <version>   install a specific <version> of the <foo> dependency to your project\n";
 		}
-		
-		
 		
 		
 		public function execute( core:APMCore ):void
 		{
-			core.io.writeLine( "installing : " +
-									   (_parameters != null && _parameters.length > 0 ? _parameters[0] : "...")
-			);
+//			core.io.writeLine( "installing : " +
+//									   (_parameters != null && _parameters.length > 0 ? _parameters[0] : "...")
+//			);
+			
+			var project:ProjectDefinition = core.config.projectDefinition;
+			if (project == null)
+			{
+				core.io.writeLine( "ERROR: project definition not found" );
+				return core.exit( APMCore.CODE_ERROR );
+			}
+			
+			if (_parameters != null && _parameters.length > 0)
+			{
+				// Install
+				var packageIdentifier:String = _parameters[ 0 ];
+				var version:String = (_parameters.length > 1) ? _parameters[ 1 ] : "latest";
+				
+				_queue.addProcess( new InstallPackageProcess( core, packageIdentifier, version ) );
+			}
+			else if (project.dependencies.length > 0)
+			{
+				// Install from list in project file
+				for (var i:int = 0; i < project.dependencies.length; i++)
+				{
+					_queue.addProcess(
+							new InstallPackageProcess(
+									core,
+									project.dependencies[ i ].identifier,
+									project.dependencies[ i ].version.toString()
+							)
+					);
+				}
+			}
+			else
+			{
+			
+			}
+			
+			_queue.start( function ():void {
+			
+				core.exit( APMCore.CODE_OK );
+			
+			} );
+			
+			
 		}
 		
 	}

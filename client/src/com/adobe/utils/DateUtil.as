@@ -665,9 +665,9 @@ package com.adobe.utils
 		/**
 		 * Converts a date into just after midnight.
 		 */
-		public static function makeMorning(d:Date):Date
+		public static function makeMorning(value:Date):Date
 		{
-			var d:Date = new Date(d.time);
+			var d:Date = new Date(value.time);
 			d.hours = 0;
             d.minutes = 0;
             d.seconds = 0;
@@ -678,9 +678,9 @@ package com.adobe.utils
 		/**
 		 * Converts a date into just befor midnight.
 		 */
-		public static function makeNight(d:Date):Date
+		public static function makeNight(value:Date):Date
 		{
-			var d:Date = new Date(d.time);
+			var d:Date = new Date(value.time);
 			d.hours = 23;
             d.minutes = 59;
             d.seconds = 59;

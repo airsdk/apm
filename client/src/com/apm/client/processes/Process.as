@@ -22,6 +22,18 @@ package com.apm.client.processes
 		//  FUNCTIONALITY
 		//
 		
+		/**
+		 * Will set the current queue before start so the process can add additional processes if required.
+		 *
+		 * @param value
+		 */
+		function set queue( value:ProcessQueue ):void;
+		
+		
+		/**
+		 * Will be called when the process should start running.
+		 * The process must dispatch a ProcessEvent.COMPLETE function when complete.
+		 */
 		function start():void;
 		
 		

@@ -9,22 +9,16 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		28/5/21
+ * @created		15/6/21
  */
-package com.apm.client.commands.airsdk.processes
+package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APMCore;
-	import com.apm.client.config.RunConfig;
 	import com.apm.client.logging.Log;
-	import com.apm.client.processes.Process;
 	import com.apm.client.processes.ProcessBase;
-	import com.apm.client.processes.events.ProcessEvent;
-	import com.apm.remote.airsdk.AIRSDKAPI;
-	import com.apm.remote.airsdk.AIRSDKBuild;
+	import com.apm.data.PackageDefinition;
 	
 	import flash.events.Event;
-	
-	import flash.events.EventDispatcher;
 	import flash.events.HTTPStatusEvent;
 	import flash.events.IOErrorEvent;
 	import flash.events.ProgressEvent;
@@ -32,60 +26,65 @@ package com.apm.client.commands.airsdk.processes
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
+	
 	import flash.net.URLLoader;
 	import flash.net.URLLoaderDataFormat;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
-	import flash.net.URLVariables;
 	import flash.utils.ByteArray;
 	
+	import flash.utils.setTimeout;
 	
-	public class DownloadAIRSDKProcess extends ProcessBase
+	
+	public class DownloadPackageProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "DownloadAIRSDKProcess";
+		private static const TAG:String = "DownloadPackageProcess";
 		
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
 		
-		
 		private var _core:APMCore;
-		private var _build:AIRSDKBuild;
+		private var _packageDefinition:PackageDefinition;
 		private var _destination:File;
-		
-		
 		private var _loader:URLLoader;
-		
 		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function DownloadAIRSDKProcess( core:APMCore, build:AIRSDKBuild, destination:File )
+		public function DownloadPackageProcess( core:APMCore, packageDefinition:PackageDefinition )
 		{
+			super();
 			_core = core;
-			_build = build;
-			_destination = destination;
+			_packageDefinition = packageDefinition;
+			
+			var packagesDir:File = new File( _core.config.packagesDir );
+			if (!packagesDir.exists) packagesDir.createDirectory();
+			
+			var packageDir:File = new File( _core.config.packagesDir + File.separator + _packageDefinition.identifier );
+			if (!packageDir.exists) packageDir.createDirectory();
+			
+			_destination = packageDir.resolvePath( _packageDefinition.identifier + "."+ _packageDefinition.type );
 		}
 		
 		
 		override public function start():void
 		{
-			Log.d( TAG, "start()" );
-			_core.io.showProgressBar( "Downloading AIR v" + _build.version );
+			_core.io.showProgressBar( "Downloading package : " + _packageDefinition.toString() );
 			if (_destination.exists)
 			{
 				checkExistingFile( true );
 			}
 			else
 			{
-				downloadFile();
+				downloadPackage();
 			}
 		}
 		
@@ -96,15 +95,15 @@ package com.apm.client.commands.airsdk.processes
 			if (_destination.exists)
 			{
 				fileValid = verifyFile();
-				_core.io.completeProgressBar( true, "AIR SDK already downloaded" );
+				_core.io.completeProgressBar( true, "Package already downloaded" );
 			}
 			
 			if (!fileValid)
 			{
 				if (downloadIfCheckFails)
-					return downloadFile();
+					return downloadPackage();
 				else
-					_core.io.writeLine( "Downloaded file failed checks - retry download again later!" );
+					_core.io.writeLine( "Downloaded file failed checks - retry install again later!" );
 			}
 			
 			complete();
@@ -124,7 +123,7 @@ package com.apm.client.commands.airsdk.processes
 			}
 			else
 			{
-				_core.io.completeProgressBar( false,"Downloaded file failed checks - retry download again later!" );
+				_core.io.completeProgressBar( false, "Downloaded file failed checks - retry install again later!" );
 			}
 			complete();
 		}
@@ -137,17 +136,10 @@ package com.apm.client.commands.airsdk.processes
 		}
 		
 		
-		private function downloadFile():void
+		private function downloadPackage():void
 		{
-			var url:String = AIRSDKAPI.DOWNLOAD_ENDPOINT +
-					(_core.config.isMacOS ? _build.urls[ "AIR_Mac" ] : _build.urls[ "AIR_Win" ]);
-			
-			var vars:URLVariables = new URLVariables();
-			vars["license"] = "accepted";
-			
-			var req:URLRequest = new URLRequest( url );
+			var req:URLRequest = new URLRequest( _packageDefinition.versions[0].sourceUrl );
 			req.method = URLRequestMethod.GET;
-			req.data = vars;
 			
 			_loader = new URLLoader();
 			_loader.dataFormat = URLLoaderDataFormat.BINARY;
@@ -157,10 +149,7 @@ package com.apm.client.commands.airsdk.processes
 			_loader.addEventListener( HTTPStatusEvent.HTTP_STATUS, loader_statusHandler );
 			_loader.addEventListener( SecurityErrorEvent.SECURITY_ERROR, loader_securityErrorHandler );
 			_loader.load( req );
-			
 		}
-		
-		
 		
 		
 		private function loader_progressHandler( event:ProgressEvent ):void
@@ -169,7 +158,7 @@ package com.apm.client.commands.airsdk.processes
 			{
 				_core.io.updateProgressBar(
 						event.bytesLoaded / event.bytesTotal,
-						"Downloading AIR v" + _build.version );
+						"Downloading package : " + _packageDefinition.toString() );
 			}
 		}
 		
@@ -188,6 +177,7 @@ package com.apm.client.commands.airsdk.processes
 		private function loader_errorHandler( event:IOErrorEvent ):void
 		{
 			_core.io.completeProgressBar( false, event.text );
+			complete();
 		}
 		
 		private function loader_statusHandler( event:HTTPStatusEvent ):void
@@ -198,6 +188,7 @@ package com.apm.client.commands.airsdk.processes
 		private function loader_securityErrorHandler( event:SecurityErrorEvent ):void
 		{
 			_core.io.completeProgressBar( false, event.text );
+			complete();
 		}
 		
 		

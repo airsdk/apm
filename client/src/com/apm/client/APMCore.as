@@ -262,9 +262,10 @@ package com.apm.client
 		
 		public function usage( usageForCommand:String = null ):void
 		{
+			var command:Command;
 			if (usageForCommand != null && _commandMap.hasOwnProperty( usageForCommand ))
 			{
-				var command:Command = new _commandMap[ usageForCommand ]();
+				command = new _commandMap[ usageForCommand ]();
 				if (command != null)
 				{
 					io.writeLine( "apm " + command.name.replace( "/", " " ) );
@@ -281,7 +282,7 @@ package com.apm.client
 			
 			for each (var commandName:String in _commandOrder)
 			{
-				var command:Command = new _commandMap[ commandName ]();
+				command = new _commandMap[ commandName ]();
 				var commandUsage:String = "apm " + commandName.replace( "/", " " ) + " ";
 				while (commandUsage.length < 20) commandUsage += " ";
 				commandUsage += command.description;

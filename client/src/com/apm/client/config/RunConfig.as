@@ -47,6 +47,9 @@ package com.apm.client.config
 		// The current working directory
 		public var workingDir:String;
 		
+		// The directory for package storage (apm_packages)
+		public function get packagesDir():String { return workingDir + "/apm_packages"; }
+		
 		// The current project definition file
 		public var projectDefinition:ProjectDefinition = null;
 		

@@ -13,8 +13,6 @@
  */
 package com.apm.data
 {
-	import com.apm.client.IO;
-	
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
@@ -84,7 +82,7 @@ package com.apm.data
 				}
 			}
 			
-			if (_data.hasOwnProperty("configuration"))
+			if (_data.hasOwnProperty( "configuration" ))
 			{
 				_configuration = _data.configuration;
 			}
@@ -117,7 +115,7 @@ package com.apm.data
 			{
 				deps.push( dep.toObject() );
 			}
-			data[ "dependencies" ] = repos;
+			data[ "dependencies" ] = deps;
 			
 			data.configuration = _configuration;
 			
@@ -132,20 +130,33 @@ package com.apm.data
 		//
 		
 		public function get applicationId():String { return _data[ "identifier" ]; }
+		
+		
 		public function set applicationId( value:String ):void { _data[ "identifier" ] = value; }
 		
 		
 		public function get applicationName():String { return _data[ "name" ]; }
+		
+		
 		public function set applicationName( value:String ):void { _data[ "name" ] = value; }
 		
 		
 		public function get version():String { return _data[ "version" ]; }
+		
+		
 		public function set version( value:String ):void { _data[ "version" ] = value; }
 		
 		
 		public function get repositories():Vector.<Repository> { return _repositories; }
 		
-		public function get dependencies():Vector.<ProjectDependency> { return _dependencies; }
+		
+		public function get dependencies():Vector.<ProjectDependency>
+		{
+			if (_dependencies == null)
+				_dependencies = new Vector.<ProjectDependency>();
+			return _dependencies;
+		}
+		
 		
 		public function get configuration():Object { return _configuration; }
 		
@@ -157,9 +168,9 @@ package com.apm.data
 		 */
 		public function getConfigurationParam( key:String ):String
 		{
-			if (_configuration.hasOwnProperty(key))
+			if (_configuration.hasOwnProperty( key ))
 			{
-				return _configuration[key];
+				return _configuration[ key ];
 			}
 			return null;
 		}
@@ -174,9 +185,46 @@ package com.apm.data
 		public function setConfigurationParam( key:String, value:String ):void
 		{
 			if (_configuration == null) _configuration = {};
-			_configuration[key] = value;
+			_configuration[ key ] = value;
 		}
 		
+		
+		/**
+		 * Adds a package as a project dependency
+		 *
+		 * @param packageDefinition
+		 */
+		public function addPackageDependency( packageDefinition:PackageDefinition ):void
+		{
+			if (!hasDependency( packageDefinition.identifier ))
+			{
+				var dep:ProjectDependency = new ProjectDependency();
+				dep.identifier = packageDefinition.identifier;
+				dep.version = packageDefinition.versions[0].version;
+				
+				dependencies.push( dep );
+			}
+			else
+			{
+				// TODO:: Handle duplicates / version clash
+			}
+		}
+		
+		
+		/**
+		 * Returns true if the project already contains a dependency on the specified package
+		 * @param identifier
+		 * @return
+		 */
+		public function hasDependency( identifier:String ):Boolean
+		{
+			for each (var dep:ProjectDependency in _dependencies)
+			{
+				if (dep.identifier == identifier )
+					return true;
+			}
+			return false;
+		}
 		
 		
 		//

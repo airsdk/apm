@@ -15,6 +15,8 @@ package com.apm.client.commands.packages
 {
 	import com.apm.client.APMCore;
 	import com.apm.client.commands.Command;
+	import com.apm.client.commands.packages.processes.ViewPackageProcess;
+	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.PackageDefinition;
 	import com.apm.remote.repository.RepositoryAPI;
 	
@@ -36,9 +38,8 @@ package com.apm.client.commands.packages
 		//  VARIABLES
 		//
 		
-		private var _repositoryAPI:RepositoryAPI;
 		private var _parameters:Array;
-		
+		private var _queue:ProcessQueue;
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
@@ -47,7 +48,7 @@ package com.apm.client.commands.packages
 		public function ViewCommand()
 		{
 			super();
-			_repositoryAPI = new RepositoryAPI();
+			_queue = new ProcessQueue();
 		}
 		
 		
@@ -89,8 +90,6 @@ package com.apm.client.commands.packages
 		}
 		
 		
-		
-		
 		public function execute( core:APMCore ):void
 		{
 			if (_parameters == null && _parameters.length == 0)
@@ -100,15 +99,9 @@ package com.apm.client.commands.packages
 			}
 			
 			var identifier:String = _parameters[0];
-			core.io.showSpinner( "Finding package : " + identifier );
-			
-			_repositoryAPI.getPackage( identifier, function( success:Boolean, packageDefinition:PackageDefinition ):void {
-				core.io.stopSpinner( success, "No package found matching : " + identifier, success );
-				if (success)
-				{
-					core.io.writeLine( packageDefinition.toString() );
-					// TODO detail output
-				}
+
+			_queue.addProcess( new ViewPackageProcess( core, identifier ) );
+			_queue.start( function():void {
 				core.exit( APMCore.CODE_OK );
 			});
 		}

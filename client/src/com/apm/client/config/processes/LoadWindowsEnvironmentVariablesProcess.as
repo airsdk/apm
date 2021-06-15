@@ -16,6 +16,7 @@ package com.apm.client.config.processes
 	import com.apm.client.config.RunConfig;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.Process;
+	import com.apm.client.processes.ProcessQueue;
 	import com.apm.client.processes.events.ProcessEvent;
 	
 	import flash.events.EventDispatcher;
@@ -43,6 +44,11 @@ package com.apm.client.config.processes
 		public function LoadWindowsEnvironmentVariablesProcess( config:RunConfig )
 		{
 			_config = config;
+		}
+		
+		
+		public function set queue( value:ProcessQueue ):void
+		{
 		}
 		
 		

@@ -14,12 +14,8 @@
 package com.apm.client.commands.project
 {
 	import com.apm.client.APMCore;
-	import com.apm.client.IO;
 	import com.apm.client.commands.Command;
 	import com.apm.client.logging.Log;
-	import com.apm.data.ProjectDefinition;
-	
-	import flash.filesystem.File;
 	
 	
 	public class ProjectConfigCommand implements Command
@@ -35,13 +31,11 @@ package com.apm.client.commands.project
 		public static const NAME:String = "project/config";
 		
 		
-		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
 		
 		private var _parameters:Array;
-		
 		
 		
 		////////////////////////////////////////////////////////
@@ -119,8 +113,8 @@ package com.apm.client.commands.project
 								return core.exit( APMCore.CODE_ERROR );
 							}
 							
-							var set_param:String = _parameters[++i];
-							var set_value:String = _parameters[++i];
+							var set_param:String = _parameters[ ++i ];
+							var set_value:String = _parameters[ ++i ];
 							
 							core.config.projectDefinition.setConfigurationParam( set_param, set_value );
 							break;
@@ -130,9 +124,9 @@ package com.apm.client.commands.project
 						{
 							if (_parameters.length >= 2)
 							{
-								var param:String = _parameters[++i];
+								var param:String = _parameters[ ++i ];
 								var value:String = core.config.projectDefinition.getConfigurationParam( param );
-								core.io.writeLine( param +"=" + (value == null ? "null" : value));
+								core.io.writeLine( param + "=" + (value == null ? "null" : value) );
 							}
 							else
 							{
@@ -153,7 +147,6 @@ package com.apm.client.commands.project
 				core.io.error( e );
 			}
 		}
-
 		
 		
 	}

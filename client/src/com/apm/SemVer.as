@@ -24,7 +24,7 @@ package com.apm
 		
 //		public static const DEFAULT:SemVer = new SemVer( "0.0.0" );
 		
-		private var FORMAT:RegExp = /^(\d|[1-9]\d*)\.(\d|[1-9]\d*)(\.(\d|[1-9]\d*))?(-(alpha|beta|rc)(\.(\d|[1-9]\d*))?)?$/;
+		private var FORMAT:RegExp = /^(\d|[0-9]\d*)\.(\d|[0-9]\d*)(\.(\d|[0-9]\d*))?(-(alpha|beta|rc)(\.(\d|[1-9]\d*))?)?$/;
 		
 		
 		////////////////////////////////////////////////////////
@@ -71,7 +71,15 @@ package com.apm
 		
 		public static function fromString( version:String ):SemVer
 		{
-			return new SemVer( version );
+			try
+			{
+				if (version != null)
+					return new SemVer( version );
+			}
+			catch (e:Error)
+			{
+			}
+			return null;
 		}
 		
 		

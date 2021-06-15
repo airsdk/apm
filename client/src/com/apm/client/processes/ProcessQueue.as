@@ -98,8 +98,17 @@ package com.apm.client.processes
 			// Start next process
 			_currentProcess = _queue.shift();
 			
-			_currentProcess.addEventListener( ProcessEvent.COMPLETE, process_completeHandler );
-			_currentProcess.start();
+			try
+			{
+				_currentProcess.addEventListener( ProcessEvent.COMPLETE, process_completeHandler );
+				_currentProcess.queue = this;
+				_currentProcess.start();
+			}
+			catch (e:Error)
+			{
+				Log.e( TAG, e );
+				process_completeHandler( null );
+			}
 			
 		}
 		

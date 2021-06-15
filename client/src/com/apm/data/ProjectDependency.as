@@ -71,7 +71,7 @@ package com.apm.data
 			var dep:ProjectDependency = new ProjectDependency();
 			if (data != null)
 			{
-				if (data instanceof String)
+				if (data is String)
 				{
 					// single line format com.package.example:1.0.0
 					dep._singleLineOutput = true;

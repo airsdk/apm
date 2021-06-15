@@ -14,12 +14,10 @@
 package com.apm.client.commands.project
 {
 	import com.apm.client.APMCore;
-	import com.apm.client.IO;
 	import com.apm.client.commands.Command;
+	import com.apm.client.commands.project.processes.ProjectDefinitionCreateProcess;
 	import com.apm.client.logging.Log;
-	import com.apm.data.ProjectDefinition;
-	
-	import flash.filesystem.File;
+	import com.apm.client.processes.ProcessQueue;
 	
 	
 	public class InitCommand implements Command
@@ -40,7 +38,7 @@ package com.apm.client.commands.project
 		//
 		
 		private var _parameters:Array;
-		
+		private var _queue:ProcessQueue;
 		
 		
 		////////////////////////////////////////////////////////
@@ -51,6 +49,7 @@ package com.apm.client.commands.project
 		{
 			super();
 			_parameters = [];
+			_queue = new ProcessQueue();
 		}
 		
 		
@@ -97,42 +96,16 @@ package com.apm.client.commands.project
 			Log.d( TAG, "execute(): " + (_parameters.length > 0 ? _parameters[ 0 ] : "...") + "\n" );
 			try
 			{
-				if (core.config.projectDefinition != null)
-				{
-					core.io.writeLine( "Already have a config file " );
-					
-					var response:String = core.io.question( "Overwrite? Y/n", "n" )
-					if (response.toLowerCase() != "y")
-					{
-						return core.exit( APMCore.CODE_ERROR );
-					}
-				}
-				
-				core.io.writeLine( "Creating new project definition file" );
-				
-				var project:ProjectDefinition = new ProjectDefinition();
-				
-				//
-				//	Walk through any questions
-				
-				project.applicationId = core.io.question( "Application Identifier", "com.my.app")
-				project.applicationName = core.io.question( "Application Name", "My Application")
-				project.version = core.io.question( "Application Consts", "1.0.0" )
-	
-				// TODO
-			
-			
-				var projectFile:File = new File( core.config.workingDir + File.separator + ProjectDefinition.DEFAULT_FILENAME );
-				project.save( projectFile );
-				
-				core.exit( APMCore.CODE_OK );
+				_queue.addProcess( new ProjectDefinitionCreateProcess( core ) );
+				_queue.start( function ():void {
+					core.exit( APMCore.CODE_OK );
+				} );
 			}
 			catch (e:Error)
 			{
 				core.io.error( e );
 			}
 		}
-
 		
 		
 	}

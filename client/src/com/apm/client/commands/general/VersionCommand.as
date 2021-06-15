@@ -16,7 +16,6 @@ package com.apm.client.commands.general
 	import com.apm.SemVer;
 	import com.apm.client.APMCore;
 	import com.apm.client.Consts;
-	import com.apm.client.IO;
 	import com.apm.client.commands.Command;
 	
 	

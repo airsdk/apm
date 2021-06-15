@@ -9,53 +9,56 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		4/6/21
+ * @created		15/6/21
  */
-package com.apm.client.config.processes
+package com.apm.client.processes
 {
-	import com.apm.client.processes.Process;
-	import com.apm.client.processes.ProcessQueue;
 	import com.apm.client.processes.events.ProcessEvent;
 	
+	import flash.events.Event;
 	import flash.events.EventDispatcher;
-	import flash.utils.setTimeout;
 	
 	
-	public class DebugDelayProcess extends EventDispatcher implements Process
+	public class ProcessBase extends EventDispatcher implements Process
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "DebugDelayProcess";
+		private static const TAG:String = "ProcessBase";
 		
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
 		
-		private var _delay : int;
+		protected var _queue : ProcessQueue;
+		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function DebugDelayProcess( delay:int=2000 )
-		{
-			_delay = delay;
-		}
-		
-		
-		public function set queue( value:ProcessQueue ):void
+		public function ProcessBase()
 		{
 		}
 		
 		
 		public function start():void
 		{
-			setTimeout( function():void {
-				dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ));
-			}, _delay );
+			throw new Error( "Not implemented" );
+		}
+		
+		
+		public function set queue( value:ProcessQueue ):void
+		{
+			_queue = value;
+		}
+		
+		
+		protected function complete():void
+		{
+			dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ) );
 		}
 		
 	}

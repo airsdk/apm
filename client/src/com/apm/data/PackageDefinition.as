@@ -13,6 +13,8 @@
  */
 package com.apm.data
 {
+	import com.apm.SemVer;
+	
 	
 	public class PackageDefinition
 	{
@@ -30,7 +32,8 @@ package com.apm.data
 		public var name:String = "";
 		public var description:String = "";
 		public var identifier:String = "";
-		public var version:String = "";
+		public var type:String = "ane";
+		public var versions:Vector.<PackageVersionDefinition>;
 		
 		
 		////////////////////////////////////////////////////////
@@ -39,22 +42,33 @@ package com.apm.data
 		
 		public function PackageDefinition()
 		{
+			versions = new Vector.<PackageVersionDefinition>();
 		}
 		
 		
 		public function toString():String
 		{
-			return identifier +"@" + version + "   "+description
+			return identifier +
+					"@" + (versions.length > 0 ? versions[ 0 ].toString() : "x.x.x") +
+					"   " + description;
 		}
+		
 		
 		public function fromObject( data:Object ):PackageDefinition
 		{
 			if (data != null)
 			{
-				if (data.hasOwnProperty("name")) this.name = data["name"];
-				if (data.hasOwnProperty("description")) this.description = data["description"];
-				if (data.hasOwnProperty("identifier")) this.identifier = data["identifier"];
-				if (data.hasOwnProperty("version")) this.version = data["version"];
+				if (data.hasOwnProperty( "name" )) this.name = data[ "name" ];
+				if (data.hasOwnProperty( "description" )) this.description = data[ "description" ];
+				if (data.hasOwnProperty( "identifier" )) this.identifier = data[ "identifier" ];
+				if (data.hasOwnProperty( "type" )) this.type = data[ "type" ];
+				if (data.hasOwnProperty( "versions" ))
+				{
+					for each (var versionObject:Object in data.versions)
+					{
+						versions.push( new PackageVersionDefinition().fromObject( versionObject ) );
+					}
+				}
 			}
 			return this;
 		}

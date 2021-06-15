@@ -17,6 +17,7 @@ package com.apm.client.commands.airsdk.processes
 	import com.apm.client.config.RunConfig;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.Process;
+	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.events.ProcessEvent;
 	import com.apm.remote.airsdk.AIRSDKAPI;
 	import com.apm.remote.airsdk.AIRSDKBuild;
@@ -43,7 +44,7 @@ package com.apm.client.commands.airsdk.processes
 	import org.as3commons.zip.Zip;
 	
 	
-	public class ExtractAIRSDKProcess extends EventDispatcher implements Process
+	public class ExtractAIRSDKProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
@@ -76,7 +77,7 @@ package com.apm.client.commands.airsdk.processes
 		}
 		
 		
-		public function start():void
+		override public function start():void
 		{
 			Log.d( TAG, "start()" );
 			

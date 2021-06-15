@@ -13,6 +13,7 @@
  */
 package com.apm.remote.repository
 {
+	import com.apm.SemVer;
 	import com.apm.data.PackageDefinition;
 	import com.apm.remote.lib.APIRequestQueue;
 	
@@ -37,6 +38,7 @@ package com.apm.remote.repository
 		private var _requestQueue:APIRequestQueue;
 		
 		private var _endpoint:String = "http://localhost:3000";
+//		private var _endpoint:String = "https://repository.airsdk.dev";
 		
 		
 		////////////////////////////////////////////////////////
@@ -57,7 +59,7 @@ package com.apm.remote.repository
 		}
 		
 		
-		public function search( query:String, callback:Function = null )
+		public function search( query:String, callback:Function = null ):void
 		{
 			var vars:URLVariables = new URLVariables();
 			vars[ "q" ] = query;
@@ -123,6 +125,35 @@ package com.apm.remote.repository
 			} );
 		}
 		
+		
+		public function getPackageVersion( identifier:String, version:SemVer, callback:Function = null ):void
+		{
+			var req:URLRequest = new URLRequest();
+			req.method = URLRequestMethod.GET;
+			req.url = _endpoint + "/api/packages/" + identifier + "/" + (version == null ? "latest" : version.toString());
+			
+			_requestQueue.add( req, "getpackageversion", function ( success:Boolean, data:* ):void {
+				
+				var packageDefinition:PackageDefinition = null;
+				try
+				{
+					var dataObject:Object = JSON.parse( data );
+					if (success)
+					{
+						packageDefinition = new PackageDefinition().fromObject( dataObject );
+					}
+				}
+				catch (e:Error)
+				{
+					success = false;
+				}
+				
+				if (callback != null)
+				{
+					callback( success, packageDefinition );
+				}
+			} );
+		}
 		
 	}
 }
