@@ -11,13 +11,12 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		9/6/21
  */
-package com.apm.data
+package com.apm.data.packages
 {
 	import com.apm.SemVer;
-	import com.apm.SemVer;
 	
 	
-	public class PackageVersionDefinition
+	public class PackageVersion
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
@@ -33,13 +32,15 @@ package com.apm.data
 		public var publishedAt:String = "";
 		public var sourceUrl:String = "";
 		public var version:SemVer = null;
+		public var dependencies:Vector.<PackageDependency> = new Vector.<PackageDependency>();
+		public var parameters:Vector.<PackageParameter> = new Vector.<PackageParameter>();
 		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function PackageVersionDefinition()
+		public function PackageVersion()
 		{
 		}
 		
@@ -56,13 +57,27 @@ package com.apm.data
 		}
 		
 		
-		public function fromObject( data:Object ):PackageVersionDefinition
+		public function fromObject( data:Object ):PackageVersion
 		{
 			if (data != null)
 			{
-				if (data.hasOwnProperty("version")) this.version = SemVer.fromString( data["version"] );
-				if (data.hasOwnProperty("sourceUrl")) this.sourceUrl = data["sourceUrl"];
-				if (data.hasOwnProperty("publishedAt")) this.publishedAt = data["publishedAt"];
+				if (data.hasOwnProperty( "version" )) this.version = SemVer.fromString( data[ "version" ] );
+				if (data.hasOwnProperty( "sourceUrl" )) this.sourceUrl = data[ "sourceUrl" ];
+				if (data.hasOwnProperty( "publishedAt" )) this.publishedAt = data[ "publishedAt" ];
+				if (data.hasOwnProperty( "dependencies" ))
+				{
+					for each (var depObject:Object in data.dependencies)
+					{
+						dependencies.push( new PackageDependency().fromObject( depObject ) );
+					}
+				}
+				if (data.hasOwnProperty( "parameters" ))
+				{
+					for each (var paramObject:Object in data.parameters)
+					{
+						parameters.push( new PackageParameter().fromObject( paramObject ) );
+					}
+				}
 			}
 			return this;
 		}

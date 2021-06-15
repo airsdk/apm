@@ -17,7 +17,7 @@ package com.apm.client.commands.packages
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.packages.processes.InstallPackageProcess;
 	import com.apm.client.processes.ProcessQueue;
-	import com.apm.data.ProjectDefinition;
+	import com.apm.data.project.ProjectDefinition;
 	
 	
 	public class InstallCommand implements Command
@@ -133,9 +133,9 @@ package com.apm.client.commands.packages
 			}
 			
 			_queue.start( function ():void {
-			
+				
 				core.exit( APMCore.CODE_OK );
-			
+				
 			} );
 			
 			

@@ -13,13 +13,12 @@
  */
 package com.apm.client.config
 {
-	import com.apm.client.config.processes.DebugDelayProcess;
 	import com.apm.client.config.processes.LoadMacOSEnvironmentVariablesProcess;
 	import com.apm.client.config.processes.LoadProjectDefinitionProcess;
 	import com.apm.client.config.processes.LoadWindowsEnvironmentVariablesProcess;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessQueue;
-	import com.apm.data.ProjectDefinition;
+	import com.apm.data.project.ProjectDefinition;
 	
 	import flash.system.Capabilities;
 	

@@ -15,17 +15,12 @@ package com.apm.client.commands.packages.processes
 {
 	import com.apm.SemVer;
 	import com.apm.client.APMCore;
-	import com.apm.client.commands.airsdk.processes.DownloadAIRSDKProcess;
 	import com.apm.client.logging.Log;
-	import com.apm.client.processes.Process;
 	import com.apm.client.processes.ProcessBase;
-	import com.apm.client.processes.events.ProcessEvent;
-	import com.apm.data.PackageDefinition;
-	import com.apm.data.ProjectDependency;
+	import com.apm.data.packages.PackageDefinition;
+	import com.apm.data.packages.PackageDependency;
+	import com.apm.data.packages.PackageVersion;
 	import com.apm.remote.repository.RepositoryAPI;
-	
-	import flash.events.Event;
-	import flash.events.EventDispatcher;
 	
 	
 	public class InstallPackageProcess extends ProcessBase
@@ -44,6 +39,7 @@ package com.apm.client.commands.packages.processes
 		private var _core:APMCore;
 		private var _packageIdentifier:String;
 		private var _version:SemVer;
+		private var _isDependency:Boolean;
 		
 		private var _repositoryAPI:RepositoryAPI;
 		
@@ -51,12 +47,13 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function InstallPackageProcess( core:APMCore, packageIdentifier:String, version:String )
+		public function InstallPackageProcess( core:APMCore, packageIdentifier:String, version:String, isDependency:Boolean=false )
 		{
 			super();
 			_core = core;
 			_packageIdentifier = packageIdentifier;
-			_version = SemVer.fromString(version);
+			_version = SemVer.fromString( version );
+			_isDependency = isDependency;
 			
 			_repositoryAPI = new RepositoryAPI();
 		}
@@ -69,37 +66,47 @@ package com.apm.client.commands.packages.processes
 			_repositoryAPI.getPackageVersion(
 					_packageIdentifier,
 					_version,
-					function( success:Boolean, packageDefinition:PackageDefinition ):void {
-				var foundVersion:Boolean = success && packageDefinition.versions.length > 0;
-				_core.io.stopSpinner( foundVersion,
-									  "No package found matching : " + installDescription,
-									  foundVersion );
-				try
-				{
-					if (foundVersion)
-					{
-						_core.io.writeLine( packageDefinition.toString() );
-						
-						// Add it to the project definition
-						_core.config.projectDefinition.addPackageDependency( packageDefinition );
-						_core.config.projectDefinition.save();
-						
-						_queue.addProcess( new DownloadPackageProcess( _core, packageDefinition ));
-						_queue.addProcess( new ExtractPackageProcess( _core, packageDefinition ));
-						
-					}
-					else if (success)
-					{
-						// View the package to show available versions
-						_queue.addProcess( new ViewPackageProcess( _core, _packageIdentifier ));
-					}
-				}
-				catch (e:Error)
-				{
-					Log.e( TAG, e );
-				}
-				complete();
-			});
+					function ( success:Boolean, packageDefinition:PackageDefinition ):void {
+						var foundVersion:Boolean = success && packageDefinition.versions.length > 0;
+						_core.io.stopSpinner( foundVersion,
+											  "No package found matching : " + installDescription,
+											  foundVersion );
+						try
+						{
+							var installVersion:PackageVersion = packageDefinition.versions[0];
+							if (foundVersion)
+							{
+								_core.io.writeLine( packageDefinition.toString() );
+								
+								if (!_isDependency)
+								{
+									// Add it to the project definition
+									_core.config.projectDefinition.addPackageDependency( packageDefinition );
+									_core.config.projectDefinition.save();
+								}
+								
+								_queue.addProcess( new DownloadPackageProcess( _core, packageDefinition ) );
+								_queue.addProcess( new ExtractPackageProcess( _core, packageDefinition ) );
+								
+								// Queue dependencies for install
+								for each (var dep:PackageDependency in installVersion.dependencies)
+								{
+									_queue.addProcess( new InstallPackageProcess( _core, dep.identifier, dep.version.toString(), true ));
+								}
+								
+							}
+							else if (success)
+							{
+								// View the package to show available versions
+								_queue.addProcess( new ViewPackageProcess( _core, _packageIdentifier ) );
+							}
+						}
+						catch (e:Error)
+						{
+							Log.e( TAG, e );
+						}
+						complete();
+					} );
 			
 		}
 		

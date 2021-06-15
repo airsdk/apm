@@ -17,6 +17,7 @@ package com.apm.client.commands.packages.processes
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.PackageDefinition;
+	import com.apm.data.packages.PackageDefinition;
 	
 	import flash.events.Event;
 	import flash.events.HTTPStatusEvent;

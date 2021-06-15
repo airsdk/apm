@@ -13,18 +13,10 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.SemVer;
 	import com.apm.client.APMCore;
-	import com.apm.client.logging.Log;
-	import com.apm.client.processes.Process;
 	import com.apm.client.processes.ProcessBase;
-	import com.apm.client.processes.events.ProcessEvent;
-	import com.apm.data.PackageDefinition;
-	import com.apm.data.ProjectDependency;
+	import com.apm.data.packages.PackageDefinition;
 	import com.apm.remote.repository.RepositoryAPI;
-	
-	import flash.events.Event;
-	import flash.events.EventDispatcher;
 	
 	
 	public class ViewPackageProcess extends ProcessBase
@@ -61,7 +53,7 @@ package com.apm.client.commands.packages.processes
 		override public function start():void
 		{
 			_core.io.showSpinner( "Finding package : " + _packageIdentifier );
-			_repositoryAPI.getPackage( _packageIdentifier, function( success:Boolean, packageDefinition:PackageDefinition ):void {
+			_repositoryAPI.getPackage( _packageIdentifier, function ( success:Boolean, packageDefinition:PackageDefinition ):void {
 				_core.io.stopSpinner( success, "No package found matching : " + _packageIdentifier, success );
 				if (success)
 				{
@@ -76,14 +68,14 @@ package com.apm.client.commands.packages.processes
 						for (var i:int = 0; i < packageDefinition.versions.length; i++)
 						{
 							_core.io.writeLine(
-									(i == packageDefinition.versions.length - 1 ? "└──" : "├──")+
-									packageDefinition.versions[i].toDescriptiveString() );
+									(i == packageDefinition.versions.length - 1 ? "└──" : "├──") +
+									packageDefinition.versions[ i ].toDescriptiveString() );
 						}
 					}
 					
 				}
 				complete();
-			});
+			} );
 			
 		}
 		

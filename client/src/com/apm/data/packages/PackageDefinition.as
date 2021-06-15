@@ -11,8 +11,9 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		9/6/21
  */
-package com.apm.data
+package com.apm.data.packages
 {
+	import com.apm.data.*;
 	import com.apm.SemVer;
 	
 	
@@ -33,7 +34,7 @@ package com.apm.data
 		public var description:String = "";
 		public var identifier:String = "";
 		public var type:String = "ane";
-		public var versions:Vector.<PackageVersionDefinition>;
+		public var versions:Vector.<PackageVersion>;
 		
 		
 		////////////////////////////////////////////////////////
@@ -42,7 +43,7 @@ package com.apm.data
 		
 		public function PackageDefinition()
 		{
-			versions = new Vector.<PackageVersionDefinition>();
+			versions = new Vector.<PackageVersion>();
 		}
 		
 		
@@ -58,15 +59,15 @@ package com.apm.data
 		{
 			if (data != null)
 			{
+				if (data.hasOwnProperty( "identifier" )) this.identifier = data[ "identifier" ];
 				if (data.hasOwnProperty( "name" )) this.name = data[ "name" ];
 				if (data.hasOwnProperty( "description" )) this.description = data[ "description" ];
-				if (data.hasOwnProperty( "identifier" )) this.identifier = data[ "identifier" ];
 				if (data.hasOwnProperty( "type" )) this.type = data[ "type" ];
 				if (data.hasOwnProperty( "versions" ))
 				{
 					for each (var versionObject:Object in data.versions)
 					{
-						versions.push( new PackageVersionDefinition().fromObject( versionObject ) );
+						versions.push( new PackageVersion().fromObject( versionObject ) );
 					}
 				}
 			}

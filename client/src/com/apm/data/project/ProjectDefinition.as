@@ -11,8 +11,11 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		18/5/21
  */
-package com.apm.data
+package com.apm.data.project
 {
+	import com.apm.data.packages.PackageDefinition;
+	import com.apm.data.packages.Repository;
+	
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
@@ -78,7 +81,7 @@ package com.apm.data
 				_dependencies = new Vector.<ProjectDependency>();
 				for each (var dep:Object in _data.dependencies)
 				{
-					_dependencies.push( ProjectDependency.fromObject( dep ) );
+					_dependencies.push( new ProjectDependency().fromObject( dep ) );
 				}
 			}
 			
@@ -200,7 +203,7 @@ package com.apm.data
 			{
 				var dep:ProjectDependency = new ProjectDependency();
 				dep.identifier = packageDefinition.identifier;
-				dep.version = packageDefinition.versions[0].version;
+				dep.version = packageDefinition.versions[ 0 ].version;
 				
 				dependencies.push( dep );
 			}
@@ -220,7 +223,7 @@ package com.apm.data
 		{
 			for each (var dep:ProjectDependency in _dependencies)
 			{
-				if (dep.identifier == identifier )
+				if (dep.identifier == identifier)
 					return true;
 			}
 			return false;

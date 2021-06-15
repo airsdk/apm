@@ -18,11 +18,10 @@ package com.apm.client.config.processes
 	import com.apm.client.processes.Process;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.client.processes.events.ProcessEvent;
-	import com.apm.data.ProjectDefinition;
+	import com.apm.data.project.ProjectDefinition;
 	
 	import flash.events.EventDispatcher;
 	import flash.filesystem.File;
-	import flash.utils.setTimeout;
 	
 	
 	public class LoadProjectDefinitionProcess extends EventDispatcher implements Process
@@ -39,7 +38,7 @@ package com.apm.client.config.processes
 		//
 		
 		
-		private var _config : RunConfig;
+		private var _config:RunConfig;
 		
 		
 		////////////////////////////////////////////////////////
@@ -75,7 +74,7 @@ package com.apm.client.config.processes
 				Log.e( TAG, e );
 			}
 			
-			dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ))
+			dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ) )
 		}
 		
 	}

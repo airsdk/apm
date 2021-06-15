@@ -18,6 +18,7 @@ package com.apm.client.commands.project.processes
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.events.ProcessEvent;
 	import com.apm.data.ProjectDefinition;
+	import com.apm.data.project.ProjectDefinition;
 	
 	import flash.events.EventDispatcher;
 	

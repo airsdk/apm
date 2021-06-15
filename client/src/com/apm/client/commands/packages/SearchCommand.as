@@ -15,7 +15,7 @@ package com.apm.client.commands.packages
 {
 	import com.apm.client.APMCore;
 	import com.apm.client.commands.Command;
-	import com.apm.data.PackageDefinition;
+	import com.apm.data.packages.PackageDefinition;
 	import com.apm.remote.repository.RepositoryAPI;
 	
 	
@@ -83,46 +83,52 @@ package com.apm.client.commands.packages
 		
 		public function get usage():String
 		{
-			return  description + "\n" +
+			return description + "\n" +
 					"\n" +
 					"apm search <foo>    search for a dependency called <foo> in the repository\n";
 		}
 		
 		
-		
-		
 		public function execute( core:APMCore ):void
 		{
-			if (_parameters == null && _parameters.length == 0)
+			if (_parameters == null || _parameters.length == 0)
 			{
-				core.io.writeLine( "No search params provided" );
+				core.io.writeLine( "no search params provided" );
+				core.usage( NAME );
 				return core.exit( APMCore.CODE_ERROR );
 			}
 			
-			var query:String = _parameters.join(" " );
+			var query:String = _parameters.join( " " );
 			core.io.showSpinner( "Searching packages for : " + query );
 			
-			_repositoryAPI.search( query, function( success:Boolean, packages:Vector.<PackageDefinition> ):void {
+			_repositoryAPI.search( query, function ( success:Boolean, packages:Vector.<PackageDefinition> ):void {
 				core.io.stopSpinner( success, "Search complete" );
 				
-				core.io.writeLine( "found [" + packages.length + "] matching package(s) for search '" + query + "'")
-				if (packages.length > 0)
+				if (success)
 				{
-					for (var i:int = 0; i < packages.length; i++)
+					core.io.writeLine( "found [" + packages.length + "] matching package(s) for search '" + query + "'" )
+					if (packages.length > 0)
 					{
-						core.io.writeLine(
-								(i == packages.length - 1 ? "└──" : "├──")+
-								packages[i].toString()
-						);
+						for (var i:int = 0; i < packages.length; i++)
+						{
+							core.io.writeLine(
+									(i == packages.length - 1 ? "└──" : "├──") +
+									packages[ i ].toString()
+							);
+						}
 					}
+					else
+					{
+						core.io.writeLine( "└── no matching packages found" );
+					}
+					core.exit( APMCore.CODE_OK );
 				}
-//				else
-//				{
-//					core.io.writeLine( "└── no matching packages found" );
-//				}
-
-				core.exit( APMCore.CODE_OK );
-			});
+				else
+				{
+					core.io.writeLine( "error connecting to repository server" );
+					core.exit( APMCore.CODE_ERROR );
+				}
+			} );
 		}
 		
 	}

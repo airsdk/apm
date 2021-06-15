@@ -11,7 +11,7 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		31/5/21
  */
-package com.apm.data
+package com.apm.data.packages
 {
 	
 	public class Repository
@@ -27,8 +27,7 @@ package com.apm.data
 		//  VARIABLES
 		//
 		
-		public var url : String;
-		
+		public var url:String;
 		
 		
 		////////////////////////////////////////////////////////
@@ -43,7 +42,7 @@ package com.apm.data
 		public function toObject():Object
 		{
 			return {
-				url: url,
+				url:         url,
 				credentials: {}
 			};
 		}

@@ -15,8 +15,7 @@ package com.apm.client.commands.packages
 {
 	import com.apm.client.APMCore;
 	import com.apm.client.commands.Command;
-	import com.apm.data.ProjectDependency;
-	import com.apm.data.ProjectDefinition;
+	import com.apm.data.project.ProjectDefinition;
 	
 	
 	public class ListCommand implements Command
@@ -105,8 +104,8 @@ package com.apm.client.commands.packages
 				for (var i:int = 0; i < project.dependencies.length; i++)
 				{
 					core.io.writeLine(
-							(i == project.dependencies.length - 1 ? "└──" : "├──")+
-							project.dependencies[i].toString() );
+							(i == project.dependencies.length - 1 ? "└──" : "├──") +
+							project.dependencies[ i ].toString() );
 				}
 			}
 			return core.exit( APMCore.CODE_OK );

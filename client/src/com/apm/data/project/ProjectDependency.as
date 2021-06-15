@@ -11,7 +11,7 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		31/5/21
  */
-package com.apm.data
+package com.apm.data.project
 {
 	import com.apm.SemVer;
 	
@@ -66,25 +66,24 @@ package com.apm.data
 		}
 		
 		
-		public static function fromObject( data:Object ):ProjectDependency
+		public function fromObject( data:Object ):ProjectDependency
 		{
-			var dep:ProjectDependency = new ProjectDependency();
 			if (data != null)
 			{
 				if (data is String)
 				{
 					// single line format com.package.example:1.0.0
-					dep._singleLineOutput = true;
-					dep.identifier = data.substring( 0, String( data ).indexOf( ":" ) );
-					dep.version = SemVer.fromString( String( data ).substring( data.indexOf( ":" ) + 1 ) );
+					this._singleLineOutput = true;
+					this.identifier = data.substring( 0, String( data ).indexOf( ":" ) );
+					this.version = SemVer.fromString( String( data ).substring( data.indexOf( ":" ) + 1 ) );
 				}
 				else
 				{
-					if (data.hasOwnProperty( "id" )) dep.identifier = data[ "id" ];
-					if (data.hasOwnProperty( "version" )) dep.version = SemVer.fromString( data[ "version" ] );
+					if (data.hasOwnProperty( "id" )) this.identifier = data[ "id" ];
+					if (data.hasOwnProperty( "version" )) this.version = SemVer.fromString( data[ "version" ] );
 				}
 			}
-			return dep;
+			return this;
 		}
 		
 	}
