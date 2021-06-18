@@ -14,7 +14,6 @@
 package com.apm.remote.repository
 {
 	import com.apm.SemVer;
-	import com.apm.data.PackageDefinition;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.remote.lib.APIRequestQueue;
 	

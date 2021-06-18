@@ -29,12 +29,12 @@ package com.apm.data.packages
 		//  VARIABLES
 		//
 		
+		public var packageDef:PackageDefinition;
 		public var publishedAt:String = "";
 		public var sourceUrl:String = "";
 		public var version:SemVer = null;
-		public var dependencies:Vector.<PackageDependency> = new Vector.<PackageDependency>();
+		public var dependencies:Vector.<PackageVersion> = new Vector.<PackageVersion>();
 		public var parameters:Vector.<PackageParameter> = new Vector.<PackageParameter>();
-		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
@@ -42,6 +42,12 @@ package com.apm.data.packages
 		
 		public function PackageVersion()
 		{
+		}
+		
+		
+		public function equals( p:PackageVersion ):Boolean
+		{
+			return version.equals( p.version );
 		}
 		
 		
@@ -68,7 +74,7 @@ package com.apm.data.packages
 				{
 					for each (var depObject:Object in data.dependencies)
 					{
-						dependencies.push( new PackageDependency().fromObject( depObject ) );
+						dependencies.push( new PackageVersion().fromObject( depObject ) );
 					}
 				}
 				if (data.hasOwnProperty( "parameters" ))
@@ -77,6 +83,10 @@ package com.apm.data.packages
 					{
 						parameters.push( new PackageParameter().fromObject( paramObject ) );
 					}
+				}
+				if (data.hasOwnProperty( "package" ))
+				{
+					this.packageDef = new PackageDefinition().fromObject( data[ "package" ] );
 				}
 			}
 			return this;

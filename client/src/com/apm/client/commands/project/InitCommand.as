@@ -77,6 +77,12 @@ package com.apm.client.commands.project
 		}
 		
 		
+		public function get requiresProject():Boolean
+		{
+			return false;
+		}
+		
+		
 		public function get description():String
 		{
 			return "initialise a new apm project file for your application";

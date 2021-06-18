@@ -197,6 +197,15 @@ package com.apm.client
 					if (success)
 					{
 						processEnvironment();
+						if (_command.requiresProject)
+						{
+							if (config.projectDefinition == null)
+							{
+								io.out( "No project file found, run 'apm init' first" );
+								return exit( CODE_ERROR );
+							}
+						}
+						
 						_command.execute( _instance );
 					}
 					else

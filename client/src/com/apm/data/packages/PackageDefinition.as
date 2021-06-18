@@ -13,10 +13,6 @@
  */
 package com.apm.data.packages
 {
-	import com.apm.data.*;
-	import com.apm.SemVer;
-	
-	
 	public class PackageDefinition
 	{
 		////////////////////////////////////////////////////////
@@ -47,6 +43,14 @@ package com.apm.data.packages
 		}
 		
 		
+		public function equals( p:PackageDefinition ):Boolean
+		{
+			if (identifier == p.identifier && type == p.type)
+				return true;
+			return false;
+		}
+		
+		
 		public function toString():String
 		{
 			return identifier +
@@ -67,7 +71,10 @@ package com.apm.data.packages
 				{
 					for each (var versionObject:Object in data.versions)
 					{
-						versions.push( new PackageVersion().fromObject( versionObject ) );
+						var version:PackageVersion = new PackageVersion().fromObject( versionObject );
+						if (version.packageDef == null)
+							version.packageDef = this;
+						versions.push( version );
 					}
 				}
 			}

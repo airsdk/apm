@@ -73,6 +73,12 @@ package com.apm.client.commands.project
 		}
 		
 		
+		public function get requiresProject():Boolean
+		{
+			return true;
+		}
+		
+		
 		public function get description():String
 		{
 			return "controls the configuration parameters saved in the project definition";
@@ -93,13 +99,6 @@ package com.apm.client.commands.project
 			Log.d( TAG, "execute(): " + (_parameters.length > 0 ? _parameters[ 0 ] : "...") + "\n" );
 			try
 			{
-				if (core.config.projectDefinition == null)
-				{
-					core.io.out( "No project file found, run 'apm init' first" );
-					return core.exit( APMCore.CODE_ERROR );
-				}
-				
-				
 				for (var i:int = 0; i < _parameters.length; i++)
 				{
 					var arg:String = _parameters[ i ];

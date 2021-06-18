@@ -69,9 +69,13 @@ package com.apm.client.processes
 			_completeCallback = complete;
 			
 			checkAndStartNextProcess();
-			
 		}
 		
+		
+		public function clear():void
+		{
+			_queue = [];
+		}
 		
 		
 		//

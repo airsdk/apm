@@ -40,17 +40,24 @@ package com.apm.client.commands
 		
 		function get name():String;
 		
-		
 		function get category():String;
-		
-		
-		function get requiresNetwork():Boolean;
-		
 		
 		function get description():String;
 		
-		
 		function get usage():String;
+		
+		
+		/**
+		 * Whether this command access the network, eg package repository api or the air sdk api
+		 */
+		function get requiresNetwork():Boolean;
+		
+		
+		/**
+		 * Whether this command needs a project file
+		 */
+		function get requiresProject():Boolean;
+		
 		
 		
 	}

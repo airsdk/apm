@@ -75,10 +75,17 @@ package com.apm.client.commands.packages
 		}
 		
 		
+		public function get requiresProject():Boolean
+		{
+			return false;
+		}
+		
+		
 		public function get description():String
 		{
 			return "search for a dependency in the repository";
 		}
+		
 		
 		
 		public function get usage():String

@@ -87,6 +87,12 @@ package com.apm.client.commands.airsdk
 		}
 		
 		
+		public function get requiresProject():Boolean
+		{
+			return false;
+		}
+		
+		
 		public function get description():String
 		{
 			return "downloads and installs an AIR SDK version";

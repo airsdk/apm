@@ -1,0 +1,121 @@
+/**
+ *        __       __               __
+ *   ____/ /_ ____/ /______ _ ___  / /_
+ *  / __  / / ___/ __/ ___/ / __ `/ __/
+ * / /_/ / (__  ) / / /  / / /_/ / /
+ * \__,_/_/____/_/ /_/  /_/\__, /_/
+ *                           / /
+ *                           \/
+ * http://distriqt.com
+ *
+ * @author 		Michael (https://github.com/marchbold)
+ * @created		18/6/21
+ */
+package com.apm.client.commands.packages.data
+{
+	import com.apm.data.packages.PackageDefinition;
+	import com.apm.data.packages.PackageVersion;
+	
+	
+	public class InstallData
+	{
+		////////////////////////////////////////////////////////
+		//  CONSTANTS
+		//
+		
+		private static const TAG:String = "InstallData";
+		
+		
+		////////////////////////////////////////////////////////
+		//  VARIABLES
+		//
+		
+		
+		private var _packagesAll:Vector.<InstallPackageData>;
+		
+		/**
+		 * A list of all packages to install, already installed including all dependencies.
+		 * This may include multiple references to the same package and different versions.
+		 */
+		public function get packagesAll():Vector.<InstallPackageData> { return _packagesAll; }
+		
+		
+		
+		
+		
+		
+		/**
+		 * Packages that are already installed,
+		 * - should have top level packages with no dependencies
+		 */
+		private var _packagesInstalled:Vector.<InstallPackageData>;
+		
+		/**
+		 * New packages that are to be installed
+		 * - should have top level packages with no dependencies
+		 */
+		private var _packagesToInstall:Vector.<InstallPackageData>;
+		
+		/**
+		 * Packges that are to be removed
+		 */
+		private var _packagesToRemove:Vector.<InstallPackageData>;
+		
+		
+		////////////////////////////////////////////////////////
+		//  FUNCTIONALITY
+		//
+		
+		public function InstallData()
+		{
+			_packagesAll = new Vector.<InstallPackageData>();
+			_packagesInstalled = new Vector.<InstallPackageData>();
+			_packagesToInstall = new Vector.<InstallPackageData>();
+			_packagesToRemove = new Vector.<InstallPackageData>();
+		}
+		
+		
+		public function contains( query:InstallQueryRequest ):Boolean
+		{
+			for each (var p:InstallPackageData in _packagesAll)
+			{
+				if (p.query.packageIdentifier == query.packageIdentifier
+						&& p.query.semVer.equals( query.semVer ))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		
+		public function addPackage( packageDefinition:PackageDefinition, packageVersion:PackageVersion, query:InstallQueryRequest ):void
+		{
+			var installPackageData:InstallPackageData = new InstallPackageData(
+					packageDefinition,
+					packageVersion,
+					query
+			);
+			
+			for each (var p:InstallPackageData in _packagesAll)
+			{
+				if (p.packageDefinition.equals( packageDefinition )
+						&& p.packageVersion.equals( packageVersion ))
+				{
+					// Do not add duplicates
+					return;
+				}
+			}
+			
+			_packagesAll.push( installPackageData );
+			
+			// TODO
+
+//			if (query) _packagesToInstall.push( packageDefinition );
+//			else _packagesInstalled.push( packageDefinition );
+		}
+		
+		
+	}
+	
+}

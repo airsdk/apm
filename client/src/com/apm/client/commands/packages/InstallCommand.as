@@ -13,9 +13,15 @@
  */
 package com.apm.client.commands.packages
 {
+	import com.apm.SemVer;
 	import com.apm.client.APMCore;
 	import com.apm.client.commands.Command;
+	import com.apm.client.commands.packages.data.InstallData;
+	import com.apm.client.commands.packages.data.InstallQueryRequest;
 	import com.apm.client.commands.packages.processes.InstallPackageProcess;
+	import com.apm.client.commands.packages.processes.InstallQueryPackageProcess;
+	import com.apm.client.commands.packages.utils.InstallDataValidator;
+	import com.apm.client.commands.packages.utils.ProjectDefintionValidator;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.project.ProjectDefinition;
 	
@@ -40,6 +46,8 @@ package com.apm.client.commands.packages
 		private var _parameters:Array;
 		private var _queue:ProcessQueue;
 		
+		private var _installData:InstallData;
+		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
@@ -48,6 +56,7 @@ package com.apm.client.commands.packages
 		public function InstallCommand()
 		{
 			super();
+			_installData = new InstallData();
 			_queue = new ProcessQueue();
 		}
 		
@@ -76,6 +85,12 @@ package com.apm.client.commands.packages
 		}
 		
 		
+		public function get requiresProject():Boolean
+		{
+			return true;
+		}
+		
+		
 		public function get description():String
 		{
 			return "add and install a dependency to your project";
@@ -94,45 +109,97 @@ package com.apm.client.commands.packages
 		
 		public function execute( core:APMCore ):void
 		{
-//			core.io.writeLine( "installing : " +
-//									   (_parameters != null && _parameters.length > 0 ? _parameters[0] : "...")
-//			);
-			
 			var project:ProjectDefinition = core.config.projectDefinition;
 			if (project == null)
 			{
-				core.io.writeLine( "ERROR: project definition not found" );
 				return core.exit( APMCore.CODE_ERROR );
 			}
 			
+			
 			if (_parameters != null && _parameters.length > 0)
 			{
-				// Install
 				var packageIdentifier:String = _parameters[ 0 ];
 				var version:String = (_parameters.length > 1) ? _parameters[ 1 ] : "latest";
 				
-				_queue.addProcess( new InstallPackageProcess( core, packageIdentifier, version ) );
+				var request:InstallQueryRequest = new InstallQueryRequest(
+						packageIdentifier,
+						version,
+						false,
+						true
+				);
+				
+				if (SemVer.fromString(request.version) == null && version != "latest")
+				{
+					// Invalid version passed
+					core.io.writeLine( "Invalid version code : " + version );
+					return core.exit( APMCore.CODE_ERROR );
+				}
+				
+				switch (ProjectDefintionValidator.checkPackageAlreadyInstalled( project, request ))
+				{
+					case -1:
+						// not installed
+					case 0:
+						// latest
+						break;
+					
+					case 1:
+						core.io.writeLine( "Already installed: " + project.dependencies[i].toString() + " >= " + request.version.toString() );
+						return core.exit( APMCore.CODE_OK );
+					
+					case 2:
+						// TODO: Upgrade?
+				}
+				
+				// Install
+				_queue.addProcess(
+						new InstallQueryPackageProcess(
+								core,
+								_installData,
+								request
+						)
+				);
 			}
-			else if (project.dependencies.length > 0)
+			
+			
+			
+			if (project.dependencies.length > 0)
 			{
 				// Install from list in project file
 				for (var i:int = 0; i < project.dependencies.length; i++)
 				{
 					_queue.addProcess(
-							new InstallPackageProcess(
+							new InstallQueryPackageProcess(
 									core,
-									project.dependencies[ i ].identifier,
-									project.dependencies[ i ].version.toString()
+									_installData,
+									new InstallQueryRequest(
+										project.dependencies[ i ].identifier,
+										project.dependencies[ i ].version.toString()
+									)
 							)
 					);
 				}
 			}
-			else
-			{
 			
-			}
+			
+			
 			
 			_queue.start( function ():void {
+
+				//
+				var resolver:InstallDataValidator = new InstallDataValidator();
+				if (resolver.verifyInstall( _installData ))
+				{
+					// dependencies could be resolved - proceed to installation
+					
+				}
+				
+//				if (!_isDependency)
+//				{
+//					// Add it to the project definition
+//					_core.config.projectDefinition.addPackageDependency( packageDefinition );
+//					_core.config.projectDefinition.save();
+//				}
 				
 				core.exit( APMCore.CODE_OK );
 				

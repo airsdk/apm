@@ -21,7 +21,7 @@ package com.apm
 		//
 		
 		private static const TAG:String = "SemVer";
-		
+
 //		public static const DEFAULT:SemVer = new SemVer( "0.0.0" );
 		
 		private var FORMAT:RegExp = /^(\d|[0-9]\d*)\.(\d|[0-9]\d*)(\.(\d|[0-9]\d*))?(-(alpha|beta|rc)(\.(\d|[1-9]\d*))?)?$/;
@@ -56,13 +56,13 @@ package com.apm
 						_minor = results[ i ];
 						break;
 					case 4:
-						if (results[i] != undefined) _patch = results[ i ];
+						if (results[ i ] != undefined) _patch = results[ i ];
 						break;
 					case 6:
-						if (results[i] != undefined) _preview = results[ i ];
+						if (results[ i ] != undefined) _preview = results[ i ];
 						break;
 					case 8:
-						if (results[i] != undefined) _previewNum = results[ i ];
+						if (results[ i ] != undefined) _previewNum = results[ i ];
 						break;
 				}
 			}
@@ -88,9 +88,42 @@ package com.apm
 			return _major + "." + _minor + "." + _patch +
 					(
 							(_preview == null) ? "" : ("-" + _preview +
-										(_previewNum == 0 ? "" : ("." + _previewNum)))
+									(_previewNum == 0 ? "" : ("." + _previewNum)))
 					)
-			;
+					;
+		}
+		
+		
+		//
+		//	Comparisons
+		//
+		
+		public function equals( v:SemVer ):Boolean
+		{
+			if (_major == v._major
+					&& _minor == v._minor
+					&& _patch == v._patch)
+				return true;
+			
+			// TODO preview info
+			return false;
+		}
+		
+		
+		public function greaterThanOrEqual( v:SemVer ):Boolean
+		{
+			if (equals( v )) return true;
+			if (_major > v._major) return true;
+			else if (_major == v._major)
+			{
+				if (_minor > v._minor) return true;
+				else if (_minor == v._minor)
+				{
+					if (_patch > v._patch) return true;
+					// TODO preview info ...
+				}
+			}
+			return false;
 		}
 		
 	}

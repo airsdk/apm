@@ -17,8 +17,6 @@ package com.apm.client.commands.packages
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.packages.processes.ViewPackageProcess;
 	import com.apm.client.processes.ProcessQueue;
-	import com.apm.data.PackageDefinition;
-	import com.apm.remote.repository.RepositoryAPI;
 	
 	
 	public class ViewCommand implements Command
@@ -76,6 +74,12 @@ package com.apm.client.commands.packages
 		}
 		
 		
+		public function get requiresProject():Boolean
+		{
+			return false;
+		}
+		
+		
 		public function get description():String
 		{
 			return "search for a dependency in the repository";
@@ -84,7 +88,7 @@ package com.apm.client.commands.packages
 		
 		public function get usage():String
 		{
-			return  description + "\n" +
+			return description + "\n" +
 					"\n" +
 					"apm search <foo>    search for a dependency called <foo> in the repository\n";
 		}
@@ -98,12 +102,12 @@ package com.apm.client.commands.packages
 				return core.exit( APMCore.CODE_ERROR );
 			}
 			
-			var identifier:String = _parameters[0];
-
+			var identifier:String = _parameters[ 0 ];
+			
 			_queue.addProcess( new ViewPackageProcess( core, identifier ) );
-			_queue.start( function():void {
+			_queue.start( function ():void {
 				core.exit( APMCore.CODE_OK );
-			});
+			} );
 		}
 		
 	}

@@ -71,6 +71,12 @@ package com.apm.client.commands.packages
 		}
 		
 		
+		public function get requiresProject():Boolean
+		{
+			return true;
+		}
+		
+		
 		public function get description():String
 		{
 			return "lists dependencies currently added to your project";

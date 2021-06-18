@@ -73,6 +73,12 @@ package com.apm.client.commands.general
 		}
 		
 		
+		public function get requiresProject():Boolean
+		{
+			return false;
+		}
+		
+		
 		public function get description():String
 		{
 			return "print apm version information";

@@ -14,13 +14,8 @@
 package com.apm.client.commands.project.processes
 {
 	import com.apm.client.APMCore;
-	import com.apm.client.processes.Process;
 	import com.apm.client.processes.ProcessBase;
-	import com.apm.client.processes.events.ProcessEvent;
-	import com.apm.data.ProjectDefinition;
 	import com.apm.data.project.ProjectDefinition;
-	
-	import flash.events.EventDispatcher;
 	
 	import flash.filesystem.File;
 	
@@ -38,7 +33,7 @@ package com.apm.client.commands.project.processes
 		//  VARIABLES
 		//
 		
-		private var _core : APMCore;
+		private var _core:APMCore;
 		
 		
 		////////////////////////////////////////////////////////
@@ -71,8 +66,8 @@ package com.apm.client.commands.project.processes
 			//
 			//	Walk through any questions
 			
-			project.applicationId = _core.io.question( "Application Identifier", "com.my.app")
-			project.applicationName = _core.io.question( "Application Name", "My Application")
+			project.applicationId = _core.io.question( "Application Identifier", "com.my.app" )
+			project.applicationName = _core.io.question( "Application Name", "My Application" )
 			project.version = _core.io.question( "Application Consts", "1.0.0" )
 			
 			
