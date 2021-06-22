@@ -32,6 +32,7 @@ package com.apm.data.packages
 		public var packageDef:PackageDefinition;
 		public var publishedAt:String = "";
 		public var sourceUrl:String = "";
+		public var checksum:String = "";
 		public var version:SemVer = null;
 		public var dependencies:Vector.<PackageVersion> = new Vector.<PackageVersion>();
 		public var parameters:Vector.<PackageParameter> = new Vector.<PackageParameter>();
@@ -47,7 +48,7 @@ package com.apm.data.packages
 		
 		public function equals( p:PackageVersion ):Boolean
 		{
-			return version.equals( p.version );
+			return version.equals( p.version ) && packageDef.equals( p.packageDef );
 		}
 		
 		
@@ -69,6 +70,7 @@ package com.apm.data.packages
 			{
 				if (data.hasOwnProperty( "version" )) this.version = SemVer.fromString( data[ "version" ] );
 				if (data.hasOwnProperty( "sourceUrl" )) this.sourceUrl = data[ "sourceUrl" ];
+				if (data.hasOwnProperty( "checksum" )) this.checksum = data[ "checksum" ];
 				if (data.hasOwnProperty( "publishedAt" )) this.publishedAt = data[ "publishedAt" ];
 				if (data.hasOwnProperty( "dependencies" ))
 				{

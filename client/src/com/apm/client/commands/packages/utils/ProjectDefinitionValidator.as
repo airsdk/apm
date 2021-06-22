@@ -18,14 +18,19 @@ package com.apm.client.commands.packages.utils
 	import com.apm.data.project.ProjectDefinition;
 	
 	
-	public class ProjectDefintionValidator
+	public class ProjectDefinitionValidator
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "ProjectDefintionValidator";
+		private static const TAG:String = "ProjectDefinitionValidator";
 		
+		
+		public static const NOT_INSTALLED : int = -1;
+		public static const ALREADY_INSTALLED : int = 0;
+		public static const UNKNOWN_LATEST_REQUESTED:int = 1;
+		public static const HIGHER_VERSION_REQUESTED:int = 2;
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
@@ -36,7 +41,7 @@ package com.apm.client.commands.packages.utils
 		//  FUNCTIONALITY
 		//
 		
-		public function ProjectDefintionValidator()
+		public function ProjectDefinitionValidator()
 		{
 		}
 		
@@ -50,20 +55,20 @@ package com.apm.client.commands.packages.utils
 				{
 					if (request.version == "latest")
 					{
-						return 0; // Unknown as yet
+						return UNKNOWN_LATEST_REQUESTED; // Unknown as yet
 					}
 					else if (project.dependencies[i].version.greaterThanOrEqual( SemVer.fromString(request.version) ))
 					{
-						return 1;
+						return ALREADY_INSTALLED;
 					}
 					else
 					{
-						// TODO Upgrade ?
-						return 2;
+						// Upgrading ...
+						return HIGHER_VERSION_REQUESTED;
 					}
 				}
 			}
-			return -1;
+			return NOT_INSTALLED;
 		}
 		
 		

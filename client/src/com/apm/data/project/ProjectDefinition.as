@@ -14,6 +14,7 @@
 package com.apm.data.project
 {
 	import com.apm.data.packages.PackageDefinition;
+	import com.apm.data.packages.PackageVersion;
 	import com.apm.data.packages.Repository;
 	
 	import flash.filesystem.File;
@@ -94,7 +95,7 @@ package com.apm.data.project
 		
 		public function stringify():String
 		{
-			return JSON.stringify( toObject(), null, 4 );
+			return JSON.stringify( toObject(), null, 4 ) + "\n";
 		}
 		
 		
@@ -192,18 +193,25 @@ package com.apm.data.project
 		}
 		
 		
+		
+		public function clearPackageDependencies():void
+		{
+			_dependencies = new Vector.<ProjectDependency>();
+		}
+		
+		
 		/**
 		 * Adds a package as a project dependency
 		 *
-		 * @param packageDefinition
+		 * @param packageVersion
 		 */
-		public function addPackageDependency( packageDefinition:PackageDefinition ):void
+		public function addPackageDependency( packageVersion:PackageVersion ):void
 		{
-			if (!hasDependency( packageDefinition.identifier ))
+			if (!hasDependency( packageVersion.packageDef.identifier ))
 			{
 				var dep:ProjectDependency = new ProjectDependency();
-				dep.identifier = packageDefinition.identifier;
-				dep.version = packageDefinition.versions[ 0 ].version;
+				dep.identifier = packageVersion.packageDef.identifier;
+				dep.version =packageVersion.version;
 				
 				dependencies.push( dep );
 			}

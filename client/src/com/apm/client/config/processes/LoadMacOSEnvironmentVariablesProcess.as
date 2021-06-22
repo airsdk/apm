@@ -16,6 +16,7 @@ package com.apm.client.config.processes
 	import com.apm.client.config.RunConfig;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.Process;
+	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.client.processes.events.ProcessEvent;
 	
@@ -28,7 +29,7 @@ package com.apm.client.config.processes
 	import flash.filesystem.File;
 	
 	
-	public class LoadMacOSEnvironmentVariablesProcess extends EventDispatcher implements Process
+	public class LoadMacOSEnvironmentVariablesProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
@@ -46,6 +47,8 @@ package com.apm.client.config.processes
 		private var _environmentVariables:Object;
 		private var _config:RunConfig;
 		
+		
+		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
@@ -57,12 +60,7 @@ package com.apm.client.config.processes
 		}
 		
 		
-		public function set queue( value:ProcessQueue ):void
-		{
-		}
-		
-		
-		public function start():void
+		override public function start():void
 		{
 			Log.d( TAG, "start()" );
 			if (NativeProcess.isSupported)
@@ -76,8 +74,8 @@ package com.apm.client.config.processes
 				
 				if (!processStartupInfo.executable.exists)
 				{
-					// Error?
-					dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ) );
+					// TODO:: Error?
+					complete();
 				}
 				
 				_process = new NativeProcess();
@@ -92,7 +90,7 @@ package com.apm.client.config.processes
 			else
 			{
 				Log.d( TAG, "ERROR: Native process not supported - cannot get environment" );
-				dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ) );
+				complete();
 			}
 		}
 		
@@ -119,7 +117,7 @@ package com.apm.client.config.processes
 				_config.env[key] = _environmentVariables[key];
 			}
 			
-			dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ) );
+			complete();
 		}
 		
 		

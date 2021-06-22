@@ -120,7 +120,7 @@ package com.apm.client.commands.packages
 						{
 							core.io.writeLine(
 									(i == packages.length - 1 ? "└──" : "├──") +
-									packages[ i ].toString()
+									packages[ i ].toDescriptiveString()
 							);
 						}
 					}

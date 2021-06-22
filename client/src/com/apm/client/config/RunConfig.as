@@ -15,10 +15,14 @@ package com.apm.client.config
 {
 	import com.apm.client.config.processes.LoadMacOSEnvironmentVariablesProcess;
 	import com.apm.client.config.processes.LoadProjectDefinitionProcess;
+	import com.apm.client.config.processes.LoadUserSettingsProcess;
 	import com.apm.client.config.processes.LoadWindowsEnvironmentVariablesProcess;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.project.ProjectDefinition;
+	import com.apm.data.user.UserSettings;
+	
+	import flash.filesystem.File;
 	
 	import flash.system.Capabilities;
 	
@@ -47,7 +51,7 @@ package com.apm.client.config
 		public var workingDir:String;
 		
 		// The directory for package storage (apm_packages)
-		public function get packagesDir():String { return workingDir + "/apm_packages"; }
+		public function get packagesDir():String { return workingDir + File.separator + "apm_packages"; }
 		
 		// The current project definition file
 		public var projectDefinition:ProjectDefinition = null;
@@ -56,12 +60,16 @@ package com.apm.client.config
 		public var env:Object = {};
 		
 		
+		public var user:UserSettings;
+		
+		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
 		public function RunConfig()
 		{
+			user = new UserSettings();
 		}
 		
 		
@@ -90,12 +98,30 @@ package com.apm.client.config
 			
 			// General
 			_loadQueue.addProcess( new LoadProjectDefinitionProcess( this ) );
+			_loadQueue.addProcess( new LoadUserSettingsProcess( this ) );
 //			_loadQueue.addProcess( new DebugDelayProcess( 3000 ) );
 			
 			_loadQueue.start( function ():void {
 				if (callback != null)
 					callback( true );
 			} );
+		}
+		
+		
+		public function getHomeDirectory():String
+		{
+			if (isMacOS)
+			{
+				if (env.hasOwnProperty("HOME" ))
+					return env.HOME;
+				else
+					return "~";
+			}
+			else
+			{
+				// TODO::
+				return "C:\\";
+			}
 		}
 		
 		

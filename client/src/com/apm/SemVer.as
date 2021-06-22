@@ -38,6 +38,22 @@ package com.apm
 		private var _previewNum:int = 0;
 		
 		
+		public function get major():int { return _major; }
+		
+		
+		public function get minor():int { return _minor; }
+		
+		
+		public function get patch():int { return _patch; }
+		
+		
+		public function get preview():String { return _preview; }
+		
+		
+		public function get previewNum():int { return _previewNum; }
+		
+		
+		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
@@ -113,6 +129,13 @@ package com.apm
 		public function greaterThanOrEqual( v:SemVer ):Boolean
 		{
 			if (equals( v )) return true;
+			return greaterThan( v );
+		}
+		
+		
+		public function greaterThan( v:SemVer ):Boolean
+		{
+			if (equals( v )) return false;
 			if (_major > v._major) return true;
 			else if (_major == v._major)
 			{
@@ -126,5 +149,20 @@ package com.apm
 			return false;
 		}
 		
+		
+		public function lessThan( v:SemVer ):Boolean
+		{
+			return !greaterThanOrEqual( v );
+		}
+		
+		
+		public function lessThanOrEqual( v:SemVer ):Boolean
+		{
+			if (equals( v )) return true;
+			return lessThan( v );
+		}
+		
+		
 	}
+	
 }

@@ -96,7 +96,7 @@ package com.apm.client.commands.packages
 		
 		public function execute( core:APMCore ):void
 		{
-			if (_parameters == null && _parameters.length == 0)
+			if (_parameters == null || _parameters.length == 0)
 			{
 				core.io.writeLine( "No search params provided" );
 				return core.exit( APMCore.CODE_ERROR );

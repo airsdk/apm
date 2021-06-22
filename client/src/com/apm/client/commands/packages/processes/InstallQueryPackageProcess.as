@@ -17,7 +17,7 @@ package com.apm.client.commands.packages.processes
 	import com.apm.client.APMCore;
 	import com.apm.client.commands.packages.data.InstallData;
 	import com.apm.client.commands.packages.data.InstallQueryRequest;
-	import com.apm.client.commands.packages.utils.ProjectDefintionValidator;
+	import com.apm.client.commands.packages.utils.ProjectDefinitionValidator;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageDefinition;
@@ -87,37 +87,41 @@ package com.apm.client.commands.packages.processes
 						{
 							if (foundVersion)
 							{
-								var installVersion:PackageVersion = packageDefinition.versions[ 0 ];
+								var packageVersionForInstall:PackageVersion = packageDefinition.versions[ 0 ];
 								_core.io.writeLine( packageDefinition.toString() );
 								
 								// Update the request (in case this was a latest version request)
 								if (_request.version == "latest")
 								{
-									_request.version = installVersion.version.toString();
+									_request.version = packageVersionForInstall.version.toString();
 									
 									// Perform a delayed "already installed" check
-									switch (ProjectDefintionValidator.checkPackageAlreadyInstalled( _core.config.projectDefinition, _request ))
+									switch (ProjectDefinitionValidator.checkPackageAlreadyInstalled( _core.config.projectDefinition, _request ))
 									{
-										case -1:
+										case ProjectDefinitionValidator.NOT_INSTALLED:
 											// not installed
-										case 0:
+											break;
+										
+										case ProjectDefinitionValidator.ALREADY_INSTALLED:
+											_core.io.writeLine( "Already installed: " + packageDefinition.toString() + " >= " + _request.version );
+											return _core.exit( APMCore.CODE_OK );
+											
+										case ProjectDefinitionValidator.UNKNOWN_LATEST_REQUESTED:
 											// latest
 											break;
 										
-										case 1:
-											_core.io.writeLine( "Already installed: " + packageDefinition.toString() + " >= " + _request.version );
-											return _core.exit( APMCore.CODE_OK );
-										
-										case 2:
+										case ProjectDefinitionValidator.HIGHER_VERSION_REQUESTED:
 											// TODO: Upgrade?
+											_core.io.writeLine( "Upgrade not yet implemented" );
+											return _core.exit( APMCore.CODE_OK );
 									}
 								}
 								
 								
-								_installData.addPackage( packageDefinition, installVersion, _request );
+								_installData.addPackage( packageVersionForInstall, _request );
 								
 								// Queue dependencies for install
-								for each (var dep:PackageVersion in installVersion.dependencies)
+								for each (var dep:PackageVersion in packageVersionForInstall.dependencies)
 								{
 									_queue.addProcess(
 											new InstallQueryPackageProcess(
@@ -126,7 +130,7 @@ package com.apm.client.commands.packages.processes
 													new InstallQueryRequest(
 															dep.packageDef.identifier,
 															dep.version.toString(),
-															true )
+															packageVersionForInstall )
 											) );
 								}
 								

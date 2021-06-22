@@ -13,11 +13,13 @@
  */
 package com.apm.client.commands.packages.processes
 {
+	import com.apm.SemVer;
 	import com.apm.client.APMCore;
+	import com.apm.client.Consts;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
-	import com.apm.data.PackageDefinition;
-	import com.apm.data.packages.PackageDefinition;
+	import com.apm.data.packages.PackageVersion;
+	import com.apm.data.utils.Checksum;
 	
 	import flash.events.Event;
 	import flash.events.HTTPStatusEvent;
@@ -27,14 +29,12 @@ package com.apm.client.commands.packages.processes
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
-	
 	import flash.net.URLLoader;
 	import flash.net.URLLoaderDataFormat;
 	import flash.net.URLRequest;
+	import flash.net.URLRequestHeader;
 	import flash.net.URLRequestMethod;
 	import flash.utils.ByteArray;
-	
-	import flash.utils.setTimeout;
 	
 	
 	public class DownloadPackageProcess extends ProcessBase
@@ -51,7 +51,7 @@ package com.apm.client.commands.packages.processes
 		//
 		
 		private var _core:APMCore;
-		private var _packageDefinition:PackageDefinition;
+		private var _package:PackageVersion;
 		private var _destination:File;
 		private var _loader:URLLoader;
 		
@@ -60,25 +60,27 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function DownloadPackageProcess( core:APMCore, packageDefinition:PackageDefinition )
+		public function DownloadPackageProcess( core:APMCore, packageVersion:PackageVersion )
 		{
 			super();
 			_core = core;
-			_packageDefinition = packageDefinition;
+			_package = packageVersion;
 			
 			var packagesDir:File = new File( _core.config.packagesDir );
 			if (!packagesDir.exists) packagesDir.createDirectory();
 			
-			var packageDir:File = new File( _core.config.packagesDir + File.separator + _packageDefinition.identifier );
+			var packageDir:File = new File( _core.config.packagesDir + File.separator + _package.packageDef.identifier );
 			if (!packageDir.exists) packageDir.createDirectory();
 			
-			_destination = packageDir.resolvePath( _packageDefinition.identifier + "."+ _packageDefinition.type );
+			var filename:String = _package.packageDef.identifier + "_" + _package.version.toString() + ".zip";
+			
+			_destination = packageDir.resolvePath( filename );
 		}
 		
 		
 		override public function start():void
 		{
-			_core.io.showProgressBar( "Downloading package : " + _packageDefinition.toString() );
+			_core.io.showProgressBar( "Downloading package : " + _package.packageDef.toString() );
 			if (_destination.exists)
 			{
 				checkExistingFile( true );
@@ -95,7 +97,7 @@ package com.apm.client.commands.packages.processes
 			var fileValid:Boolean = false;
 			if (_destination.exists)
 			{
-				fileValid = verifyFile();
+				fileValid = verifyFile( _package.checksum );
 				_core.io.completeProgressBar( true, "Package already downloaded" );
 			}
 			
@@ -116,7 +118,7 @@ package com.apm.client.commands.packages.processes
 			var fileValid:Boolean = false;
 			if (_destination.exists)
 			{
-				fileValid = verifyFile();
+				fileValid = verifyFile( _package.checksum );
 			}
 			if (fileValid)
 			{
@@ -130,17 +132,31 @@ package com.apm.client.commands.packages.processes
 		}
 		
 		
-		private function verifyFile():Boolean
+		private function verifyFile( checksum:String ):Boolean
 		{
-			// TODO: check sum ?
-			return true;
+			var calculatedSum:String = "";
+			if (_destination.exists)
+			{
+				calculatedSum = Checksum.sha256Checksum( _destination );
+			}
+			return calculatedSum == checksum;
 		}
 		
 		
 		private function downloadPackage():void
 		{
-			var req:URLRequest = new URLRequest( _packageDefinition.versions[0].sourceUrl );
+			var headers:Array = [];
+			headers.push( new URLRequestHeader( "User-Agent", "apm v" + new SemVer( Consts.VERSION ).toString() ) );
+			
+			if (_package.sourceUrl.indexOf( "github.com" ) >= 0 && _core.config.user.github_token.length > 0)
+			{
+				headers.push( new URLRequestHeader( "Accept", "application/vnd.github.v3.raw" ) );
+				headers.push( new URLRequestHeader( "Authorization", "token " + _core.config.user.github_token ) );
+			}
+			
+			var req:URLRequest = new URLRequest( _package.sourceUrl );
 			req.method = URLRequestMethod.GET;
+			req.requestHeaders = headers;
 			
 			_loader = new URLLoader();
 			_loader.dataFormat = URLLoaderDataFormat.BINARY;
@@ -159,7 +175,7 @@ package com.apm.client.commands.packages.processes
 			{
 				_core.io.updateProgressBar(
 						event.bytesLoaded / event.bytesTotal,
-						"Downloading package : " + _packageDefinition.toString() );
+						"Downloading package : " + _package.packageDef.toString() );
 			}
 		}
 		
@@ -175,16 +191,19 @@ package com.apm.client.commands.packages.processes
 			checkDownloadedFile();
 		}
 		
+		
 		private function loader_errorHandler( event:IOErrorEvent ):void
 		{
 			_core.io.completeProgressBar( false, event.text );
 			complete();
 		}
 		
+		
 		private function loader_statusHandler( event:HTTPStatusEvent ):void
 		{
 			Log.d( TAG, "loader_statusHandler(): " + event.status );
 		}
+		
 		
 		private function loader_securityErrorHandler( event:SecurityErrorEvent ):void
 		{

@@ -60,6 +60,19 @@ package com.apm.client.io
 		}
 		
 		
+		public function writeError( tag:String, message:String ):void
+		{
+			if (_colourSupported)
+			{
+				out( "\x1B[1;31m" + tag + "\x1B[0;37m :: " + message + "\n");
+			}
+			else
+			{
+				out( tag + " :: " + message + "\n" );
+			}
+		}
+		
+		
 		public function out( s:String ):void
 		{
 			System.output( s );

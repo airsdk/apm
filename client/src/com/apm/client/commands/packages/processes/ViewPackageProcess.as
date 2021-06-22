@@ -57,7 +57,7 @@ package com.apm.client.commands.packages.processes
 				_core.io.stopSpinner( success, "No package found matching : " + _packageIdentifier, success );
 				if (success)
 				{
-					_core.io.writeLine( packageDefinition.toString() );
+					_core.io.writeLine( packageDefinition.toDescriptiveString() );
 					
 					if (packageDefinition.versions.length == 0)
 					{

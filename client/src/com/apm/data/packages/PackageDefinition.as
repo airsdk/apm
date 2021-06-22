@@ -54,6 +54,13 @@ package com.apm.data.packages
 		public function toString():String
 		{
 			return identifier +
+					"@" + (versions.length > 0 ? versions[ 0 ].toString() : "x.x.x");
+		}
+		
+		
+		public function toDescriptiveString():String
+		{
+			return identifier +
 					"@" + (versions.length > 0 ? versions[ 0 ].toString() : "x.x.x") +
 					"   " + description;
 		}

@@ -15,6 +15,7 @@ package com.apm.client.commands.packages.data
 {
 	import com.apm.SemVer;
 	import com.apm.SemVer;
+	import com.apm.data.packages.PackageVersion;
 	
 	
 	public class InstallQueryRequest
@@ -31,9 +32,18 @@ package com.apm.client.commands.packages.data
 		//
 		
 		public var packageIdentifier:String;
+		
 		public var version:String;
-		public var isDependency:Boolean; // Whether this is a dependency request (won't be added to the project file)
-		public var isNew:Boolean; // Whether this was already in the project or is a new package addition
+		
+		/**
+		 * The package that required this request , i.e. the package that has this package/version as a dependency
+		 */
+		public var requiringPackage:PackageVersion;
+		
+		/**
+		 * Whether this was already in the project or is a new package addition
+		 */
+		public var isNew:Boolean;
 
 		
 		public function get semVer():SemVer { return SemVer.fromString(version); }
@@ -46,13 +56,13 @@ package com.apm.client.commands.packages.data
 		public function InstallQueryRequest(
 				packageIdentifier:String,
 				version:String,
-				isDependency:Boolean = false,
+				requiringPackage:PackageVersion = null,
 				isNew:Boolean=false
 		)
 		{
 			this.packageIdentifier = packageIdentifier;
 			this.version = version;
-			this.isDependency = isDependency;
+			this.requiringPackage = requiringPackage;
 			this.isNew = isNew;
 		}
 		

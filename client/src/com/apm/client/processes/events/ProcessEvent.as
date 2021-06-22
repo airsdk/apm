@@ -13,10 +13,11 @@
  */
 package com.apm.client.processes.events
 {
+	import flash.events.DataEvent;
 	import flash.events.Event;
 	
 	
-	public class ProcessEvent extends Event
+	public class ProcessEvent extends DataEvent
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
@@ -25,7 +26,18 @@ package com.apm.client.processes.events
 		private static const TAG:String = "ProcessEvent";
 		
 		
+		/**
+		 *
+		 * @eventType process_complete
+		 */
 		public static const COMPLETE : String = "process_complete";
+		
+		
+		/**
+		 * @eventType process_failed
+		 */
+		public static const FAILED : String = "process_failed";
+		
 		
 		
 		////////////////////////////////////////////////////////
@@ -38,9 +50,9 @@ package com.apm.client.processes.events
 		//
 		
 		
-		public function ProcessEvent( type:String, bubbles:Boolean = false, cancelable:Boolean = false )
+		public function ProcessEvent( type:String, data:String="", bubbles:Boolean = false, cancelable:Boolean = false )
 		{
-			super( type, bubbles, cancelable );
+			super( type, bubbles, cancelable, data );
 		}
 		
 		

@@ -44,11 +44,11 @@ package com.apm.client.commands.packages.data
 		
 		
 		
-		/**
-		 * Packages that are already installed,
-		 * - should have top level packages with no dependencies
-		 */
-		private var _packagesInstalled:Vector.<InstallPackageData>;
+//		/**
+//		 * Packages that are already installed,
+//		 * - should have top level packages with no dependencies
+//		 */
+//		private var _packagesInstalled:Vector.<InstallPackageData>;
 		
 		/**
 		 * New packages that are to be installed
@@ -61,6 +61,18 @@ package com.apm.client.commands.packages.data
 		 */
 		private var _packagesToRemove:Vector.<InstallPackageData>;
 		
+		/**
+		 * Group of packages that are in conflict
+		 */
+		private var _packagesConflicting:Vector.<InstallPackageDataGroup>;
+		
+		
+		
+		public function get packagesToInstall():Vector.<InstallPackageData> { return _packagesToInstall; }
+		public function get packagesToRemove():Vector.<InstallPackageData> { return _packagesToRemove; }
+		public function get packagesConflicting():Vector.<InstallPackageDataGroup> { return _packagesConflicting; }
+		
+		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
@@ -69,9 +81,10 @@ package com.apm.client.commands.packages.data
 		public function InstallData()
 		{
 			_packagesAll = new Vector.<InstallPackageData>();
-			_packagesInstalled = new Vector.<InstallPackageData>();
+//			_packagesInstalled = new Vector.<InstallPackageData>();
 			_packagesToInstall = new Vector.<InstallPackageData>();
 			_packagesToRemove = new Vector.<InstallPackageData>();
+			_packagesConflicting = new Vector.<InstallPackageDataGroup>();
 		}
 		
 		
@@ -89,18 +102,16 @@ package com.apm.client.commands.packages.data
 		}
 		
 		
-		public function addPackage( packageDefinition:PackageDefinition, packageVersion:PackageVersion, query:InstallQueryRequest ):void
+		public function addPackage( packageVersion:PackageVersion, query:InstallQueryRequest ):void
 		{
 			var installPackageData:InstallPackageData = new InstallPackageData(
-					packageDefinition,
 					packageVersion,
 					query
 			);
 			
 			for each (var p:InstallPackageData in _packagesAll)
 			{
-				if (p.packageDefinition.equals( packageDefinition )
-						&& p.packageVersion.equals( packageVersion ))
+				if (p.packageVersion.equals( packageVersion ))
 				{
 					// Do not add duplicates
 					return;

@@ -15,7 +15,6 @@ package com.apm.client.processes
 {
 	import com.apm.client.processes.events.ProcessEvent;
 	
-	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	
 	
@@ -32,7 +31,7 @@ package com.apm.client.processes
 		//  VARIABLES
 		//
 		
-		protected var _queue : ProcessQueue;
+		protected var _queue:ProcessQueue;
 		
 		
 		////////////////////////////////////////////////////////
@@ -59,6 +58,12 @@ package com.apm.client.processes
 		protected function complete():void
 		{
 			dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ) );
+		}
+		
+		
+		protected function failure( error:String = "" ):void
+		{
+			dispatchEvent( new ProcessEvent( ProcessEvent.FAILED, error ) );
 		}
 		
 	}

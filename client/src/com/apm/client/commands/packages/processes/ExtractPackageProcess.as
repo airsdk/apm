@@ -15,8 +15,8 @@ package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APMCore;
 	import com.apm.client.processes.ProcessBase;
-	import com.apm.data.PackageDefinition;
 	import com.apm.data.packages.PackageDefinition;
+	import com.apm.data.packages.PackageVersion;
 	
 	import flash.utils.setTimeout;
 	
@@ -35,29 +35,31 @@ package com.apm.client.commands.packages.processes
 		//
 		
 		private var _core:APMCore;
-		private var _packageDefinition:PackageDefinition;
+		private var _package:PackageVersion;
 		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function ExtractPackageProcess( core:APMCore, packageDefinition:PackageDefinition )
+		public function ExtractPackageProcess( core:APMCore, packageVersion:PackageVersion )
 		{
 			super();
 			_core = core;
-			_packageDefinition = packageDefinition;
+			_package = packageVersion;
 		}
 		
 		
 		override public function start():void
 		{
-			_core.io.showSpinner( "Extracting package : " + _packageDefinition.toString() );
+			_core.io.showSpinner( "Extracting package : " + _package.packageDef.toString() );
 			setTimeout( function ():void {
+
+				// TODO unzip package
+
 				_core.io.stopSpinner( true,
 									  "complete" );
 				complete();
-				
 			}, 2000 );
 		}
 		

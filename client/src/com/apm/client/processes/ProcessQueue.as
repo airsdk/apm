@@ -58,15 +58,31 @@ package com.apm.client.processes
 			return this;
 		}
 		
+		
+		public function addCallback( callback:Function ):ProcessQueue
+		{
+			_queue.push( new ProcessCallback( callback ) );
+			return this;
+		}
+		
+		
+		public function addCallbackToStart( callback:Function ):ProcessQueue
+		{
+			_queue.unshift( new ProcessCallback( callback ) );
+			return this;
+		}
+		
 
 		private var _processing : Boolean = false;
 		private var _completeCallback : Function = null;
+		private var _failedCallback : Function = null;
 		
-		public function start( complete:Function ):void
+		public function start( complete:Function, failed:Function=null ):void
 		{
 			if (_processing) return;
 			_processing = true;
 			_completeCallback = complete;
+			_failedCallback = failed;
 			
 			checkAndStartNextProcess();
 		}
@@ -90,11 +106,13 @@ package com.apm.client.processes
 			if (_queue.length == 0)
 			{
 				// Reached end of queue
+				_processing = false;
 				dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ));
 				if (_completeCallback != null)
 				{
-					_completeCallback();
+					var callback:Function = _completeCallback;
 					_completeCallback = null;
+					callback();
 				}
 				return;
 			}
@@ -104,25 +122,38 @@ package com.apm.client.processes
 			
 			try
 			{
-				_currentProcess.addEventListener( ProcessEvent.COMPLETE, process_completeHandler );
+				_currentProcess.addEventListener( ProcessEvent.COMPLETE, process_eventHandler );
+				_currentProcess.addEventListener( ProcessEvent.FAILED, process_eventHandler );
 				_currentProcess.queue = this;
 				_currentProcess.start();
 			}
 			catch (e:Error)
 			{
-				Log.e( TAG, e );
-				process_completeHandler( null );
+				process_eventHandler( new ProcessEvent( ProcessEvent.FAILED, e.message ) );
 			}
 			
 		}
 		
 		
-		private function process_completeHandler( event:ProcessEvent ):void
+		private function process_eventHandler( event:ProcessEvent ):void
 		{
-			Log.d( TAG, "process_completeHandler()" );
-			_currentProcess.removeEventListener( ProcessEvent.COMPLETE, process_completeHandler );
+			Log.d( TAG, "process_eventHandler()" );
+			_currentProcess.removeEventListener( ProcessEvent.COMPLETE, process_eventHandler );
+			_currentProcess.removeEventListener( ProcessEvent.FAILED, process_eventHandler );
+
+			switch (event.type)
+			{
+				case ProcessEvent.COMPLETE:
+				{
+					checkAndStartNextProcess();
+					break;
+				}
+				case ProcessEvent.FAILED:
+				{
+					break;
+				}
+			}
 			
-			checkAndStartNextProcess();
 		}
 		
 		

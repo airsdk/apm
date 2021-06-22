@@ -32,7 +32,6 @@ package com.apm.client.commands.packages.data
 		//  VARIABLES
 		//
 		
-		public var packageDefinition:PackageDefinition;
 		public var packageVersion:PackageVersion;
 		public var query:InstallQueryRequest;
 		
@@ -42,13 +41,21 @@ package com.apm.client.commands.packages.data
 		//
 		
 		public function InstallPackageData(
-				packageDefinition:PackageDefinition,
 				packageVersion:PackageVersion,
 				query:InstallQueryRequest )
 		{
-			this.packageDefinition = packageDefinition;
 			this.packageVersion = packageVersion;
 			this.query = query;
+		}
+		
+		
+		public function equals( b:InstallPackageData ):Boolean
+		{
+			if (packageVersion.equals( b.packageVersion))
+			{
+				return true;
+			}
+			return false;
 		}
 		
 	}

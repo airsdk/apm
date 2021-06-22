@@ -17,11 +17,15 @@ package com.apm.client.commands.packages
 	import com.apm.client.APMCore;
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.packages.data.InstallData;
+	import com.apm.client.commands.packages.data.InstallPackageData;
+	import com.apm.client.commands.packages.data.InstallPackageDataGroup;
 	import com.apm.client.commands.packages.data.InstallQueryRequest;
+	import com.apm.client.commands.packages.processes.InstallFinaliseProcess;
 	import com.apm.client.commands.packages.processes.InstallPackageProcess;
 	import com.apm.client.commands.packages.processes.InstallQueryPackageProcess;
+	import com.apm.client.commands.packages.processes.RemovePackageProcess;
 	import com.apm.client.commands.packages.utils.InstallDataValidator;
-	import com.apm.client.commands.packages.utils.ProjectDefintionValidator;
+	import com.apm.client.commands.packages.utils.ProjectDefinitionValidator;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.project.ProjectDefinition;
 	
@@ -124,7 +128,7 @@ package com.apm.client.commands.packages
 				var request:InstallQueryRequest = new InstallQueryRequest(
 						packageIdentifier,
 						version,
-						false,
+						null,
 						true
 				);
 				
@@ -135,20 +139,24 @@ package com.apm.client.commands.packages
 					return core.exit( APMCore.CODE_ERROR );
 				}
 				
-				switch (ProjectDefintionValidator.checkPackageAlreadyInstalled( project, request ))
+				switch (ProjectDefinitionValidator.checkPackageAlreadyInstalled( project, request ))
 				{
-					case -1:
+					case ProjectDefinitionValidator.NOT_INSTALLED:
 						// not installed
-					case 0:
-						// latest
 						break;
 					
-					case 1:
+					case ProjectDefinitionValidator.ALREADY_INSTALLED:
 						core.io.writeLine( "Already installed: " + project.dependencies[i].toString() + " >= " + request.version.toString() );
 						return core.exit( APMCore.CODE_OK );
 					
-					case 2:
+					case ProjectDefinitionValidator.UNKNOWN_LATEST_REQUESTED:
+						// exists but requesting latest
+						break;
+					
+					case ProjectDefinitionValidator.HIGHER_VERSION_REQUESTED:
 						// TODO: Upgrade?
+						core.io.writeLine( "Upgrade not yet implemented" );
+						return core.exit( APMCore.CODE_OK );
 				}
 				
 				// Install
@@ -191,9 +199,44 @@ package com.apm.client.commands.packages
 				if (resolver.verifyInstall( _installData ))
 				{
 					// dependencies could be resolved - proceed to installation
+					_queue.clear();
+					for each (var p:InstallPackageData in _installData.packagesToRemove)
+					{
+						_queue.addProcess(
+								new RemovePackageProcess( core, p )
+						);
+					}
+					for each (var p:InstallPackageData in _installData.packagesToInstall)
+					{
+						_queue.addProcess(
+								new InstallPackageProcess( core, p )
+						);
+					}
 					
+					_queue.addProcess( new InstallFinaliseProcess( core, _installData ));
+					
+					_queue.start( function():void
+								  {
+									  core.exit( APMCore.CODE_OK );
+								  })
 				}
-				
+				else
+				{
+					core.io.writeError( "CONFLICT", "fatal error : found ["+_installData.packagesConflicting.length +"] conflicting packages" );
+					for each (var confictGroup:InstallPackageDataGroup in _installData.packagesConflicting)
+					{
+						core.io.writeError( "CONFLICT", confictGroup.packageIdentifier );
+						for (var i:int = 0; i < confictGroup.versions.length; i++)
+						{
+							core.io.writeError( "CONFLICT",
+												(i == confictGroup.versions.length - 1 ? "└── " : "├── ") +
+														confictGroup.versions[i].packageVersion.toString() +
+														" required by: " + confictGroup.versions[i].query.requiringPackage.packageDef.toString()
+							);
+						}
+					}
+					core.exit( APMCore.CODE_ERROR );
+				}
 //				if (!_isDependency)
 //				{
 //					// Add it to the project definition
@@ -201,8 +244,7 @@ package com.apm.client.commands.packages
 //					_core.config.projectDefinition.save();
 //				}
 				
-				core.exit( APMCore.CODE_OK );
-				
+			
 			} );
 			
 			

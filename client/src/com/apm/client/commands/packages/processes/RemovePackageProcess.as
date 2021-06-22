@@ -13,26 +13,22 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.SemVer;
 	import com.apm.client.APMCore;
 	import com.apm.client.commands.packages.data.InstallPackageData;
-	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
-	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageVersion;
-	import com.apm.remote.repository.RepositoryAPI;
 	
 	import flash.utils.setTimeout;
 	
 	
-	public class InstallPackageProcess extends ProcessBase
+	public class RemovePackageProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "InstallPackageProcess";
+		private static const TAG:String = "ExtractPackageProcess";
 		
 		
 		////////////////////////////////////////////////////////
@@ -41,13 +37,13 @@ package com.apm.client.commands.packages.processes
 		
 		private var _core:APMCore;
 		private var _installData:InstallPackageData;
-
+		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function InstallPackageProcess( core:APMCore, installData:InstallPackageData )
+		public function RemovePackageProcess( core:APMCore, installData:InstallPackageData )
 		{
 			super();
 			_core = core;
@@ -57,18 +53,13 @@ package com.apm.client.commands.packages.processes
 		
 		override public function start():void
 		{
-			_core.io.writeLine( "Installing package : " + _installData.packageVersion.packageDef.toString() );
-			
-			var queue:ProcessQueue = new ProcessQueue();
-			
-			queue.addProcess( new DownloadPackageProcess( _core, _installData.packageVersion ));
-			queue.addProcess( new ExtractPackageProcess( _core, _installData.packageVersion ));
-			
-			queue.start( function():void {
-				_core.io.writeLine( "Installed package : " + _installData.packageVersion.packageDef.toString() );
+			_core.io.showSpinner( "Removing existing package : " + _installData.packageVersion.packageDef.toString() );
+			setTimeout( function ():void {
+				_core.io.stopSpinner( true,
+									  "removed " + _installData.packageVersion.packageDef.toString() );
 				complete();
-			});
-			
+				
+			}, 2000 );
 		}
 		
 		

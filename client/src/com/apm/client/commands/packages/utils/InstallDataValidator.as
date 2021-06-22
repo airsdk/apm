@@ -54,73 +54,77 @@ package com.apm.client.commands.packages.utils
 		 */
 		public function verifyInstall( data:InstallData ):Boolean
 		{
-			var installList:Vector.<InstallPackageData> = new Vector.<InstallPackageData>();
-			var duplicatePackages:Object = findDuplicatePackages( data.packagesAll );
-			
-			for (var packageIdentifier:String in duplicatePackages)
+			// Group packages by identifier, each with an array of versions (sorted by version, highest first)
+			var packageGroups:Object = groupPackagesByIdentifier( data.packagesAll );
+			for (var packageIdentifier:String in packageGroups)
 			{
-				var resolvedPackage:InstallPackageData = resolvePackage( duplicatePackages[packageIdentifier] );
-				
-				
-			}
-			
-			
-			
-			
-			return false;
-		}
-		
-		
-		private function findDuplicatePackages( packages:Vector.<InstallPackageData> ):Object
-		{
-			var duplicates:Object = {};
-			for (var i:int = 0; i < packages.length; i++)
-			{
-				for (var j:int = 0; j < packages.length; j++)
+				var group:InstallPackageDataGroup = packageGroups[packageIdentifier];
+				if (group.length == 1)
 				{
-					if (i != j)
+					data.packagesToInstall.push( group.versions[0] );
+				}
+				else
+				{
+					// Conflict / multiple versions
+					var resolvedPackage:InstallPackageData = resolvePackage( group );
+					if (resolvedPackage != null)
 					{
-						if (packages[i].packageDefinition.equals( packages[j].packageDefinition ) )
+						data.packagesToInstall.push( resolvedPackage );
+						for (var i:int = 0; i < group.length; i++)
 						{
-							if (!duplicates.hasOwnProperty(packages[i].packageDefinition.identifier))
+							if (!group.versions[i].equals( resolvedPackage ))
 							{
-								duplicates[ packages[i].packageDefinition.identifier ] = [];
+								data.packagesToRemove.push( group.versions[i] );
 							}
-							
-							var packageDuplicates:Array = duplicates[ packages[i].packageDefinition.identifier ];
-							addIfNotExists( packageDuplicates, packages[i] );
-							addIfNotExists( packageDuplicates, packages[j] );
 						}
+					}
+					else
+					{
+						// Conflict found...
+						data.packagesConflicting.push( group );
 					}
 				}
 			}
-			return duplicates;
+			return data.packagesConflicting.length == 0;
 		}
 		
 		
-		private function addIfNotExists( dest:Array, data:InstallPackageData ):void
+		/**
+		 * Groups the InstallPackageData package references by package identifier
+		 *
+		 * @param packages
+		 *
+		 * @return An object, with package identifiers indexing to InstallPackageDataGroup instances
+		 */
+		private function groupPackagesByIdentifier( packages:Vector.<InstallPackageData> ):Object
 		{
-			var exists:Boolean = false;
-			for each (var p:InstallPackageData in dest)
+			var groups:Object = {};
+			for (var i:int = 0; i < packages.length; i++)
 			{
-				if (installDataMatches( p, data )) exists = true;
+				if (!groups.hasOwnProperty(packages[i].packageVersion.packageDef.identifier))
+				{
+					groups[ packages[i].packageVersion.packageDef.identifier ] = new InstallPackageDataGroup();
+				}
+				// Filter identical duplicates
+				var packageGroup:InstallPackageDataGroup = groups[ packages[i].packageVersion.packageDef.identifier ];
+				packageGroup.addIfNotExists( packages[i] );
 			}
-			if (!exists)
+			for (var packageIdentifier:String in groups)
 			{
-				dest.push( data );
+				var g:InstallPackageDataGroup = groups[packageIdentifier];
+				if (g.length > 1)
+				{
+					g.sortByVersion();
+				}
 			}
+			return groups;
 		}
 		
 		
-		private function installDataMatches( a:InstallPackageData, b:InstallPackageData ):Boolean
-		{
-			if (a.packageDefinition.equals( b.packageDefinition )
-					&& a.packageVersion.equals( b.packageVersion))
-			{
-				return true;
-			}
-			return false;
-		}
+		
+		
+		
+		
 		
 		
 		/**
@@ -129,14 +133,25 @@ package com.apm.client.commands.packages.utils
 		 * <br/>
 		 * If we cannot resolve a compatible package return null
 		 */
-		private function resolvePackage( potentialPackages:Array ):InstallPackageData
+		private function resolvePackage( potentialPackages:InstallPackageDataGroup ):InstallPackageData
 		{
-			var major:int = 0;
-			for each (var potential:InstallPackageData in potentialPackages)
-			{
+			// Sort by version
+			potentialPackages.sortByVersion();
 			
+			// take the most recent / highest version as the candidate
+			var candidate:InstallPackageData = potentialPackages.versions[0];
+			var candidateMajor:int = candidate.packageVersion.version.major;
+			for (var i:int = 0; i < potentialPackages.length; i++)
+			{
+				var otherMajor:int = potentialPackages.versions[i].packageVersion.version.major;
+				if (candidateMajor != otherMajor)
+				{
+					// Conflicting major versions!
+					return null;
+				}
+				// TODO:: Any other conflict checks?
 			}
-			return null;
+			return candidate;
 		}
 		
 		
