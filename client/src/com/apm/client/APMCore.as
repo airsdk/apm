@@ -20,6 +20,8 @@ package com.apm.client
 	import com.apm.client.commands.airsdk.AIRSDKListCommand;
 	import com.apm.client.commands.general.HelpCommand;
 	import com.apm.client.commands.general.VersionCommand;
+	import com.apm.client.commands.packages.BuildCommand;
+	import com.apm.client.commands.packages.CreateCommand;
 	import com.apm.client.commands.packages.InstallCommand;
 	import com.apm.client.commands.packages.ListCommand;
 	import com.apm.client.commands.packages.SearchCommand;
@@ -85,6 +87,11 @@ package com.apm.client
 			addCommand( SearchCommand.NAME, SearchCommand );
 			addCommand( ViewCommand.NAME, ViewCommand );
 			addCommand( InstallCommand.NAME, InstallCommand );
+			
+			// package creation commands
+			addCommand( CreateCommand.NAME, CreateCommand );
+			addCommand( BuildCommand.NAME, BuildCommand );
+			
 			
 			// air sdk commands
 			addCommand( AIRSDKListCommand.NAME, AIRSDKListCommand );

@@ -60,6 +60,12 @@ package com.apm.client.io
 		}
 		
 		
+		public function writeResult( success:Boolean, message:String ):void
+		{
+			out( (success ? _successChar : _failedChar) + " " + message + "\n" );
+		}
+		
+		
 		public function writeError( tag:String, message:String ):void
 		{
 			if (_colourSupported)

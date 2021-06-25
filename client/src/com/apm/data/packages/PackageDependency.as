@@ -11,18 +11,28 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		31/5/21
  */
-package com.apm.data.project
+package com.apm.data.packages
 {
 	import com.apm.SemVer;
 	
 	
-	public class ProjectDependency
+	/**
+	 * Represents a simple dependency reference either in a package definition file
+	 * or the project definition file.
+	 * <br/>
+	 *
+	 * Note: Dependencies from the repository server do not use this format,
+	 * they supply PackageVersion with populated PackageDefinition for a more complete specification
+	 *
+	 */
+	public class PackageDependency
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "ProjectDependency";
+		private static const TAG:String = "PackageDependency";
+		
 		
 		
 		////////////////////////////////////////////////////////
@@ -39,7 +49,7 @@ package com.apm.data.project
 		//  FUNCTIONALITY
 		//
 		
-		public function ProjectDependency()
+		public function PackageDependency()
 		{
 		}
 		
@@ -66,7 +76,7 @@ package com.apm.data.project
 		}
 		
 		
-		public function fromObject( data:Object ):ProjectDependency
+		public function fromObject( data:Object ):PackageDependency
 		{
 			if (data != null)
 			{

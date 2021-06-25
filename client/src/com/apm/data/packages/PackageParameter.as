@@ -29,13 +29,17 @@ package com.apm.data.packages
 		public var name:String;
 		public var required:Boolean = false;
 		
+		private var _singleLineOutput:Boolean = false;
+		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function PackageParameter()
+		public function PackageParameter( name:String = "", required:Boolean = false )
 		{
+			this.name = name;
+			this.required = required;
 		}
 		
 		
@@ -47,10 +51,20 @@ package com.apm.data.packages
 		
 		public function toObject():Object
 		{
-			return {
-				name:     name,
-				required: required
-			};
+			if (_singleLineOutput)
+			{
+				if (required)
+					return name + ":required";
+				else
+					return name;
+			}
+			else
+			{
+				return {
+					name:     name,
+					required: required
+				};
+			}
 		}
 		
 		
@@ -58,8 +72,28 @@ package com.apm.data.packages
 		{
 			if (data != null)
 			{
-				if (data.hasOwnProperty( "name" )) this.name = data[ "name" ];
-				if (data.hasOwnProperty( "required" )) this.required = data[ "required" ];
+				if (data is String)
+				{
+					// single line format com.package.example:1.0.0
+					this._singleLineOutput = true;
+					if (String( data ).indexOf( ":" ) > 0)
+					{
+						// "parameterName:required"
+						var vals:Array = String( data ).split( ":" );
+						this.name = vals[ 0 ];
+						this.required = (vals.length > 1 && vals[ 1 ] == "required");
+					}
+					else
+					{
+						// "parameterName"
+						this.name = String( data );
+					}
+				}
+				else
+				{
+					if (data.hasOwnProperty( "name" )) this.name = data[ "name" ];
+					if (data.hasOwnProperty( "required" )) this.required = data[ "required" ];
+				}
 			}
 			return this;
 		}

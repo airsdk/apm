@@ -148,8 +148,21 @@ package com.apm.client.processes
 					checkAndStartNextProcess();
 					break;
 				}
+				
 				case ProcessEvent.FAILED:
 				{
+					// If a process fails, we clear the queue and terminate the processes
+					// If there is no specific failed callback just trigger the normal complete
+					clear();
+					if (_failedCallback != null)
+					{
+						_failedCallback( event.data );
+						_failedCallback = null;
+					}
+					else
+					{
+						checkAndStartNextProcess();
+					}
 					break;
 				}
 			}

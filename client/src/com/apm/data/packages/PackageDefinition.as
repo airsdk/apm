@@ -13,6 +13,9 @@
  */
 package com.apm.data.packages
 {
+	import flash.filesystem.File;
+	
+	
 	public class PackageDefinition
 	{
 		////////////////////////////////////////////////////////
@@ -26,10 +29,14 @@ package com.apm.data.packages
 		//  VARIABLES
 		//
 		
+		public var identifier:String = "";
 		public var name:String = "";
 		public var description:String = "";
-		public var identifier:String = "";
+		public var url:String = "";
+		public var docUrl:String = "";
 		public var type:String = "ane";
+		public var publishedAt:String = "";
+		
 		public var versions:Vector.<PackageVersion>;
 		
 		
@@ -73,7 +80,10 @@ package com.apm.data.packages
 				if (data.hasOwnProperty( "identifier" )) this.identifier = data[ "identifier" ];
 				if (data.hasOwnProperty( "name" )) this.name = data[ "name" ];
 				if (data.hasOwnProperty( "description" )) this.description = data[ "description" ];
+				if (data.hasOwnProperty( "url" )) this.url = data[ "url" ];
+				if (data.hasOwnProperty( "docUrl" )) this.docUrl = data[ "docUrl" ];
 				if (data.hasOwnProperty( "type" )) this.type = data[ "type" ];
+				if (data.hasOwnProperty( "publishedAt" )) this.publishedAt = data[ "publishedAt" ];
 				if (data.hasOwnProperty( "versions" ))
 				{
 					for each (var versionObject:Object in data.versions)
@@ -87,6 +97,10 @@ package com.apm.data.packages
 			}
 			return this;
 		}
+		
+		
+		
+		
 		
 	}
 	

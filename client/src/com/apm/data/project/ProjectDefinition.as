@@ -14,6 +14,7 @@
 package com.apm.data.project
 {
 	import com.apm.data.packages.PackageDefinition;
+	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.packages.PackageVersion;
 	import com.apm.data.packages.Repository;
 	
@@ -46,7 +47,7 @@ package com.apm.data.project
 		private var _sourceFile:File;
 		
 		private var _repositories:Vector.<Repository>;
-		private var _dependencies:Vector.<ProjectDependency>;
+		private var _dependencies:Vector.<PackageDependency>;
 		private var _configuration:Object;
 		
 		
@@ -59,7 +60,7 @@ package com.apm.data.project
 			_data = {};
 			
 			_repositories = new Vector.<Repository>();
-			_dependencies = new Vector.<ProjectDependency>();
+			_dependencies = new Vector.<PackageDependency>();
 			_configuration = {};
 		}
 		
@@ -79,10 +80,10 @@ package com.apm.data.project
 			
 			if (_data.hasOwnProperty( "dependencies" ))
 			{
-				_dependencies = new Vector.<ProjectDependency>();
+				_dependencies = new Vector.<PackageDependency>();
 				for each (var dep:Object in _data.dependencies)
 				{
-					_dependencies.push( new ProjectDependency().fromObject( dep ) );
+					_dependencies.push( new PackageDependency().fromObject( dep ) );
 				}
 			}
 			
@@ -115,7 +116,7 @@ package com.apm.data.project
 			data[ "repositories" ] = repos;
 			
 			var deps:Array = [];
-			for each (var dep:ProjectDependency in _dependencies)
+			for each (var dep:PackageDependency in _dependencies)
 			{
 				deps.push( dep.toObject() );
 			}
@@ -154,10 +155,10 @@ package com.apm.data.project
 		public function get repositories():Vector.<Repository> { return _repositories; }
 		
 		
-		public function get dependencies():Vector.<ProjectDependency>
+		public function get dependencies():Vector.<PackageDependency>
 		{
 			if (_dependencies == null)
-				_dependencies = new Vector.<ProjectDependency>();
+				_dependencies = new Vector.<PackageDependency>();
 			return _dependencies;
 		}
 		
@@ -196,7 +197,7 @@ package com.apm.data.project
 		
 		public function clearPackageDependencies():void
 		{
-			_dependencies = new Vector.<ProjectDependency>();
+			_dependencies = new Vector.<PackageDependency>();
 		}
 		
 		
@@ -209,7 +210,7 @@ package com.apm.data.project
 		{
 			if (!hasDependency( packageVersion.packageDef.identifier ))
 			{
-				var dep:ProjectDependency = new ProjectDependency();
+				var dep:PackageDependency = new PackageDependency();
 				dep.identifier = packageVersion.packageDef.identifier;
 				dep.version =packageVersion.version;
 				
@@ -229,7 +230,7 @@ package com.apm.data.project
 		 */
 		public function hasDependency( identifier:String ):Boolean
 		{
-			for each (var dep:ProjectDependency in _dependencies)
+			for each (var dep:PackageDependency in _dependencies)
 			{
 				if (dep.identifier == identifier)
 					return true;

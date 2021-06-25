@@ -30,12 +30,16 @@ package com.apm.data.packages
 		//
 		
 		public var packageDef:PackageDefinition;
-		public var publishedAt:String = "";
+		
 		public var sourceUrl:String = "";
 		public var checksum:String = "";
 		public var version:SemVer = null;
-		public var dependencies:Vector.<PackageVersion> = new Vector.<PackageVersion>();
+		public var publishedAt:String = "";
+		
 		public var parameters:Vector.<PackageParameter> = new Vector.<PackageParameter>();
+		public var dependencies:Vector.<PackageVersion> = new Vector.<PackageVersion>();
+		
+		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
