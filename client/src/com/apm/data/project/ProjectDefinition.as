@@ -96,7 +96,23 @@ package com.apm.data.project
 		
 		public function stringify():String
 		{
-			return JSON.stringify( toObject(), null, 4 ) + "\n";
+			var data:Object = toObject();
+			var keyOrder:Array = [ "identifier", "name", "version", "dependencies", "configuration", "repositories" ];
+			// ensure we have all the keys
+			for (var key:String in data)
+			{
+				var hasKeyInOrder:Boolean = false;
+				for each (var keyInOrder:String in keyOrder)
+				{
+					if (keyInOrder == key)
+					{
+						hasKeyInOrder = true;
+						break;
+					}
+				}
+				if (!hasKeyInOrder) keyOrder.push( key );
+			}
+			return JSON.stringify( data, keyOrder, 4 ) + "\n";
 		}
 		
 		
@@ -122,7 +138,7 @@ package com.apm.data.project
 			}
 			data[ "dependencies" ] = deps;
 			
-			data.configuration = _configuration;
+			data["configuration"] = _configuration;
 			
 			_data = data;
 			
