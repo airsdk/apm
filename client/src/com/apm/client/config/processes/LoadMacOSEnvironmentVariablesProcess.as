@@ -15,14 +15,10 @@ package com.apm.client.config.processes
 {
 	import com.apm.client.config.RunConfig;
 	import com.apm.client.logging.Log;
-	import com.apm.client.processes.Process;
 	import com.apm.client.processes.ProcessBase;
-	import com.apm.client.processes.ProcessQueue;
-	import com.apm.client.processes.events.ProcessEvent;
 	
 	import flash.desktop.NativeProcess;
 	import flash.desktop.NativeProcessStartupInfo;
-	import flash.events.EventDispatcher;
 	import flash.events.IOErrorEvent;
 	import flash.events.NativeProcessExitEvent;
 	import flash.events.ProgressEvent;
@@ -46,7 +42,6 @@ package com.apm.client.config.processes
 		
 		private var _environmentVariables:Object;
 		private var _config:RunConfig;
-		
 		
 		
 		////////////////////////////////////////////////////////
@@ -114,7 +109,7 @@ package com.apm.client.config.processes
 			
 			for (var key:String in _environmentVariables)
 			{
-				_config.env[key] = _environmentVariables[key];
+				_config.env[ key ] = _environmentVariables[ key ];
 			}
 			
 			complete();
@@ -133,13 +128,13 @@ package com.apm.client.config.processes
 		
 		private function processEnvironmentVariables( data:String ):void
 		{
-			var lines:Array = data.replace("\r", "" ).split("\n" );
+			var lines:Array = data.replace( "\r", "" ).split( "\n" );
 			for each (var line:String in lines)
 			{
-				var envVar:Array = line.split("=");
+				var envVar:Array = line.split( "=" );
 				if (envVar.length == 2)
 				{
-					_environmentVariables[envVar[0]] = envVar[1];
+					_environmentVariables[ envVar[ 0 ] ] = envVar[ 1 ];
 				}
 			}
 		}

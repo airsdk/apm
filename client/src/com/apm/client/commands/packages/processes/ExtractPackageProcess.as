@@ -15,7 +15,6 @@ package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APMCore;
 	import com.apm.client.processes.ProcessBase;
-	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageVersion;
 	
 	import flash.utils.setTimeout;
@@ -54,9 +53,9 @@ package com.apm.client.commands.packages.processes
 		{
 			_core.io.showSpinner( "Extracting package : " + _package.packageDef.toString() );
 			setTimeout( function ():void {
-
+				
 				// TODO unzip package
-
+				
 				_core.io.stopSpinner( true,
 									  "complete" );
 				complete();

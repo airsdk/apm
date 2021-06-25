@@ -14,16 +14,13 @@
 package com.apm.client.commands.airsdk.processes
 {
 	import com.apm.client.APMCore;
-	import com.apm.client.config.RunConfig;
 	import com.apm.client.logging.Log;
-	import com.apm.client.processes.Process;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.events.ProcessEvent;
 	import com.apm.remote.airsdk.AIRSDKBuild;
 	
 	import flash.desktop.NativeProcess;
 	import flash.desktop.NativeProcessStartupInfo;
-	import flash.events.EventDispatcher;
 	import flash.events.IOErrorEvent;
 	import flash.events.NativeProcessExitEvent;
 	import flash.events.ProgressEvent;
@@ -74,11 +71,11 @@ package com.apm.client.commands.airsdk.processes
 				processArgs.push( "-d" );
 				processArgs.push( _installPath );
 				processArgs.push( _source.nativePath );
-
+				
 				var processStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
 				processStartupInfo.executable = new File( "/usr/bin/unzip" );
 				processStartupInfo.arguments = processArgs;
-
+				
 				if (!processStartupInfo.executable.exists)
 				{
 					// Error?
@@ -107,10 +104,10 @@ package com.apm.client.commands.airsdk.processes
 		private function onOutputData( event:ProgressEvent ):void
 		{
 			var data:String = _process.standardOutput.readUTFBytes( _process.standardOutput.bytesAvailable )
-					.replace("\n", "" )
-					.replace("\r", "" )
-					.replace("\t", "" );
-
+					.replace( "\n", "" )
+					.replace( "\r", "" )
+					.replace( "\t", "" );
+			
 			_core.io.updateSpinner( "Extracting AIR SDK : " + data );
 		}
 		
@@ -133,8 +130,6 @@ package com.apm.client.commands.airsdk.processes
 		{
 			Log.d( TAG, "IOError: " + event.toString() );
 		}
-		
-		
 		
 		
 	}

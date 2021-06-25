@@ -14,17 +14,12 @@
 package com.apm.client.commands.airsdk.processes
 {
 	import com.apm.client.APMCore;
-	import com.apm.client.config.RunConfig;
 	import com.apm.client.logging.Log;
-	import com.apm.client.processes.Process;
 	import com.apm.client.processes.ProcessBase;
-	import com.apm.client.processes.events.ProcessEvent;
 	import com.apm.remote.airsdk.AIRSDKAPI;
 	import com.apm.remote.airsdk.AIRSDKBuild;
 	
 	import flash.events.Event;
-	
-	import flash.events.EventDispatcher;
 	import flash.events.HTTPStatusEvent;
 	import flash.events.IOErrorEvent;
 	import flash.events.ProgressEvent;
@@ -60,7 +55,6 @@ package com.apm.client.commands.airsdk.processes
 		
 		
 		private var _loader:URLLoader;
-		
 		
 		
 		////////////////////////////////////////////////////////
@@ -124,7 +118,7 @@ package com.apm.client.commands.airsdk.processes
 			}
 			else
 			{
-				_core.io.completeProgressBar( false,"Downloaded file failed checks - retry download again later!" );
+				_core.io.completeProgressBar( false, "Downloaded file failed checks - retry download again later!" );
 			}
 			complete();
 		}
@@ -143,7 +137,7 @@ package com.apm.client.commands.airsdk.processes
 					(_core.config.isMacOS ? _build.urls[ "AIR_Mac" ] : _build.urls[ "AIR_Win" ]);
 			
 			var vars:URLVariables = new URLVariables();
-			vars["license"] = "accepted";
+			vars[ "license" ] = "accepted";
 			
 			var req:URLRequest = new URLRequest( url );
 			req.method = URLRequestMethod.GET;
@@ -159,8 +153,6 @@ package com.apm.client.commands.airsdk.processes
 			_loader.load( req );
 			
 		}
-		
-		
 		
 		
 		private function loader_progressHandler( event:ProgressEvent ):void
@@ -185,15 +177,18 @@ package com.apm.client.commands.airsdk.processes
 			checkDownloadedFile();
 		}
 		
+		
 		private function loader_errorHandler( event:IOErrorEvent ):void
 		{
 			_core.io.completeProgressBar( false, event.text );
 		}
 		
+		
 		private function loader_statusHandler( event:HTTPStatusEvent ):void
 		{
 			Log.d( TAG, "loader_statusHandler(): " + event.status );
 		}
+		
 		
 		private function loader_securityErrorHandler( event:SecurityErrorEvent ):void
 		{

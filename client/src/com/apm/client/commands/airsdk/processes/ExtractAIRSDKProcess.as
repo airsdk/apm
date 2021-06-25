@@ -14,33 +14,17 @@
 package com.apm.client.commands.airsdk.processes
 {
 	import com.apm.client.APMCore;
-	import com.apm.client.config.RunConfig;
 	import com.apm.client.logging.Log;
-	import com.apm.client.processes.Process;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.events.ProcessEvent;
-	import com.apm.remote.airsdk.AIRSDKAPI;
 	import com.apm.remote.airsdk.AIRSDKBuild;
 	
-	import flash.events.Event;
-	
-	import flash.events.EventDispatcher;
-	import flash.events.HTTPStatusEvent;
-	import flash.events.IOErrorEvent;
-	import flash.events.ProgressEvent;
-	import flash.events.SecurityErrorEvent;
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
-	import flash.net.URLLoader;
-	import flash.net.URLLoaderDataFormat;
-	import flash.net.URLRequest;
-	import flash.net.URLRequestMethod;
-	import flash.net.URLVariables;
 	import flash.utils.ByteArray;
 	
 	import org.as3commons.zip.IZipFile;
-	
 	import org.as3commons.zip.Zip;
 	
 	
@@ -102,8 +86,8 @@ package com.apm.client.commands.airsdk.processes
 					
 					for (var i:uint = 0; i < zip.getFileCount(); i++)
 					{
-						var zipFile:IZipFile = zip.getFileAt(i);
-						var extracted:File = destination.resolvePath(zipFile.filename);
+						var zipFile:IZipFile = zip.getFileAt( i );
+						var extracted:File = destination.resolvePath( zipFile.filename );
 						extracted.parent.createDirectory();
 						
 						if (zipFile.filename.charAt( zipFile.filename.length - 1 ) != "/")
@@ -130,8 +114,6 @@ package com.apm.client.commands.airsdk.processes
 			}
 			dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ) )
 		}
-		
-		
 		
 		
 	}

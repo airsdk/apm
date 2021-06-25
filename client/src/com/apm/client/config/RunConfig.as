@@ -59,8 +59,9 @@ package com.apm.client.config
 		// Loaded environment variables
 		public var env:Object = {};
 		
-		
+		// Settings loaded from the users' home directory
 		public var user:UserSettings;
+		
 		
 		
 		////////////////////////////////////////////////////////
