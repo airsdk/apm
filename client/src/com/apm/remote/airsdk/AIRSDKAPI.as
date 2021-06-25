@@ -147,18 +147,20 @@ package com.apm.remote.airsdk
 									if (success)
 									{
 										build.releaseNotes = releaseNotes;
-										if (callback != null)
-										{
-											callback( true, build, "" );
-										}
 									}
-									else
+									
+									if (callback != null)
 									{
-										if (callback != null)
-										{
-											callback( false, null, data );
-										}
+										callback( true, build, "" );
 									}
+									
+//									else
+//									{
+//										if (callback != null)
+//										{
+//											callback( false, null, data );
+//										}
+//									}
 								} );
 							}
 							else
