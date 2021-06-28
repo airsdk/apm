@@ -47,68 +47,77 @@ package com.apm.client.commands.packages.processes
 		
 		private var _core:APMCore;
 		private var _path:String;
+		private var _checkRemoteContent:Boolean;
 		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function PackageContentVerifyProcess( core:APMCore, path:String )
+		public function PackageContentVerifyProcess( core:APMCore, path:String, checkRemoteContent:Boolean=false )
 		{
 			_core = core;
 			_path = path;
+			_checkRemoteContent = checkRemoteContent;
 		}
 		
 		
 		override public function start():void
 		{
-			_core.io.showSpinner(  "Verifying package content" );
-			
 			var directory:File = new File( _core.config.workingDir + File.separator + _path );
 			if (!directory.exists)
 			{
-				return failure( "Specified package directory does not exist" );
+				return fail( directory.name, "Specified package directory does not exist" );
 			}
 
 			var packageDefinitionFile:File = directory.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 			if (!packageDefinitionFile.exists)
 			{
-				_core.io.writeError( PackageDefinitionFile.DEFAULT_FILENAME, "Package definition file does not exist" );
-				return failure();
+				return fail( PackageDefinitionFile.DEFAULT_FILENAME, "Package definition file does not exist" );
 			}
 			
 			var f:PackageDefinitionFile = new PackageDefinitionFile().load( packageDefinitionFile );
+			
+			_core.io.writeLine( "- identifier:  " + f.packageDef.identifier );
+			_core.io.writeLine( "- name:        " + f.packageDef.name );
+			_core.io.writeLine( "- description: " + f.packageDef.description );
+			_core.io.writeLine( "- type:        " + f.packageDef.type );
+			_core.io.writeLine( "- version:     " + (f.version == null ? "null" : f.version.toString()) );
+			_core.io.writeLine( "- sourceUrl:   " + f.version.sourceUrl );
+			
+			
+			
+			_core.io.showSpinner(  "Verifying package content" );
+
 			if (f.packageDef.identifier.length <= 5)
 			{
-				_core.io.writeError( PackageDefinitionFile.DEFAULT_FILENAME, "identifier should be at least 5 characters" );
-				return failure();
+				return fail( PackageDefinitionFile.DEFAULT_FILENAME, "identifier should be at least 5 characters" );
 			}
 			if (f.packageDef.description.length == 0)
 			{
-				_core.io.writeError( PackageDefinitionFile.DEFAULT_FILENAME, "You must provide a package description" );
-				return failure();
+				return fail( PackageDefinitionFile.DEFAULT_FILENAME, "You must provide a package description" );
 			}
-			if (f.packageDef.description.length == 0)
+			if (f.packageDef.name.length == 0)
 			{
-				_core.io.writeError( PackageDefinitionFile.DEFAULT_FILENAME, "You must provide a package name" );
-				return failure();
+				return fail( PackageDefinitionFile.DEFAULT_FILENAME, "You must provide a package name" );
 			}
 			if (f.packageDef.type != "swc" && f.packageDef.type != "ane" && f.packageDef.type != "src")
 			{
-				_core.io.writeError( PackageDefinitionFile.DEFAULT_FILENAME, "type must be one of 'ane', 'swc' or 'src'" );
-				return failure();
+				return fail( PackageDefinitionFile.DEFAULT_FILENAME, "type must be one of 'ane', 'swc' or 'src'" );
 			}
 			if (f.version.version == null)
 			{
-				_core.io.writeError( PackageDefinitionFile.DEFAULT_FILENAME, "Version must follow semantic versioning" );
-				return failure();
+				return fail( PackageDefinitionFile.DEFAULT_FILENAME, "Version must follow semantic versioning" );
+			}
+			if (f.version.sourceUrl.length == 0)
+			{
+				return fail( PackageDefinitionFile.DEFAULT_FILENAME, "You must provide a source url for your package version" );
 			}
 			
 			var readmeFile:File = directory.resolvePath( "README.md" );
 			if (!readmeFile.exists)
 			{
-				_core.io.writeError( "README", "Package readme file does not exist" );
-				return failure();
+				return fail( "README", "Package readme file does not exist" );
 			}
 			
 			
@@ -119,24 +128,21 @@ package com.apm.client.commands.packages.processes
 					var aneDir:File = directory.resolvePath( "ane" );
 					if (!aneDir.exists || FileUtils.countFilesByType( aneDir, "ane") == 0)
 					{
-						_core.io.writeError( "CONTENT", "No 'ane' file found in the 'ane' directory" );
-						return failure();
+						return fail( "CONTENT", "No 'ane' file found in the 'ane' directory" );
 					}
 					break;
 				case "swc":
 					var libDir:File = directory.resolvePath( "lib" );
 					if (!libDir.exists || FileUtils.countFilesByType( libDir, "swc") == 0)
 					{
-						_core.io.writeError( "CONTENT", "No 'swc' file found in the 'lib' directory" );
-						return failure();
+						return fail( "CONTENT", "No 'swc' file found in the 'lib' directory" );
 					}
 					break;
 				case "src":
 					var srcDir:File = directory.resolvePath( "src" );
 					if (!srcDir.exists || FileUtils.countFilesByType( srcDir, "as") == 0)
 					{
-						_core.io.writeError( "CONTENT", "No 'as' files found in the 'src' directory" );
-						return failure();
+						return fail( "CONTENT", "No 'as' files found in the 'src' directory" );
 					}
 					break;
 			}
@@ -145,12 +151,24 @@ package com.apm.client.commands.packages.processes
 			var changeLogFile:File = directory.resolvePath( "CHANGELOG.md" );
 			var licenseFile:File = directory.resolvePath( "LICENSE.md" );
 			
-			
 			// TODO:: Other checks
 			
+			// Check content available
+			if (_checkRemoteContent)
+			{
+			
+			}
 			_core.io.stopSpinner(  true,"Package content verified" );
 			
 			complete();
+		}
+		
+		
+		private function fail( tag:String, message:String ):void
+		{
+			_core.io.stopSpinner(  false,"Invalid" );
+			_core.io.writeError( tag, message );
+			return failure();
 		}
 		
 		

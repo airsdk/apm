@@ -107,12 +107,16 @@ package com.apm.client.commands.airsdk.processes
 					}
 					_core.io.completeProgressBar( true, "extracted" );
 				}
+				else
+				{
+					return failure( "AIR SDK zip not found" );
+				}
 			}
 			catch (e:Error)
 			{
 				_core.io.completeProgressBar( false, e.message );
 			}
-			dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ) )
+			complete();
 		}
 		
 		

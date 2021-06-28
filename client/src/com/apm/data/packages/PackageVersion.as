@@ -58,7 +58,7 @@ package com.apm.data.packages
 		
 		public function toString():String
 		{
-			return version.toString();
+			return (version == null ? "" : version.toString());
 		}
 		
 		

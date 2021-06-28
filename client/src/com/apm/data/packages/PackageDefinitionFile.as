@@ -75,6 +75,12 @@ package com.apm.data.packages
 		}
 		
 		
+		public function toString():String
+		{
+			return _packageDef.toDescriptiveString();
+		}
+		
+		
 		public function parse( content:String ):void
 		{
 			var data:Object = JSON.parse( content );

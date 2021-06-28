@@ -129,6 +129,7 @@ package com.apm.client.io
 			_spinnerInterval = setInterval( spinner_render, 250 );
 		}
 		
+		
 		public function updateSpinner( message:String="" ):void
 		{
 			_spinnerMessage = message;

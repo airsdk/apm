@@ -99,13 +99,13 @@ package com.apm.client.commands.packages.processes
 			switch (packDefFile.packageDef.type)
 			{
 				case "swc":
-					addFileToZip( zip, libDir, "lib/" );
+					addFileToZip( zip, libDir );
 					break;
 				case "ane":
-					addFileToZip( zip, aneDir, "ane/" );
+					addFileToZip( zip, aneDir );
 					break;
 				case "src":
-					addFileToZip( zip, srcDir, "src/" );
+					addFileToZip( zip, srcDir );
 					break;
 			}
 			
@@ -127,6 +127,7 @@ package com.apm.client.commands.packages.processes
 		
 		private function addFileToZip( zip:Zip, f:File, path:String="" ):void
 		{
+			_core.io.updateSpinner();
 			if (f.isDirectory)
 			{
 				var files:Array = f.getDirectoryListing();
@@ -144,7 +145,7 @@ package com.apm.client.commands.packages.processes
 				fs.readBytes( content );
 				fs.close();
 				
-				var filePath:String = path + f.name + "." + f.extension;
+				var filePath:String = path + f.name;
 				
 				zip.addFile( filePath, content );
 			}
