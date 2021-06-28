@@ -90,7 +90,7 @@ package com.apm.client.commands.packages
 		{
 			return description + "\n" +
 					"\n" +
-					"apm search <foo>    search for a dependency called <foo> in the repository\n";
+					"apm view <foo>    view information of a package called <foo> in the repository\n";
 		}
 		
 		

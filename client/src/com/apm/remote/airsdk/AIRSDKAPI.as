@@ -34,7 +34,7 @@ package com.apm.remote.airsdk
 		
 		public static const DOWNLOAD_ENDPOINT:String = "https://airsdk.harman.com";
 		
-		public static const API_ENDPOINT:String = "https://dcdu3ujoji.execute-api.us-east-1.amazonaws.com/test";
+		public static const API_ENDPOINT:String = "https://dcdu3ujoji.execute-api.us-east-1.amazonaws.com/production";
 		
 		
 		
@@ -227,7 +227,7 @@ package com.apm.remote.airsdk
 		{
 			var req:URLRequest = new URLRequest();
 			req.method = URLRequestMethod.GET;
-			req.url = _endpoint + "/releases/" + version + "/rel_notes";
+			req.url = _endpoint + "/releases/" + version + "/release_notes";
 			
 			_requestQueue.add( req, "release_notes", function ( success:Boolean, data:* ):void {
 				if (success)

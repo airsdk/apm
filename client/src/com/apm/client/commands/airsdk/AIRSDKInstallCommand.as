@@ -32,7 +32,7 @@ package com.apm.client.commands.airsdk
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "AIRSDKListCommand";
+		private static const TAG:String = "AIRSDKInstallCommand";
 		
 		
 		public static const NAME:String = "airsdk/install";

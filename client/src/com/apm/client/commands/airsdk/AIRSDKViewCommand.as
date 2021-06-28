@@ -21,17 +21,17 @@ package com.apm.client.commands.airsdk
 	import flash.globalization.DateTimeFormatter;
 	
 	
-	public class AIRSDKInfoCommand implements Command
+	public class AIRSDKViewCommand implements Command
 	{
 		
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "AIRSDKListCommand";
+		private static const TAG:String = "AIRSDKViewCommand";
 		
 		
-		public static const NAME:String = "airsdk/info";
+		public static const NAME:String = "airsdk/view";
 		
 		
 		////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ package com.apm.client.commands.airsdk
 		//  FUNCTIONALITY
 		//
 		
-		public function AIRSDKInfoCommand()
+		public function AIRSDKViewCommand()
 		{
 			super();
 			
@@ -95,8 +95,8 @@ package com.apm.client.commands.airsdk
 		{
 			return description + "\n" +
 					"\n" +
-					"apm airsdk info <version>          gets information about a specific AIR SDK version\n" +
-					"apm airsdk info latest             gets information about the latest AIR SDK version\n"
+					"apm airsdk view <version>          gets information about a specific AIR SDK version\n" +
+					"apm airsdk view latest             gets information about the latest AIR SDK version\n"
 		}
 		
 		

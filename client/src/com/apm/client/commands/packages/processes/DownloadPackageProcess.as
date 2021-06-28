@@ -134,6 +134,9 @@ package com.apm.client.commands.packages.processes
 		
 		private function verifyFile( checksum:String ):Boolean
 		{
+			// No checksum provided so don't perform check
+			if (checksum == null || checksum.length == 0) return true;
+			
 			var calculatedSum:String = "";
 			if (_destination.exists)
 			{

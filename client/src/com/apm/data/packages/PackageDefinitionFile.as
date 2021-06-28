@@ -14,6 +14,7 @@
 package com.apm.data.packages
 {
 	import com.apm.SemVer;
+	import com.apm.data.utils.JSONUtils;
 	
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
@@ -118,21 +119,10 @@ package com.apm.data.packages
 		public function stringify():String
 		{
 			var data:Object = toObject();
+			
+			// Ensures the output JSON format is in a familiar order
 			var keyOrder:Array = [ "id", "name", "url", "docUrl", "description", "type", "version", "checksum", "sourceUrl", "publishedAt", "dependencies", "configuration" ];
-			// ensure we have all the keys
-			for (var key:String in data)
-			{
-				var hasKeyInOrder:Boolean = false;
-				for each (var keyInOrder:String in keyOrder)
-				{
-					if (keyInOrder == key)
-					{
-						hasKeyInOrder = true;
-						break;
-					}
-				}
-				if (!hasKeyInOrder) keyOrder.push( key );
-			}
+			JSONUtils.addMissingKeys( data, keyOrder );
 			
 			return JSON.stringify( data, keyOrder, 4 ) + "\n";
 		}

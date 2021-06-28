@@ -15,7 +15,7 @@ package com.apm.client
 {
 	import com.apm.SemVer;
 	import com.apm.client.commands.Command;
-	import com.apm.client.commands.airsdk.AIRSDKInfoCommand;
+	import com.apm.client.commands.airsdk.AIRSDKViewCommand;
 	import com.apm.client.commands.airsdk.AIRSDKInstallCommand;
 	import com.apm.client.commands.airsdk.AIRSDKListCommand;
 	import com.apm.client.commands.general.HelpCommand;
@@ -95,7 +95,7 @@ package com.apm.client
 			
 			// air sdk commands
 			addCommand( AIRSDKListCommand.NAME, AIRSDKListCommand );
-			addCommand( AIRSDKInfoCommand.NAME, AIRSDKInfoCommand );
+			addCommand( AIRSDKViewCommand.NAME, AIRSDKViewCommand );
 			addCommand( AIRSDKInstallCommand.NAME, AIRSDKInstallCommand );
 			
 		}
