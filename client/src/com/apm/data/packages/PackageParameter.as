@@ -49,9 +49,9 @@ package com.apm.data.packages
 		}
 		
 		
-		public function toObject():Object
+		public function toObject( forceObjectOutput:Boolean=false ):Object
 		{
-			if (_singleLineOutput)
+			if (_singleLineOutput && !forceObjectOutput)
 			{
 				if (required)
 					return name + ":required";

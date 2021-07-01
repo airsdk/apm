@@ -43,7 +43,7 @@ package com.apm.data.user
 		
 		public var github_token : String = "";
 		
-		
+		public var publisher_token : String = "";
 		
 		
 		private var _data : Object;
@@ -69,6 +69,10 @@ package com.apm.data.user
 				{
 					github_token = _data.github_token;
 				}
+				if (_data.hasOwnProperty("publisher_token"))
+				{
+					publisher_token = _data.publisher_token;
+				}
 			}
 			catch (e:Error)
 			{
@@ -82,6 +86,10 @@ package com.apm.data.user
 			if (github_token != null && github_token.length > 0)
 			{
 				data["github_token"] = github_token;
+			}
+			if (publisher_token != null && publisher_token.length > 0)
+			{
+				data["publisher_token"] = publisher_token;
 			}
 			return data;
 		}

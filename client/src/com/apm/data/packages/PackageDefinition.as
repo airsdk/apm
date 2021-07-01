@@ -38,6 +38,8 @@ package com.apm.data.packages
 		public var publishedAt:String = "";
 		
 		public var versions:Vector.<PackageVersion>;
+		public var tags:Vector.<String>;
+		
 		
 		
 		////////////////////////////////////////////////////////
@@ -47,6 +49,7 @@ package com.apm.data.packages
 		public function PackageDefinition()
 		{
 			versions = new Vector.<PackageVersion>();
+			tags = new Vector.<String>();
 		}
 		
 		
@@ -94,11 +97,46 @@ package com.apm.data.packages
 						versions.push( version );
 					}
 				}
+				if (data.hasOwnProperty("tags" ))
+				{
+					for each (var tag:String in data.tags)
+					{
+						tags.push( tag );
+					}
+				}
 			}
 			return this;
 		}
 		
 		
+		public function toObject( forceObjectOutput:Boolean=false ):Object
+		{
+			var data:Object = {};
+			data.identifier = identifier;
+			data.name = name;
+			data.description = description;
+			data.url = url;
+			data.docUrl = docUrl;
+			data.type = type;
+			data.publishedAt = publishedAt;
+			var versionObjects:Array = [];
+			for each (var v:PackageVersion in versions)
+			{
+				versionObjects.push( v.toObject( forceObjectOutput ) );
+			}
+			data.versions = versionObjects;
+			
+			if (tags.length > 0)
+			{
+				data.tags = [];
+				for each (var tag:String in tags)
+				{
+					data.tags.push( tag );
+				}
+			}
+			
+			return data;
+		}
 		
 		
 		

@@ -24,6 +24,7 @@ package com.apm.client
 	import com.apm.client.commands.packages.CreateCommand;
 	import com.apm.client.commands.packages.InstallCommand;
 	import com.apm.client.commands.packages.ListCommand;
+	import com.apm.client.commands.packages.PublishCommand;
 	import com.apm.client.commands.packages.SearchCommand;
 	import com.apm.client.commands.packages.ViewCommand;
 	import com.apm.client.commands.project.InitCommand;
@@ -91,6 +92,7 @@ package com.apm.client
 			// package creation commands
 			addCommand( CreateCommand.NAME, CreateCommand );
 			addCommand( BuildCommand.NAME, BuildCommand );
+			addCommand( PublishCommand.NAME, PublishCommand );
 			
 			
 			// air sdk commands

@@ -16,6 +16,7 @@ package com.apm.client.commands.packages.processes
 	import com.apm.SemVer;
 	import com.apm.client.APMCore;
 	import com.apm.client.Consts;
+	import com.apm.client.commands.packages.utils.PackageRequestUtils;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageVersion;
@@ -148,19 +149,6 @@ package com.apm.client.commands.packages.processes
 		
 		private function downloadPackage():void
 		{
-			var headers:Array = [];
-			headers.push( new URLRequestHeader( "User-Agent", "apm v" + new SemVer( Consts.VERSION ).toString() ) );
-			
-			if (_package.sourceUrl.indexOf( "github.com" ) >= 0 && _core.config.user.github_token.length > 0)
-			{
-				headers.push( new URLRequestHeader( "Accept", "application/vnd.github.v3.raw" ) );
-				headers.push( new URLRequestHeader( "Authorization", "token " + _core.config.user.github_token ) );
-			}
-			
-			var req:URLRequest = new URLRequest( _package.sourceUrl );
-			req.method = URLRequestMethod.GET;
-			req.requestHeaders = headers;
-			
 			_loader = new URLLoader();
 			_loader.dataFormat = URLLoaderDataFormat.BINARY;
 			_loader.addEventListener( Event.COMPLETE, loader_completeHandler );
@@ -168,7 +156,14 @@ package com.apm.client.commands.packages.processes
 			_loader.addEventListener( IOErrorEvent.IO_ERROR, loader_errorHandler );
 			_loader.addEventListener( HTTPStatusEvent.HTTP_STATUS, loader_statusHandler );
 			_loader.addEventListener( SecurityErrorEvent.SECURITY_ERROR, loader_securityErrorHandler );
-			_loader.load( req );
+			
+			PackageRequestUtils.generateURLRequestForPackage(
+					_package.sourceUrl,
+					_core,
+					function( req:URLRequest )
+					{
+						_loader.load( req );
+					});
 		}
 		
 		

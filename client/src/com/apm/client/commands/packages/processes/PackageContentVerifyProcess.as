@@ -47,18 +47,16 @@ package com.apm.client.commands.packages.processes
 		
 		private var _core:APMCore;
 		private var _path:String;
-		private var _checkRemoteContent:Boolean;
 		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function PackageContentVerifyProcess( core:APMCore, path:String, checkRemoteContent:Boolean=false )
+		public function PackageContentVerifyProcess( core:APMCore, path:String )
 		{
 			_core = core;
 			_path = path;
-			_checkRemoteContent = checkRemoteContent;
 		}
 		
 		
@@ -153,13 +151,7 @@ package com.apm.client.commands.packages.processes
 			
 			// TODO:: Other checks
 			
-			// Check content available
-			if (_checkRemoteContent)
-			{
-			
-			}
 			_core.io.stopSpinner(  true,"Package content verified" );
-			
 			complete();
 		}
 		
@@ -170,10 +162,6 @@ package com.apm.client.commands.packages.processes
 			_core.io.writeError( tag, message );
 			return failure();
 		}
-		
-		
-		
-		
 		
 		
 	}

@@ -38,7 +38,7 @@ package com.apm.data.packages
 		private static const TAG:String = "PackageDefinitionFile";
 		
 		
-		public static const DEFAULT_FILENAME : String = "package.json";
+		public static const DEFAULT_FILENAME:String = "package.json";
 		
 		
 		////////////////////////////////////////////////////////
@@ -61,6 +61,7 @@ package com.apm.data.packages
 		public function get dependencies():Vector.<PackageDependency> { return _packageDependencies; }
 		
 		
+		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
@@ -69,6 +70,8 @@ package com.apm.data.packages
 		{
 			_packageDef = new PackageDefinition();
 			_packageVersion = new PackageVersion();
+			
+			_packageVersion.packageDef = _packageDef;
 			_packageDef.versions.push( _packageVersion );
 			
 			_packageDependencies = new Vector.<PackageDependency>();
@@ -97,9 +100,9 @@ package com.apm.data.packages
 			if (data.hasOwnProperty( "sourceUrl" )) _packageVersion.sourceUrl = data[ "sourceUrl" ];
 			if (data.hasOwnProperty( "publishedAt" )) _packageVersion.publishedAt = data[ "publishedAt" ];
 			
-			if (data.hasOwnProperty( "configuration" ))
+			if (data.hasOwnProperty( "parameters" ))
 			{
-				for each (var param:Object in data.configuration)
+				for each (var param:Object in data.parameters)
 				{
 					_packageVersion.parameters.push( new PackageParameter().fromObject( param ) );
 				}
@@ -119,6 +122,14 @@ package com.apm.data.packages
 				}
 			}
 			
+			if (data.hasOwnProperty( "tags" ))
+			{
+				for each (var tag:String in data.tags)
+				{
+					_packageDef.tags.push( tag );
+				}
+			}
+			
 		}
 		
 		
@@ -127,14 +138,14 @@ package com.apm.data.packages
 			var data:Object = toObject();
 			
 			// Ensures the output JSON format is in a familiar order
-			var keyOrder:Array = [ "id", "name", "url", "docUrl", "description", "type", "version", "checksum", "sourceUrl", "publishedAt", "dependencies", "configuration" ];
+			var keyOrder:Array = ["id", "name", "url", "docUrl", "description", "type", "version", "checksum", "sourceUrl", "publishedAt", "dependencies", "parameters", "tags"];
 			JSONUtils.addMissingKeys( data, keyOrder );
 			
 			return JSON.stringify( data, keyOrder, 4 ) + "\n";
 		}
 		
 		
-		public function toObject():Object
+		public function toObject( forceObjectOutput:Boolean=false ):Object
 		{
 			var data:Object = {};
 			
@@ -153,16 +164,23 @@ package com.apm.data.packages
 			var deps:Array = [];
 			for each (var dep:PackageDependency in _packageDependencies)
 			{
-				deps.push( dep.toObject() );
+				deps.push( dep.toObject( forceObjectOutput ) );
 			}
 			data[ "dependencies" ] = deps;
 			
 			var config:Array = [];
 			for each (var param:PackageParameter in _packageVersion.parameters)
 			{
-				config.push( param.toObject() );
+				config.push( param.toObject( forceObjectOutput ) );
 			}
-			data.configuration = config;
+			data.parameters = config;
+			
+			var tags:Array = [];
+			for each (var tag:String in _packageDef.tags)
+			{
+				tags.push( tag );
+			}
+			data.tags = tags;
 			
 			return data;
 		}
@@ -188,7 +206,6 @@ package com.apm.data.packages
 			{
 				throw new Error( "No output file specified" );
 			}
-			
 			
 			
 			var content:String = stringify();

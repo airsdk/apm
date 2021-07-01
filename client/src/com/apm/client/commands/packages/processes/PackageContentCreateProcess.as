@@ -27,9 +27,7 @@ package com.apm.client.commands.packages.processes
 	
 	
 	/**
-	 * Verifies the content for a package structure in the specified path.
-	 * <br/>
-	 * The process will check the content for the package is valid and fail if not.
+	 * Creates a zip for a package structure in the specified path.
 	 */
 	public class PackageContentCreateProcess extends ProcessBase
 	{
@@ -64,7 +62,11 @@ package com.apm.client.commands.packages.processes
 			_core.io.showSpinner( "Building package" );
 			
 			var directory:File = new File( _core.config.workingDir + File.separator + _path );
-			
+			if (!directory.exists)
+			{
+				_core.io.writeError( directory.name, "Specified package directory does not exist" );
+				return failure();
+			}
 			var packageDefinitionFile:File = directory.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 			if (!packageDefinitionFile.exists)
 			{

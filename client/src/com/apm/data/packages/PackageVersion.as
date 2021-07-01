@@ -98,6 +98,32 @@ package com.apm.data.packages
 			return this;
 		}
 		
+		
+		public function toObject( forceObjectOutput:Boolean=false ):Object
+		{
+			var data:Object = {};
+			data.version = version.toString();
+			data.sourceUrl = sourceUrl;
+			data.checksum = checksum;
+			data.publishedAt = publishedAt;
+			
+			var dependenciesObject:Array = [];
+			for each (var d:PackageVersion in dependencies)
+			{
+				dependenciesObject.push( d.toObject( forceObjectOutput ) );
+			}
+			data.dependencies = dependenciesObject;
+			
+			var parametersObject:Array = [];
+			for each (var p:PackageParameter in parameters)
+			{
+				parametersObject.push( p.toObject( forceObjectOutput ) );
+			}
+			data.parameters = parametersObject;
+			
+			return data;
+		}
+		
 	}
 	
 }

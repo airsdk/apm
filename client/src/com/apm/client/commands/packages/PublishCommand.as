@@ -18,21 +18,25 @@ package com.apm.client.commands.packages
 	import com.apm.client.commands.packages.processes.PackageContentCreateProcess;
 	import com.apm.client.commands.packages.processes.PackageContentVerifyProcess;
 	import com.apm.client.commands.packages.processes.PackageDependenciesVerifyProcess;
-	import com.apm.client.commands.packages.processes.ViewPackageProcess;
+	import com.apm.client.commands.packages.processes.PackagePublishProcess;
+	import com.apm.client.commands.packages.processes.PackageRemoteContentVerifyProcess;
 	import com.apm.client.processes.ProcessQueue;
+	import com.apm.data.packages.PackageDefinitionFile;
+	import com.apm.data.packages.PackageDependency;
+	
+	import flash.filesystem.File;
 	
 	
-	public class BuildCommand implements Command
+	public class PublishCommand implements Command
 	{
 		
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "BuildCommand";
+		private static const TAG:String = "PublishCommand";
 		
-		public static const NAME:String = "build";
-		
+		public static const NAME:String = "publish";
 		
 		
 		////////////////////////////////////////////////////////
@@ -47,7 +51,7 @@ package com.apm.client.commands.packages
 		//  FUNCTIONALITY
 		//
 		
-		public function BuildCommand()
+		public function PublishCommand()
 		{
 			super();
 			_queue = new ProcessQueue();
@@ -74,7 +78,7 @@ package com.apm.client.commands.packages
 		
 		public function get requiresNetwork():Boolean
 		{
-			return false;
+			return true;
 		}
 		
 		
@@ -86,7 +90,7 @@ package com.apm.client.commands.packages
 		
 		public function get description():String
 		{
-			return "create a package template for a new package in the repository";
+			return "publish a package in the repository";
 		}
 		
 		
@@ -94,8 +98,8 @@ package com.apm.client.commands.packages
 		{
 			return description + "\n" +
 					"\n" +
-					"apm build          build a package in the current directory\n" +
-					"apm build <foo>    build a package in a directory named <foo>\n";
+					"apm publish          publish a package in the current directory\n" +
+					"apm publish <foo>    publish a package in a directory named <foo>\n";
 		}
 		
 		
@@ -104,23 +108,40 @@ package com.apm.client.commands.packages
 			var path:String = "";
 			if (_parameters != null && _parameters.length > 0)
 			{
-				path = _parameters[0];
+				path = _parameters[ 0 ];
 			}
 			
-			core.io.writeLine( "Building package" );
+			core.io.writeLine( "Publishing package" );
 			
-			_queue.addProcess( new PackageContentVerifyProcess( core, path ));
-//			_queue.addProcess( new PackageDependenciesVerifyProcess( core, path ));
-			_queue.addProcess( new PackageContentCreateProcess( core, path ));
+			var directory:File = new File( core.config.workingDir + File.separator + path );
+			if (!directory.exists)
+			{
+				core.io.writeError( directory.name, "Specified package directory does not exist" );
+				return core.exit( APMCore.CODE_ERROR );
+			}
+			var packageDefinitionFile:File = directory.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
+			if (!packageDefinitionFile.exists)
+			{
+				core.io.writeError( PackageDefinitionFile.DEFAULT_FILENAME, "Package definition file does not exist" );
+				return core.exit( APMCore.CODE_ERROR );
+			}
+			var f:PackageDefinitionFile = new PackageDefinitionFile().load( packageDefinitionFile );
+			
+			_queue.addProcess( new PackageRemoteContentVerifyProcess( core, f ) );
+			for each (var dep:PackageDependency in f.dependencies)
+			{
+				_queue.addProcess( new PackageDependenciesVerifyProcess( core, dep ) );
+			}
+			_queue.addProcess( new PackagePublishProcess( core, f ) );
 			
 			_queue.start(
-					function ():void
-					{
+					function ():void {
 						core.exit( APMCore.CODE_OK );
 					},
-					function ( message:String ):void
-					{
+					function ( message:String ):void {
+						core.io.writeError( "ERROR", message );
 						core.exit( APMCore.CODE_ERROR );
+						
 					}
 			);
 		}
