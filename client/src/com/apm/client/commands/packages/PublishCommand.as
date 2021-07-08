@@ -113,18 +113,34 @@ package com.apm.client.commands.packages
 			
 			core.io.writeLine( "Publishing package" );
 			
-			var directory:File = new File( core.config.workingDir + File.separator + path );
-			if (!directory.exists)
+			
+			var source:File = new File( core.config.workingDir + File.separator + path );
+			if (!source.exists)
 			{
-				core.io.writeError( directory.name, "Specified package directory does not exist" );
+				core.io.writeError( source.name, "Specified package directory / file does not exist" );
 				return core.exit( APMCore.CODE_ERROR );
 			}
-			var packageDefinitionFile:File = directory.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
-			if (!packageDefinitionFile.exists)
+			
+			var packageDefinitionFile:File;
+			if (source.isDirectory)
 			{
-				core.io.writeError( PackageDefinitionFile.DEFAULT_FILENAME, "Package definition file does not exist" );
+				packageDefinitionFile = source.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
+				if (!packageDefinitionFile.exists)
+				{
+					core.io.writeError( PackageDefinitionFile.DEFAULT_FILENAME, "Package definition file does not exist" );
+					return core.exit( APMCore.CODE_ERROR );
+				}
+			}
+//			else if (source.extension == "zip")
+//			{
+//
+//			}
+			else
+			{
+				core.io.writeError( source.name, "Cannot publish this file / directory" );
 				return core.exit( APMCore.CODE_ERROR );
 			}
+			
 			var f:PackageDefinitionFile = new PackageDefinitionFile().load( packageDefinitionFile );
 			
 			_queue.addProcess( new PackageRemoteContentVerifyProcess( core, f ) );

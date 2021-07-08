@@ -16,8 +16,6 @@ package com.apm.client.commands.packages.processes
 	import com.apm.client.APMCore;
 	import com.apm.client.commands.packages.data.InstallPackageData;
 	import com.apm.client.processes.ProcessBase;
-	import com.apm.data.packages.PackageDefinition;
-	import com.apm.data.packages.PackageVersion;
 	
 	import flash.utils.setTimeout;
 	
@@ -54,9 +52,14 @@ package com.apm.client.commands.packages.processes
 		override public function start():void
 		{
 			_core.io.showSpinner( "Removing existing package : " + _installData.packageVersion.packageDef.toString() );
+			
+			// TODO
+			
 			setTimeout( function ():void {
 				_core.io.stopSpinner( true,
 									  "removed " + _installData.packageVersion.packageDef.toString() );
+				
+				
 				complete();
 				
 			}, 2000 );

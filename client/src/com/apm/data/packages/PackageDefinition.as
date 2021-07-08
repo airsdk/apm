@@ -99,9 +99,9 @@ package com.apm.data.packages
 				}
 				if (data.hasOwnProperty("tags" ))
 				{
-					for each (var tag:String in data.tags)
+					for each (var tag:Object in data.tags)
 					{
-						tags.push( tag );
+						tags.push( tag.name );
 					}
 				}
 			}

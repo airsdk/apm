@@ -59,12 +59,21 @@ package com.apm.client.commands.packages.processes
 				{
 					_core.io.writeLine( packageDefinition.toDescriptiveString() );
 					
+					var tagsLine:String = "";
+					for each (var tag:String in packageDefinition.tags)
+					{
+						tagsLine += tag + " " ;
+					}
+					_core.io.writeLine( "tags" );
+					_core.io.writeLine( "└── [ " + tagsLine + " ]" );
+					
 					if (packageDefinition.versions.length == 0)
 					{
 						_core.io.writeLine( "└── (empty)" );
 					}
 					else
 					{
+						_core.io.writeLine( "versions" );
 						for (var i:int = 0; i < packageDefinition.versions.length; i++)
 						{
 							_core.io.writeLine(

@@ -14,23 +14,10 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APMCore;
-	import com.apm.client.commands.packages.utils.PackageRequestUtils;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageDefinition;
-	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.remote.repository.RepositoryAPI;
-	
-	import flash.events.Event;
-	import flash.events.HTTPStatusEvent;
-	import flash.events.IOErrorEvent;
-	import flash.events.ProgressEvent;
-	import flash.events.SecurityErrorEvent;
-	import flash.filesystem.File;
-	import flash.html.script.Package;
-	import flash.net.URLLoader;
-	import flash.net.URLLoaderDataFormat;
-	import flash.net.URLRequest;
 	
 	
 	/**
@@ -72,10 +59,10 @@ package com.apm.client.commands.packages.processes
 		{
 			_core.io.showSpinner( "Checking dependency: " + _dependency.toString() );
 			
-			_repositoryAPI.getPackageVersion( _dependency.identifier, _dependency.version, function( success:Boolean, packageDef:PackageDefinition ):void {
+			_repositoryAPI.getPackageVersion( _dependency.identifier, _dependency.version, function ( success:Boolean, packageDef:PackageDefinition ):void {
 				if (success && packageDef != null)
 				{
-					_core.io.stopSpinner( true,"Dependency VERIFIED: " + _dependency.toString() );
+					_core.io.stopSpinner( true, "Dependency VERIFIED: " + _dependency.toString() );
 					complete();
 				}
 				else
@@ -83,12 +70,9 @@ package com.apm.client.commands.packages.processes
 					_core.io.stopSpinner( false, "Dependency INVALID: " + _dependency.toString() );
 					failure();
 				}
-			});
+			} );
 			
 		}
-		
-		
-	
 		
 		
 	}
