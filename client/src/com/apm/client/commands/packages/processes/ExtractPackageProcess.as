@@ -14,6 +14,7 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APMCore;
+	import com.apm.client.Consts;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageVersion;
 	
@@ -59,7 +60,7 @@ package com.apm.client.commands.packages.processes
 			_package = packageVersion;
 			
 			_packageDir = new File( _core.config.packagesDir + File.separator + _package.packageDef.identifier );
-			var filename:String = _package.packageDef.identifier + "_" + _package.version.toString() + ".zip";
+			var filename:String = _package.packageDef.identifier + "_" + _package.version.toString() + "." + Consts.AIRPACKAGEEXTENSION;
 			_packageFile = _packageDir.resolvePath( filename );
 		}
 		

@@ -14,6 +14,7 @@
 package com.apm.client.commands.packages
 {
 	import com.apm.client.APMCore;
+	import com.apm.client.Consts;
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.airsdk.processes.ExtractAIRSDKProcess;
 	import com.apm.client.commands.packages.processes.PackageContentCreateProcess;
@@ -138,7 +139,7 @@ package com.apm.client.commands.packages
 				_queue.addProcess( new PackageContentVerifyProcess( core, source ));
 				_queue.addProcess( new PackageDefinitionLoadProcess( core, packageDefinitionFile, f ));
 			}
-			else if (source.extension == "zip")
+			else if (source.extension == "zip" || source.extension == Consts.AIRPACKAGEEXTENSION)
 			{
 				var f:File = tmpDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 				

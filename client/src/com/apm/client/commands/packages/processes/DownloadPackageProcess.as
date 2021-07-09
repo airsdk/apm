@@ -14,6 +14,7 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APMCore;
+	import com.apm.client.Consts;
 	import com.apm.client.commands.packages.utils.PackageRequestUtils;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
@@ -31,6 +32,7 @@ package com.apm.client.commands.packages.processes
 	import flash.net.URLLoader;
 	import flash.net.URLLoaderDataFormat;
 	import flash.net.URLRequest;
+	import flash.text.TextFieldAutoSize;
 	import flash.utils.ByteArray;
 	
 	
@@ -69,7 +71,7 @@ package com.apm.client.commands.packages.processes
 			var packageDir:File = new File( _core.config.packagesDir + File.separator + _package.packageDef.identifier );
 			if (!packageDir.exists) packageDir.createDirectory();
 			
-			var filename:String = _package.packageDef.identifier + "_" + _package.version.toString() + ".zip";
+			var filename:String = _package.packageDef.identifier + "_" + _package.version.toString() + "." + Consts.AIRPACKAGEEXTENSION;
 			
 			_destination = packageDir.resolvePath( filename );
 		}
@@ -101,9 +103,14 @@ package com.apm.client.commands.packages.processes
 			if (!fileValid)
 			{
 				if (downloadIfCheckFails)
+				{
 					return downloadPackage();
+				}
 				else
+				{
 					_core.io.writeLine( "Downloaded file failed checks - retry install again later!" );
+					return failure( "Downloaded file failed checks" );
+				}
 			}
 			
 			complete();
@@ -120,12 +127,13 @@ package com.apm.client.commands.packages.processes
 			if (fileValid)
 			{
 				_core.io.completeProgressBar( true, "downloaded" );
+				complete();
 			}
 			else
 			{
 				_core.io.completeProgressBar( false, "Downloaded file failed checks - retry install again later!" );
+				failure( "Downloaded file failed checks" );
 			}
-			complete();
 		}
 		
 		

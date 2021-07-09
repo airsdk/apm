@@ -189,7 +189,7 @@ package com.apm.remote.repository
 			req.method = URLRequestMethod.POST;
 			req.url = _endpoint + "/api/packages/" + packageDef.packageDef.identifier + "/update";
 			req.data = JSON.stringify( {
-				packageDef : packageDef.toObject( true )
+				packageDef : packageDef.toObject( true, true )
 			} );
 			
 			_requestQueue.add( req, "publish", function ( success:Boolean, data:* ):void {

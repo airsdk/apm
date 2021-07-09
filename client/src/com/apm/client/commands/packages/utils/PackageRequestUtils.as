@@ -112,7 +112,7 @@ package com.apm.client.commands.packages.utils
 			
 			if (url.indexOf( "github.com" ) >= 0 && core.config.user.github_token.length > 0)
 			{
-				headers.push( new URLRequestHeader( "Accept", "application/vnd.github.v3.raw" ) );
+				headers.push( new URLRequestHeader( "Accept", "application/octet-stream" ) );
 				headers.push( new URLRequestHeader( "Authorization", "token " + core.config.user.github_token ) );
 			}
 			

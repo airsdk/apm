@@ -13,17 +13,10 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.SemVer;
 	import com.apm.client.APMCore;
 	import com.apm.client.commands.packages.data.InstallPackageData;
-	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.ProcessQueue;
-	import com.apm.data.packages.PackageDefinition;
-	import com.apm.data.packages.PackageVersion;
-	import com.apm.remote.repository.RepositoryAPI;
-	
-	import flash.utils.setTimeout;
 	
 	
 	public class InstallPackageProcess extends ProcessBase
@@ -41,7 +34,7 @@ package com.apm.client.commands.packages.processes
 		
 		private var _core:APMCore;
 		private var _installData:InstallPackageData;
-
+		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
@@ -61,13 +54,17 @@ package com.apm.client.commands.packages.processes
 			
 			var queue:ProcessQueue = new ProcessQueue();
 			
-			queue.addProcess( new DownloadPackageProcess( _core, _installData.packageVersion ));
-			queue.addProcess( new ExtractPackageProcess( _core, _installData.packageVersion ));
+			queue.addProcess( new DownloadPackageProcess( _core, _installData.packageVersion ) );
+			queue.addProcess( new ExtractPackageProcess( _core, _installData.packageVersion ) );
 			
-			queue.start( function():void {
-				_core.io.writeLine( "Installed package : " + _installData.packageVersion.packageDef.toString() );
-				complete();
-			});
+			queue.start( function ():void {
+							 _core.io.writeLine( "Installed package : " + _installData.packageVersion.packageDef.toString() );
+							 complete();
+						 },
+						 function ( error:String ):void {
+							 _core.io.writeError( "ERROR", "Failed to install package : " + _installData.packageVersion.packageDef.toString() );
+							 failure( error );
+						 } );
 			
 		}
 		
