@@ -13,14 +13,11 @@
  */
 package com.apm.data.utils
 {
-	import com.hurlant.crypto.hash.SHA256;
-	import com.hurlant.util.Base64;
-	import com.hurlant.util.Hex;
+	import by.blooddy.crypto.SHA256;
 	
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
-	import flash.utils.ByteArray;
 	import flash.utils.ByteArray;
 	
 	
@@ -58,9 +55,7 @@ package com.apm.data.utils
 			
 			try
 			{
-				var hashAlgorithm:SHA256 = new SHA256();
-				var hash:ByteArray = hashAlgorithm.hash( data );
-				return Hex.fromArray(hash);
+				return SHA256.hashBytes( data );
 			}
 			catch (e:Error)
 			{
@@ -70,4 +65,5 @@ package com.apm.data.utils
 		
 		
 	}
+	
 }

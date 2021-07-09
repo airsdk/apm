@@ -17,6 +17,7 @@ package com.apm.client.commands.packages.processes
 	import com.apm.client.commands.packages.utils.PackageRequestUtils;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageDefinitionFile;
+	import com.apm.data.packages.PackageDependency;
 	
 	import flash.events.Event;
 	import flash.events.HTTPStatusEvent;
@@ -29,9 +30,8 @@ package com.apm.client.commands.packages.processes
 	
 	
 	/**
-	 * Verifies the content for a package structure in the specified path.
-	 * <br/>
-	 * The process will check the content for the package is valid and fail if not.
+	 * Verifies the remote content for a package, checking the package is available at the
+	 * specified url and that all the linked dependencies are available in the package repository.
 	 */
 	public class PackageRemoteContentVerifyProcess extends ProcessBase
 	{
@@ -65,6 +65,11 @@ package com.apm.client.commands.packages.processes
 		{
 			_core.io.showSpinner( "Checking remote content: " + _packageDefinition.version.sourceUrl );
 			
+			for each (var dep:PackageDependency in _packageDefinition.dependencies)
+			{
+				_queue.addProcessToStart( new PackageDependenciesVerifyProcess( _core, dep ) );
+			}
+			
 			// Check content available
 			checkRemoteContent( _packageDefinition.version.sourceUrl, function ( success:Boolean, message:String ):void {
 				_core.io.stopSpinner( success, success ? "Package content verified" : message );
@@ -94,7 +99,7 @@ package com.apm.client.commands.packages.processes
 			PackageRequestUtils.generateURLRequestForPackage(
 					url,
 					_core,
-					function ( req:URLRequest ) {
+					function ( req:URLRequest ):void {
 						_loader.load( req );
 					} );
 		}

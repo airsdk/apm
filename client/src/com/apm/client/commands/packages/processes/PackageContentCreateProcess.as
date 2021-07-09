@@ -43,31 +43,31 @@ package com.apm.client.commands.packages.processes
 		//
 		
 		private var _core:APMCore;
-		private var _path:String;
+		private var _packageDir:File;
 		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function PackageContentCreateProcess( core:APMCore, path:String )
+		public function PackageContentCreateProcess( core:APMCore, packageDir:File )
 		{
 			_core = core;
-			_path = path;
+			_packageDir = packageDir;
 		}
 		
 		
 		override public function start():void
 		{
-			_core.io.showSpinner( "Building package" );
-			
-			var directory:File = new File( _core.config.workingDir + File.separator + _path );
-			if (!directory.exists)
+			if (!_packageDir.exists || !_packageDir.isDirectory)
 			{
-				_core.io.writeError( directory.name, "Specified package directory does not exist" );
+				_core.io.writeError( _packageDir.name, "Specified package directory does not exist" );
 				return failure();
 			}
-			var packageDefinitionFile:File = directory.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
+			
+			_core.io.showSpinner( "Building package" );
+			
+			var packageDefinitionFile:File = _packageDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 			if (!packageDefinitionFile.exists)
 			{
 				_core.io.writeError( PackageDefinitionFile.DEFAULT_FILENAME, "Package definition file does not exist" );
@@ -80,14 +80,14 @@ package com.apm.client.commands.packages.processes
 			
 			
 			
-			var libDir:File = directory.resolvePath( "lib" );
-			var aneDir:File = directory.resolvePath( "ane" );
-			var srcDir:File = directory.resolvePath( "src" );
-			var readmeFile:File = directory.resolvePath( "README.md" );
-			var changeLogFile:File = directory.resolvePath( "CHANGELOG.md" );
-			var licenseFile:File = directory.resolvePath( "LICENSE.md" );
-			var androidFile:File = directory.resolvePath( "android.xml" );
-			var iosFile:File = directory.resolvePath( "ios.xml" );
+			var libDir:File = _packageDir.resolvePath( "lib" );
+			var aneDir:File = _packageDir.resolvePath( "ane" );
+			var srcDir:File = _packageDir.resolvePath( "src" );
+			var readmeFile:File = _packageDir.resolvePath( "README.md" );
+			var changeLogFile:File = _packageDir.resolvePath( "CHANGELOG.md" );
+			var licenseFile:File = _packageDir.resolvePath( "LICENSE.md" );
+			var androidFile:File = _packageDir.resolvePath( "android.xml" );
+			var iosFile:File = _packageDir.resolvePath( "ios.xml" );
 			
 			addFileToZip( zip, packageDefinitionFile );
 			addFileToZip( zip, readmeFile );

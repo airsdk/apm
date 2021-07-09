@@ -98,6 +98,7 @@ package com.apm.data.packages
 			if (data.hasOwnProperty( "version" )) _packageVersion.version = SemVer.fromString( data[ "version" ] );
 			if (data.hasOwnProperty( "sourceUrl" )) _packageVersion.sourceUrl = data[ "sourceUrl" ];
 			if (data.hasOwnProperty( "publishedAt" )) _packageVersion.publishedAt = data[ "publishedAt" ];
+			if (data.hasOwnProperty( "checksum" )) _packageVersion.checksum = data[ "checksum" ];
 			
 			if (data.hasOwnProperty( "parameters" ))
 			{
@@ -137,7 +138,7 @@ package com.apm.data.packages
 			var data:Object = toObject();
 			
 			// Ensures the output JSON format is in a familiar order
-			var keyOrder:Array = ["id", "name", "url", "docUrl", "description", "type", "version", "sourceUrl", "publishedAt", "dependencies", "parameters", "tags"];
+			var keyOrder:Array = ["id", "name", "url", "docUrl", "description", "type", "version", "sourceUrl", "publishedAt", "checksum", "dependencies", "parameters", "tags"];
 			JSONUtils.addMissingKeys( data, keyOrder );
 			
 			return JSON.stringify( data, keyOrder, 4 ) + "\n";
@@ -158,6 +159,7 @@ package com.apm.data.packages
 			data[ "version" ] = _packageVersion.version.toString();
 			data[ "sourceUrl" ] = _packageVersion.sourceUrl;
 			data[ "publishedAt" ] = _packageVersion.publishedAt;
+			data[ "checksum" ] = _packageVersion.checksum;
 			
 			var deps:Array = [];
 			for each (var dep:PackageDependency in _packageDependencies)

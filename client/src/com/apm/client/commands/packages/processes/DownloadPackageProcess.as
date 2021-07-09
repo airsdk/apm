@@ -13,9 +13,7 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.SemVer;
 	import com.apm.client.APMCore;
-	import com.apm.client.Consts;
 	import com.apm.client.commands.packages.utils.PackageRequestUtils;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
@@ -33,8 +31,6 @@ package com.apm.client.commands.packages.processes
 	import flash.net.URLLoader;
 	import flash.net.URLLoaderDataFormat;
 	import flash.net.URLRequest;
-	import flash.net.URLRequestHeader;
-	import flash.net.URLRequestMethod;
 	import flash.utils.ByteArray;
 	
 	
@@ -160,10 +156,9 @@ package com.apm.client.commands.packages.processes
 			PackageRequestUtils.generateURLRequestForPackage(
 					_package.sourceUrl,
 					_core,
-					function( req:URLRequest )
-					{
+					function ( req:URLRequest ):void {
 						_loader.load( req );
-					});
+					} );
 		}
 		
 		

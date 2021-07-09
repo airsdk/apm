@@ -46,29 +46,28 @@ package com.apm.client.commands.packages.processes
 		//
 		
 		private var _core:APMCore;
-		private var _path:String;
+		private var _packageDir:File;
 		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function PackageContentVerifyProcess( core:APMCore, path:String )
+		public function PackageContentVerifyProcess( core:APMCore, packageDir:File )
 		{
 			_core = core;
-			_path = path;
+			_packageDir = packageDir;
 		}
 		
 		
 		override public function start():void
 		{
-			var directory:File = new File( _core.config.workingDir + File.separator + _path );
-			if (!directory.exists)
+			if (!_packageDir.exists || !_packageDir.isDirectory)
 			{
-				return fail( directory.name, "Specified package directory does not exist" );
+				return fail( _packageDir.name, "Specified package directory does not exist" );
 			}
 
-			var packageDefinitionFile:File = directory.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
+			var packageDefinitionFile:File = _packageDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 			if (!packageDefinitionFile.exists)
 			{
 				return fail( PackageDefinitionFile.DEFAULT_FILENAME, "Package definition file does not exist" );
@@ -80,6 +79,7 @@ package com.apm.client.commands.packages.processes
 			_core.io.writeLine( "- name:        " + f.packageDef.name );
 			_core.io.writeLine( "- description: " + f.packageDef.description );
 			_core.io.writeLine( "- type:        " + f.packageDef.type );
+			_core.io.writeLine( "- tags:        " + f.packageDef.tags.join(",") );
 			_core.io.writeLine( "- version:     " + (f.version == null ? "null" : f.version.toString()) );
 			_core.io.writeLine( "- sourceUrl:   " + f.version.sourceUrl );
 			
@@ -112,7 +112,7 @@ package com.apm.client.commands.packages.processes
 				return fail( PackageDefinitionFile.DEFAULT_FILENAME, "You must provide a source url for your package version" );
 			}
 			
-			var readmeFile:File = directory.resolvePath( "README.md" );
+			var readmeFile:File = _packageDir.resolvePath( "README.md" );
 			if (!readmeFile.exists)
 			{
 				return fail( "README", "Package readme file does not exist" );
@@ -123,21 +123,21 @@ package com.apm.client.commands.packages.processes
 			switch (f.packageDef.type)
 			{
 				case "ane":
-					var aneDir:File = directory.resolvePath( "ane" );
+					var aneDir:File = _packageDir.resolvePath( "ane" );
 					if (!aneDir.exists || FileUtils.countFilesByType( aneDir, "ane") == 0)
 					{
 						return fail( "CONTENT", "No 'ane' file found in the 'ane' directory" );
 					}
 					break;
 				case "swc":
-					var libDir:File = directory.resolvePath( "lib" );
+					var libDir:File = _packageDir.resolvePath( "lib" );
 					if (!libDir.exists || FileUtils.countFilesByType( libDir, "swc") == 0)
 					{
 						return fail( "CONTENT", "No 'swc' file found in the 'lib' directory" );
 					}
 					break;
 				case "src":
-					var srcDir:File = directory.resolvePath( "src" );
+					var srcDir:File = _packageDir.resolvePath( "src" );
 					if (!srcDir.exists || FileUtils.countFilesByType( srcDir, "as") == 0)
 					{
 						return fail( "CONTENT", "No 'as' files found in the 'src' directory" );
@@ -146,8 +146,8 @@ package com.apm.client.commands.packages.processes
 			}
 			
 			
-			var changeLogFile:File = directory.resolvePath( "CHANGELOG.md" );
-			var licenseFile:File = directory.resolvePath( "LICENSE.md" );
+			var changeLogFile:File = _packageDir.resolvePath( "CHANGELOG.md" );
+			var licenseFile:File = _packageDir.resolvePath( "LICENSE.md" );
 			
 			// TODO:: Other checks
 			

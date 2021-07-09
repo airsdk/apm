@@ -15,12 +15,16 @@ package com.apm.client.commands.packages
 {
 	import com.apm.client.APMCore;
 	import com.apm.client.commands.Command;
+	import com.apm.client.commands.airsdk.processes.ExtractAIRSDKProcess;
 	import com.apm.client.commands.packages.processes.PackageContentCreateProcess;
 	import com.apm.client.commands.packages.processes.PackageContentVerifyProcess;
+	import com.apm.client.commands.packages.processes.PackageDefinitionLoadProcess;
 	import com.apm.client.commands.packages.processes.PackageDependenciesVerifyProcess;
+	import com.apm.client.commands.packages.processes.PackageGenerateChecksumProcess;
 	import com.apm.client.commands.packages.processes.PackagePublishProcess;
 	import com.apm.client.commands.packages.processes.PackageRemoteContentVerifyProcess;
 	import com.apm.client.processes.ProcessQueue;
+	import com.apm.client.processes.generic.ExtractZipProcess;
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.packages.PackageDependency;
 	
@@ -110,56 +114,69 @@ package com.apm.client.commands.packages
 			{
 				path = _parameters[ 0 ];
 			}
+			core.io.writeLine( "Publishing package: " + path );
 			
-			core.io.writeLine( "Publishing package" );
-			
-			
+			var tmpDir:File = new File( core.config.workingDir + File.separator + ".apm__tmp" );
 			var source:File = new File( core.config.workingDir + File.separator + path );
 			if (!source.exists)
 			{
 				core.io.writeError( source.name, "Specified package directory / file does not exist" );
 				return core.exit( APMCore.CODE_ERROR );
 			}
+
 			
-			var packageDefinitionFile:File;
+			var packageDefinitionFile:PackageDefinitionFile = new PackageDefinitionFile();
 			if (source.isDirectory)
 			{
-				packageDefinitionFile = source.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
-				if (!packageDefinitionFile.exists)
+				var f:File = source.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
+				if (!f.exists)
 				{
 					core.io.writeError( PackageDefinitionFile.DEFAULT_FILENAME, "Package definition file does not exist" );
 					return core.exit( APMCore.CODE_ERROR );
 				}
+				
+				_queue.addProcess( new PackageContentVerifyProcess( core, source ));
+				_queue.addProcess( new PackageDefinitionLoadProcess( core, packageDefinitionFile, f ));
 			}
-//			else if (source.extension == "zip")
-//			{
-//
-//			}
+			else if (source.extension == "zip")
+			{
+				var f:File = tmpDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
+				
+				_queue.addProcess( new ExtractZipProcess( core, source, tmpDir ) );
+				_queue.addProcess( new PackageContentVerifyProcess( core, tmpDir ));
+				_queue.addProcess( new PackageDefinitionLoadProcess( core, packageDefinitionFile, f ));
+				_queue.addProcess( new PackageGenerateChecksumProcess( core, packageDefinitionFile, source ));
+			}
 			else
 			{
 				core.io.writeError( source.name, "Cannot publish this file / directory" );
 				return core.exit( APMCore.CODE_ERROR );
 			}
 			
-			var f:PackageDefinitionFile = new PackageDefinitionFile().load( packageDefinitionFile );
-			
-			_queue.addProcess( new PackageRemoteContentVerifyProcess( core, f ) );
-			for each (var dep:PackageDependency in f.dependencies)
-			{
-				_queue.addProcess( new PackageDependenciesVerifyProcess( core, dep ) );
-			}
-			_queue.addProcess( new PackagePublishProcess( core, f ) );
+			_queue.addProcess( new PackageRemoteContentVerifyProcess( core, packageDefinitionFile ) );
+			_queue.addProcess( new PackagePublishProcess( core, packageDefinitionFile ) );
 			
 			_queue.start(
 					function ():void {
+						cleanup( tmpDir );
 						core.exit( APMCore.CODE_OK );
 					},
 					function ( message:String ):void {
+						cleanup( tmpDir );
 						core.io.writeError( "ERROR", message );
 						core.exit( APMCore.CODE_ERROR );
 						
 					}
 			);
+		}
+		
+		
+		private function cleanup( tmpDir:File ):void
+		{
+			if (tmpDir.exists)
+			{
+				tmpDir.deleteDirectory( true );
+			}
 		}
 		
 	}

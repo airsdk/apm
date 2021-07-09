@@ -21,6 +21,8 @@ package com.apm.client.commands.packages
 	import com.apm.client.commands.packages.processes.ViewPackageProcess;
 	import com.apm.client.processes.ProcessQueue;
 	
+	import flash.filesystem.File;
+	
 	
 	public class BuildCommand implements Command
 	{
@@ -109,9 +111,10 @@ package com.apm.client.commands.packages
 			
 			core.io.writeLine( "Building package" );
 			
-			_queue.addProcess( new PackageContentVerifyProcess( core, path ));
-//			_queue.addProcess( new PackageDependenciesVerifyProcess( core, path ));
-			_queue.addProcess( new PackageContentCreateProcess( core, path ));
+			var packageDir:File = new File( core.config.workingDir + File.separator + path );
+			
+			_queue.addProcess( new PackageContentVerifyProcess( core, packageDir ));
+			_queue.addProcess( new PackageContentCreateProcess( core, packageDir ));
 			
 			_queue.start(
 					function ():void
