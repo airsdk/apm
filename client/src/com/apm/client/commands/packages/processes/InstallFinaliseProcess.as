@@ -17,6 +17,7 @@ package com.apm.client.commands.packages.processes
 	import com.apm.client.commands.packages.data.InstallData;
 	import com.apm.client.commands.packages.data.InstallPackageData;
 	import com.apm.client.processes.ProcessBase;
+	import com.apm.data.packages.PackageParameter;
 	
 	
 	public class InstallFinaliseProcess extends ProcessBase
@@ -49,20 +50,27 @@ package com.apm.client.commands.packages.processes
 		
 		override public function start():void
 		{
-			// save all the installed packages into the project file
-			
 			_core.config.projectDefinition.clearPackageDependencies();
-
+			
+			// save all the installed packages into the project file
 			for each (var p:InstallPackageData in _installData.packagesToInstall)
 			{
 				if (p.query.requiringPackage == null)
 				{
 					_core.config.projectDefinition.addPackageDependency( p.packageVersion );
 				}
+
+				// Ensure all extension parameters are added with defaults
+				for each (var param:PackageParameter in p.packageVersion.parameters)
+				{
+					if (!_core.config.projectDefinition.configuration.hasOwnProperty( param.name ))
+					{
+						_core.config.projectDefinition.configuration[ param.name ] = param.defaultValue;
+					}
+				}
 			}
 			
 			_core.config.projectDefinition.save();
-			
 			complete();
 		}
 		

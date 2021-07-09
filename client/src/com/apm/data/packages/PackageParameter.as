@@ -28,6 +28,7 @@ package com.apm.data.packages
 		
 		public var name:String;
 		public var required:Boolean = false;
+		public var defaultValue:String = "";
 		
 		private var _singleLineOutput:Boolean = false;
 		
@@ -62,7 +63,8 @@ package com.apm.data.packages
 			{
 				return {
 					name:     name,
-					required: required
+					required: required,
+					defaultValue: defaultValue
 				};
 			}
 		}
@@ -74,7 +76,7 @@ package com.apm.data.packages
 			{
 				if (data is String)
 				{
-					// single line format com.package.example:1.0.0
+					// single line format paramName:required
 					this._singleLineOutput = true;
 					if (String( data ).indexOf( ":" ) > 0)
 					{
@@ -93,6 +95,7 @@ package com.apm.data.packages
 				{
 					if (data.hasOwnProperty( "name" )) this.name = data[ "name" ];
 					if (data.hasOwnProperty( "required" )) this.required = data[ "required" ];
+					if (data.hasOwnProperty( "defaultValue" )) this.defaultValue = data[ "defaultValue" ];
 				}
 			}
 			return this;

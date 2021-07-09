@@ -166,12 +166,12 @@ package com.apm.data.packages
 			}
 			data[ "dependencies" ] = deps;
 			
-			var config:Array = [];
+			var params:Array = [];
 			for each (var param:PackageParameter in _packageVersion.parameters)
 			{
-				config.push( param.toObject( forceObjectOutput ) );
+				params.push( param.toObject( forceObjectOutput ) );
 			}
-			data.parameters = config;
+			data.parameters = params;
 			
 			var tags:Array = [];
 			for each (var tag:String in _packageDef.tags)

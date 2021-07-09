@@ -191,19 +191,19 @@ package com.apm.client.commands.packages
 			
 			
 			
-			
 			_queue.start( function ():void {
 
-				//
+				// Once here we should have all the data for the required packages
+				
 				var resolver:InstallDataValidator = new InstallDataValidator();
-				if (resolver.verifyInstall( _installData ))
+				if (resolver.verifyInstall( _installData )) // fails if a conflicting package was found
 				{
 					// dependencies could be resolved - proceed to installation
 					_queue.clear();
-					for each (var p:InstallPackageData in _installData.packagesToRemove)
+					for each (var packageToRemove:InstallPackageData in _installData.packagesToRemove)
 					{
 						_queue.addProcess(
-								new RemovePackageProcess( core, p )
+								new RemovePackageProcess( core, packageToRemove )
 						);
 					}
 					for each (var p:InstallPackageData in _installData.packagesToInstall)

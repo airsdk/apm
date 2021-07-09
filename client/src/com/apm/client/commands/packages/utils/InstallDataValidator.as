@@ -80,7 +80,7 @@ package com.apm.client.commands.packages.utils
 					}
 					else
 					{
-						// Conflict found...
+						// Unresolved conflict found ...
 						data.packagesConflicting.push( group );
 					}
 				}
