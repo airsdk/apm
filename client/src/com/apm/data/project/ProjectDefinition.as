@@ -50,6 +50,7 @@ package com.apm.data.project
 		private var _repositories:Vector.<Repository>;
 		private var _dependencies:Vector.<PackageDependency>;
 		private var _configuration:Object;
+		private var _deployOptions:Object;
 		
 		
 		////////////////////////////////////////////////////////
@@ -63,6 +64,7 @@ package com.apm.data.project
 			_repositories = new Vector.<Repository>();
 			_dependencies = new Vector.<PackageDependency>();
 			_configuration = {};
+			_deployOptions = {};
 		}
 		
 		
@@ -91,6 +93,11 @@ package com.apm.data.project
 			if (_data.hasOwnProperty( "configuration" ))
 			{
 				_configuration = _data.configuration;
+			}
+			
+			if (_data.hasOwnProperty( "deployOptions" ))
+			{
+				_deployOptions = _data.deployOptions;
 			}
 		}
 		
@@ -130,6 +137,7 @@ package com.apm.data.project
 			data[ "dependencies" ] = deps;
 			
 			data["configuration"] = _configuration;
+			data["deployOptions"] = _deployOptions;
 			
 			_data = data;
 			
@@ -199,6 +207,15 @@ package com.apm.data.project
 			if (_configuration == null) _configuration = {};
 			_configuration[ key ] = value;
 		}
+		
+		
+		public function get deployOptions():Object
+		{
+			return _deployOptions;
+		}
+		
+		
+		
 		
 		
 		

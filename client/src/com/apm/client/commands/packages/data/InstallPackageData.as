@@ -51,7 +51,7 @@ package com.apm.client.commands.packages.data
 		
 		public function equals( b:InstallPackageData ):Boolean
 		{
-			if (packageVersion.equals( b.packageVersion))
+			if (packageVersion.equals( b.packageVersion ))
 			{
 				return true;
 			}

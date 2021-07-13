@@ -50,11 +50,27 @@ package com.apm.client.commands.packages.utils
 				}
 				else if (f.extension == type)
 				{
-					count ++;
+					count++;
 				}
 			}
 			return count;
 		}
 		
+		
+		public static function copyDirectoryTo( src:File, dest:File, overwrite:Boolean = false ):void
+		{
+			if (!dest.exists) dest.createDirectory();
+			
+			var directory:Array = src.getDirectoryListing();
+			for each (var f:File in directory)
+			{
+				if (f.isDirectory)
+					copyDirectoryTo( f, dest.resolvePath( f.name ), overwrite );
+				else
+					f.copyTo( dest.resolvePath( f.name ), overwrite );
+			}
+		}
+		
 	}
+	
 }

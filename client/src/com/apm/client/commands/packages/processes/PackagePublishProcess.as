@@ -62,10 +62,6 @@ package com.apm.client.commands.packages.processes
 			
 			_core.io.showSpinner( "Publish package" );
 			
-			
-			// TODO:: Populate dependencies...
-			
-			
 			_repositoryAPI
 					.setToken( _core.config.user.publisher_token )
 					.publish( _packageDefinition, function ( success:Boolean, packageDefinition:* ):void {

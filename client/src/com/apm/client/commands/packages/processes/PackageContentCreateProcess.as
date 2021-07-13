@@ -16,6 +16,7 @@ package com.apm.client.commands.packages.processes
 	import com.apm.SemVer;
 	import com.apm.client.APMCore;
 	import com.apm.client.Consts;
+	import com.apm.client.commands.packages.utils.PackageFileUtils;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageDefinitionFile;
 	
@@ -112,7 +113,7 @@ package com.apm.client.commands.packages.processes
 					break;
 			}
 			
-			var packageFileName:String = packDefFile.packageDef.identifier + "_" + packDefFile.version.version.toString() + "." + Consts.AIRPACKAGEEXTENSION;
+			var packageFileName:String = packDefFile.packageDef.identifier + "_" + packDefFile.version.version.toString() + "." + PackageFileUtils.AIRPACKAGEEXTENSION;
 			var packageFilePath:String = _core.config.workingDir + File.separator + packageFileName;
 			var packageFile:File = new File( packageFilePath );
 			

@@ -19,6 +19,9 @@ package com.apm.client.commands.packages.processes
 	import com.apm.client.processes.ProcessQueue;
 	
 	
+	/**
+	 * This process downloads and extracts an AIR package
+	 */
 	public class InstallPackageProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////

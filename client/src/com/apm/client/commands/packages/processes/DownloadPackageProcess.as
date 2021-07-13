@@ -15,6 +15,7 @@ package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APMCore;
 	import com.apm.client.Consts;
+	import com.apm.client.commands.packages.utils.PackageFileUtils;
 	import com.apm.client.commands.packages.utils.PackageRequestUtils;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
@@ -68,12 +69,12 @@ package com.apm.client.commands.packages.processes
 			var packagesDir:File = new File( _core.config.packagesDir );
 			if (!packagesDir.exists) packagesDir.createDirectory();
 			
-			var packageDir:File = new File( _core.config.packagesDir + File.separator + _package.packageDef.identifier );
+			var packageDir:File = PackageFileUtils.directoryForPackage( _core, packageVersion.packageDef );
 			if (!packageDir.exists) packageDir.createDirectory();
 			
-			var filename:String = _package.packageDef.identifier + "_" + _package.version.toString() + "." + Consts.AIRPACKAGEEXTENSION;
-			
-			_destination = packageDir.resolvePath( filename );
+			_destination = packageDir.resolvePath(
+					PackageFileUtils.filenameForPackage( packageVersion )
+			);
 		}
 		
 		

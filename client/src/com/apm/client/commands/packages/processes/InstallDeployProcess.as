@@ -16,22 +16,27 @@ package com.apm.client.commands.packages.processes
 	import com.apm.client.APMCore;
 	import com.apm.client.commands.packages.data.InstallData;
 	import com.apm.client.commands.packages.data.InstallPackageData;
+	import com.apm.client.commands.packages.utils.DeployFileUtils;
+	import com.apm.client.commands.packages.utils.FileUtils;
+	import com.apm.client.commands.packages.utils.PackageFileUtils;
+	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageParameter;
 	
+	import flash.filesystem.File;
+	
 	
 	/**
-	 * This is the final process in the install command,
-	 * it updates the project config file to represent the resolved
-	 * installation state.
+	 * This is the deploy process in the install command,
+	 * it copies the files into the appropriate place for the application.
 	 */
-	public class InstallFinaliseProcess extends ProcessBase
+	public class InstallDeployProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "InstallFinaliseProcess";
+		private static const TAG:String = "InstallDeployProcess";
 		
 		
 		////////////////////////////////////////////////////////
@@ -46,7 +51,7 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function InstallFinaliseProcess( core:APMCore, installData:InstallData )
+		public function InstallDeployProcess( core:APMCore, installData:InstallData )
 		{
 			_core = core;
 			_installData = installData;
@@ -55,29 +60,25 @@ package com.apm.client.commands.packages.processes
 		
 		override public function start():void
 		{
-			_core.config.projectDefinition.clearPackageDependencies();
-			
-			// save all the installed packages into the project file
 			for each (var p:InstallPackageData in _installData.packagesToInstall)
 			{
-				if (p.query.requiringPackage == null)
+				_core.io.showSpinner( "Deploying package: " + p.packageVersion.packageDef.toString() );
+				var packageDir:File = PackageFileUtils.directoryForPackage( _core, p.packageVersion.packageDef );
+				for each (var ref:File in packageDir.getDirectoryListing())
 				{
-					_core.config.projectDefinition.addPackageDependency( p.packageVersion );
-				}
-				
-				// Ensure all extension parameters are added with defaults
-				for each (var param:PackageParameter in p.packageVersion.parameters)
-				{
-					if (!_core.config.projectDefinition.configuration.hasOwnProperty( param.name ))
+					if (ref.isDirectory)
 					{
-						_core.config.projectDefinition.configuration[ param.name ] = param.defaultValue;
+						_core.io.updateSpinner( "Deploying package: " + p.packageVersion.packageDef.toString() + " " + ref.name );
+						var deployLocation:File = DeployFileUtils.getDeployLocation( _core.config, ref.name );
+						FileUtils.copyDirectoryTo( ref, deployLocation, true );
 					}
 				}
+				_core.io.stopSpinner( true, "Deployed: " + p.packageVersion.packageDef.toString() );
 			}
-			
-			_core.config.projectDefinition.save();
 			complete();
 		}
 		
+		
 	}
+	
 }

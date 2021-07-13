@@ -201,7 +201,7 @@ package com.apm.client
 			try
 			{
 				io.showSpinner( "loading environment ... " );
-				_config.loadEnvironment( function ( success:Boolean ):void {
+				_config.loadEnvironment( function ( success:Boolean, error:String=null ):void {
 					io.stopSpinner( success,"loaded environment", true );
 					if (success)
 					{
@@ -219,7 +219,8 @@ package com.apm.client
 					}
 					else
 					{
-						io.writeLine( "failed to load environment, exiting...")
+						io.writeError( "ENV", "failed to load environment: " + error );
+						io.writeError( "ENV", "exiting..." );
 						return exit( CODE_ERROR );
 					}
 				} );

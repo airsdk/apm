@@ -16,6 +16,7 @@ package com.apm.client.config.processes
 	import com.apm.client.config.RunConfig;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.Process;
+	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.client.processes.events.ProcessEvent;
 	import com.apm.data.project.ProjectDefinition;
@@ -24,7 +25,7 @@ package com.apm.client.config.processes
 	import flash.filesystem.File;
 	
 	
-	public class LoadProjectDefinitionProcess extends EventDispatcher implements Process
+	public class LoadProjectDefinitionProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
@@ -51,12 +52,7 @@ package com.apm.client.config.processes
 		}
 		
 		
-		public function set queue( value:ProcessQueue ):void
-		{
-		}
-		
-		
-		public function start():void
+		override public function start():void
 		{
 			Log.d( TAG, "start()" );
 			try
@@ -68,13 +64,20 @@ package com.apm.client.config.processes
 					_config.projectDefinition = new ProjectDefinition();
 					_config.projectDefinition.load( f );
 				}
+				complete();
 			}
 			catch (e:Error)
 			{
 				Log.e( TAG, e );
+				if (e.errorID == 1132) // Invalid JSON parse
+				{
+					failure( "Could not parse project file, check the format is correct" );
+				}
+				else
+				{
+					failure( e.message );
+				}
 			}
-			
-			dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ) )
 		}
 		
 	}

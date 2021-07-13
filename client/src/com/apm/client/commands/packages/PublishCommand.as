@@ -24,6 +24,7 @@ package com.apm.client.commands.packages
 	import com.apm.client.commands.packages.processes.PackageGenerateChecksumProcess;
 	import com.apm.client.commands.packages.processes.PackagePublishProcess;
 	import com.apm.client.commands.packages.processes.PackageRemoteContentVerifyProcess;
+	import com.apm.client.commands.packages.utils.PackageFileUtils;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.client.processes.generic.ExtractZipProcess;
 	import com.apm.data.packages.PackageDefinitionFile;
@@ -139,7 +140,7 @@ package com.apm.client.commands.packages
 				_queue.addProcess( new PackageContentVerifyProcess( core, source ));
 				_queue.addProcess( new PackageDefinitionLoadProcess( core, packageDefinitionFile, f ));
 			}
-			else if (source.extension == "zip" || source.extension == Consts.AIRPACKAGEEXTENSION)
+			else if (source.extension == "zip" || source.extension == PackageFileUtils.AIRPACKAGEEXTENSION)
 			{
 				var f:File = tmpDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 				

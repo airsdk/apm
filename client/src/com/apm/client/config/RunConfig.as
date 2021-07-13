@@ -50,8 +50,10 @@ package com.apm.client.config
 		// The current working directory
 		public var workingDir:String;
 		
+		
 		// The directory for package storage (apm_packages)
 		public function get packagesDir():String { return workingDir + File.separator + "apm_packages"; }
+		
 		
 		// The current project definition file
 		public var projectDefinition:ProjectDefinition = null;
@@ -61,7 +63,6 @@ package com.apm.client.config
 		
 		// Settings loaded from the users' home directory
 		public var user:UserSettings;
-		
 		
 		
 		////////////////////////////////////////////////////////
@@ -96,16 +97,20 @@ package com.apm.client.config
 				_loadQueue.addProcess( new LoadWindowsEnvironmentVariablesProcess( this ) );
 			}
 			
-			
 			// General
 			_loadQueue.addProcess( new LoadProjectDefinitionProcess( this ) );
 			_loadQueue.addProcess( new LoadUserSettingsProcess( this ) );
 //			_loadQueue.addProcess( new DebugDelayProcess( 3000 ) );
 			
-			_loadQueue.start( function ():void {
-				if (callback != null)
-					callback( true );
-			} );
+			_loadQueue.start(
+					function ():void {
+						if (callback != null)
+							callback( true );
+					},
+					function ( error:String ):void {
+						if (callback != null)
+							callback( false, error );
+					} );
 		}
 		
 		
@@ -113,7 +118,7 @@ package com.apm.client.config
 		{
 			if (isMacOS)
 			{
-				if (env.hasOwnProperty("HOME" ))
+				if (env.hasOwnProperty( "HOME" ))
 					return env.HOME;
 				else
 					return "~";
