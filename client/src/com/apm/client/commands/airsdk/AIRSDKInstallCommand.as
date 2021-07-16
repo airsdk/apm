@@ -19,6 +19,7 @@ package com.apm.client.commands.airsdk
 	import com.apm.client.commands.airsdk.processes.ExtractAIRSDKMacOSProcess;
 	import com.apm.client.commands.airsdk.processes.ExtractAIRSDKProcess;
 	import com.apm.client.processes.ProcessQueue;
+	import com.apm.client.processes.generic.ExtractZipProcess;
 	import com.apm.remote.airsdk.AIRSDKAPI;
 	import com.apm.remote.airsdk.AIRSDKBuild;
 	
@@ -126,33 +127,37 @@ package com.apm.client.commands.airsdk
 					{
 						core.io.stopSpinner( true, "Retrieved AIR SDK information : " + build.version );
 						
-						
 						// License Check
-						
-						core.io.writeLine( "=======================================" );
-						core.io.writeLine( "By downloading or using the SDK software, you hereby acknowledge that you have read HARMAN's AIR SDK developer license terms and agree to the terms therein." );
-						core.io.writeLine( "https://airsdk.harman.com/assets/pdfs/HARMAN%20AIR%20SDK%20License%20Agreement.pdf" );
-						core.io.writeLine( "=======================================" );
-
-						var acceptLicense:String = core.io.question( "\nDo you accept the terms of the license agreement? Y/n", "n" );
-						if (acceptLicense.toLowerCase() != "y")
+						if (!core.config.user.hasAcceptedLicense)
 						{
-							core.io.writeLine( "You must accept the license to download and use the AIR SDK" );
-							return core.exit( APMCore.CODE_ERROR );
+							core.io.writeLine( "=======================================" );
+							core.io.writeLine( "By downloading or using the SDK software, you hereby acknowledge that you have read HARMAN's AIR SDK developer license terms and agree to the terms therein." );
+							core.io.writeLine( "https://airsdk.harman.com/assets/pdfs/HARMAN%20AIR%20SDK%20License%20Agreement.pdf" );
+							core.io.writeLine( "=======================================" );
+							
+							var acceptLicense:String = core.io.question( "\nDo you accept the terms of the license agreement? Y/n", "n" );
+							if (acceptLicense.toLowerCase() != "y")
+							{
+								core.io.writeLine( "You must accept the license to download and use the AIR SDK" );
+								return core.exit( APMCore.CODE_ERROR );
+							}
+							
+							core.config.user.hasAcceptedLicense = true;
+						}
+						else
+						{
+							core.io.writeLine( "Already accepted AIR License" );
 						}
 						
 						core.io.writeLine( "\nStarting AIR SDK Installation" );
 						
 						
-						var f:File = new File( _core.config.workingDir + File.separator + "AIRSDK_" + build.version + ".zip" );
+						var airsdkZipFile:File = new File( _core.config.workingDir + File.separator + "AIRSDK_" + build.version + ".zip" );
 						
-						var installDir:String = _core.config.workingDir + File.separator + "AIRSDK_" + build.version;
+						var installDir:File = new File( _core.config.workingDir + File.separator + "AIRSDK_" + build.version );
 						
-						_loadQueue.addProcess( new DownloadAIRSDKProcess( _core, build, f ) );
-						if (_core.config.isMacOS)
-							_loadQueue.addProcess( new ExtractAIRSDKMacOSProcess( _core, build, f, installDir ) );
-						else
-							_loadQueue.addProcess( new ExtractAIRSDKProcess( _core, build, f, installDir ) );
+						_loadQueue.addProcess( new DownloadAIRSDKProcess( _core, build, airsdkZipFile ) );
+						_loadQueue.addProcess( new ExtractZipProcess( _core, airsdkZipFile, installDir ));
 						
 						_loadQueue.start( function ():void {
 							core.exit( APMCore.CODE_OK );

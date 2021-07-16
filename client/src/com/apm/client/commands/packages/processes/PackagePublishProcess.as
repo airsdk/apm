@@ -55,7 +55,7 @@ package com.apm.client.commands.packages.processes
 		
 		override public function start():void
 		{
-			if (_core.config.user.publisher_token == null || _core.config.user.publisher_token.length == 0)
+			if (_core.config.user.publisherToken == null || _core.config.user.publisherToken.length == 0)
 			{
 				return failure( "No publisher token currently set" );
 			}
@@ -63,7 +63,7 @@ package com.apm.client.commands.packages.processes
 			_core.io.showSpinner( "Publish package" );
 			
 			_repositoryAPI
-					.setToken( _core.config.user.publisher_token )
+					.setToken( _core.config.user.publisherToken )
 					.publish( _packageDefinition, function ( success:Boolean, packageDefinition:* ):void {
 						if (success)
 						{

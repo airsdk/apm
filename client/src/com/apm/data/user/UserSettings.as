@@ -40,14 +40,22 @@ package com.apm.data.user
 		//  VARIABLES
 		//
 		
-		
-		public var github_token : String = "";
-		
-		public var publisher_token : String = "";
-		
-		
-		private var _data : Object;
 		private var _sourceFile : File;
+		
+		
+		private var _githubToken : String = "";
+		public function get githubToken():String { return _githubToken; }
+		public function set githubToken(value:String):void { _githubToken = value; save(); }
+		
+		private var _publisherToken : String = "";
+		public function get publisherToken():String { return _publisherToken; }
+		public function set publisherToken(value:String):void { _publisherToken = value; save(); }
+		
+		private var _hasAcceptedLicense : Boolean = false;
+		public function get hasAcceptedLicense():Boolean { return _hasAcceptedLicense; }
+		public function set hasAcceptedLicense(value:Boolean):void { _hasAcceptedLicense = value; save(); }
+		
+		
 		
 		
 		////////////////////////////////////////////////////////
@@ -59,19 +67,25 @@ package com.apm.data.user
 		}
 		
 		
+		
+		
+		
 		public function parse( content:String ):void
 		{
 			try
 			{
-				_data = JSON.parse( content );
-				
-				if (_data.hasOwnProperty("github_token"))
+				var data:Object = JSON.parse( content );
+				if (data.hasOwnProperty("github_token"))
 				{
-					github_token = _data.github_token;
+					_githubToken = data["github_token"];
 				}
-				if (_data.hasOwnProperty("publisher_token"))
+				if (data.hasOwnProperty("publisher_token"))
 				{
-					publisher_token = _data.publisher_token;
+					_publisherToken = data["publisher_token"];
+				}
+				if (data.hasOwnProperty("has_accepted_license"))
+				{
+					_hasAcceptedLicense = data["has_accepted_license"];
 				}
 			}
 			catch (e:Error)
@@ -83,14 +97,15 @@ package com.apm.data.user
 		public function toObject():Object
 		{
 			var data:Object = {};
-			if (github_token != null && github_token.length > 0)
+			if (_githubToken != null && _githubToken.length > 0)
 			{
-				data["github_token"] = github_token;
+				data["github_token"] = _githubToken;
 			}
-			if (publisher_token != null && publisher_token.length > 0)
+			if (_publisherToken != null && _publisherToken.length > 0)
 			{
-				data["publisher_token"] = publisher_token;
+				data["publisher_token"] = _publisherToken;
 			}
+			data["has_accepted_license"] = _hasAcceptedLicense;
 			return data;
 		}
 		

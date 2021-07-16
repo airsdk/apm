@@ -69,7 +69,7 @@ package com.apm.client.commands.packages.utils
 				var version:String = params[ 3 ];
 				var filename:String = params[ 4 ];
 				
-				new GitHubAPI().setToken( core.config.user.github_token )
+				new GitHubAPI().setToken( core.config.user.githubToken )
 						.call( "/repos/" + repo + "/releases", function ( success:Boolean, data:* ):void {
 							
 							if (success)
@@ -110,10 +110,10 @@ package com.apm.client.commands.packages.utils
 			var headers:Array = [];
 			headers.push( new URLRequestHeader( "User-Agent", "apm v" + new SemVer( Consts.VERSION ).toString() ) );
 			
-			if (url.indexOf( "github.com" ) >= 0 && core.config.user.github_token.length > 0)
+			if (url.indexOf( "github.com" ) >= 0 && core.config.user.githubToken.length > 0)
 			{
 				headers.push( new URLRequestHeader( "Accept", "application/octet-stream" ) );
-				headers.push( new URLRequestHeader( "Authorization", "token " + core.config.user.github_token ) );
+				headers.push( new URLRequestHeader( "Authorization", "token " + core.config.user.githubToken ) );
 			}
 			
 			var req:URLRequest = new URLRequest( url );

@@ -16,6 +16,7 @@ package com.apm.client.processes.generic
 	import com.apm.client.APMCore;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
+	import com.apm.client.processes.generic.ExtractZipAS3Process;
 	
 	import flash.desktop.NativeProcess;
 	import flash.desktop.NativeProcessStartupInfo;
@@ -25,7 +26,7 @@ package com.apm.client.processes.generic
 	import flash.filesystem.File;
 	
 	
-	public class ExtractZipMacOSProcess extends ExtractZipProcess
+	public class ExtractZipMacOSProcess extends ExtractZipAS3Process
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
@@ -95,11 +96,11 @@ package com.apm.client.processes.generic
 		private function onOutputData( event:ProgressEvent ):void
 		{
 			var data:String = _process.standardOutput.readUTFBytes( _process.standardOutput.bytesAvailable )
-					.replace( "\n", "" )
-					.replace( "\r", "" )
-					.replace( "\t", "" );
+					.replace( /\n/g, "" )
+					.replace( /\r/g, "" )
+					.replace( /\t/g, "" );
 			
-			_core.io.updateSpinner( "Extracting zip : " + data );
+			_core.io.updateSpinner( "Extracting : " + data );
 		}
 		
 		
