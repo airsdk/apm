@@ -49,9 +49,9 @@ package com.apm.client.commands.packages.utils
 		}
 		
 		
-		public static function directoryForPackage( core:APMCore, packageDef:PackageDefinition ):File
+		public static function directoryForPackage( core:APMCore, identifier:String ):File
 		{
-			var packageDir:File = new File( core.config.packagesDir + File.separator + packageDef.identifier );
+			var packageDir:File = new File( core.config.packagesDir + File.separator + identifier );
 			return packageDir;
 		}
 		
@@ -65,7 +65,7 @@ package com.apm.client.commands.packages.utils
 		
 		public static function fileForPackage( core:APMCore, packageVersion:PackageVersion ):File
 		{
-			return PackageFileUtils.directoryForPackage( core, packageVersion.packageDef )
+			return PackageFileUtils.directoryForPackage( core, packageVersion.packageDef.identifier )
 					.resolvePath(
 							PackageFileUtils.filenameForPackage( packageVersion )
 					);

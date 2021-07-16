@@ -219,9 +219,10 @@ package com.apm.data.project
 		
 		
 		
-		public function clearPackageDependencies():void
+		public function clearPackageDependencies():ProjectDefinition
 		{
 			_dependencies = new Vector.<PackageDependency>();
+			return this;
 		}
 		
 		
@@ -230,7 +231,7 @@ package com.apm.data.project
 		 *
 		 * @param packageVersion
 		 */
-		public function addPackageDependency( packageVersion:PackageVersion ):void
+		public function addPackageDependency( packageVersion:PackageVersion ):ProjectDefinition
 		{
 			if (!hasDependency( packageVersion.packageDef.identifier ))
 			{
@@ -244,6 +245,7 @@ package com.apm.data.project
 			{
 				// TODO:: Handle duplicates / version clash
 			}
+			return this;
 		}
 		
 		
@@ -260,6 +262,19 @@ package com.apm.data.project
 					return true;
 			}
 			return false;
+		}
+		
+		
+		public function removePackageDependency( identifier:String ):ProjectDefinition
+		{
+			for (var i:int = _dependencies.length-1; i >= 0; --i)
+			{
+				if (_dependencies[i].identifier == identifier)
+				{
+					_dependencies.splice( i, 1 );
+				}
+			}
+			return this;
 		}
 		
 		

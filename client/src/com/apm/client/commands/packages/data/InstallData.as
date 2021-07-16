@@ -120,10 +120,6 @@ package com.apm.client.commands.packages.data
 			
 			_packagesAll.push( installPackageData );
 			
-			// TODO
-
-//			if (query) _packagesToInstall.push( packageDefinition );
-//			else _packagesInstalled.push( packageDefinition );
 		}
 		
 		

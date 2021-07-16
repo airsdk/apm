@@ -88,6 +88,12 @@ package com.apm.client.processes
 		}
 		
 		
+		public function get length():Number
+		{
+			return _queue.length;
+		}
+		
+		
 		public function clear():void
 		{
 			_queue = [];
@@ -124,7 +130,7 @@ package com.apm.client.processes
 			{
 				_currentProcess.addEventListener( ProcessEvent.COMPLETE, process_eventHandler );
 				_currentProcess.addEventListener( ProcessEvent.FAILED, process_eventHandler );
-				_currentProcess.queue = this;
+				_currentProcess.processQueue = this;
 				_currentProcess.start();
 			}
 			catch (e:Error)

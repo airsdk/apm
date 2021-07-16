@@ -9,51 +9,39 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		18/5/21
+ * @created		16/7/2021
  */
 package com.apm.client.commands.packages
 {
-	import com.apm.SemVer;
 	import com.apm.client.APMCore;
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.packages.data.InstallData;
 	import com.apm.client.commands.packages.data.InstallQueryRequest;
 	import com.apm.client.commands.packages.processes.InstallDataValidationProcess;
 	import com.apm.client.commands.packages.processes.InstallQueryPackageProcess;
-	import com.apm.client.commands.packages.processes.UninstallPackageProcess;
-	import com.apm.client.commands.packages.utils.ProjectDefinitionValidator;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.project.ProjectDefinition;
 	
 	
-	public class InstallCommand implements Command
+	public class UpdateCommand implements Command
 	{
 		
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "InstallCommand";
+		private static const TAG:String = "UpdateCommand";
 		
 		
-		public static const NAME:String = "install";
+		public static const NAME:String = "update";
 		
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
 		
-		private var _parameters:Array;
-		private var _queue:ProcessQueue;
 		
-		private var _installData:InstallData;
-		
-		
-		////////////////////////////////////////////////////////
-		//  FUNCTIONALITY
-		//
-		
-		public function InstallCommand()
+		public function UpdateCommand()
 		{
 			super();
 			_installData = new InstallData();
@@ -61,10 +49,14 @@ package com.apm.client.commands.packages
 		}
 		
 		
-		public function setParameters( parameters:Array ):void
-		{
-			_parameters = parameters;
-		}
+		private var _parameters:Array;
+		private var _queue:ProcessQueue;
+		
+		
+		////////////////////////////////////////////////////////
+		//  FUNCTIONALITY
+		//
+		private var _installData:InstallData;
 		
 		
 		public function get name():String
@@ -93,7 +85,7 @@ package com.apm.client.commands.packages
 		
 		public function get description():String
 		{
-			return "add and install a dependency to your project";
+			return "update the installed packages in your project";
 		}
 		
 		
@@ -101,9 +93,14 @@ package com.apm.client.commands.packages
 		{
 			return description + "\n" +
 					"\n" +
-					"apm install                   install all the dependencies in your project\n" +
-					"apm install <foo>             install the <foo> dependency to your project\n" +
-					"apm install <foo> <version>   install a specific <version> of the <foo> dependency to your project\n";
+					"apm update               update all dependencies in your project\n" +
+					"apm update <foo>         update the <foo> dependency in your project\n";
+		}
+		
+		
+		public function setParameters( parameters:Array ):void
+		{
+			_parameters = parameters;
 		}
 		
 		
@@ -119,52 +116,7 @@ package com.apm.client.commands.packages
 			if (_parameters != null && _parameters.length > 0)
 			{
 				packageIdentifier = _parameters[ 0 ];
-				var version:String = (_parameters.length > 1) ? _parameters[ 1 ] : "latest";
-				
-				var request:InstallQueryRequest = new InstallQueryRequest(
-						packageIdentifier,
-						version,
-						null,
-						true
-				);
-				
-				if (SemVer.fromString( request.version ) == null && version != "latest")
-				{
-					// Invalid version passed
-					core.io.writeLine( "Invalid version code : " + version );
-					return core.exit( APMCore.CODE_ERROR );
-				}
-				
-				switch (ProjectDefinitionValidator.checkPackageAlreadyInstalled( project, request ))
-				{
-					case ProjectDefinitionValidator.NOT_INSTALLED:
-						// not installed
-						break;
-					
-					case ProjectDefinitionValidator.ALREADY_INSTALLED:
-						core.io.writeLine( "Already installed: " + project.dependencies[ i ].toString() + " >= " + request.version.toString() );
-						return core.exit( APMCore.CODE_OK );
-					
-					case ProjectDefinitionValidator.UNKNOWN_LATEST_REQUESTED:
-						// exists but requesting latest
-						break;
-					
-					case ProjectDefinitionValidator.HIGHER_VERSION_REQUESTED:
-						// To upgrade we first uninstall then continue with the install
-						_queue.addProcessToStart( new UninstallPackageProcess( core, packageIdentifier, packageIdentifier ) );
-						break;
-				}
-				
-				// Install
-				_queue.addProcess(
-						new InstallQueryPackageProcess(
-								core,
-								_installData,
-								request
-						)
-				);
 			}
-			
 			
 			if (project.dependencies.length > 0)
 			{
@@ -177,11 +129,18 @@ package com.apm.client.commands.packages
 									_installData,
 									new InstallQueryRequest(
 											project.dependencies[ i ].identifier,
-											project.dependencies[ i ].version.toString()
-									)
+											"latest"
+									),
+									false
 							)
 					);
 				}
+			}
+			
+			if (_queue.length == 0)
+			{
+				core.io.writeLine( "Nothing to update" );
+				return core.exit( APMCore.CODE_OK )
 			}
 			
 			_queue.start(
@@ -198,6 +157,7 @@ package com.apm.client.commands.packages
 					function ( error:String ):void {
 						core.exit( APMCore.CODE_ERROR );
 					} );
+			
 		}
 		
 	}

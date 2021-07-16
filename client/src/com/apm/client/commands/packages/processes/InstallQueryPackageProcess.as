@@ -44,6 +44,7 @@ package com.apm.client.commands.packages.processes
 		private var _core:APMCore;
 		private var _installData:InstallData;
 		private var _request:InstallQueryRequest;
+		private var _failIfInstalled:Boolean;
 		
 		private var _repositoryAPI:RepositoryAPI;
 		
@@ -55,12 +56,14 @@ package com.apm.client.commands.packages.processes
 		public function InstallQueryPackageProcess(
 				core:APMCore,
 				data:InstallData,
-				request:InstallQueryRequest )
+				request:InstallQueryRequest,
+				failIfInstalled:Boolean=true )
 		{
 			super();
 			_core = core;
 			_installData = data;
 			_request = request;
+			_failIfInstalled = failIfInstalled;
 			
 			_repositoryAPI = new RepositoryAPI();
 		}
@@ -98,25 +101,23 @@ package com.apm.client.commands.packages.processes
 									// Perform a delayed "already installed" check
 									switch (ProjectDefinitionValidator.checkPackageAlreadyInstalled( _core.config.projectDefinition, _request ))
 									{
-										case ProjectDefinitionValidator.NOT_INSTALLED:
-											// not installed
-											break;
-										
 										case ProjectDefinitionValidator.ALREADY_INSTALLED:
-											_core.io.writeLine( "Already installed: " + packageDefinition.toString() + " >= " + _request.version );
-											return _core.exit( APMCore.CODE_OK );
-											
-										case ProjectDefinitionValidator.UNKNOWN_LATEST_REQUESTED:
-											// latest
+											if (_failIfInstalled)
+											{
+												_core.io.writeLine( "Already installed: " + packageDefinition.toString() + " >= " + _request.version );
+												failure();
+											}
 											break;
 										
 										case ProjectDefinitionValidator.HIGHER_VERSION_REQUESTED:
-											// TODO: Upgrade?
-											_core.io.writeLine( "Upgrade not yet implemented" );
-											return _core.exit( APMCore.CODE_OK );
+											processQueue.addProcessToStart( new UninstallPackageProcess( _core, packageDefinition.identifier, packageDefinition.identifier ) );
+											break;
+											
+										case ProjectDefinitionValidator.UNKNOWN_LATEST_REQUESTED:
+										case ProjectDefinitionValidator.NOT_INSTALLED:
+											break;
 									}
 								}
-								
 								
 								_installData.addPackage( packageVersionForInstall, _request );
 								

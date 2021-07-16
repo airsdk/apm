@@ -69,7 +69,7 @@ package com.apm.client.commands.packages.processes
 			var packagesDir:File = new File( _core.config.packagesDir );
 			if (!packagesDir.exists) packagesDir.createDirectory();
 			
-			var packageDir:File = PackageFileUtils.directoryForPackage( _core, packageVersion.packageDef );
+			var packageDir:File = PackageFileUtils.directoryForPackage( _core, packageVersion.packageDef.identifier );
 			if (!packageDir.exists) packageDir.createDirectory();
 			
 			_destination = packageDir.resolvePath(

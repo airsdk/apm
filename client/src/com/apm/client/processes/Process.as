@@ -27,7 +27,7 @@ package com.apm.client.processes
 		 *
 		 * @param value
 		 */
-		function set queue( value:ProcessQueue ):void;
+		function set processQueue( value:ProcessQueue ):void;
 		
 		
 		/**

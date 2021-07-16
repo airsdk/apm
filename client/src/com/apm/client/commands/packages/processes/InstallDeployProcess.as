@@ -63,7 +63,7 @@ package com.apm.client.commands.packages.processes
 			for each (var p:InstallPackageData in _installData.packagesToInstall)
 			{
 				_core.io.showSpinner( "Deploying package: " + p.packageVersion.packageDef.toString() );
-				var packageDir:File = PackageFileUtils.directoryForPackage( _core, p.packageVersion.packageDef );
+				var packageDir:File = PackageFileUtils.directoryForPackage( _core, p.packageVersion.packageDef.identifier );
 				for each (var ref:File in packageDir.getDirectoryListing())
 				{
 					if (ref.isDirectory)

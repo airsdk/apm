@@ -26,6 +26,8 @@ package com.apm.client
 	import com.apm.client.commands.packages.ListCommand;
 	import com.apm.client.commands.packages.PublishCommand;
 	import com.apm.client.commands.packages.SearchCommand;
+	import com.apm.client.commands.packages.UninstallCommand;
+	import com.apm.client.commands.packages.UpdateCommand;
 	import com.apm.client.commands.packages.ViewCommand;
 	import com.apm.client.commands.project.InitCommand;
 	import com.apm.client.commands.project.ProjectConfigCommand;
@@ -88,6 +90,8 @@ package com.apm.client
 			addCommand( SearchCommand.NAME, SearchCommand );
 			addCommand( ViewCommand.NAME, ViewCommand );
 			addCommand( InstallCommand.NAME, InstallCommand );
+			addCommand( UninstallCommand.NAME, UninstallCommand );
+			addCommand( UpdateCommand.NAME, UpdateCommand );
 			
 			// package creation commands
 			addCommand( CreateCommand.NAME, CreateCommand );

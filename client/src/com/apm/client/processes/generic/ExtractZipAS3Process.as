@@ -11,13 +11,10 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		28/5/21
  */
-package com.apm.client.commands.airsdk.processes
+package com.apm.client.processes.generic
 {
 	import com.apm.client.APMCore;
-	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
-	import com.apm.client.processes.events.ProcessEvent;
-	import com.apm.remote.airsdk.AIRSDKBuild;
 	
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
@@ -28,56 +25,53 @@ package com.apm.client.commands.airsdk.processes
 	import org.as3commons.zip.Zip;
 	
 	
-	public class ExtractAIRSDKProcess extends ProcessBase
+	public class ExtractZipAS3Process extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "ExtractAIRSDKProcess";
+		private static const TAG:String = "ExtractZipAS3Process";
 		
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
 		
-		
-		private var _core:APMCore;
-		private var _build:AIRSDKBuild;
-		private var _source:File;
-		private var _installPath:String;
+		protected var _core:APMCore;
+		protected var _zipFile:File;
+		protected var _outputDir:File;
 		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function ExtractAIRSDKProcess( core:APMCore, build:AIRSDKBuild, source:File, installPath:String )
+		public function ExtractZipAS3Process( core:APMCore, zipFile:File, outputDir:File )
 		{
 			_core = core;
-			_build = build;
-			_source = source;
-			_installPath = installPath;
+			_zipFile = zipFile;
+			_outputDir = outputDir;
 		}
 		
 		
 		override public function start():void
 		{
-			Log.d( TAG, "start()" );
-			
-			_core.io.showProgressBar( "Extracting AIR SDK v" + _build.version );
+			var message:String = "Extracting " + _zipFile.nativePath;
+			_core.io.showProgressBar( message );
 			
 			try
 			{
-				var destination:File = new File( _installPath );
-				// TODO:: Check destination exists?
-				if (_source.exists)
+				if (_zipFile.exists)
 				{
+					if (_outputDir.exists) _outputDir.deleteDirectory( true );
+					_outputDir.createDirectory();
+					
 					var bytesLoaded:uint = 0;
 					var sourceBytes:ByteArray = new ByteArray();
 					
 					var sourceStream:FileStream = new FileStream();
-					sourceStream.open( _source, FileMode.READ );
+					sourceStream.open( _zipFile, FileMode.READ );
 					sourceStream.readBytes( sourceBytes );
 					sourceStream.close();
 					
@@ -87,7 +81,7 @@ package com.apm.client.commands.airsdk.processes
 					for (var i:uint = 0; i < zip.getFileCount(); i++)
 					{
 						var zipFile:IZipFile = zip.getFileAt( i );
-						var extracted:File = destination.resolvePath( zipFile.filename );
+						var extracted:File = _outputDir.resolvePath( zipFile.filename );
 						extracted.parent.createDirectory();
 						
 						if (zipFile.filename.charAt( zipFile.filename.length - 1 ) != "/")
@@ -103,13 +97,13 @@ package com.apm.client.commands.airsdk.processes
 						
 						bytesLoaded += zipFile.sizeCompressed;
 						
-						_core.io.updateProgressBar( bytesLoaded / sourceBytes.length, "Extracting AIR SDK v" + _build.version );
+						_core.io.updateProgressBar( bytesLoaded / sourceBytes.length, message );
 					}
 					_core.io.completeProgressBar( true, "extracted" );
 				}
 				else
 				{
-					return failure( "AIR SDK zip not found" );
+					return failure( "zip file not found" );
 				}
 			}
 			catch (e:Error)

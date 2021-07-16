@@ -57,62 +57,10 @@ package com.apm.client.processes.generic
 		
 		override public function start():void
 		{
-			var message:String = "Extracting " + _zipFile.nativePath;
-			_core.io.showProgressBar( message );
-			
-			try
-			{
-				if (_zipFile.exists)
-				{
-					if (_outputDir.exists) _outputDir.deleteDirectory( true );
-					_outputDir.createDirectory();
-					
-					var bytesLoaded:uint = 0;
-					var sourceBytes:ByteArray = new ByteArray();
-					
-					var sourceStream:FileStream = new FileStream();
-					sourceStream.open( _zipFile, FileMode.READ );
-					sourceStream.readBytes( sourceBytes );
-					sourceStream.close();
-					
-					var zip:Zip = new Zip();
-					zip.loadBytes( sourceBytes );
-					
-					for (var i:uint = 0; i < zip.getFileCount(); i++)
-					{
-						var zipFile:IZipFile = zip.getFileAt( i );
-						var extracted:File = _outputDir.resolvePath( zipFile.filename );
-						extracted.parent.createDirectory();
-						
-						if (zipFile.filename.charAt( zipFile.filename.length - 1 ) != "/")
-						{
-							if (!extracted.isDirectory)
-							{
-								var fs:FileStream = new FileStream();
-								fs.open( extracted, FileMode.WRITE );
-								fs.writeBytes( zipFile.content );
-								fs.close();
-							}
-						}
-						
-						bytesLoaded += zipFile.sizeCompressed;
-						
-						_core.io.updateProgressBar( bytesLoaded / sourceBytes.length, message );
-					}
-					_core.io.completeProgressBar( true, "extracted" );
-				}
-				else
-				{
-					return failure( "zip file not found" );
-				}
-			}
-			catch (e:Error)
-			{
-				_core.io.completeProgressBar( false, e.message );
-			}
+			if (_core.config.isMacOS) processQueue.addProcess( new ExtractZipMacOSProcess( _core, _zipFile, _outputDir ));
+			else processQueue.addProcess( new ExtractZipAS3Process( _core, _zipFile, _outputDir ));
 			complete();
 		}
-		
 		
 	}
 	

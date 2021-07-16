@@ -16,13 +16,14 @@ package com.apm.client.config.processes
 	import com.apm.client.config.RunConfig;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.Process;
+	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.client.processes.events.ProcessEvent;
 	
 	import flash.events.EventDispatcher;
 	
 	
-	public class LoadWindowsEnvironmentVariablesProcess extends EventDispatcher implements Process
+	public class LoadWindowsEnvironmentVariablesProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
@@ -47,12 +48,7 @@ package com.apm.client.config.processes
 		}
 		
 		
-		public function set queue( value:ProcessQueue ):void
-		{
-		}
-		
-		
-		public function start():void
+		override public function start():void
 		{
 			Log.d( TAG, "start()" );
 			// TODO

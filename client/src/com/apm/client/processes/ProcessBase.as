@@ -32,6 +32,9 @@ package com.apm.client.processes
 		//
 		
 		protected var _queue:ProcessQueue;
+
+		public function get processQueue():ProcessQueue { return _queue; }
+		public function set processQueue( value:ProcessQueue ):void { _queue = value; }
 		
 		
 		////////////////////////////////////////////////////////
@@ -49,10 +52,6 @@ package com.apm.client.processes
 		}
 		
 		
-		public function set queue( value:ProcessQueue ):void
-		{
-			_queue = value;
-		}
 		
 		
 		protected function complete():void
