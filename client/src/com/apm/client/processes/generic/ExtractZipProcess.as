@@ -57,8 +57,8 @@ package com.apm.client.processes.generic
 		
 		override public function start():void
 		{
-			if (_core.config.isMacOS) processQueue.addProcess( new ExtractZipMacOSProcess( _core, _zipFile, _outputDir ));
-			else processQueue.addProcess( new ExtractZipAS3Process( _core, _zipFile, _outputDir ));
+			if (_core.config.isMacOS) processQueue.addProcessToStart( new ExtractZipMacOSProcess( _core, _zipFile, _outputDir ));
+			else processQueue.addProcessToStart( new ExtractZipAS3Process( _core, _zipFile, _outputDir ));
 			complete();
 		}
 		
