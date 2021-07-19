@@ -65,10 +65,7 @@ package com.apm.data.user
 		public function UserSettings()
 		{
 		}
-		
-		
-		
-		
+
 		
 		public function parse( content:String ):void
 		{
