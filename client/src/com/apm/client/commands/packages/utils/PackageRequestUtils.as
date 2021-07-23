@@ -16,6 +16,7 @@ package com.apm.client.commands.packages.utils
 	import com.apm.SemVer;
 	import com.apm.client.APMCore;
 	import com.apm.client.Consts;
+	import com.apm.client.logging.Log;
 	import com.apm.remote.github.GitHubAPI;
 	
 	import flash.net.URLRequest;
@@ -61,8 +62,11 @@ package com.apm.client.commands.packages.utils
 		 */
 		public static function generateURLRequestForPackage( url:String, core:APMCore, callback:Function ):void
 		{
+			Log.d( TAG, "generateURLRequestForPackage( " + url + " ... )" );
 			if (GITHUB_ASSET.test( url ))
 			{
+				Log.d( TAG, "generateURLRequestForPackage(): GITHUB ASSET URL" );
+				
 				var params:Array = GITHUB_ASSET.exec( url );
 				
 				var repo:String = params[ 1 ] + "/" + params[ 2 ];
@@ -74,20 +78,34 @@ package com.apm.client.commands.packages.utils
 							
 							if (success)
 							{
+								
 								var releases:Array = JSON.parse( data as String ) as Array;
+//								Log.d( TAG, "generateURLRequestForPackage(): release details: " + JSON.stringify(releases)  );
 								for each (var release:Object in releases)
 								{
 									if (release.name == version)
 									{
+										Log.d( TAG, "generateURLRequestForPackage(): release : " + JSON.stringify(release)  );
 										// found release
 										for each (var asset:Object in release.assets)
 										{
 											if (asset.name == filename)
 											{
-												return generateURLRequestForPackage(
-														"https://api.github.com/repos/" + repo + "/releases/assets/" + asset.id,
-														core,
-														callback );
+												Log.d( TAG, "generateURLRequestForPackage(): asset: " + JSON.stringify(asset)  );
+												if (core.config.user.githubToken == null || core.config.user.githubToken.length == 0)
+												{
+													callback( generateURLRequest(
+															asset.browser_download_url,
+															core
+													));
+												}
+												else
+												{
+													return generateURLRequestForPackage(
+															"https://api.github.com/repos/" + repo + "/releases/assets/" + asset.id,
+															core,
+															callback );
+												}
 											}
 										}
 									}
@@ -100,6 +118,7 @@ package com.apm.client.commands.packages.utils
 			}
 			else
 			{
+				Log.d( TAG, "generateURLRequestForPackage(): NORMAL URL" );
 				callback( generateURLRequest( url, core ) );
 			}
 		}
@@ -113,7 +132,9 @@ package com.apm.client.commands.packages.utils
 			if (url.indexOf( "github.com" ) >= 0 && core.config.user.githubToken.length > 0)
 			{
 				headers.push( new URLRequestHeader( "Accept", "application/octet-stream" ) );
-				headers.push( new URLRequestHeader( "Authorization", "token " + core.config.user.githubToken ) );
+	
+				if (core.config.user.githubToken != null && core.config.user.githubToken.length > 0)
+					headers.push( new URLRequestHeader( "Authorization", "token " + core.config.user.githubToken ) );
 			}
 			
 			var req:URLRequest = new URLRequest( url );

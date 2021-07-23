@@ -43,13 +43,13 @@ package com.apm.client.commands.packages.utils
         {
         }
 	
-		public static const DEPLOY_OPTIONS = {
+		public static const DEPLOY_OPTIONS:Object = {
 			ane: "aneDir",
 			swc: "swcDir",
 			src: "srcDir"
 		};
 		
-		public static const DEFAULT_DIRS = {
+		public static const DEFAULT_DIRS:Object = {
 			ane: "ane",
 			swc: "libs",
 			src: "libs_src"

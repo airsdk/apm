@@ -65,8 +65,8 @@ package com.apm.client.commands.packages.processes
 		{
 			_core.io.showSpinner( "Removing package : " + _packageDefinition.packageDef.identifier );
 			
-			var packageDir:File = PackageFileUtils.directoryForPackage( _core, _packageDefinition.packageDef.identifier );
-			for each (var ref:File in packageDir.getDirectoryListing())
+			var cacheDir:File = PackageFileUtils.cacheDirForPackage( _core, _packageDefinition.packageDef.identifier );
+			for each (var ref:File in cacheDir.getDirectoryListing())
 			{
 				if (ref.isDirectory)
 				{
@@ -78,7 +78,11 @@ package com.apm.client.commands.packages.processes
 //					FileUtils.copyDirectoryTo( ref, deployLocation, true );
 				}
 			}
+			cacheDir.deleteDirectory( true );
+			
+			var packageDir:File = PackageFileUtils.directoryForPackage( _core, _packageDefinition.packageDef.identifier );
 			packageDir.deleteDirectory( true );
+			
 			_core.io.stopSpinner( true, "Removed package : " + _packageDefinition.packageDef.identifier );
 			complete();
 		}

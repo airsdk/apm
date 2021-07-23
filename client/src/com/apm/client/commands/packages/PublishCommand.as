@@ -141,11 +141,11 @@ package com.apm.client.commands.packages
 			}
 			else if (source.extension == "zip" || source.extension == PackageFileUtils.AIRPACKAGEEXTENSION)
 			{
-				var f:File = tmpDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
+				var pf:File = tmpDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 				
 				_queue.addProcess( new ExtractZipProcess( core, source, tmpDir ) );
 				_queue.addProcess( new PackageContentVerifyProcess( core, tmpDir ));
-				_queue.addProcess( new PackageDefinitionLoadProcess( core, packageDefinitionFile, f ));
+				_queue.addProcess( new PackageDefinitionLoadProcess( core, packageDefinitionFile, pf ));
 				_queue.addProcess( new PackageGenerateChecksumProcess( core, packageDefinitionFile, source ));
 			}
 			else

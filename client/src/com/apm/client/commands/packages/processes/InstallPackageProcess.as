@@ -15,8 +15,12 @@ package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APMCore;
 	import com.apm.client.commands.packages.data.InstallPackageData;
+	import com.apm.client.commands.packages.utils.PackageFileUtils;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.ProcessQueue;
+	import com.apm.client.processes.generic.ExtractZipProcess;
+	
+	import flash.filesystem.File;
 	
 	
 	/**
@@ -58,7 +62,11 @@ package com.apm.client.commands.packages.processes
 			var queue:ProcessQueue = new ProcessQueue();
 			
 			queue.addProcess( new DownloadPackageProcess( _core, _installData.packageVersion ) );
-			queue.addProcess( new ExtractPackageProcess( _core, _installData.packageVersion ) );
+			
+			var packageDir:File = PackageFileUtils.cacheDirForPackage( _core, _installData.packageVersion.packageDef.identifier );
+			var packageFile:File = PackageFileUtils.fileForPackage( _core, _installData.packageVersion );
+			
+			queue.addProcess( new ExtractZipProcess( _core, packageFile, packageDir ) );
 			
 			queue.start( function ():void {
 							 _core.io.writeLine( "Installed package : " + _installData.packageVersion.packageDef.toString() );

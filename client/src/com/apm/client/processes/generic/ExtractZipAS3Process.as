@@ -57,7 +57,7 @@ package com.apm.client.processes.generic
 		
 		override public function start():void
 		{
-			var message:String = "Extracting " + _zipFile.nativePath;
+			var message:String = "extracting " + _zipFile.nativePath;
 			_core.io.showProgressBar( message );
 			
 			try

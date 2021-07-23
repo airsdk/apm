@@ -64,11 +64,12 @@ package com.apm.client.commands.packages.processes
 		{
 			_core.io.writeLine( "Uninstall package : " + _packageIdentifier );
 			
-			var uninstallingPackageDir:File = PackageFileUtils.directoryForPackage( _core, _packageIdentifier );
+			var uninstallingPackageDir:File = PackageFileUtils.cacheDirForPackage( _core, _packageIdentifier );
 			var f:File = uninstallingPackageDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 			if (!f.exists)
 			{
 				_core.io.writeError( _packageIdentifier, "Package not found" );
+				_core.config.projectDefinition.removePackageDependency( _packageIdentifier ).save();
 				return failure( "Package " + _packageIdentifier + " not found" );
 			}
 			

@@ -55,7 +55,7 @@ package com.apm.client.processes.generic
 		
 		override public function start():void
 		{
-			var message:String = "Extracting " + _zipFile.nativePath;
+			var message:String = "extracting " + _zipFile.nativePath;
 			
 			if (NativeProcess.isSupported)
 			{
@@ -100,7 +100,7 @@ package com.apm.client.processes.generic
 					.replace( /\r/g, "" )
 					.replace( /\t/g, "" );
 			
-			_core.io.updateSpinner( "Extracting : " + data );
+			_core.io.updateSpinner( "extracting : " + data );
 		}
 		
 		
@@ -113,7 +113,7 @@ package com.apm.client.processes.generic
 		private function onExit( event:NativeProcessExitEvent ):void
 		{
 			Log.d( TAG, "Process exited with: " + event.exitCode );
-			_core.io.stopSpinner( event.exitCode == 0, "Extracted zip" );
+			_core.io.stopSpinner( event.exitCode == 0, "extracted" );
 			complete();
 		}
 		

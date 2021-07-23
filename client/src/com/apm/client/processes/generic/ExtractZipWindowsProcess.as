@@ -39,6 +39,8 @@ package com.apm.client.processes.generic
 		
 		private var _process:NativeProcess;
 		
+		private var _zipFileRef:File;
+		private var _deleteAfter:Boolean = false;
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
@@ -52,16 +54,22 @@ package com.apm.client.processes.generic
 		
 		override public function start():void
 		{
-			var message:String = "Extracting " + _zipFile.nativePath;
+			var message:String = "extracting " + _zipFile.nativePath;
 			
 			if (NativeProcess.isSupported)
 			{
+				if (_zipFile.extension != "zip")
+				{
+					// Powershell script can't handle non-zip extension archives so we copy to a .zip tmp file and delete after
+					_zipFileRef = new File( _zipFile.nativePath + ".zip" );
+					_zipFile.copyTo( _zipFileRef );
+					_deleteAfter = true;
+				}
+				
 				var processArgs:Vector.<String> = new Vector.<String>();
-//				processArgs.push( "-ExecutionPolicy" );
-//				processArgs.push( "Unrestricted" );
 				processArgs.push( "-command" );
 				processArgs.push( "& \"Expand-Archive\" -Force "
-										  + "'" + _zipFile.nativePath + "'" + " "
+										  + "'" + _zipFileRef.nativePath + "'" + " "
 										  + "'" + _outputDir.nativePath + "'" );
 
 				var processStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
@@ -99,7 +107,7 @@ package com.apm.client.processes.generic
 					.replace( /\r/g, "" )
 					.replace( /\t/g, "" );
 			
-			_core.io.updateSpinner( "Extracting : " + data );
+			_core.io.updateSpinner( "extracting : " + data );
 		}
 		
 		
@@ -112,7 +120,13 @@ package com.apm.client.processes.generic
 		private function onExit( event:NativeProcessExitEvent ):void
 		{
 			Log.d( TAG, "Process exited with: " + event.exitCode );
-			_core.io.stopSpinner( event.exitCode == 0, "Extracted zip" );
+			_core.io.stopSpinner( event.exitCode == 0, "extracted" );
+			
+			if (_deleteAfter)
+			{
+				_zipFileRef.deleteFile();
+			}
+			
 			complete();
 		}
 		

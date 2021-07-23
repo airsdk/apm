@@ -13,27 +13,11 @@
  */
 package com.apm.client.commands.packages
 {
-	import com.apm.SemVer;
 	import com.apm.client.APMCore;
 	import com.apm.client.commands.Command;
-	import com.apm.client.commands.packages.data.InstallData;
-	import com.apm.client.commands.packages.data.InstallPackageData;
-	import com.apm.client.commands.packages.data.InstallPackageDataGroup;
-	import com.apm.client.commands.packages.data.InstallQueryRequest;
-	import com.apm.client.commands.packages.processes.InstallDeployProcess;
-	import com.apm.client.commands.packages.processes.InstallFinaliseProcess;
-	import com.apm.client.commands.packages.processes.InstallPackageProcess;
-	import com.apm.client.commands.packages.processes.InstallQueryPackageProcess;
-	import com.apm.client.commands.packages.processes.PackageDefinitionLoadProcess;
-	import com.apm.client.commands.packages.processes.RemovePackageProcess;
 	import com.apm.client.commands.packages.processes.UninstallPackageProcess;
-	import com.apm.client.commands.packages.utils.InstallDataValidator;
-	import com.apm.client.commands.packages.utils.ProjectDefinitionValidator;
 	import com.apm.client.processes.ProcessQueue;
-	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.project.ProjectDefinition;
-	
-	import flash.filesystem.File;
 	
 	
 	public class UninstallCommand implements Command
@@ -55,7 +39,6 @@ package com.apm.client.commands.packages
 		
 		private var _parameters:Array;
 		private var _queue:ProcessQueue;
-		
 		
 		
 		////////////////////////////////////////////////////////

@@ -14,7 +14,6 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APMCore;
-	import com.apm.client.Consts;
 	import com.apm.client.commands.packages.utils.PackageFileUtils;
 	import com.apm.client.commands.packages.utils.PackageRequestUtils;
 	import com.apm.client.logging.Log;
@@ -33,7 +32,6 @@ package com.apm.client.commands.packages.processes
 	import flash.net.URLLoader;
 	import flash.net.URLLoaderDataFormat;
 	import flash.net.URLRequest;
-	import flash.text.TextFieldAutoSize;
 	import flash.utils.ByteArray;
 	
 	
@@ -98,7 +96,7 @@ package com.apm.client.commands.packages.processes
 			if (_destination.exists)
 			{
 				fileValid = verifyFile( _package.checksum );
-				_core.io.completeProgressBar( true, "Package already downloaded" );
+				_core.io.completeProgressBar( fileValid, "Package already downloaded" );
 			}
 			
 			if (!fileValid)
@@ -187,10 +185,15 @@ package com.apm.client.commands.packages.processes
 			var data:ByteArray = event.target.data;
 			
 			var fileStream:FileStream = new FileStream();
-			fileStream.open( _destination, FileMode.WRITE );
-			fileStream.writeBytes( data, 0, data.length );
+			fileStream.addEventListener( Event.CLOSE, function ( event:Event ):void {
+				event.currentTarget.removeEventListener( event.type, arguments.callee );
+				checkDownloadedFile();
+			} );
 			
-			checkDownloadedFile();
+			fileStream.openAsync( _destination, FileMode.WRITE );
+			fileStream.writeBytes( data, 0, data.length );
+			fileStream.close();
+			
 		}
 		
 		

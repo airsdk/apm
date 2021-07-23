@@ -71,6 +71,15 @@ package com.apm.client.commands.packages.utils
 					);
 		}
 		
+		
+		public static function cacheDirForPackage( core:APMCore, identifier:String ):File
+		{
+			return PackageFileUtils.directoryForPackage( core, identifier )
+					.resolvePath(
+					"contents"
+					);
+		}
+		
 	}
 	
 }

@@ -17,12 +17,6 @@ package com.apm.client.processes.generic
 	import com.apm.client.processes.ProcessBase;
 	
 	import flash.filesystem.File;
-	import flash.filesystem.FileMode;
-	import flash.filesystem.FileStream;
-	import flash.utils.ByteArray;
-	
-	import org.as3commons.zip.IZipFile;
-	import org.as3commons.zip.Zip;
 	
 	
 	public class ExtractZipProcess extends ProcessBase
@@ -57,9 +51,9 @@ package com.apm.client.processes.generic
 		
 		override public function start():void
 		{
-			if (_core.config.isMacOS) processQueue.addProcessToStart( new ExtractZipMacOSProcess( _core, _zipFile, _outputDir ));
-			if (_core.config.isWindows) processQueue.addProcessToStart( new ExtractZipWindowsProcess( _core, _zipFile, _outputDir ));
-			else processQueue.addProcessToStart( new ExtractZipAS3Process( _core, _zipFile, _outputDir ));
+			if (_core.config.isMacOS) processQueue.addProcessToStart( new ExtractZipMacOSProcess( _core, _zipFile, _outputDir ) );
+			else if (_core.config.isWindows) processQueue.addProcessToStart( new ExtractZipWindowsProcess( _core, _zipFile, _outputDir ) );
+			else processQueue.addProcessToStart( new ExtractZipAS3Process( _core, _zipFile, _outputDir ) );
 			complete();
 		}
 		
