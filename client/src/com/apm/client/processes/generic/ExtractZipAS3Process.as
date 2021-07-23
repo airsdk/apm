@@ -82,6 +82,7 @@ package com.apm.client.processes.generic
 					{
 						var zipFile:IZipFile = zip.getFileAt( i );
 						var extracted:File = _outputDir.resolvePath( zipFile.filename );
+						
 						extracted.parent.createDirectory();
 						
 						if (zipFile.filename.charAt( zipFile.filename.length - 1 ) != "/")

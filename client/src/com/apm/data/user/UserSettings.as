@@ -35,27 +35,59 @@ package com.apm.data.user
 		
 		private static const TAG:String = "UserSettings";
 		
+		public static const DEFAULT_FILENAME : String = ".apm_config";
+		
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
 		
-		private var _sourceFile : File;
+		private var _sourceFile:File;
+		
+		private var _githubToken:String = "";
+		private var _publisherToken:String = "";
+		private var _hasAcceptedLicense:Boolean = false;
+		private var _disableTerminalControlSequences:Boolean = false;
 		
 		
-		private var _githubToken : String = "";
 		public function get githubToken():String { return _githubToken; }
-		public function set githubToken(value:String):void { _githubToken = value; save(); }
 		
-		private var _publisherToken : String = "";
+		
+		public function set githubToken( value:String ):void
+		{
+			_githubToken = value;
+			save();
+		}
+		
+		
 		public function get publisherToken():String { return _publisherToken; }
-		public function set publisherToken(value:String):void { _publisherToken = value; save(); }
 		
-		private var _hasAcceptedLicense : Boolean = false;
+		
+		public function set publisherToken( value:String ):void
+		{
+			_publisherToken = value;
+			save();
+		}
+		
+		
 		public function get hasAcceptedLicense():Boolean { return _hasAcceptedLicense; }
-		public function set hasAcceptedLicense(value:Boolean):void { _hasAcceptedLicense = value; save(); }
 		
 		
+		public function set hasAcceptedLicense( value:Boolean ):void
+		{
+			_hasAcceptedLicense = value;
+			save();
+		}
+		
+		
+		public function get disableTerminalControlSequences():Boolean { return _disableTerminalControlSequences; }
+		
+		
+		public function set disableTerminalControlSequences( value:Boolean ):void
+		{
+			_disableTerminalControlSequences = value;
+			save();
+		}
 		
 		
 		////////////////////////////////////////////////////////
@@ -65,24 +97,28 @@ package com.apm.data.user
 		public function UserSettings()
 		{
 		}
-
+		
 		
 		public function parse( content:String ):void
 		{
 			try
 			{
 				var data:Object = JSON.parse( content );
-				if (data.hasOwnProperty("github_token"))
+				if (data.hasOwnProperty( "github_token" ))
 				{
-					_githubToken = data["github_token"];
+					_githubToken = data[ "github_token" ];
 				}
-				if (data.hasOwnProperty("publisher_token"))
+				if (data.hasOwnProperty( "publisher_token" ))
 				{
-					_publisherToken = data["publisher_token"];
+					_publisherToken = data[ "publisher_token" ];
 				}
-				if (data.hasOwnProperty("has_accepted_license"))
+				if (data.hasOwnProperty( "has_accepted_license" ))
 				{
-					_hasAcceptedLicense = data["has_accepted_license"];
+					_hasAcceptedLicense = data[ "has_accepted_license" ];
+				}
+				if (data.hasOwnProperty( "disable_terminal_control_sequences" ))
+				{
+					_disableTerminalControlSequences = data[ "disable_terminal_control_sequences" ];
 				}
 			}
 			catch (e:Error)
@@ -96,13 +132,18 @@ package com.apm.data.user
 			var data:Object = {};
 			if (_githubToken != null && _githubToken.length > 0)
 			{
-				data["github_token"] = _githubToken;
+				data[ "github_token" ] = _githubToken;
 			}
 			if (_publisherToken != null && _publisherToken.length > 0)
 			{
-				data["publisher_token"] = _publisherToken;
+				data[ "publisher_token" ] = _publisherToken;
 			}
-			data["has_accepted_license"] = _hasAcceptedLicense;
+			data[ "has_accepted_license" ] = _hasAcceptedLicense;
+			
+			if (_disableTerminalControlSequences)
+			{
+				data["disable_terminal_control_sequences"] = _disableTerminalControlSequences;
+			}
 			return data;
 		}
 		
@@ -111,7 +152,6 @@ package com.apm.data.user
 		{
 			return JSON.stringify( toObject(), null, 4 ) + "\n";
 		}
-		
 		
 		
 		//
@@ -146,12 +186,12 @@ package com.apm.data.user
 		
 		public function load( f:File ):UserSettings
 		{
-			if (!f.exists)
+			_sourceFile = f;
+			
+			if (f == null || !f.exists)
 			{
 				throw new Error( "File doesn't exist" );
 			}
-			
-			_sourceFile = f;
 			
 			var fs:FileStream = new FileStream();
 			fs.open( f, FileMode.READ );

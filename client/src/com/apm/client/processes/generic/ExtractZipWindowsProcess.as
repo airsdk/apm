@@ -11,11 +11,10 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		28/5/21
  */
-package com.apm.client.config.processes
+package com.apm.client.processes.generic
 {
-	import com.apm.client.config.RunConfig;
+	import com.apm.client.APMCore;
 	import com.apm.client.logging.Log;
-	import com.apm.client.processes.ProcessBase;
 	
 	import flash.desktop.NativeProcess;
 	import flash.desktop.NativeProcessStartupInfo;
@@ -25,13 +24,13 @@ package com.apm.client.config.processes
 	import flash.filesystem.File;
 	
 	
-	public class LoadWindowsEnvironmentVariablesProcess extends ProcessBase
+	public class ExtractZipWindowsProcess extends ExtractZipAS3Process
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "LoadWindowsEnvironmentVariablesProcess";
+		private static const TAG:String = "ExtractZipMacOSProcess";
 		
 		
 		////////////////////////////////////////////////////////
@@ -40,40 +39,42 @@ package com.apm.client.config.processes
 		
 		private var _process:NativeProcess;
 		
-		private var _environmentVariables:Object;
-		private var _config:RunConfig;
-		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function LoadWindowsEnvironmentVariablesProcess( config:RunConfig )
+		public function ExtractZipWindowsProcess( core:APMCore, zipFile:File, outputDir:File )
 		{
-			_environmentVariables = {};
-			_config = config;
+			super( core, zipFile, outputDir );
 		}
 		
 		
 		override public function start():void
 		{
-			Log.d( TAG, "start()" );
+			var message:String = "Extracting " + _zipFile.nativePath;
+			
 			if (NativeProcess.isSupported)
 			{
-				var processStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
-				processStartupInfo.executable = new File( "C:\\Windows\\System32\\cmd.exe" );
-
 				var processArgs:Vector.<String> = new Vector.<String>();
-				processArgs.push( "/c" );
-				processArgs.push( "set" );
+//				processArgs.push( "-ExecutionPolicy" );
+//				processArgs.push( "Unrestricted" );
+				processArgs.push( "-command" );
+				processArgs.push( "& \"Expand-Archive\" -Force "
+										  + "'" + _zipFile.nativePath + "'" + " "
+										  + "'" + _outputDir.nativePath + "'" );
 
+				var processStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
+				processStartupInfo.executable = new File( "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" );
 				processStartupInfo.arguments = processArgs;
 				
 				if (!processStartupInfo.executable.exists)
 				{
-					// TODO:: Error?
-					complete();
+					// Fall back to as3 implementation
+					return super.start();
 				}
+				
+				_core.io.showSpinner( message );
 				
 				_process = new NativeProcess();
 				_process.addEventListener( NativeProcessExitEvent.EXIT, onExit );
@@ -86,16 +87,19 @@ package com.apm.client.config.processes
 			}
 			else
 			{
-				Log.d( TAG, "ERROR: Native process not supported - cannot get environment" );
-				complete();
+				super.start();
 			}
 		}
 		
 		
 		private function onOutputData( event:ProgressEvent ):void
 		{
-			var data:String = _process.standardOutput.readUTFBytes( _process.standardOutput.bytesAvailable );
-			processEnvironmentVariables( data );
+			var data:String = _process.standardOutput.readUTFBytes( _process.standardOutput.bytesAvailable )
+					.replace( /\n/g, "" )
+					.replace( /\r/g, "" )
+					.replace( /\t/g, "" );
+			
+			_core.io.updateSpinner( "Extracting : " + data );
 		}
 		
 		
@@ -108,12 +112,7 @@ package com.apm.client.config.processes
 		private function onExit( event:NativeProcessExitEvent ):void
 		{
 			Log.d( TAG, "Process exited with: " + event.exitCode );
-			
-			for (var key:String in _environmentVariables)
-			{
-				_config.env[ key ] = _environmentVariables[ key ];
-			}
-			
+			_core.io.stopSpinner( event.exitCode == 0, "Extracted zip" );
 			complete();
 		}
 		
@@ -123,23 +122,6 @@ package com.apm.client.config.processes
 			Log.d( TAG, "IOError: " + event.toString() );
 		}
 		
-		
-		//
-		//
-		//
-		
-		private function processEnvironmentVariables( data:String ):void
-		{
-			var lines:Array = data.replace( "\r", "" ).split( "\n" );
-			for each (var line:String in lines)
-			{
-				var envVar:Array = line.split( "=" );
-				if (envVar.length == 2)
-				{
-					_environmentVariables[ envVar[ 0 ] ] = envVar[ 1 ];
-				}
-			}
-		}
 		
 	}
 	

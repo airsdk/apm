@@ -16,8 +16,6 @@ package com.apm.client.commands.airsdk
 	import com.apm.client.APMCore;
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.airsdk.processes.DownloadAIRSDKProcess;
-	import com.apm.client.commands.airsdk.processes.ExtractAIRSDKMacOSProcess;
-	import com.apm.client.commands.airsdk.processes.ExtractAIRSDKProcess;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.client.processes.generic.ExtractZipProcess;
 	import com.apm.remote.airsdk.AIRSDKAPI;

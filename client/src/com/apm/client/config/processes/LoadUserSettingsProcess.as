@@ -16,6 +16,7 @@ package com.apm.client.config.processes
 	import com.apm.client.config.RunConfig;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
+	import com.apm.data.user.UserSettings;
 	
 	import flash.filesystem.File;
 	
@@ -54,12 +55,8 @@ package com.apm.client.config.processes
 			Log.d( TAG, "start()" );
 			try
 			{
-				var f:File = new File( _config.getHomeDirectory() + File.separator + ".apm_config" );
-				if (f.exists)
-				{
-					Log.d( TAG, "found user settings file - loading ..." );
-					_config.user.load( f );
-				}
+				var f:File = new File( _config.getHomeDirectory() + File.separator + UserSettings.DEFAULT_FILENAME );
+				_config.user.load( f );
 			}
 			catch (e:Error)
 			{

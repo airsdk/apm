@@ -34,6 +34,8 @@ package com.apm.client
 	import com.apm.client.commands.project.ProjectConfigCommand;
 	import com.apm.client.config.RunConfig;
 	import com.apm.client.io.IO;
+	import com.apm.client.io.IO_MacOS;
+	import com.apm.client.io.IO_Windows;
 	import com.apm.client.logging.Log;
 	
 	import flash.desktop.NativeApplication;
@@ -65,7 +67,15 @@ package com.apm.client
 		
 		
 		private var _io:IO;
-		public function get io():IO { if (_io == null) _io = new IO(); return _io; }
+		public function get io():IO
+		{
+			if (_io == null)
+			{
+				if (_config.isWindows) _io = new IO_Windows();
+				else _io = new IO_MacOS();
+			}
+			return _io;
+		}
 		
 		
 		////////////////////////////////////////////////////////
@@ -99,7 +109,6 @@ package com.apm.client
 			addCommand( CreateCommand.NAME, CreateCommand );
 			addCommand( BuildCommand.NAME, BuildCommand );
 			addCommand( PublishCommand.NAME, PublishCommand );
-			
 			
 			// air sdk commands
 			addCommand( AIRSDKListCommand.NAME, AIRSDKListCommand );
@@ -206,9 +215,9 @@ package com.apm.client
 			
 			try
 			{
-				io.showSpinner( "loading environment ... " );
+//				io.showSpinner( "loading environment ... " );
 				_config.loadEnvironment( function ( success:Boolean, error:String=null ):void {
-					io.stopSpinner( success,"loaded environment", true );
+//					io.stopSpinner( success,"loaded environment", true );
 					if (success)
 					{
 						processEnvironment();
@@ -216,7 +225,7 @@ package com.apm.client
 						{
 							if (config.projectDefinition == null)
 							{
-								io.out( "No project file found, run 'apm init' first" );
+								io.writeError( "project.apm", "No project file found, run 'apm init' first" );
 								return exit( CODE_ERROR );
 							}
 						}
@@ -242,13 +251,26 @@ package com.apm.client
 		
 		private function processEnvironment():void
 		{
-			if (_config.env.hasOwnProperty("TERM"))
+			if (_config.isMacOS)
 			{
-				// TODO:: improve this to detect if colour supported
-				var term:String = _config.env["TERM"];
-				io.setColourSupported( term.indexOf("color") >= 0 );
+				if (_config.env.hasOwnProperty("TERM"))
+				{
+					// TODO:: improve this to detect if colour supported
+					var term:String = _config.env["TERM"];
+					io.setColourSupported( term.indexOf("color") >= 0 && !_config.user.disableTerminalControlSequences );
+				}
+				io.setTerminalControlSupported( !_config.user.disableTerminalControlSequences );
 			}
-			
+			else if (_config.isWindows)
+			{
+				// TODO:: Improve how this is determined
+				// Only enable for Windows Terminal (by looking for presence of WT_SESSION env variable)
+				// other consoles (cmd/powershell) don't seem to have the new control sequences enabled by default
+				// TODO: Potentially enable with an ANE? https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
+				var enabled:Boolean = _config.env.hasOwnProperty("WT_SESSION" );
+				io.setColourSupported( enabled && !_config.user.disableTerminalControlSequences );
+				io.setTerminalControlSupported( enabled && !_config.user.disableTerminalControlSequences );
+			}
 		}
 		
 		

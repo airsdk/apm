@@ -16,6 +16,9 @@ package com.apm.client.commands.general
 	import com.apm.client.APMCore;
 	import com.apm.client.commands.Command;
 	import com.apm.client.logging.Log;
+	import com.apm.data.user.UserSettings;
+	
+	import flash.filesystem.File;
 	
 	
 	public class ConfigCommand implements Command
@@ -127,6 +130,11 @@ package com.apm.client.commands.general
 									core.config.user.githubToken = set_value;
 									break;
 								}
+								case "disable_terminal_control_sequences":
+								{
+									core.config.user.disableTerminalControlSequences = (set_value == "true" || set_value == "1");
+									break;
+								}
 							}
 							core.config.user.save();
 							return core.exit( APMCore.CODE_OK );
@@ -150,6 +158,11 @@ package com.apm.client.commands.general
 									case "github_token":
 									{
 										value = core.config.user.githubToken;
+										break;
+									}
+									case "disable_terminal_control_sequences":
+									{
+										value = core.config.user.disableTerminalControlSequences ? "true" : "false";
 										break;
 									}
 								}

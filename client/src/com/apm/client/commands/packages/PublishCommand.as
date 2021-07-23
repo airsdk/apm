@@ -16,7 +16,6 @@ package com.apm.client.commands.packages
 	import com.apm.client.APMCore;
 	import com.apm.client.Consts;
 	import com.apm.client.commands.Command;
-	import com.apm.client.commands.airsdk.processes.ExtractAIRSDKProcess;
 	import com.apm.client.commands.packages.processes.PackageContentCreateProcess;
 	import com.apm.client.commands.packages.processes.PackageContentVerifyProcess;
 	import com.apm.client.commands.packages.processes.PackageDefinitionLoadProcess;
