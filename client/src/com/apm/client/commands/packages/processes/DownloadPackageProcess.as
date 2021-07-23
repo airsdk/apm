@@ -1,0 +1,222 @@
+/**
+ *        __       __               __
+ *   ____/ /_ ____/ /______ _ ___  / /_
+ *  / __  / / ___/ __/ ___/ / __ `/ __/
+ * / /_/ / (__  ) / / /  / / /_/ / /
+ * \__,_/_/____/_/ /_/  /_/\__, /_/
+ *                           / /
+ *                           \/
+ * http://distriqt.com
+ *
+ * @author 		Michael (https://github.com/marchbold)
+ * @created		15/6/21
+ */
+package com.apm.client.commands.packages.processes
+{
+	import com.apm.client.APMCore;
+	import com.apm.client.commands.packages.utils.PackageFileUtils;
+	import com.apm.client.commands.packages.utils.PackageRequestUtils;
+	import com.apm.client.logging.Log;
+	import com.apm.client.processes.ProcessBase;
+	import com.apm.data.packages.PackageVersion;
+	import com.apm.data.utils.Checksum;
+	
+	import flash.events.Event;
+	import flash.events.HTTPStatusEvent;
+	import flash.events.IOErrorEvent;
+	import flash.events.ProgressEvent;
+	import flash.events.SecurityErrorEvent;
+	import flash.filesystem.File;
+	import flash.filesystem.FileMode;
+	import flash.filesystem.FileStream;
+	import flash.net.URLLoader;
+	import flash.net.URLLoaderDataFormat;
+	import flash.net.URLRequest;
+	import flash.utils.ByteArray;
+	
+	
+	public class DownloadPackageProcess extends ProcessBase
+	{
+		////////////////////////////////////////////////////////
+		//  CONSTANTS
+		//
+		
+		private static const TAG:String = "DownloadPackageProcess";
+		
+		
+		////////////////////////////////////////////////////////
+		//  VARIABLES
+		//
+		
+		private var _core:APMCore;
+		private var _package:PackageVersion;
+		private var _destination:File;
+		private var _loader:URLLoader;
+		
+		
+		////////////////////////////////////////////////////////
+		//  FUNCTIONALITY
+		//
+		
+		public function DownloadPackageProcess( core:APMCore, packageVersion:PackageVersion )
+		{
+			super();
+			_core = core;
+			_package = packageVersion;
+			
+			var packagesDir:File = new File( _core.config.packagesDir );
+			if (!packagesDir.exists) packagesDir.createDirectory();
+			
+			var packageDir:File = PackageFileUtils.directoryForPackage( _core, packageVersion.packageDef.identifier );
+			if (!packageDir.exists) packageDir.createDirectory();
+			
+			_destination = packageDir.resolvePath(
+					PackageFileUtils.filenameForPackage( packageVersion )
+			);
+		}
+		
+		
+		override public function start():void
+		{
+			_core.io.showProgressBar( "Downloading package : " + _package.packageDef.toString() );
+			if (_destination.exists)
+			{
+				checkExistingFile( true );
+			}
+			else
+			{
+				downloadPackage();
+			}
+		}
+		
+		
+		private function checkExistingFile( downloadIfCheckFails:Boolean = false ):void
+		{
+			var fileValid:Boolean = false;
+			if (_destination.exists)
+			{
+				fileValid = verifyFile( _package.checksum );
+				_core.io.completeProgressBar( fileValid, "Package already downloaded" );
+			}
+			
+			if (!fileValid)
+			{
+				if (downloadIfCheckFails)
+				{
+					return downloadPackage();
+				}
+				else
+				{
+					_core.io.writeLine( "Downloaded file failed checks - retry install again later!" );
+					return failure( "Downloaded file failed checks" );
+				}
+			}
+			
+			complete();
+		}
+		
+		
+		private function checkDownloadedFile():void
+		{
+			var fileValid:Boolean = false;
+			if (_destination.exists)
+			{
+				fileValid = verifyFile( _package.checksum );
+			}
+			if (fileValid)
+			{
+				_core.io.completeProgressBar( true, "downloaded" );
+				complete();
+			}
+			else
+			{
+				_core.io.completeProgressBar( false, "Downloaded file failed checks - retry install again later!" );
+				failure( "Downloaded file failed checks" );
+			}
+		}
+		
+		
+		private function verifyFile( checksum:String ):Boolean
+		{
+			// No checksum provided so don't perform check
+			if (checksum == null || checksum.length == 0) return true;
+			
+			var calculatedSum:String = "";
+			if (_destination.exists)
+			{
+				calculatedSum = Checksum.sha256Checksum( _destination );
+			}
+			return calculatedSum == checksum;
+		}
+		
+		
+		private function downloadPackage():void
+		{
+			_loader = new URLLoader();
+			_loader.dataFormat = URLLoaderDataFormat.BINARY;
+			_loader.addEventListener( Event.COMPLETE, loader_completeHandler );
+			_loader.addEventListener( ProgressEvent.PROGRESS, loader_progressHandler );
+			_loader.addEventListener( IOErrorEvent.IO_ERROR, loader_errorHandler );
+			_loader.addEventListener( HTTPStatusEvent.HTTP_STATUS, loader_statusHandler );
+			_loader.addEventListener( SecurityErrorEvent.SECURITY_ERROR, loader_securityErrorHandler );
+			
+			PackageRequestUtils.generateURLRequestForPackage(
+					_package.sourceUrl,
+					_core,
+					function ( req:URLRequest ):void {
+						_loader.load( req );
+					} );
+		}
+		
+		
+		private function loader_progressHandler( event:ProgressEvent ):void
+		{
+			if (event.bytesTotal > 0)
+			{
+				_core.io.updateProgressBar(
+						event.bytesLoaded / event.bytesTotal,
+						"Downloading package : " + _package.packageDef.toString() );
+			}
+		}
+		
+		
+		private function loader_completeHandler( event:Event ):void
+		{
+			var data:ByteArray = event.target.data;
+			
+			var fileStream:FileStream = new FileStream();
+			fileStream.addEventListener( Event.CLOSE, function ( event:Event ):void {
+				event.currentTarget.removeEventListener( event.type, arguments.callee );
+				checkDownloadedFile();
+			} );
+			
+			fileStream.openAsync( _destination, FileMode.WRITE );
+			fileStream.writeBytes( data, 0, data.length );
+			fileStream.close();
+			
+		}
+		
+		
+		private function loader_errorHandler( event:IOErrorEvent ):void
+		{
+			_core.io.completeProgressBar( false, event.text );
+			complete();
+		}
+		
+		
+		private function loader_statusHandler( event:HTTPStatusEvent ):void
+		{
+			Log.d( TAG, "loader_statusHandler(): " + event.status );
+		}
+		
+		
+		private function loader_securityErrorHandler( event:SecurityErrorEvent ):void
+		{
+			_core.io.completeProgressBar( false, event.text );
+			complete();
+		}
+		
+		
+	}
+	
+}
