@@ -64,16 +64,7 @@ package com.apm.client.commands.packages.processes
 			
 			_repositoryAPI
 					.setToken( _core.config.user.publisherToken )
-					.publish( _packageDefinition, function ( success:Boolean, packageDefinition:* ):void {
-						if (success)
-						{
-						
-						}
-						else
-						{
-						
-						}
-						
+					.publish( _packageDefinition,function ( success:Boolean, packageDefinition:* ):void {
 						_core.io.stopSpinner( success, "Package published" );
 						complete();
 					} );

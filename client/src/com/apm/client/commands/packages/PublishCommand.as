@@ -118,6 +118,11 @@ package com.apm.client.commands.packages
 			core.io.writeLine( "Publishing package: " + path );
 			
 			var tmpDir:File = new File( core.config.workingDir + File.separator + ".apm__tmp" );
+			if (tmpDir.exists)
+			{
+				cleanup( tmpDir );
+			}
+			
 			var source:File = new File( core.config.workingDir + File.separator + path );
 			if (!source.exists)
 			{

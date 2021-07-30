@@ -13,9 +13,6 @@
  */
 package com.apm.data.packages
 {
-	import flash.filesystem.File;
-	
-	
 	public class PackageDefinition
 	{
 		////////////////////////////////////////////////////////
@@ -40,6 +37,8 @@ package com.apm.data.packages
 		public var versions:Vector.<PackageVersion>;
 		public var tags:Vector.<String>;
 		
+		public var purchaseUrl:String = "";
+		public var license:PackageLicense;
 		
 		
 		////////////////////////////////////////////////////////
@@ -97,19 +96,23 @@ package com.apm.data.packages
 						versions.push( version );
 					}
 				}
-				if (data.hasOwnProperty("tags" ))
+				if (data.hasOwnProperty( "tags" ))
 				{
 					for each (var tag:Object in data.tags)
 					{
 						tags.push( tag.name );
 					}
 				}
+				
+				if (data.hasOwnProperty( "purchaseUrl" )) this.purchaseUrl = data[ "purchaseUrl" ];
+				if (data.hasOwnProperty( "license" )) this.license = new PackageLicense().fromObject( data[ "license" ] );
+				
 			}
 			return this;
 		}
 		
 		
-		public function toObject( forceObjectOutput:Boolean=false ):Object
+		public function toObject( forceObjectOutput:Boolean = false ):Object
 		{
 			var data:Object = {};
 			data.identifier = identifier;
@@ -135,9 +138,14 @@ package com.apm.data.packages
 				}
 			}
 			
+			if (license)
+			{
+				data.license = license.toObject();
+			}
+			data.purchaseUrl = purchaseUrl;
+			
 			return data;
 		}
-		
 		
 		
 	}
