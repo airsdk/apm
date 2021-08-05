@@ -13,6 +13,8 @@
  */
 package com.apm.client.commands.packages.utils
 {
+	import com.apm.client.logging.Log;
+	
 	import flash.filesystem.File;
 	
 	
@@ -36,6 +38,24 @@ package com.apm.client.commands.packages.utils
 		
 		public function FileUtils()
 		{
+		}
+		
+		
+		public static function countFiles( directory:File ):int
+		{
+			var count:int = 0;
+			for each (var f:File in directory.getDirectoryListing())
+			{
+				if (f.isDirectory)
+				{
+					count += countFiles( f );
+				}
+				else
+				{
+					count++;
+				}
+			}
+			return count;
 		}
 		
 		
@@ -70,6 +90,33 @@ package com.apm.client.commands.packages.utils
 					f.copyTo( dest.resolvePath( f.name ), overwrite );
 			}
 		}
+		
+		
+		public static function removeEmptyDirectories( directory:File, recurse:Boolean=false ):void
+		{
+			for each (var f:File in directory.getDirectoryListing())
+			{
+				try
+				{
+					if (f.isDirectory)
+					{
+						if (countFiles(f) == 0)
+						{
+							f.deleteDirectory();
+						}
+						else if (recurse)
+						{
+							removeEmptyDirectories( f, recurse );
+						}
+					}
+				}
+				catch (e:Error)
+				{
+					Log.d( TAG, e.message );
+				}
+			}
+		}
+		
 		
 	}
 	

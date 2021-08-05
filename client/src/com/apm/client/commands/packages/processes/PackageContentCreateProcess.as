@@ -13,11 +13,11 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.SemVer;
 	import com.apm.client.APMCore;
-	import com.apm.client.Consts;
+	import com.apm.client.commands.packages.utils.FileUtils;
 	import com.apm.client.commands.packages.utils.PackageFileUtils;
 	import com.apm.client.processes.ProcessBase;
+	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageDefinitionFile;
 	
 	import flash.filesystem.File;
@@ -81,37 +81,44 @@ package com.apm.client.commands.packages.processes
 			var zip:Zip = new Zip();
 			
 			
-			
-			var libDir:File = _packageDir.resolvePath( "lib" );
-			var aneDir:File = _packageDir.resolvePath( "ane" );
-			var srcDir:File = _packageDir.resolvePath( "src" );
+			var libDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_SWC_DIR );
+			var aneDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_ANE_DIR );
+			var srcDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_SRC_DIR );
 			var readmeFile:File = _packageDir.resolvePath( "README.md" );
 			var changeLogFile:File = _packageDir.resolvePath( "CHANGELOG.md" );
 			var licenseFile:File = _packageDir.resolvePath( "LICENSE.md" );
-			var androidFile:File = _packageDir.resolvePath( "android.xml" );
-			var iosFile:File = _packageDir.resolvePath( "ios.xml" );
 			
 			addFileToZip( zip, packageDefinitionFile );
 			addFileToZip( zip, readmeFile );
 			
 			if (changeLogFile.exists) addFileToZip( zip, changeLogFile );
 			if (licenseFile.exists) addFileToZip( zip, licenseFile );
-			if (androidFile.exists) addFileToZip( zip, androidFile );
-			if (iosFile.exists) addFileToZip( zip, iosFile );
-			
 			
 			switch (packDefFile.packageDef.type)
 			{
-				case "swc":
+				case PackageDefinition.TYPE_SWC:
 					addFileToZip( zip, libDir );
 					break;
-				case "ane":
+				case PackageDefinition.TYPE_ANE:
 					addFileToZip( zip, aneDir );
 					break;
-				case "src":
+				case PackageDefinition.TYPE_SRC:
 					addFileToZip( zip, srcDir );
 					break;
 			}
+			
+			var assetsDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_ASSETS );
+			FileUtils.removeEmptyDirectories( assetsDir );
+			if (assetsDir.exists) addFileToZip( zip, assetsDir );
+
+			// TODO:: Manifests etc...
+//			var androidFile:File = _packageDir.resolvePath( "android.xml" );
+//			var iosFile:File = _packageDir.resolvePath( "ios.xml" );
+//
+//			if (androidFile.exists) addFileToZip( zip, androidFile );
+//			if (iosFile.exists) addFileToZip( zip, iosFile );
+			
+			
 			
 			var packageFileName:String = packDefFile.packageDef.identifier + "_" + packDefFile.version.version.toString() + "." + PackageFileUtils.AIRPACKAGEEXTENSION;
 			var packageFilePath:String = _core.config.workingDir + File.separator + packageFileName;
@@ -122,13 +129,13 @@ package com.apm.client.commands.packages.processes
 			zip.serialize( outStream );
 			outStream.close();
 			
-			_core.io.stopSpinner(  true,"Package built: " + packageFileName );
+			_core.io.stopSpinner( true, "Package built: " + packageFileName );
 			
 			complete();
 		}
 		
 		
-		private function addFileToZip( zip:Zip, f:File, path:String="" ):void
+		private function addFileToZip( zip:Zip, f:File, path:String = "" ):void
 		{
 			_core.io.updateSpinner();
 			if (f.isDirectory)
@@ -153,9 +160,6 @@ package com.apm.client.commands.packages.processes
 				zip.addFile( filePath, content );
 			}
 		}
-		
-		
-		
 		
 		
 	}

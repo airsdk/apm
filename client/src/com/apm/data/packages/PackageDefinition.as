@@ -21,6 +21,10 @@ package com.apm.data.packages
 		
 		private static const TAG:String = "PackageDefinition";
 		
+		public static const TYPE_ANE : String = "ane";
+		public static const TYPE_SWC : String = "swc";
+		public static const TYPE_SRC : String = "src";
+		
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
@@ -31,7 +35,7 @@ package com.apm.data.packages
 		public var description:String = "";
 		public var url:String = "";
 		public var docUrl:String = "";
-		public var type:String = "ane";
+		public var type:String = TYPE_ANE;
 		public var publishedAt:String = "";
 		
 		public var versions:Vector.<PackageVersion>;

@@ -13,10 +13,14 @@
  */
 package com.apm.client.commands.packages.processes
 {
+	import com.adobe.formatters.DateFormatter;
 	import com.apm.SemVer;
 	import com.apm.client.APMCore;
+	import com.apm.client.commands.packages.utils.PackageFileUtils;
 	import com.apm.client.processes.ProcessBase;
+	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageDefinitionFile;
+	import com.apm.data.packages.PackageLicense;
 	
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
@@ -73,7 +77,7 @@ package com.apm.client.commands.packages.processes
 			f.packageDef.identifier = _core.io.question( "Package Identifier", "com.my.package" );
 			f.packageDef.type = _core.io.question( "Type [swc/ane/src]", "ane" );
 			
-			if (f.packageDef.type != "swc" && f.packageDef.type != "ane" && f.packageDef.type != "src")
+			if (f.packageDef.type != PackageDefinition.TYPE_ANE && f.packageDef.type != PackageDefinition.TYPE_SWC && f.packageDef.type != PackageDefinition.TYPE_SRC)
 			{
 				_core.io.writeError( "INVALID TYPE", "Type must be one of 'ane', 'swc' or 'src'" );
 				return failure();
@@ -93,6 +97,17 @@ package com.apm.client.commands.packages.processes
 			// TODO:: Other questions ?
 			
 			
+			
+			//
+			//	Some defaults
+			
+			f.packageDef.description = f.packageDef.name;
+			f.packageDef.license = new PackageLicense();
+			var df:DateFormatter = new DateFormatter( "YYYY-MM-DDT00:00:00.000Z")
+			f.packageDef.publishedAt =
+			f.version.publishedAt = df.format( new Date() );
+			
+			
 			//
 			// Write package to file
 			
@@ -103,7 +118,6 @@ package com.apm.client.commands.packages.processes
 			//	Create README.md
 			
 			var readmeFile:File = directory.resolvePath( "README.md" );
-			
 			var readmeInitialContent:String =
 						"## " + f.packageDef.name + "\n" +
 						"\n" +
@@ -112,26 +126,44 @@ package com.apm.client.commands.packages.processes
 						f.packageDef.description + "\n\n"
 			;
 			
-			var fs:FileStream = new FileStream();
-			fs.open( readmeFile, FileMode.WRITE );
-			fs.writeUTFBytes( readmeInitialContent );
-			fs.close();
+			writeContentToFile( readmeFile, readmeInitialContent );
 			
 			
 			var changeLogFile:File = directory.resolvePath( "CHANGELOG.md" );
-			var licenseFile:File = directory.resolvePath( "CHANGELOG.md" );
+			writeContentToFile( changeLogFile, "" );
+
 			
-			var libDir:File = directory.resolvePath( "lib" );
-			var aneDir:File = directory.resolvePath( "ane" );
-			var srcDir:File = directory.resolvePath( "src" );
+			var libDir:File = directory.resolvePath( PackageFileUtils.AIRPACKAGE_SWC_DIR );
+			var aneDir:File = directory.resolvePath( PackageFileUtils.AIRPACKAGE_ANE_DIR );
+			var srcDir:File = directory.resolvePath( PackageFileUtils.AIRPACKAGE_SRC_DIR );
 			
 			if (!libDir.exists) libDir.createDirectory();
 			if (!aneDir.exists) aneDir.createDirectory();
 			if (!srcDir.exists) srcDir.createDirectory();
 			
 			
+			var assetsDir:File = directory.resolvePath( PackageFileUtils.AIRPACKAGE_ASSETS );
+			if (!assetsDir.exists) assetsDir.createDirectory();
+			
+			assetsDir.resolvePath("common").createDirectory();
+			assetsDir.resolvePath("android").createDirectory();
+			assetsDir.resolvePath("ios").createDirectory();
+			assetsDir.resolvePath("macos").createDirectory();
+			assetsDir.resolvePath("windows").createDirectory();
+			
 			complete();
 		}
+		
+		
+		private function writeContentToFile( file:File, content:String ):void
+		{
+			var fs:FileStream = new FileStream();
+			fs.open( file, FileMode.WRITE );
+			fs.writeUTFBytes( content );
+			fs.close();
+		}
+		
+		
 		
 	}
 	

@@ -35,6 +35,13 @@ package com.apm.client.commands.packages.utils
 		public static const AIRPACKAGEEXTENSION : String = "airpackage";
 		
 		
+		public static const AIRPACKAGE_SWC_DIR : String = "swc";
+		public static const AIRPACKAGE_ANE_DIR : String = "ane";
+		public static const AIRPACKAGE_SRC_DIR : String = "src";
+
+		public static const AIRPACKAGE_ASSETS : String = "assets";
+		
+		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
