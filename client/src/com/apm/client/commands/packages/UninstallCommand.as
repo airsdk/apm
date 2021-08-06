@@ -124,7 +124,7 @@ package com.apm.client.commands.packages
 			
 			_queue.start(
 					function ():void {
-						Analytics.instance.uninstall( _packageDependency.identifier, _packageDependency.version.toString(), function():void {
+						Analytics.instance.uninstall( _packageDependency.identifier, _packageDependency.version.toString(), function ():void {
 							core.exit( APMCore.CODE_OK );
 						} );
 					},

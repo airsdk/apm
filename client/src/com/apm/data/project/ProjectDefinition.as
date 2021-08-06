@@ -13,7 +13,6 @@
  */
 package com.apm.data.project
 {
-	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.packages.PackageVersion;
 	import com.apm.data.packages.Repository;
@@ -107,7 +106,7 @@ package com.apm.data.project
 			var data:Object = toObject();
 			
 			// Ensures the output JSON format is in a familiar order
-			var keyOrder:Array = [ "identifier", "name", "version", "dependencies", "configuration", "repositories" ];
+			var keyOrder:Array = ["identifier", "name", "version", "dependencies", "configuration", "repositories"];
 			JSONUtils.addMissingKeys( data, keyOrder );
 			
 			return JSON.stringify( data, keyOrder, 4 ) + "\n";
@@ -136,8 +135,8 @@ package com.apm.data.project
 			}
 			data[ "dependencies" ] = deps;
 			
-			data["configuration"] = _configuration;
-			data["deployOptions"] = _deployOptions;
+			data[ "configuration" ] = _configuration;
+			data[ "deployOptions" ] = _deployOptions;
 			
 			_data = data;
 			
@@ -215,10 +214,6 @@ package com.apm.data.project
 		}
 		
 		
-		
-		
-		
-		
 		public function clearPackageDependencies():ProjectDefinition
 		{
 			_dependencies = new Vector.<PackageDependency>();
@@ -237,7 +232,7 @@ package com.apm.data.project
 			{
 				var dep:PackageDependency = new PackageDependency();
 				dep.identifier = packageVersion.packageDef.identifier;
-				dep.version =packageVersion.version;
+				dep.version = packageVersion.version;
 				
 				dependencies.push( dep );
 			}
@@ -273,9 +268,9 @@ package com.apm.data.project
 		
 		public function removePackageDependency( identifier:String ):ProjectDefinition
 		{
-			for (var i:int = _dependencies.length-1; i >= 0; --i)
+			for (var i:int = _dependencies.length - 1; i >= 0; --i)
 			{
-				if (_dependencies[i].identifier == identifier)
+				if (_dependencies[ i ].identifier == identifier)
 				{
 					_dependencies.splice( i, 1 );
 				}

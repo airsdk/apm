@@ -14,8 +14,6 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APMCore;
-	import com.apm.client.commands.packages.data.InstallPackageData;
-	import com.apm.client.commands.packages.data.InstallQueryRequest;
 	import com.apm.client.commands.packages.utils.PackageFileUtils;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
@@ -123,15 +121,15 @@ package com.apm.client.commands.packages.processes
 						var packageDefinition:PackageDefinitionFile = new PackageDefinitionFile().load( f );
 						
 						Log.d( TAG, "isPackageRequiredDependency() : Checking : " + packageDefinition.packageDef.identifier );
-
+						
 						// Ignore the package being uninstalled and the current package
 						if (packageDefinition.packageDef.identifier == uninstallingPackageIdentifier
-						|| packageDefinition.packageDef.identifier == packageIdentifier)
+								|| packageDefinition.packageDef.identifier == packageIdentifier)
 							continue;
 						
 						for each (var dep:PackageDependency in packageDefinition.dependencies)
 						{
-							Log.d( TAG, "isPackageRequiredDependency() : Checking dependency [" + packageDefinition.packageDef.identifier +"] : " + dep.identifier );
+							Log.d( TAG, "isPackageRequiredDependency() : Checking dependency [" + packageDefinition.packageDef.identifier + "] : " + dep.identifier );
 							if (dep.identifier == packageIdentifier)
 								return true;
 						}
