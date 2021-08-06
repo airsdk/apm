@@ -14,6 +14,7 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APMCore;
+	import com.apm.client.analytics.Analytics;
 	import com.apm.client.commands.packages.utils.PackageFileUtils;
 	import com.apm.client.commands.packages.utils.PackageRequestUtils;
 	import com.apm.client.logging.Log;
@@ -149,7 +150,10 @@ package com.apm.client.commands.packages.processes
 			if (fileValid)
 			{
 				_core.io.completeProgressBar( true, "downloaded" );
-				complete();
+				Analytics.instance.download(
+						_package.packageDef.identifier,
+						_package.version.toString(),
+						complete );
 			}
 			else
 			{

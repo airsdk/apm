@@ -256,12 +256,18 @@ package com.apm.data.project
 		 */
 		public function hasDependency( identifier:String ):Boolean
 		{
+			return getPackageDependency( identifier ) != null;
+		}
+		
+		
+		public function getPackageDependency( identifier:String ):PackageDependency
+		{
 			for each (var dep:PackageDependency in _dependencies)
 			{
 				if (dep.identifier == identifier)
-					return true;
+					return dep;
 			}
-			return false;
+			return null;
 		}
 		
 		

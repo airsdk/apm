@@ -14,6 +14,7 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APMCore;
+	import com.apm.client.analytics.Analytics;
 	import com.apm.client.commands.packages.data.InstallPackageData;
 	import com.apm.client.commands.packages.utils.PackageFileUtils;
 	import com.apm.client.processes.ProcessBase;
@@ -59,24 +60,40 @@ package com.apm.client.commands.packages.processes
 		{
 			_core.io.writeLine( "Installing package : " + _installData.packageVersion.packageDef.toString() );
 			
-			var queue:ProcessQueue = new ProcessQueue();
-			
-			queue.addProcess( new DownloadPackageProcess( _core, _installData.packageVersion ) );
-			
 			var packageDir:File = PackageFileUtils.cacheDirForPackage( _core, _installData.packageVersion.packageDef.identifier );
 			var packageFile:File = PackageFileUtils.fileForPackage( _core, _installData.packageVersion );
 			
+			var queue:ProcessQueue = new ProcessQueue();
+			
+			queue.addProcess( new DownloadPackageProcess( _core, _installData.packageVersion ) );
 			queue.addProcess( new ExtractZipProcess( _core, packageFile, packageDir ) );
 			
 			queue.start( function ():void {
-							 _core.io.writeLine( "Installed package : " + _installData.packageVersion.packageDef.toString() );
-							 complete();
+							 if (_installData.query.isNew)
+							 {
+								 Analytics.instance.install(
+										 _installData.packageVersion.packageDef.identifier,
+										 _installData.packageVersion.version.toString(),
+										 complete );
+							 }
+							 else
+							 {
+								 complete();
+							 }
+				
 						 },
 						 function ( error:String ):void {
 							 _core.io.writeError( "ERROR", "Failed to install package : " + _installData.packageVersion.packageDef.toString() );
 							 failure( error );
 						 } );
 			
+		}
+		
+		
+		override protected function complete():void
+		{
+			_core.io.writeLine( "Installed package : " + _installData.packageVersion.packageDef.toString() );
+			super.complete();
 		}
 		
 		

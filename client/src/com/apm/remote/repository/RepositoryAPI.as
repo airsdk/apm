@@ -40,8 +40,8 @@ package com.apm.remote.repository
 		
 		private var _requestQueue:APIRequestQueue;
 		
-//		private var _endpoint:String = "http://localhost:3000";
-		private var _endpoint:String = "https://repository.airsdk.dev";
+		private var _endpoint:String = "http://localhost:3000";
+//		private var _endpoint:String = "https://repository.airsdk.dev";
 		
 		// Auth token for publish actions
 		private var _token:String;
@@ -73,13 +73,32 @@ package com.apm.remote.repository
 		}
 		
 		
+		public function logEvent( event:String, identifier:String, version:String, callback:Function = null ):void
+		{
+			var vars:URLVariables = new URLVariables();
+			vars[ "v" ] = version;
+			
+			var req:URLRequest = new URLRequest();
+			req.method = URLRequestMethod.POST;
+			req.url = _endpoint + "/api/packages/" + identifier + "/" + version + "/analytics/" + event;
+			req.data = vars;
+			
+			_requestQueue.add( req, "analytics", function ( success:Boolean, data:* ):void {
+				if (callback != null)
+				{
+					callback();
+				}
+			} );
+		}
+		
+		
 		public function search( query:String, callback:Function = null ):void
 		{
 			var vars:URLVariables = new URLVariables();
 			vars[ "q" ] = query;
 			
 			var req:URLRequest = new URLRequest();
-			req.method = URLRequestMethod.GET;
+			req.method = URLRequestMethod.POST;
 			req.url = _endpoint + "/api/search";
 			req.data = vars;
 			

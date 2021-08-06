@@ -14,9 +14,11 @@
 package com.apm.client.commands.packages
 {
 	import com.apm.client.APMCore;
+	import com.apm.client.analytics.Analytics;
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.packages.processes.UninstallPackageProcess;
 	import com.apm.client.processes.ProcessQueue;
+	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.project.ProjectDefinition;
 	
 	
@@ -39,7 +41,7 @@ package com.apm.client.commands.packages
 		
 		private var _parameters:Array;
 		private var _queue:ProcessQueue;
-		
+		private var _packageDependency:PackageDependency;
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
@@ -107,9 +109,12 @@ package com.apm.client.commands.packages
 			if (_parameters != null && _parameters.length > 0)
 			{
 				var packageIdentifier:String = _parameters[ 0 ];
-				_queue.addProcess( new UninstallPackageProcess( core, packageIdentifier, packageIdentifier ) );
+				_packageDependency = project.getPackageDependency( packageIdentifier );
+				if (_packageDependency != null)
+				{
+					_queue.addProcess( new UninstallPackageProcess( core, packageIdentifier, packageIdentifier ) );
+				}
 			}
-			
 			
 			if (_queue.length == 0)
 			{
@@ -119,7 +124,9 @@ package com.apm.client.commands.packages
 			
 			_queue.start(
 					function ():void {
-						core.exit( APMCore.CODE_OK );
+						Analytics.instance.uninstall( _packageDependency.identifier, _packageDependency.version.toString(), function():void {
+							core.exit( APMCore.CODE_OK );
+						} );
 					},
 					function ( error:String ):void {
 						core.exit( APMCore.CODE_ERROR );

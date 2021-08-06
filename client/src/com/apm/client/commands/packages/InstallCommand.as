@@ -15,6 +15,7 @@ package com.apm.client.commands.packages
 {
 	import com.apm.SemVer;
 	import com.apm.client.APMCore;
+	import com.apm.client.analytics.Analytics;
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.packages.data.InstallData;
 	import com.apm.client.commands.packages.data.InstallQueryRequest;
