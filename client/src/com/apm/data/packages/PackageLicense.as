@@ -43,6 +43,12 @@ package com.apm.data.packages
 		}
 		
 		
+		public function toDescriptiveString():String
+		{
+			return "[" + (isPublic ? "public" : "private") + "] " + type + " :: " + url;
+		}
+		
+		
 		public function toObject():Object
 		{
 			return {

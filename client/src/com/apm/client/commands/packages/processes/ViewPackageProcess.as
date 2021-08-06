@@ -59,10 +59,20 @@ package com.apm.client.commands.packages.processes
 				{
 					_core.io.writeLine( packageDefinition.toDescriptiveString() );
 					
+					if (packageDefinition.license != null && packageDefinition.license.type != "none")
+					{
+						_core.io.writeLine( "license" );
+						_core.io.writeLine( "└── " + packageDefinition.license.toDescriptiveString() );
+						if (!packageDefinition.license.isPublic)
+						{
+							_core.io.writeLine( "└── more info: " + packageDefinition.purchaseUrl );
+						}
+					}
+					
 					var tagsLine:String = "";
 					for each (var tag:String in packageDefinition.tags)
 					{
-						tagsLine += tag + " " ;
+						tagsLine += tag + " ";
 					}
 					_core.io.writeLine( "tags" );
 					_core.io.writeLine( "└── [ " + tagsLine + " ]" );
