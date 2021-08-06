@@ -230,6 +230,12 @@ package com.apm.client
 							}
 						}
 						
+						if (_command.requiresNetwork && !_config.hasNetwork)
+						{
+							io.writeError( "NETWORK", "No active internet connection found" );
+							return exit( CODE_ERROR );
+						}
+						
 						_command.execute( _instance );
 					}
 					else
@@ -238,7 +244,7 @@ package com.apm.client
 						io.writeError( "ENV", "exiting..." );
 						return exit( CODE_ERROR );
 					}
-				} );
+				}, _command.requiresNetwork );
 			}
 			catch (e:Error)
 			{
