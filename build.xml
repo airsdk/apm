@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+
+<project default="build" name="apm"
+	xmlns:if="ant:if"
+	xmlns:unless="ant:unless"> 
+
+	<dirname property="apm.basedir" file="${ant.file.apm}" />
+
+	<property file="${apm.basedir}/build.config" description="build properties" />
+	
+    <property name="apm.clientdir" value="${apm.basedir}/client" />
+    <property name="apm.builddir" value="${apm.basedir}/client/out" />
+    <property name="codetmpl" value="${apm.basedir}/client/_codetmpl" />
+
+    <property name="AIR_SDK_HOME" value="${air.sdk}" />
+    <taskdef resource="flexTasks.tasks" classpath="${air.sdk}/ant/lib/flexTasks.jar" />
+	
+    <taskdef resource="net/sf/antcontrib/antlib.xml"/>
+	<target name="bootstrap">
+		<mkdir dir="${user.home}/.ant/lib"/>
+		<get dest="${user.home}/.ant/lib/ant-contrib.jar" src="https://search.maven.org/remotecontent?filepath=ant-contrib/ant-contrib/1.0b3/ant-contrib-1.0b3.jar"/>
+	</target>
+
+    <!-- PLATFORM INFORMATION -->
+
+	<condition property="isWindows" else="false">
+		<os family="windows" />
+	</condition>
+
+	<condition property="isMacOS" else="false">
+		<os family="mac" />
+	</condition>
+
+
+    <!-- VERSIONING -->
+
+    <target name="version">
+		<antcall target="version_increment" />
+		<antcall target="version_write" />
+	</target>
+
+    <target name="version_increment" >
+		<propertyfile file="version.config">
+			<entry key="version_build" type="int" operation="+" value="1" />
+		</propertyfile>
+	</target>
+    
+	<target name="version_write" >
+		<property file="version.config" />
+		<var name="version" value="${version_major}.${version_minor}.${version_build}${version_preview}" />
+
+		<copy file="${codetmpl}/Consts.as" tofile="${apm.clientdir}/src/com/apm/client/Consts.as" overwrite="true" >
+			<filterchain>
+				<tokenfilter>
+					<replacestring from="@VERSION@" to="${version}"/>
+					<replacestring from="@PACKAGE@" to="com.apm.client"/>
+				</tokenfilter>
+			</filterchain>
+		</copy>
+	</target>
+
+
+    <target name="clean" >
+        <delete dir="${apm.builddir}" />
+    </target>
+
+    <!-- BUILD -->
+
+    <target name="build" depends="version">
+		<echo message="Building apm..."/>
+		<mxmlc 
+            output="${apm.builddir}/apm.swf" 
+            file="${apm.clientdir}/src/APM.as"
+			failonerror="true"
+            maxmemory="1024m">
+			<load-config filename="${air.sdk}/frameworks/air-config.xml" />
+			<source-path path-element="${apm.clientdir}/src" />
+            <external-library-path dir="${apm.clientdir}/libs" append="true">
+                <include name="*.swc" />
+            </external-library-path>
+		</mxmlc>
+		<echo message="Copying apm scripts..."/>
+        <copy overwrite="true" todir="${apm.builddir}">
+            <fileset dir="${apm.clientdir}/src">
+                <include name="apm" />
+                <include name="apm.bat" />
+                <include name="apm.xml" />
+            </fileset>
+        </copy>
+        <exec executable="/bin/chmod" failonerror="false" if:true="${isMacOS}">
+			<arg line="+x ${apm.builddir}/apm" />
+        </exec>
+		<echo message="done"/>
+	</target>
+
+
+    <!-- PACKAGE -->
+
+    <target name="package" depends="build" >
+        <property file="version.config" />
+		<var name="version" value="${version_major}.${version_minor}.${version_build}${version_preview}" />
+		<zip destfile="${apm.basedir}/apm_${version}.zip">
+            <fileset dir="${apm.builddir}" />
+        </zip>
+    </target>
+
+
+</project>

@@ -13,15 +13,13 @@
  */
 package com.apm.client.config.processes
 {
-	import com.apm.client.processes.Process;
-	import com.apm.client.processes.ProcessQueue;
+	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.events.ProcessEvent;
 	
-	import flash.events.EventDispatcher;
 	import flash.utils.setTimeout;
 	
 	
-	public class DebugDelayProcess extends EventDispatcher implements Process
+	public class DebugDelayProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
@@ -34,29 +32,24 @@ package com.apm.client.config.processes
 		//  VARIABLES
 		//
 		
-		private var _delay : int;
+		private var _delay:int;
+		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function DebugDelayProcess( delay:int=2000 )
+		public function DebugDelayProcess( delay:int = 2000 )
 		{
 			_delay = delay;
 		}
 		
 		
-		public function set queue( value:ProcessQueue ):void
+		override public function start():void
 		{
+			setTimeout( complete, _delay );
 		}
 		
-		
-		public function start():void
-		{
-			setTimeout( function():void {
-				dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ));
-			}, _delay );
-		}
 		
 	}
 	

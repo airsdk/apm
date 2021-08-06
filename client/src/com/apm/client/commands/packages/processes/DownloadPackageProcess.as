@@ -190,9 +190,7 @@ package com.apm.client.commands.packages.processes
 		
 		
 		private var _httpStatus:int = 0;
-		private var _
-		
-		
+
 		private function downloadPackage():void
 		{
 			_loader = new URLLoader();
