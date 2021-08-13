@@ -53,8 +53,11 @@ package com.apm.client.processes.generic
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function=null, failureCallback:Function=null ):void
 		{
+			_completeCallback = completeCallback;
+			_failureCallback = failureCallback;
+			
 			var message:String = "extracting " + _zipFile.nativePath;
 			
 			if (NativeProcess.isSupported)
@@ -72,7 +75,7 @@ package com.apm.client.processes.generic
 				if (!processStartupInfo.executable.exists)
 				{
 					// Fall back to as3 implementation
-					return super.start();
+					return super.start( complete, failure );
 				}
 				
 				_core.io.showSpinner( message );
@@ -88,7 +91,7 @@ package com.apm.client.processes.generic
 			}
 			else
 			{
-				super.start();
+				super.start( complete, failure );
 			}
 		}
 		

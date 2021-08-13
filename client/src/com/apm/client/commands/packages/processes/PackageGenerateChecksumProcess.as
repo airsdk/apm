@@ -18,6 +18,7 @@ package com.apm.client.commands.packages.processes
 	
 	import com.apm.client.APMCore;
 	import com.apm.client.processes.ProcessBase;
+	import com.apm.client.processes.generic.ChecksumProcess;
 	import com.apm.data.packages.PackageDefinitionFile;
 	
 	import flash.filesystem.File;
@@ -63,8 +64,9 @@ package com.apm.client.commands.packages.processes
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
+			super.start( completeCallback, failureCallback );
 			_core.io.showSpinner( "Generating package checksum: " + _file.nativePath );
 			if (!_file.exists)
 			{
@@ -72,29 +74,22 @@ package com.apm.client.commands.packages.processes
 				return failure();
 			}
 			
-			var data:ByteArray = new ByteArray();
-
-			var fs:FileStream = new FileStream();
-			fs.open( _file, FileMode.READ );
-			fs.readBytes( data );
-			fs.close();
 			
+			var subprocess:ChecksumProcess = new ChecksumProcess( _file );
 			
-			var hashAlgorithm:SHA256 = new SHA256();
-			
-			hashAlgorithm.addEventListener( ProcessEvent.COMPLETE, function(event:ProcessEvent):void {
-				var result:String = event.data;
-				_packageDefinition.version.checksum = result;
-				_core.io.stopSpinner( true, "Generated checksum: " + result );
-				complete();
-			} );
-			
-			hashAlgorithm.addEventListener( ProcessEvent.ERROR, function(event:ProcessEvent):void {
-				var error:Error = event.data;
-				_core.io.stopSpinner( false, "ERROR: " + error.message );
-				failure();
-			} );
-			hashAlgorithm.hashBytes( data );
+			subprocess.start(
+					function( data:Object ):void
+					{
+						var result:String = String(data);
+						_packageDefinition.version.checksum = result;
+						_core.io.stopSpinner( true, "Generated checksum: " + result );
+						complete();
+					},
+					function( error:String ):void
+					{
+						_core.io.stopSpinner( false, "ERROR: " + error );
+						failure();
+					});
 			
 		}
 		

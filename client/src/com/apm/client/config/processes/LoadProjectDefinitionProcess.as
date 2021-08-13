@@ -31,7 +31,7 @@ package com.apm.client.config.processes
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "LoadMacOSEnvironmentVariablesProcess";
+		private static const TAG:String = "LoadProjectDefinitionProcess";
 		
 		
 		////////////////////////////////////////////////////////
@@ -52,8 +52,9 @@ package com.apm.client.config.processes
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
+			super.start( completeCallback, failureCallback );
 			Log.d( TAG, "start()" );
 			try
 			{

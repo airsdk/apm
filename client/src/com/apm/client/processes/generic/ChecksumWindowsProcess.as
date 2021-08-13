@@ -9,13 +9,12 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		28/5/21
+ * @created		13/8/21
  */
-package com.apm.client.config.processes
+package com.apm.client.processes.generic
 {
-	import com.apm.client.config.RunConfig;
+	import com.apm.client.APMCore;
 	import com.apm.client.logging.Log;
-	import com.apm.client.processes.ProcessBase;
 	
 	import flash.desktop.NativeProcess;
 	import flash.desktop.NativeProcessStartupInfo;
@@ -25,13 +24,13 @@ package com.apm.client.config.processes
 	import flash.filesystem.File;
 	
 	
-	public class LoadMacOSEnvironmentVariablesProcess extends ProcessBase
+	public class ChecksumWindowsProcess extends ChecksumAS3Process
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "LoadMacOSEnvironmentVariablesProcess";
+		private static const TAG:String = "ChecksumWindowsProcess";
 		
 		
 		////////////////////////////////////////////////////////
@@ -40,39 +39,47 @@ package com.apm.client.config.processes
 		
 		private var _process:NativeProcess;
 		
-		private var _environmentVariables:Object;
-		private var _config:RunConfig;
+		private var _data:String;
 		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function LoadMacOSEnvironmentVariablesProcess( config:RunConfig )
+		public function ChecksumWindowsProcess( core:APMCore, file:File )
 		{
-			_environmentVariables = {};
-			_config = config;
+			super( core, file );
 		}
 		
 		
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
-			super.start( completeCallback, failureCallback );
-			Log.d( TAG, "start()" );
+			_completeCallback = completeCallback;
+			_failureCallback = failureCallback;
+			_data = "";
+			
+			Log.d( TAG, "start: " + _file.name );
+			Log.d( TAG, "start: " + _file.name );
+			var message:String = "calculating checksum " + _file.nativePath;
+			
 			if (NativeProcess.isSupported)
 			{
+				var processArgs:Vector.<String> = new Vector.<String>();
+				processArgs.push( "-hashfile" );
+				processArgs.push( _file.nativePath );
+				processArgs.push( "SHA256" );
+				
 				var processStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
-				processStartupInfo.executable = new File( "/usr/bin/env" );
-
-//				var processArgs:Vector.<String> = new Vector.<String>();
-//				processArgs[0] = "the parameter you are passing";
-//				processStartupInfo.arguments = processArgs;
+				processStartupInfo.executable = new File( "C:\\Windows\\System32\\certutil.exe" );
+				processStartupInfo.arguments = processArgs;
 				
 				if (!processStartupInfo.executable.exists)
 				{
-					// TODO:: Error?
-					complete();
+					// Fall back to as3 implementation
+					return super.start( complete, failure );
 				}
+				
+//				_core.io.showSpinner( message );
 				
 				_process = new NativeProcess();
 				_process.addEventListener( NativeProcessExitEvent.EXIT, onExit );
@@ -85,16 +92,23 @@ package com.apm.client.config.processes
 			}
 			else
 			{
-				Log.d( TAG, "ERROR: Native process not supported - cannot get environment" );
-				complete();
+				super.start( complete, failure );
 			}
 		}
 		
 		
 		private function onOutputData( event:ProgressEvent ):void
 		{
-			var data:String = _process.standardOutput.readUTFBytes( _process.standardOutput.bytesAvailable );
-			processEnvironmentVariables( data );
+			var output:String = _process.standardOutput.readUTFBytes( _process.standardOutput.bytesAvailable );
+			var lines:Array = output.split( "\n" );
+			if (lines.length > 1)
+			{
+				_data = String(lines[1])
+						.replace( /\n/g, "" )
+						.replace( /\r/g, "" )
+						.replace( /\t/g, "" )
+						.replace( / /g, "" );
+			}
 		}
 		
 		
@@ -106,14 +120,17 @@ package com.apm.client.config.processes
 		
 		private function onExit( event:NativeProcessExitEvent ):void
 		{
-			Log.d( TAG, "Process exited with: " + event.exitCode );
-			
-			for (var key:String in _environmentVariables)
+			Log.d( TAG, "Process exited with: " + event.exitCode + " cs '" + _data + "'");
+//			_core.io.stopSpinner( event.exitCode == 0, " checksum calculated" );
+			if (event.exitCode == 0)
 			{
-				_config.env[ key ] = _environmentVariables[ key ];
+				var checksum:String = _data;
+				complete( checksum );
 			}
-			
-			complete();
+			else
+			{
+				failure( _data );
+			}
 		}
 		
 		
@@ -122,23 +139,6 @@ package com.apm.client.config.processes
 			Log.d( TAG, "IOError: " + event.toString() );
 		}
 		
-		
-		//
-		//
-		//
-		
-		private function processEnvironmentVariables( data:String ):void
-		{
-			var lines:Array = data.replace( "\r", "" ).split( "\n" );
-			for each (var line:String in lines)
-			{
-				var envVar:Array = line.split( "=" );
-				if (envVar.length == 2)
-				{
-					_environmentVariables[ envVar[ 0 ] ] = envVar[ 1 ];
-				}
-			}
-		}
 		
 	}
 	

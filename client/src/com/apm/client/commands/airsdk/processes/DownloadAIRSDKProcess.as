@@ -69,8 +69,9 @@ package com.apm.client.commands.airsdk.processes
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
+			super.start( completeCallback, failureCallback );
 			Log.d( TAG, "start()" );
 			_core.io.showProgressBar( "Downloading AIR v" + _build.version );
 			if (_destination.exists)

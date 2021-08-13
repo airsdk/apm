@@ -58,8 +58,9 @@ package com.apm.client.commands.packages.processes
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
+			super.start( completeCallback, failureCallback );
 			for each (var p:InstallPackageData in _installData.packagesToInstall)
 			{
 				_core.io.showSpinner( "Deploying package: " + p.packageVersion.packageDef.toString() );

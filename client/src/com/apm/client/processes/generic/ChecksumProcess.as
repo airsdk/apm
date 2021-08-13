@@ -9,49 +9,63 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		4/6/21
+ * @created		13/8/21
  */
-package com.apm.client.config.processes
+package com.apm.client.processes.generic
 {
+	import com.apm.client.APMCore;
+	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
-	import com.apm.client.processes.events.ProcessEvent;
 	
-	import flash.utils.setTimeout;
+	import flash.filesystem.File;
 	
 	
-	public class DebugDelayProcess extends ProcessBase
+	public class ChecksumProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "DebugDelayProcess";
+		private static const TAG:String = "ChecksumProcess";
 		
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
 		
-		private var _delay:int;
+		private var _file:File;
 		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function DebugDelayProcess( delay:int = 2000 )
+		public function ChecksumProcess( file:File )
 		{
-			_delay = delay;
+			_file = file;
 		}
 		
 		
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			setTimeout( complete, _delay );
+			Log.d( TAG, "start: " + _file.name );
+			var subprocess:ProcessBase;
+			if (APMCore.instance.config.isMacOS)
+			{
+				subprocess = new ChecksumMacOSProcess( APMCore.instance, _file );
+			}
+			else if (APMCore.instance.config.isWindows)
+			{
+				subprocess = new ChecksumWindowsProcess( APMCore.instance, _file );
+			}
+			else
+			{
+				subprocess = new ChecksumAS3Process( APMCore.instance, _file );
+			}
+			subprocess.start( complete, failure );
 		}
 		
 		
 	}
-	
 }

@@ -32,7 +32,7 @@ package com.apm.client.processes
 		//  VARIABLES
 		//
 		
-		private var _queue : Array;
+		private var _queue:Array;
 		
 		
 		////////////////////////////////////////////////////////
@@ -72,12 +72,13 @@ package com.apm.client.processes
 			return this;
 		}
 		
-
-		private var _processing : Boolean = false;
-		private var _completeCallback : Function = null;
-		private var _failedCallback : Function = null;
 		
-		public function start( complete:Function, failed:Function=null ):void
+		private var _processing:Boolean = false;
+		private var _completeCallback:Function = null;
+		private var _failedCallback:Function = null;
+		
+		
+		public function start( complete:Function, failed:Function = null ):void
 		{
 			if (_processing) return;
 			_processing = true;
@@ -104,16 +105,17 @@ package com.apm.client.processes
 		//
 		//
 		
-		private var _currentProcess : Process;
+		private var _currentProcess:Process;
+		
 		
 		private function checkAndStartNextProcess():void
 		{
-			Log.d( TAG, "checkAndStartNextProcess()" );
+			Log.d( TAG, "checkAndStartNextProcess(): " + _queue.length );
 			if (_queue.length == 0)
 			{
 				// Reached end of queue
 				_processing = false;
-				dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ));
+				dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ) );
 				if (_completeCallback != null)
 				{
 					var callback:Function = _completeCallback;
@@ -143,10 +145,10 @@ package com.apm.client.processes
 		
 		private function process_eventHandler( event:ProcessEvent ):void
 		{
-			Log.d( TAG, "process_eventHandler()" );
+			Log.d( TAG, "process_eventHandler( " + event.type + " )" );
 			_currentProcess.removeEventListener( ProcessEvent.COMPLETE, process_eventHandler );
 			_currentProcess.removeEventListener( ProcessEvent.FAILED, process_eventHandler );
-
+			
 			switch (event.type)
 			{
 				case ProcessEvent.COMPLETE:
@@ -174,9 +176,6 @@ package com.apm.client.processes
 			}
 			
 		}
-		
-		
-		
 		
 		
 	}

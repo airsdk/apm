@@ -77,8 +77,9 @@ package com.apm.client.commands.packages.processes
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
+			super.start( completeCallback, failureCallback );
 			_core.io.showProgressBar( "Downloading package : " + _package.packageDef.toString() );
 			if (_destination.exists)
 			{
@@ -172,13 +173,13 @@ package com.apm.client.commands.packages.processes
 			}
 			else
 			{
-				// TODO :: this is slow currently, make this async / native
-				var calculatedSum:String = "";
 				if (_destination.exists)
 				{
-					calculatedSum = Checksum.sha256Checksum( _destination );
+					Checksum.sha256Checksum( _destination, function( calculatedSum:String ):void
+					{
+						callback( calculatedSum == checksum );
+					});
 				}
-				callback( calculatedSum == checksum );
 			}
 		}
 		

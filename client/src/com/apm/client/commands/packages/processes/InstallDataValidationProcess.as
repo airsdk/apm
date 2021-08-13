@@ -52,8 +52,9 @@ package com.apm.client.commands.packages.processes
         }
 	
 	
-		override public function start():void
+		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
+			super.start( completeCallback, failureCallback );
 			// Once here we should have all the data for the required packages
 			// We now verify the install, checking for conflicts and resolving if possible
 			var resolver:InstallDataValidator = new InstallDataValidator();

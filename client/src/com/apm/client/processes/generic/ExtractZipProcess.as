@@ -49,12 +49,23 @@ package com.apm.client.processes.generic
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function=null, failureCallback:Function=null ):void
 		{
-			if (_core.config.isMacOS) processQueue.addProcessToStart( new ExtractZipMacOSProcess( _core, _zipFile, _outputDir ) );
-			else if (_core.config.isWindows) processQueue.addProcessToStart( new ExtractZipWindowsProcess( _core, _zipFile, _outputDir ) );
-			else processQueue.addProcessToStart( new ExtractZipAS3Process( _core, _zipFile, _outputDir ) );
-			complete();
+			super.start( completeCallback, failureCallback );
+			var subprocess:ProcessBase;
+			if (_core.config.isMacOS)
+			{
+				subprocess = new ExtractZipMacOSProcess( _core, _zipFile, _outputDir );
+			}
+			else if (_core.config.isWindows)
+			{
+				subprocess = new ExtractZipWindowsProcess( _core, _zipFile, _outputDir );
+			}
+			else
+			{
+				subprocess = new ExtractZipAS3Process( _core, _zipFile, _outputDir );
+			}
+			subprocess.start( complete, failure );
 		}
 		
 	}

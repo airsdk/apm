@@ -59,8 +59,9 @@ package com.apm.client.commands.packages.processes
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
+			super.start( completeCallback, failureCallback );
 			if (!_packageDir.exists || !_packageDir.isDirectory)
 			{
 				_core.io.writeError( _packageDir.name, "Specified package directory does not exist" );

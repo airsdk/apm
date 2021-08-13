@@ -50,8 +50,9 @@ package com.apm.client.commands.packages.processes
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
+			super.start( completeCallback, failureCallback );
 			_core.io.showSpinner( "Finding package : " + _packageIdentifier );
 			_repositoryAPI.getPackage( _packageIdentifier, function ( success:Boolean, packageDefinition:PackageDefinition ):void {
 				_core.io.stopSpinner( success, "No package found matching : " + _packageIdentifier, success );

@@ -56,8 +56,9 @@ package com.apm.client.commands.packages.processes
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
+			super.start( completeCallback, failureCallback );
 			_core.io.writeLine( "Installing package : " + _installData.packageVersion.packageDef.toString() );
 			
 			var packageDir:File = PackageFileUtils.cacheDirForPackage( _core, _installData.packageVersion.packageDef.identifier );
@@ -90,7 +91,7 @@ package com.apm.client.commands.packages.processes
 		}
 		
 		
-		override protected function complete():void
+		override protected function complete( data:Object=null ):void
 		{
 			_core.io.writeLine( "Installed package : " + _installData.packageVersion.packageDef.toString() );
 			super.complete();

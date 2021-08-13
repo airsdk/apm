@@ -46,8 +46,9 @@ package com.apm.client.commands.project.processes
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
+			super.start( completeCallback, failureCallback );
 			if (_core.config.projectDefinition != null)
 			{
 				_core.io.writeLine( "Already have a config file " );
