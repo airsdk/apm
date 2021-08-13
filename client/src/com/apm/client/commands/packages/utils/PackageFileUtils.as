@@ -16,9 +16,6 @@
 package com.apm.client.commands.packages.utils
 {
 	import com.apm.client.APMCore;
-	import com.apm.client.APMCore;
-	import com.apm.client.Consts;
-	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageVersion;
 	
 	import flash.filesystem.File;
@@ -32,14 +29,14 @@ package com.apm.client.commands.packages.utils
 		
 		private static const TAG:String = "PackageFileUtils";
 		
-		public static const AIRPACKAGEEXTENSION : String = "airpackage";
+		public static const AIRPACKAGEEXTENSION:String = "airpackage";
 		
 		
-		public static const AIRPACKAGE_SWC_DIR : String = "swc";
-		public static const AIRPACKAGE_ANE_DIR : String = "ane";
-		public static const AIRPACKAGE_SRC_DIR : String = "src";
-
-		public static const AIRPACKAGE_ASSETS : String = "assets";
+		public static const AIRPACKAGE_SWC_DIR:String = "swc";
+		public static const AIRPACKAGE_ANE_DIR:String = "ane";
+		public static const AIRPACKAGE_SRC_DIR:String = "src";
+		
+		public static const AIRPACKAGE_ASSETS:String = "assets";
 		
 		
 		////////////////////////////////////////////////////////
@@ -83,7 +80,7 @@ package com.apm.client.commands.packages.utils
 		{
 			return PackageFileUtils.directoryForPackage( core, identifier )
 					.resolvePath(
-					"contents"
+							"contents"
 					);
 		}
 		

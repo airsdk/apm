@@ -13,6 +13,9 @@
  */
 package com.apm.data.packages
 {
+	import com.apm.client.commands.packages.utils.PackageIdentifier;
+	
+	
 	public class PackageDefinition
 	{
 		////////////////////////////////////////////////////////
@@ -58,16 +61,13 @@ package com.apm.data.packages
 		
 		public function equals( p:PackageDefinition ):Boolean
 		{
-			if (identifier == p.identifier && type == p.type)
-				return true;
-			return false;
+			return PackageIdentifier.isEquivalent( identifier, p.identifier ) && type == p.type;
 		}
 		
 		
 		public function toString():String
 		{
-			return identifier +
-					"@" + (versions.length > 0 ? versions[ 0 ].toString() : "x.x.x");
+			return (identifier == null ? "none" : identifier) + "@" + (versions.length > 0 ? versions[ 0 ].toString() : "x.x.x");
 		}
 		
 		

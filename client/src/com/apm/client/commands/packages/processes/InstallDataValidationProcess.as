@@ -1,19 +1,19 @@
 /**
- *        __       __               __ 
+ *        __       __               __
  *   ____/ /_ ____/ /______ _ ___  / /_
  *  / __  / / ___/ __/ ___/ / __ `/ __/
- * / /_/ / (__  ) / / /  / / /_/ / / 
- * \__,_/_/____/_/ /_/  /_/\__, /_/ 
- *                           / / 
- *                           \/ 
+ * / /_/ / (__  ) / / /  / / /_/ / /
+ * \__,_/_/____/_/ /_/  /_/\__, /_/
+ *                           / /
+ *                           \/
  * http://distriqt.com
  *
- * @brief  		
+ * @brief
  * @author 		marchbold
  * @created		16/7/21
  * @copyright	http://distriqt.com/copyright/license.txt
  */
-package com.apm.client.commands.packages.processes 
+package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APMCore;
 	import com.apm.client.commands.packages.data.InstallData;
@@ -24,34 +24,34 @@ package com.apm.client.commands.packages.processes
 	
 	
 	public class InstallDataValidationProcess extends ProcessBase
-    {
- 		////////////////////////////////////////////////////////
-        //  CONSTANTS
-        //
-        
-        private static const TAG : String = "InstallValidationProcess";
-        
-        
- 		////////////////////////////////////////////////////////
-        //  VARIABLES
-        //
-	
+	{
+		////////////////////////////////////////////////////////
+		//  CONSTANTS
+		//
+		
+		private static const TAG:String = "InstallValidationProcess";
+		
+		
+		////////////////////////////////////////////////////////
+		//  VARIABLES
+		//
+		
 		private var _core:APMCore;
 		private var _installData:InstallData;
-
 		
- 		////////////////////////////////////////////////////////
-        //  FUNCTIONALITY
-        //
-        
-        public function InstallDataValidationProcess( core:APMCore, installData:InstallData )
-        {
+		
+		////////////////////////////////////////////////////////
+		//  FUNCTIONALITY
+		//
+		
+		public function InstallDataValidationProcess( core:APMCore, installData:InstallData )
+		{
 			super();
 			_core = core;
 			_installData = installData;
-        }
-	
-	
+		}
+		
+		
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
@@ -64,8 +64,9 @@ package com.apm.client.commands.packages.processes
 				_queue.clear();
 				for each (var packageToRemove:InstallPackageData in _installData.packagesToRemove)
 				{
+					var identifier:String = packageToRemove.packageVersion.packageDef.identifier;
 					_queue.addProcess(
-							new RemovePackageProcess( _core, packageToRemove )
+							new UninstallPackageProcess( _core, identifier, identifier, true )
 					);
 				}
 				for each (var p:InstallPackageData in _installData.packagesToInstall)
@@ -89,9 +90,9 @@ package com.apm.client.commands.packages.processes
 					for (var i:int = 0; i < confictGroup.versions.length; i++)
 					{
 						_core.io.writeError( "CONFLICT",
-											(i == confictGroup.versions.length - 1 ? "└── " : "├── ") +
-													confictGroup.versions[ i ].packageVersion.toString() +
-													" required by: " + confictGroup.versions[ i ].query.requiringPackage.packageDef.toString()
+											 (i == confictGroup.versions.length - 1 ? "└── " : "├── ") +
+													 confictGroup.versions[ i ].packageVersion.toString() +
+													 " required by: " + confictGroup.versions[ i ].query.requiringPackage.packageDef.toString()
 						);
 					}
 				}

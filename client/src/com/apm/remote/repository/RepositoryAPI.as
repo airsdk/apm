@@ -39,8 +39,8 @@ package com.apm.remote.repository
 		
 		private var _requestQueue:APIRequestQueue;
 		
-//		private var _endpoint:String = "http://localhost:3000";
-		private var _endpoint:String = "https://repository.airsdk.dev";
+		private var _endpoint:String = "http://localhost:3000";
+//		private var _endpoint:String = "https://repository.airsdk.dev";
 		
 		// Auth token for publish actions
 		private var _token:String;
@@ -94,9 +94,10 @@ package com.apm.remote.repository
 		{
 			var vars:URLVariables = new URLVariables();
 			vars[ "q" ] = query;
+//			vars[ "t" ] = query;
 			
 			var req:URLRequest = new URLRequest();
-			req.method = URLRequestMethod.POST;
+			req.method = URLRequestMethod.GET;
 			req.url = _endpoint + "/api/search";
 			req.data = vars;
 			

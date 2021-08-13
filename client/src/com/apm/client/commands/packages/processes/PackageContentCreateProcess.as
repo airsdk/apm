@@ -82,8 +82,8 @@ package com.apm.client.commands.packages.processes
 			var zip:Zip = new Zip();
 			
 			
-			var libDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_SWC_DIR );
 			var aneDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_ANE_DIR );
+			var swcDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_SWC_DIR );
 			var srcDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_SRC_DIR );
 			var readmeFile:File = _packageDir.resolvePath( "README.md" );
 			var changeLogFile:File = _packageDir.resolvePath( "CHANGELOG.md" );
@@ -98,7 +98,7 @@ package com.apm.client.commands.packages.processes
 			switch (packDefFile.packageDef.type)
 			{
 				case PackageDefinition.TYPE_SWC:
-					addFileToZip( zip, libDir );
+					addFileToZip( zip, swcDir );
 					break;
 				case PackageDefinition.TYPE_ANE:
 					addFileToZip( zip, aneDir );
@@ -109,8 +109,11 @@ package com.apm.client.commands.packages.processes
 			}
 			
 			var assetsDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_ASSETS );
-			FileUtils.removeEmptyDirectories( assetsDir );
-			if (assetsDir.exists) addFileToZip( zip, assetsDir );
+			if (assetsDir.exists)
+			{
+				FileUtils.removeEmptyDirectories( assetsDir );
+				addFileToZip( zip, assetsDir );
+			}
 
 			// TODO:: Manifests etc...
 //			var androidFile:File = _packageDir.resolvePath( "android.xml" );

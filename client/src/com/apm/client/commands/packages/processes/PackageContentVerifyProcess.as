@@ -128,21 +128,21 @@ package com.apm.client.commands.packages.processes
 					var aneDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_ANE_DIR );
 					if (!aneDir.exists || FileUtils.countFilesByType( aneDir, "ane") == 0)
 					{
-						return fail( "CONTENT", "No 'ane' file found in the 'ane' directory" );
+						return fail( "CONTENT", "No 'ane' file found in the '" + PackageFileUtils.AIRPACKAGE_ANE_DIR + "' directory" );
 					}
 					break;
 				case PackageDefinition.TYPE_SWC:
 					var libDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_SWC_DIR );
 					if (!libDir.exists || FileUtils.countFilesByType( libDir, "swc") == 0)
 					{
-						return fail( "CONTENT", "No 'swc' file found in the 'lib' directory" );
+						return fail( "CONTENT", "No 'swc' file found in the '" + PackageFileUtils.AIRPACKAGE_SWC_DIR + "' directory" );
 					}
 					break;
 				case PackageDefinition.TYPE_SRC:
 					var srcDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_SRC_DIR );
 					if (!srcDir.exists || FileUtils.countFilesByType( srcDir, "as") == 0)
 					{
-						return fail( "CONTENT", "No 'as' files found in the 'src' directory" );
+						return fail( "CONTENT", "No 'as' files found in the '" + PackageFileUtils.AIRPACKAGE_SRC_DIR + "' directory" );
 					}
 					break;
 			}

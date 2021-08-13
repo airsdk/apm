@@ -15,6 +15,7 @@ package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APMCore;
 	import com.apm.client.commands.packages.utils.PackageFileUtils;
+	import com.apm.client.commands.packages.utils.PackageIdentifier;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.ProcessQueue;
@@ -43,18 +44,20 @@ package com.apm.client.commands.packages.processes
 		private var _core:APMCore;
 		private var _uninstallingPackageIdentifier:String;
 		private var _packageIdentifier:String;
+		private var _skipChecks:Boolean;
 		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function UninstallPackageProcess( core:APMCore, uninstallingPackageIdentifier:String, packageIdentifier:String )
+		public function UninstallPackageProcess( core:APMCore, uninstallingPackageIdentifier:String, packageIdentifier:String, skipChecks:Boolean = false )
 		{
 			super();
 			_core = core;
 			_uninstallingPackageIdentifier = uninstallingPackageIdentifier;
 			_packageIdentifier = packageIdentifier;
+			_skipChecks = skipChecks;
 		}
 		
 		
@@ -67,16 +70,23 @@ package com.apm.client.commands.packages.processes
 			var f:File = uninstallingPackageDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 			if (!f.exists)
 			{
-				_core.io.writeError( _packageIdentifier, "Package not found" );
-				_core.config.projectDefinition.removePackageDependency( _packageIdentifier ).save();
-				return failure( "Package " + _packageIdentifier + " not found" );
+				if (_skipChecks)
+				{
+					return complete();
+				}
+				else
+				{
+					_core.io.writeError( _packageIdentifier, "Package not found" );
+					_core.config.projectDefinition.removePackageDependency( _packageIdentifier ).save();
+					return failure( "Package " + _packageIdentifier + " not found" );
+				}
 			}
 			
 			var uninstallingPackageDefinition:PackageDefinitionFile = new PackageDefinitionFile();
 			uninstallingPackageDefinition.load( f );
 			
 			// need to determine if this package is required by another package currently installed
-			if (isPackageRequiredDependency( _uninstallingPackageIdentifier, _packageIdentifier ))
+			if (!_skipChecks && isPackageRequiredDependency( _uninstallingPackageIdentifier, _packageIdentifier ))
 			{
 				_core.io.writeError( _packageIdentifier, "Required by another package - skipping uninstall" );
 				return complete();
@@ -109,7 +119,7 @@ package com.apm.client.commands.packages.processes
 		private function isPackageRequiredDependency( uninstallingPackageIdentifier:String, packageIdentifier:String ):Boolean
 		{
 			Log.d( TAG, "isPackageRequiredDependency( " + uninstallingPackageIdentifier + ", " + packageIdentifier + " )" );
-			if (packageIdentifier != uninstallingPackageIdentifier)
+			if (!PackageIdentifier.isEquivalent( packageIdentifier, uninstallingPackageIdentifier ))
 			{
 				var packagesDir:File = new File( _core.config.packagesDir );
 				for each (var packageDir:File in packagesDir.getDirectoryListing())
@@ -124,14 +134,14 @@ package com.apm.client.commands.packages.processes
 						Log.d( TAG, "isPackageRequiredDependency() : Checking : " + packageDefinition.packageDef.identifier );
 						
 						// Ignore the package being uninstalled and the current package
-						if (packageDefinition.packageDef.identifier == uninstallingPackageIdentifier
-								|| packageDefinition.packageDef.identifier == packageIdentifier)
+						if (PackageIdentifier.isEquivalent( packageDefinition.packageDef.identifier, uninstallingPackageIdentifier )
+								|| PackageIdentifier.isEquivalent( packageDefinition.packageDef.identifier, packageIdentifier ))
 							continue;
 						
 						for each (var dep:PackageDependency in packageDefinition.dependencies)
 						{
 							Log.d( TAG, "isPackageRequiredDependency() : Checking dependency [" + packageDefinition.packageDef.identifier + "] : " + dep.identifier );
-							if (dep.identifier == packageIdentifier)
+							if (PackageIdentifier.isEquivalent( dep.identifier, packageIdentifier ))
 								return true;
 						}
 						

@@ -21,6 +21,7 @@ package com.apm.client.commands.packages.processes
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageDefinition;
+	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.packages.PackageVersion;
 	import com.apm.remote.repository.RepositoryAPI;
 	
@@ -105,7 +106,9 @@ package com.apm.client.commands.packages.processes
 										case ProjectDefinitionValidator.ALREADY_INSTALLED:
 											if (_failIfInstalled)
 											{
-												_core.io.writeLine( "Already installed: " + packageDefinition.toString() + " >= " + _request.version );
+												var existingDependency:PackageDependency = ProjectDefinitionValidator.getInstalledPackageDependency( _core.config.projectDefinition, _request );
+												
+												_core.io.writeLine( "Already installed: " + existingDependency.toString() + " >= " + _request.version );
 												failure();
 											}
 											break;

@@ -13,6 +13,7 @@
  */
 package com.apm.data.project
 {
+	import com.apm.client.commands.packages.utils.PackageIdentifier;
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.packages.PackageVersion;
 	import com.apm.data.packages.Repository;
@@ -259,7 +260,7 @@ package com.apm.data.project
 		{
 			for each (var dep:PackageDependency in _dependencies)
 			{
-				if (dep.identifier == identifier)
+				if (PackageIdentifier.isEquivalent( dep.identifier, identifier ))
 					return dep;
 			}
 			return null;
@@ -270,7 +271,7 @@ package com.apm.data.project
 		{
 			for (var i:int = _dependencies.length - 1; i >= 0; --i)
 			{
-				if (_dependencies[ i ].identifier == identifier)
+				if (PackageIdentifier.isEquivalent( _dependencies[ i ].identifier, identifier ))
 				{
 					_dependencies.splice( i, 1 );
 				}

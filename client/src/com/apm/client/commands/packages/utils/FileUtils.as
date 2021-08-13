@@ -92,27 +92,30 @@ package com.apm.client.commands.packages.utils
 		}
 		
 		
-		public static function removeEmptyDirectories( directory:File, recurse:Boolean=false ):void
+		public static function removeEmptyDirectories( directory:File, recurse:Boolean = false ):void
 		{
-			for each (var f:File in directory.getDirectoryListing())
+			if (directory != null && directory.exists)
 			{
-				try
+				for each (var f:File in directory.getDirectoryListing())
 				{
-					if (f.isDirectory)
+					try
 					{
-						if (countFiles(f) == 0)
+						if (f.isDirectory)
 						{
-							f.deleteDirectory();
-						}
-						else if (recurse)
-						{
-							removeEmptyDirectories( f, recurse );
+							if (countFiles( f ) == 0)
+							{
+								f.deleteDirectory( true );
+							}
+							else if (recurse)
+							{
+								removeEmptyDirectories( f, recurse );
+							}
 						}
 					}
-				}
-				catch (e:Error)
-				{
-					Log.d( TAG, e.message );
+					catch (e:Error)
+					{
+						Log.d( TAG, e.message );
+					}
 				}
 			}
 		}

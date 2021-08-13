@@ -14,16 +14,12 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APMCore;
-	import com.apm.client.commands.packages.data.InstallPackageData;
-	import com.apm.client.commands.packages.data.InstallQueryRequest;
 	import com.apm.client.commands.packages.utils.DeployFileUtils;
 	import com.apm.client.commands.packages.utils.FileUtils;
 	import com.apm.client.commands.packages.utils.PackageFileUtils;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
-	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.packages.PackageDefinitionFile;
-	import com.apm.data.packages.PackageDependency;
 	
 	import flash.filesystem.File;
 	
@@ -72,11 +68,12 @@ package com.apm.client.commands.packages.processes
 				if (ref.isDirectory)
 				{
 					var deployLocation:File = DeployFileUtils.getDeployLocation( _core.config, ref.name );
-
+					
 					var listing:Array = generateDirectoryListing( ref );
-
+					
 					deleteListedFilesFromDirectory( listing, deployLocation );
-//					FileUtils.copyDirectoryTo( ref, deployLocation, true );
+					
+					FileUtils.removeEmptyDirectories( deployLocation, true );
 				}
 			}
 			cacheDir.deleteDirectory( true );
@@ -88,11 +85,12 @@ package com.apm.client.commands.packages.processes
 			complete();
 		}
 		
-
+		
 		private function deleteListedFilesFromDirectory( listing:Array, directory:File ):void
 		{
 			for each (var path:String in listing)
 			{
+				Log.d( TAG, "Removing package : " + _packageDefinition.packageDef.identifier + " / " + path );
 				_core.io.updateSpinner( "Removing package : " + _packageDefinition.packageDef.identifier + " / " + path );
 				var f:File = directory.resolvePath( path );
 				if (f.exists)
@@ -100,15 +98,18 @@ package com.apm.client.commands.packages.processes
 			}
 		}
 		
-		private function generateDirectoryListing( directory:File, path:String="", listing:Array=null ):Array
+		
+		private static function generateDirectoryListing( directory:File, path:String = "", listing:Array = null ):Array
 		{
 			if (listing == null) listing = [];
 			for each (var f:File in directory.getDirectoryListing())
 			{
-				if (f.isDirectory) {
+				if (f.isDirectory)
+				{
 					generateDirectoryListing( f, path + f.name + File.separator, listing );
 				}
-				else {
+				else
+				{
 					listing.push( path + f.name );
 				}
 			}
