@@ -108,21 +108,22 @@ package com.apm.client.commands.packages.processes
 					break;
 			}
 			
+			// Platform specific asset files (assets that need to be packaged with an app)
 			var assetsDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_ASSETS );
 			if (assetsDir.exists)
 			{
 				FileUtils.removeEmptyDirectories( assetsDir );
 				addFileToZip( zip, assetsDir );
 			}
+			
+			// Platform specific configuration files (AndroidManifest.xml, InfoAdditions.xml etc)
+			var platformsDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_PLATFORMS );
+			if (platformsDir.exists)
+			{
+				FileUtils.removeEmptyDirectories( platformsDir );
+				addFileToZip( zip, platformsDir );
+			}
 
-			// TODO:: Manifests etc...
-//			var androidFile:File = _packageDir.resolvePath( "android.xml" );
-//			var iosFile:File = _packageDir.resolvePath( "ios.xml" );
-//
-//			if (androidFile.exists) addFileToZip( zip, androidFile );
-//			if (iosFile.exists) addFileToZip( zip, iosFile );
-			
-			
 			
 			var packageFileName:String = packDefFile.packageDef.identifier + "_" + packDefFile.version.version.toString() + "." + PackageFileUtils.AIRPACKAGEEXTENSION;
 			var packageFilePath:String = _core.config.workingDir + File.separator + packageFileName;

@@ -37,6 +37,7 @@ package com.apm.client.commands.packages.utils
 		public static const AIRPACKAGE_SRC_DIR:String = "src";
 		
 		public static const AIRPACKAGE_ASSETS:String = "assets";
+		public static const AIRPACKAGE_PLATFORMS:String = "platforms";
 		
 		
 		////////////////////////////////////////////////////////

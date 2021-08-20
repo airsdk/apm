@@ -152,6 +152,24 @@ package com.apm.client.commands.packages.processes
 			assetsDir.resolvePath("macos").createDirectory();
 			assetsDir.resolvePath("windows").createDirectory();
 			
+			
+			var platformsDir:File = directory.resolvePath( PackageFileUtils.AIRPACKAGE_PLATFORMS );
+			if (!platformsDir.exists) platformsDir.createDirectory();
+			
+			platformsDir.resolvePath("android").createDirectory();
+			platformsDir.resolvePath("ios").createDirectory();
+			platformsDir.resolvePath("macos").createDirectory();
+			platformsDir.resolvePath("windows").createDirectory();
+			
+			
+			// TODO:: Should we create empty placeholders for these files?
+//			var androidManifest:File = platformsDir.resolvePath("android").resolvePath( "AndroidManifest.xml" );
+//			var iosInfoAdditions:File = platformsDir.resolvePath("ios").resolvePath( "InfoAdditions.xml" );
+//			var iosEntitlements:File = platformsDir.resolvePath("ios").resolvePath( "Entitlements.xml" );
+			
+			
+			
+			
 			complete();
 		}
 		
