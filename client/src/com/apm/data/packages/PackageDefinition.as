@@ -13,7 +13,7 @@
  */
 package com.apm.data.packages
 {
-	import com.apm.client.commands.packages.utils.PackageIdentifier;
+	import com.apm.data.packages.PackageIdentifier;
 	
 	
 	public class PackageDefinition

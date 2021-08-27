@@ -17,6 +17,7 @@ package com.apm.client.commands.packages.utils
 	import com.apm.client.commands.packages.data.InstallQueryRequest;
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.project.ProjectDefinition;
+	import com.apm.data.packages.PackageIdentifier;
 	
 	
 	public class ProjectDefinitionValidator

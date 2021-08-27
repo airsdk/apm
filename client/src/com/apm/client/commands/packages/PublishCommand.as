@@ -23,11 +23,11 @@ package com.apm.client.commands.packages
 	import com.apm.client.commands.packages.processes.PackageGenerateChecksumProcess;
 	import com.apm.client.commands.packages.processes.PackagePublishProcess;
 	import com.apm.client.commands.packages.processes.PackageRemoteContentVerifyProcess;
-	import com.apm.client.commands.packages.utils.PackageFileUtils;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.client.processes.generic.ExtractZipProcess;
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.packages.PackageDependency;
+	import com.apm.utils.PackageFileUtils;
 	
 	import flash.filesystem.File;
 	

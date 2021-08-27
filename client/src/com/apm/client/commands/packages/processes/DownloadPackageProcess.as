@@ -15,12 +15,13 @@ package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APMCore;
 	import com.apm.client.analytics.Analytics;
-	import com.apm.client.commands.packages.utils.PackageFileUtils;
+	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.commands.packages.utils.PackageRequestUtils;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageVersion;
-	import com.apm.data.utils.Checksum;
+	import com.apm.utils.Checksum;
+	import com.apm.utils.PackageFileUtils;
 	
 	import flash.events.Event;
 	import flash.events.HTTPStatusEvent;
@@ -209,7 +210,7 @@ package com.apm.client.commands.packages.processes
 			
 			PackageRequestUtils.generateURLRequestForPackage(
 					_package.sourceUrl,
-					_core,
+					_core.config.user.githubToken,
 					function ( req:URLRequest ):void {
 						_loader.load( req );
 					} );

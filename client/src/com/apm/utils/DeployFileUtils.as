@@ -13,8 +13,9 @@
  * @created		13/7/21
  * @copyright	http://distriqt.com/copyright/license.txt
  */
-package com.apm.client.commands.packages.utils
+package com.apm.utils
 {
+	import com.apm.client.commands.packages.utils.*;
 	import com.apm.client.config.RunConfig;
 	
 	import flash.filesystem.File;

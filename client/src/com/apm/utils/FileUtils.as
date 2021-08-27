@@ -11,7 +11,7 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		24/6/21
  */
-package com.apm.client.commands.packages.utils
+package com.apm.utils
 {
 	import com.apm.client.logging.Log;
 	
@@ -39,6 +39,55 @@ package com.apm.client.commands.packages.utils
 		public function FileUtils()
 		{
 		}
+		
+		
+		
+		/**
+		 * Returns a global location for files stored / downloaded / used by the client
+		 */
+		public static function get appStorageDirectory():File
+		{
+			return File.applicationStorageDirectory;
+		}
+		
+		
+		/**
+		 * Returns a global location for utilities used by the client
+		 */
+		public static function get toolsDirectory():File
+		{
+			return appStorageDirectory.resolvePath("tools");
+		}
+		
+		
+		/**
+		 * Finds all files in a directory and subdirectores with the specified name
+		 * @param filename	The file name to search for
+		 * @param directory	The base directory to search
+		 * @return	An Array of File objects
+		 */
+		public static function getFilesByName( filename:String, directory:File ):Array
+		{
+			var files:Array = [];
+			if (directory != null && directory.exists)
+			{
+				for each (var f:File in directory.getDirectoryListing())
+				{
+					if (f.isDirectory)
+					{
+						files.concat(
+								getFilesByName( filename, f )
+						);
+					}
+					else if (f.name == filename)
+					{
+						files.push( f );
+					}
+				}
+			}
+			return files;
+		}
+		
 		
 		
 		public static function countFiles( directory:File ):int

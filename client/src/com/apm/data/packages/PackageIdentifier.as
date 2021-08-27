@@ -11,7 +11,7 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		13/8/21
  */
-package com.apm.client.commands.packages.utils
+package com.apm.data.packages
 {
 	
 	public class PackageIdentifier

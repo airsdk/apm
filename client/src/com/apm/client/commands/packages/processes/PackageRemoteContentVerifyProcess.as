@@ -99,7 +99,7 @@ package com.apm.client.commands.packages.processes
 			
 			PackageRequestUtils.generateURLRequestForPackage(
 					url,
-					_core,
+					_core.config.user.githubToken,
 					function ( req:URLRequest ):void {
 						_loader.load( req );
 					} );

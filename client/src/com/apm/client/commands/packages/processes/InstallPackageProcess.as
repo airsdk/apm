@@ -16,7 +16,7 @@ package com.apm.client.commands.packages.processes
 	import com.apm.client.APMCore;
 	import com.apm.client.analytics.Analytics;
 	import com.apm.client.commands.packages.data.InstallPackageData;
-	import com.apm.client.commands.packages.utils.PackageFileUtils;
+	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.client.processes.generic.ExtractZipProcess;

@@ -30,6 +30,7 @@ package com.apm.client
 	import com.apm.client.commands.packages.UninstallCommand;
 	import com.apm.client.commands.packages.UpdateCommand;
 	import com.apm.client.commands.packages.ViewCommand;
+	import com.apm.client.commands.project.GenerateAppDescriptorCommand;
 	import com.apm.client.commands.project.InitCommand;
 	import com.apm.client.commands.project.ProjectConfigCommand;
 	import com.apm.client.config.RunConfig;
@@ -96,6 +97,7 @@ package com.apm.client
 			// project commands
 			addCommand( InitCommand.NAME, InitCommand );
 			addCommand( ProjectConfigCommand.NAME, ProjectConfigCommand );
+			addCommand( GenerateAppDescriptorCommand.NAME, GenerateAppDescriptorCommand );
 			
 			// package commands
 			addCommand( ListCommand.NAME, ListCommand );

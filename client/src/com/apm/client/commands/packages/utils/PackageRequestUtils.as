@@ -56,11 +56,11 @@ package com.apm.client.commands.packages.utils
 		 * This is done asynchronously to allow us to access a private repository url and extract the release asset from the url.
 		 * Relies upon the user's github token.
 		 *
-		 * @param url		The url to generate the
-		 * @param core		APMCore
-		 * @param callback	Callback function of the form function( req:URLRequest ):void
+		 * @param url			The url to generate the
+		 * @param githubToken	The user's github token
+		 * @param callback		Callback function of the form function( req:URLRequest ):void
 		 */
-		public static function generateURLRequestForPackage( url:String, core:APMCore, callback:Function ):void
+		public static function generateURLRequestForPackage( url:String, githubToken:String, callback:Function ):void
 		{
 			Log.d( TAG, "generateURLRequestForPackage( " + url + " ... )" );
 			if (GITHUB_ASSET.test( url ))
@@ -73,7 +73,7 @@ package com.apm.client.commands.packages.utils
 				var version:String = params[ 3 ];
 				var filename:String = params[ 4 ];
 				
-				new GitHubAPI().setToken( core.config.user.githubToken )
+				new GitHubAPI().setToken( githubToken )
 						.call( "/repos/" + repo + "/releases", function ( success:Boolean, data:* ):void {
 							
 							if (success)
@@ -92,18 +92,18 @@ package com.apm.client.commands.packages.utils
 											if (asset.name == filename)
 											{
 												Log.d( TAG, "generateURLRequestForPackage(): asset: " + JSON.stringify(asset)  );
-												if (core.config.user.githubToken == null || core.config.user.githubToken.length == 0)
+												if (githubToken == null || githubToken.length == 0)
 												{
 													callback( generateURLRequest(
 															asset.browser_download_url,
-															core
+															githubToken
 													));
 												}
 												else
 												{
 													return generateURLRequestForPackage(
 															"https://api.github.com/repos/" + repo + "/releases/assets/" + asset.id,
-															core,
+															githubToken,
 															callback );
 												}
 											}
@@ -112,29 +112,29 @@ package com.apm.client.commands.packages.utils
 								}
 							}
 							
-							callback( generateURLRequest( url, core ) );
+							callback( generateURLRequest( url, githubToken ) );
 							
 						} );
 			}
 			else
 			{
 				Log.d( TAG, "generateURLRequestForPackage(): NORMAL URL" );
-				callback( generateURLRequest( url, core ) );
+				callback( generateURLRequest( url, githubToken ) );
 			}
 		}
 		
 		
-		private static function generateURLRequest( url:String, core:APMCore ):URLRequest
+		private static function generateURLRequest( url:String, githubToken:String ):URLRequest
 		{
 			var headers:Array = [];
 			headers.push( new URLRequestHeader( "User-Agent", "apm v" + new SemVer( Consts.VERSION ).toString() ) );
 			
-			if (url.indexOf( "github.com" ) >= 0 && core.config.user.githubToken.length > 0)
+			if (url.indexOf( "github.com" ) >= 0 && githubToken.length > 0)
 			{
 				headers.push( new URLRequestHeader( "Accept", "application/octet-stream" ) );
 	
-				if (core.config.user.githubToken != null && core.config.user.githubToken.length > 0)
-					headers.push( new URLRequestHeader( "Authorization", "token " + core.config.user.githubToken ) );
+				if (githubToken != null && githubToken.length > 0)
+					headers.push( new URLRequestHeader( "Authorization", "token " + githubToken ) );
 			}
 			
 			var req:URLRequest = new URLRequest( url );

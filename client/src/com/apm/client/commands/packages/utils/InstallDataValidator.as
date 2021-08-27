@@ -14,6 +14,7 @@
 package com.apm.client.commands.packages.utils
 {
 	import com.apm.client.commands.packages.data.*;
+	import com.apm.data.packages.PackageIdentifier;
 	
 	
 	public class InstallDataValidator

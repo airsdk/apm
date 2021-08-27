@@ -15,8 +15,8 @@ package com.apm.client.commands.packages.processes
 {
 	import com.apm.SemVer;
 	import com.apm.client.APMCore;
-	import com.apm.client.commands.packages.utils.FileUtils;
-	import com.apm.client.commands.packages.utils.PackageFileUtils;
+	import com.apm.utils.FileUtils;
+	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageDefinitionFile;

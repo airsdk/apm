@@ -14,13 +14,13 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APMCore;
-	import com.apm.client.commands.packages.utils.PackageFileUtils;
-	import com.apm.client.commands.packages.utils.PackageIdentifier;
+	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.packages.PackageDependency;
+	import com.apm.data.packages.PackageIdentifier;
 	
 	import flash.filesystem.File;
 	

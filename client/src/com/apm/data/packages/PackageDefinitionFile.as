@@ -15,7 +15,7 @@ package com.apm.data.packages
 {
 	import com.apm.SemVer;
 	import com.apm.data.packages.PackageLicense;
-	import com.apm.data.utils.JSONUtils;
+	import com.apm.utils.JSONUtils;
 	
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;

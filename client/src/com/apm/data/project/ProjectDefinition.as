@@ -13,11 +13,11 @@
  */
 package com.apm.data.project
 {
-	import com.apm.client.commands.packages.utils.PackageIdentifier;
 	import com.apm.data.packages.PackageDependency;
+	import com.apm.data.packages.PackageIdentifier;
 	import com.apm.data.packages.PackageVersion;
 	import com.apm.data.packages.Repository;
-	import com.apm.data.utils.JSONUtils;
+	import com.apm.utils.JSONUtils;
 	
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
