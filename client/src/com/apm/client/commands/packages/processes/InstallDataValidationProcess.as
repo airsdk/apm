@@ -64,7 +64,7 @@ package com.apm.client.commands.packages.processes
 				{
 					var identifier:String = packageToRemove.packageVersion.packageDef.identifier;
 					_queue.addProcess(
-							new UninstallPackageProcess( identifier, identifier, true )
+							new UninstallPackageProcess( identifier, identifier, packageToRemove.packageVersion.version, true )
 					);
 				}
 				for each (var p:InstallPackageData in _installData.packagesToInstall)

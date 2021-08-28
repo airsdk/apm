@@ -79,9 +79,13 @@ package com.apm.utils
 		public static function cacheDirForPackage( packagesDir:String, identifier:String ):File
 		{
 			return PackageFileUtils.directoryForPackage( packagesDir, identifier )
-					.resolvePath(
-							"contents"
-					);
+					.resolvePath( cacheDirName() );
+		}
+		
+		
+		public static function cacheDirName():String
+		{
+			return "contents";
 		}
 		
 	}

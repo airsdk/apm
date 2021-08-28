@@ -66,12 +66,14 @@ package com.apm.client.commands.packages.processes
 				if (ref.isDirectory)
 				{
 					var deployLocation:File = DeployFileUtils.getDeployLocation( APM.config, ref.name );
-					
-					var listing:Array = generateDirectoryListing( ref );
-					
-					deleteListedFilesFromDirectory( listing, deployLocation );
-					
-					FileUtils.removeEmptyDirectories( deployLocation, true );
+					if (deployLocation != null)
+					{
+						var listing:Array = generateDirectoryListing( ref );
+						
+						deleteListedFilesFromDirectory( listing, deployLocation );
+						
+						FileUtils.removeEmptyDirectories( deployLocation, true );
+					}
 				}
 			}
 			cacheDir.deleteDirectory( true );

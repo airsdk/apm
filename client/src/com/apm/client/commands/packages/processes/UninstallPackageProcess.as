@@ -13,7 +13,10 @@
  */
 package com.apm.client.commands.packages.processes
 {
+	import com.apm.SemVer;
 	import com.apm.client.APM;
+	import com.apm.utils.PackageCacheUtils;
+	import com.apm.utils.PackageFileUtils;
 	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
@@ -43,6 +46,7 @@ package com.apm.client.commands.packages.processes
 		
 		private var _uninstallingPackageIdentifier:String;
 		private var _packageIdentifier:String;
+		private var _version:SemVer;
 		private var _skipChecks:Boolean;
 		
 		
@@ -50,11 +54,12 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function UninstallPackageProcess( uninstallingPackageIdentifier:String, packageIdentifier:String, skipChecks:Boolean = false )
+		public function UninstallPackageProcess( uninstallingPackageIdentifier:String, packageIdentifier:String, version:SemVer=null, skipChecks:Boolean = false )
 		{
 			super();
 			_uninstallingPackageIdentifier = uninstallingPackageIdentifier;
 			_packageIdentifier = packageIdentifier;
+			_version = version;
 			_skipChecks = skipChecks;
 		}
 		
@@ -62,11 +67,9 @@ package com.apm.client.commands.packages.processes
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			APM.io.writeLine( "Uninstall package : " + _packageIdentifier );
 			
-			var uninstallingPackageDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDir, _packageIdentifier );
-			var f:File = uninstallingPackageDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
-			if (!f.exists)
+			// Check the specified package is installed
+			if (!PackageCacheUtils.isPackageInstalled( _packageIdentifier, _version ))
 			{
 				if (_skipChecks)
 				{
@@ -80,11 +83,15 @@ package com.apm.client.commands.packages.processes
 				}
 			}
 			
-			var uninstallingPackageDefinition:PackageDefinitionFile = new PackageDefinitionFile();
-			uninstallingPackageDefinition.load( f );
+			// Start uninstallation
+			APM.io.writeLine( "Uninstall package : " + _packageIdentifier );
+			
+			var uninstallingPackageDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDir, _packageIdentifier );
+			var f:File = uninstallingPackageDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
+			var uninstallingPackageDefinition:PackageDefinitionFile = new PackageDefinitionFile().load( f );
 			
 			// need to determine if this package is required by another package currently installed
-			if (!_skipChecks && isPackageRequiredDependency( _uninstallingPackageIdentifier, _packageIdentifier ))
+			if (!_skipChecks && PackageCacheUtils.isPackageRequiredDependency( _uninstallingPackageIdentifier, _packageIdentifier ))
 			{
 				APM.io.writeError( _packageIdentifier, "Required by another package - skipping uninstall" );
 				return complete();
@@ -114,40 +121,7 @@ package com.apm.client.commands.packages.processes
 		}
 		
 		
-		private function isPackageRequiredDependency( uninstallingPackageIdentifier:String, packageIdentifier:String ):Boolean
-		{
-			Log.d( TAG, "isPackageRequiredDependency( " + uninstallingPackageIdentifier + ", " + packageIdentifier + " )" );
-			if (!PackageIdentifier.isEquivalent( packageIdentifier, uninstallingPackageIdentifier ))
-			{
-				var packagesDir:File = new File( APM.config.packagesDir );
-				for each (var packageDir:File in packagesDir.getDirectoryListing())
-				{
-					Log.d( TAG, "isPackageRequiredDependency() : Directory : " + packageDir.name );
-					if (packageDir.isDirectory && packageDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME ).exists)
-					{
-						// This is a package - load the package file and check listed dependencies
-						var f:File = packageDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
-						var packageDefinition:PackageDefinitionFile = new PackageDefinitionFile().load( f );
-						
-						Log.d( TAG, "isPackageRequiredDependency() : Checking : " + packageDefinition.packageDef.identifier );
-						
-						// Ignore the package being uninstalled and the current package
-						if (PackageIdentifier.isEquivalent( packageDefinition.packageDef.identifier, uninstallingPackageIdentifier )
-								|| PackageIdentifier.isEquivalent( packageDefinition.packageDef.identifier, packageIdentifier ))
-							continue;
-						
-						for each (var dep:PackageDependency in packageDefinition.dependencies)
-						{
-							Log.d( TAG, "isPackageRequiredDependency() : Checking dependency [" + packageDefinition.packageDef.identifier + "] : " + dep.identifier );
-							if (PackageIdentifier.isEquivalent( dep.identifier, packageIdentifier ))
-								return true;
-						}
-						
-					}
-				}
-			}
-			return false;
-		}
+		
 		
 		
 	}
