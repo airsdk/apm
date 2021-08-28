@@ -19,6 +19,7 @@ package com.apm.utils
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.packages.PackageIdentifier;
+	import com.apm.data.project.ProjectDefinition;
 	
 	import flash.filesystem.File;
 	
@@ -72,38 +73,46 @@ package com.apm.utils
 			Log.d( TAG, "isPackageRequiredDependency( " + uninstallingPackageIdentifier + ", " + packageIdentifier + " )" );
 			if (!PackageIdentifier.isEquivalent( packageIdentifier, uninstallingPackageIdentifier ))
 			{
-				var packagesDir:File = new File( APM.config.packagesDir );
-				for each (var packageDir:File in packagesDir.getDirectoryListing())
+				for each (var packageDefinition:PackageDefinitionFile in getCachedPackages())
 				{
-					Log.d( TAG, "isPackageRequiredDependency() : Directory : " + packageDir.name );
+					Log.d( TAG, "isPackageRequiredDependency() : Checking : " + packageDefinition.packageDef.identifier );
+
+					// Ignore the package being uninstalled and the current package
+					if (PackageIdentifier.isEquivalent( packageDefinition.packageDef.identifier, uninstallingPackageIdentifier )
+							|| PackageIdentifier.isEquivalent( packageDefinition.packageDef.identifier, packageIdentifier ))
+						continue;
 					
-					if (packageDir.isDirectory)
+					for each (var dep:PackageDependency in packageDefinition.dependencies)
 					{
-						var projectDefinitionFile:File = packageDir.resolvePath( PackageFileUtils.cacheDirName() + "/" + PackageDefinitionFile.DEFAULT_FILENAME );
-						if (projectDefinitionFile.exists)
-						{
-							// This is a package - load the package file and check listed dependencies
-							var packageDefinition:PackageDefinitionFile = new PackageDefinitionFile().load( projectDefinitionFile );
-							
-							Log.d( TAG, "isPackageRequiredDependency() : Checking : " + packageDefinition.packageDef.identifier );
-							
-							// Ignore the package being uninstalled and the current package
-							if (PackageIdentifier.isEquivalent( packageDefinition.packageDef.identifier, uninstallingPackageIdentifier )
-									|| PackageIdentifier.isEquivalent( packageDefinition.packageDef.identifier, packageIdentifier ))
-								continue;
-							
-							for each (var dep:PackageDependency in packageDefinition.dependencies)
-							{
-								Log.d( TAG, "isPackageRequiredDependency() : Checking dependency [" + packageDefinition.packageDef.identifier + "] : " + dep.identifier );
-								if (PackageIdentifier.isEquivalent( dep.identifier, packageIdentifier ))
-									return true;
-							}
-						}
+						Log.d( TAG, "isPackageRequiredDependency() : Checking dependency [" + packageDefinition.packageDef.identifier + "] : " + dep.identifier );
+						if (PackageIdentifier.isEquivalent( dep.identifier, packageIdentifier ))
+							return true;
 					}
 				}
 			}
 			return false;
 		}
+		
+		
+		public static function getCachedPackages():Vector.<PackageDefinitionFile>
+		{
+			var cachedPackages:Vector.<PackageDefinitionFile> = new Vector.<PackageDefinitionFile>();
+			var packagesDir:File = new File( APM.config.packagesDir );
+			for each (var packageDir:File in packagesDir.getDirectoryListing())
+			{
+				if (packageDir.isDirectory)
+				{
+					var projectDefinitionFile:File = packageDir.resolvePath( PackageFileUtils.cacheDirName() + "/" + PackageDefinitionFile.DEFAULT_FILENAME );
+					if (projectDefinitionFile.exists)
+					{
+						var packageDefinition:PackageDefinitionFile = new PackageDefinitionFile().load( projectDefinitionFile );
+						cachedPackages.push( packageDefinition );
+					}
+				}
+			}
+			return cachedPackages;
+		}
+		
 		
 	}
 	

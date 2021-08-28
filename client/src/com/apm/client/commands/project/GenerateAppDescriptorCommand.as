@@ -23,6 +23,7 @@ package com.apm.client.commands.project
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.project.ApplicationDescriptor;
 	import com.apm.data.project.ProjectDefinition;
+	import com.apm.remote.airsdk.AIRSDKVersion;
 	
 	import flash.events.EventDispatcher;
 	
@@ -110,7 +111,9 @@ package com.apm.client.commands.project
 		{
 			Log.d( TAG, "execute(): " + (_parameters.length > 0 ? _parameters[ 0 ] : "...") + "\n" );
 			
-			var appDescriptor:ApplicationDescriptor = new ApplicationDescriptor();
+			// TODO:: Get AIR SDK version for app descriptor
+			var airSDKVersion:AIRSDKVersion = new AIRSDKVersion( "33.1.1.556" );
+			var appDescriptor:ApplicationDescriptor = new ApplicationDescriptor( airSDKVersion );
 
 			var outputPath:String = defaultOutputPath();
 			if (_parameters.length > 0)

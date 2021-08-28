@@ -139,19 +139,37 @@ package com.apm.data.project
 		
 		
 		
-		
-		
 		public function updateIOSAdditions():void
 		{
-			if (iosInfoAdditions != null && iosInfoAdditions.length > 0 && _xml != null)
+			if (iosInfoAdditions != null && _xml != null)
 			{
 				var infoAdditions:XML = new XML("<InfoAdditions><![CDATA[\n" + iosInfoAdditions + "]]></InfoAdditions>" );
 				_xml.iPhone.InfoAdditions = infoAdditions;
 			}
-			if (iosEntitlements != null && iosEntitlements.length > 0 && _xml != null)
+			if (iosEntitlements != null && _xml != null)
 			{
 				var entitlements:XML = new XML("<Entitlements><![CDATA[\n" + iosEntitlements + "]]></Entitlements>" );
 				_xml.iPhone.Entitlements = entitlements;
+			}
+		}
+		
+		
+		public function addExtension( extensionID:String ):void
+		{
+			var exists:Boolean = false;
+			if (_xml.child("extensions").length() == 0)
+			{
+				_xml.extensions = <extensions/>;
+			}
+			
+			for each (var extensionIDNode:XML in _xml.extensions.extensionID)
+			{
+				trace( extensionIDNode.toString() );
+				exists ||= (extensionID == extensionIDNode.toString());
+			}
+			if (!exists)
+			{
+				XML(_xml.extensions).appendChild( <extensionID>{extensionID}</extensionID> );
 			}
 		}
 		

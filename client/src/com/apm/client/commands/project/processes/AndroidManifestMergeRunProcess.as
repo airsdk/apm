@@ -72,13 +72,6 @@ package com.apm.client.commands.project.processes
 		{
 			super.start( completeCallback, failureCallback );
 			
-			
-			var manifests:Array = findPackageManifests();
-			if (manifests.length == 0)
-			{
-				complete();
-			}
-			
 			var filename:String = Consts.MERGE_TOOL_FILENAME.replace( /@VERSION@/g, Consts.MERGE_TOOL_VERSION );
 			var mergeUtility:File = FileUtils.toolsDirectory.resolvePath( filename );
 			if (!mergeUtility.exists)
@@ -109,13 +102,18 @@ package com.apm.client.commands.project.processes
 				
 				APM.io.showSpinner( "Android manifest merging" );
 				
+				var manifests:Array = findPackageManifests();
+				
 				var processArgs:Vector.<String> = new Vector.<String>();
 				processArgs.push( "-jar" );
 				processArgs.push( mergeUtility.nativePath );
 				processArgs.push( "--main" );
 				processArgs.push( mainManifest.nativePath );
-				processArgs.push( "--libs" );
-				processArgs.push( manifestsToCommandLineArg( manifests ) );
+				if (manifests.length > 0)
+				{
+					processArgs.push( "--libs" );
+					processArgs.push( manifestsToCommandLineArg( manifests ) );
+				}
 				
 				// App settings
 				processArgs.push( "--property" );
@@ -157,6 +155,7 @@ package com.apm.client.commands.project.processes
 			}
 			else
 			{
+				APM.io.writeError( TAG, "Native process not supported - Manifest merge tool cannot be run");
 				failure( "Native process not supported - Manifest merge tool cannot be run" );
 			}
 		}

@@ -17,10 +17,14 @@ package com.apm.client.commands.project.processes
 	import com.apm.client.APM;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
+	import com.apm.data.packages.PackageDefinition;
+	import com.apm.data.packages.PackageDefinitionFile;
+	import com.apm.data.packages.PackageIdentifier;
 	import com.apm.data.project.ApplicationDescriptor;
 	import com.apm.data.project.ApplicationDescriptor;
 	import com.apm.remote.airsdk.AIRSDKVersion;
 	import com.apm.utils.FileUtils;
+	import com.apm.utils.PackageCacheUtils;
 	
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
@@ -89,10 +93,21 @@ package com.apm.client.commands.project.processes
 					}
 					_appDescriptor.load( templateDescriptor );
 				}
-			
+				
 				_appDescriptor.updateFromProjectDefinition( APM.config.projectDefinition );
 				_appDescriptor.updateAndroidAdditions();
 				_appDescriptor.updateIOSAdditions();
+				
+				for each (var packageDefinition:PackageDefinitionFile in PackageCacheUtils.getCachedPackages())
+				{
+					if (packageDefinition.packageDef.type == PackageDefinition.TYPE_ANE)
+					{
+						_appDescriptor.addExtension(
+								PackageIdentifier.identifierWithoutVariant( packageDefinition.packageDef.identifier )
+						);
+					}
+				}
+			
 				_appDescriptor.save( specifiedDescriptor );
 				
 				APM.io.stopSpinner( true, "App descriptor generated: " + specifiedDescriptor.nativePath );
