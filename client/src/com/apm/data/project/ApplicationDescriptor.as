@@ -29,6 +29,28 @@ package com.apm.data.project
 		private static const TAG:String = "ApplicationDescriptor";
 		
 		
+		
+		public static const APPLICATION_DESCRIPTOR_TEMPLATE:XML = <application xmlns="http://ns.adobe.com/air/application/31.0">
+			<id></id>
+			<versionNumber>0.0.0</versionNumber>
+			<filename>Main</filename>
+			<name>Main</name>
+			<initialWindow>
+				<content>[]</content>
+				<visible>true</visible>
+				<fullScreen>false</fullScreen>
+				<autoOrients>false</autoOrients>
+				<renderMode>direct</renderMode>
+			</initialWindow>
+			<android>
+				<manifestAdditions><![CDATA[
+		]]></manifestAdditions>
+				<containsVideo>true</containsVideo>
+			</android>
+		</application>;
+		
+		
+		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
@@ -58,6 +80,87 @@ package com.apm.data.project
 		}
 		
 		
+		
+		public function updateFromProjectDefinition( project:ProjectDefinition ):void
+		{
+			if (_xml != null)
+			{
+				_xml.id = project.applicationId;
+				_xml.name = project.applicationName;
+				if (project.applicationFilename != null)
+				{
+					_xml.filename = project.applicationFilename;
+				}
+				else
+				{
+					_xml.filename = project.applicationName.replace(/ /g, "");
+				}
+				_xml.versionNumber = project.version;
+				if (project.versionLabel != null)
+				{
+					_xml.versionLabel = project.versionLabel;
+				}
+			}
+		}
+		
+		
+		public function updateAndroidAdditions():void
+		{
+			if (androidManifest != null && androidManifest.length > 0 && _xml != null)
+			{
+				var manifest:XML = new XML( androidManifest );
+				var manifestAdditionsContent:String = stripManifestTag( manifest );
+				var manifestAdditions:XML = new XML(
+						"<manifestAdditions><![CDATA["+
+						"<manifest android:installLocation=\"auto\" >\n" +
+						manifestAdditionsContent + "\n" +
+						"</manifest>\n" +
+						"]]></manifestAdditions>"
+				);
+				
+				_xml.android.manifestAdditions = manifestAdditions;
+			}
+		}
+		
+		
+		private function stripManifestTag( manifest:XML ):String
+		{
+			var outputLines:Array = [];
+			var manifestLines:Array = manifest.toXMLString().split("\n");
+			for (var i:int = 0; i < manifestLines.length; i++)
+			{
+				var line:String = manifestLines[i];
+				if (line.indexOf( "<manifest" ) >= 0) continue;
+				if (line.indexOf( "</manifest>" ) >= 0) continue;
+				outputLines.push( line );
+			}
+			return outputLines.join("\n");
+		}
+		
+		
+		
+		
+		
+		public function updateIOSAdditions():void
+		{
+			if (iosInfoAdditions != null && iosInfoAdditions.length > 0 && _xml != null)
+			{
+				var infoAdditions:XML = new XML("<InfoAdditions><![CDATA[\n" + iosInfoAdditions + "]]></InfoAdditions>" );
+				_xml.iPhone.InfoAdditions = infoAdditions;
+			}
+			if (iosEntitlements != null && iosEntitlements.length > 0 && _xml != null)
+			{
+				var entitlements:XML = new XML("<Entitlements><![CDATA[\n" + iosEntitlements + "]]></Entitlements>" );
+				_xml.iPhone.Entitlements = entitlements;
+			}
+		}
+		
+		
+		
+		//
+		// LOADING / SAVING
+		//
+		
 		public function load( file:File ):void
 		{
 			if (file == null || !file.exists)
@@ -78,9 +181,22 @@ package com.apm.data.project
 			catch (e:Error)
 			{
 			}
-			
 		}
 		
+		
+		public function save( file:File ):void
+		{
+			try
+			{
+				var fs:FileStream = new FileStream();
+				fs.open( file, FileMode.WRITE );
+				fs.writeUTFBytes( _xml.toXMLString() );
+				fs.close();
+			}
+			catch (e:Error)
+			{
+			}
+		}
 		
 		
 		public function toString():String

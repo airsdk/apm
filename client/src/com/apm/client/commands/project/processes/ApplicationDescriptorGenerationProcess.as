@@ -18,6 +18,7 @@ package com.apm.client.commands.project.processes
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.project.ApplicationDescriptor;
+	import com.apm.data.project.ApplicationDescriptor;
 	import com.apm.remote.airsdk.AIRSDKVersion;
 	import com.apm.utils.FileUtils;
 	
@@ -36,24 +37,6 @@ package com.apm.client.commands.project.processes
 		private static const TAG:String = "ApplicationDescriptorGenerationProcess";
 		
 		
-		private static const APPLICATION_DESCRIPTOR_TEMPLATE:XML = <application xmlns="http://ns.adobe.com/air/application/31.0">
-	<id></id>
-	<versionNumber>0.0.0</versionNumber>
-	<filename>Main</filename>
-	<name>Main</name>
-	<initialWindow>
-		<content>[]</content>
-        <visible>true</visible>
-		<fullScreen>false</fullScreen>
-        <autoOrients>false</autoOrients>
-		<renderMode>direct</renderMode>
-	</initialWindow>
-	<android>
-		<manifestAdditions><![CDATA[
-		]]></manifestAdditions>
-		<containsVideo>true</containsVideo>
-	</android>
-</application>;
 		
 		
 		////////////////////////////////////////////////////////
@@ -77,32 +60,24 @@ package com.apm.client.commands.project.processes
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			
-			var manifest:XML = new XML( _appDescriptor.androidManifest );
-			var manifestAdditionsContent:String = stripManifestTag( manifest );
-			var manifestAdditions:XML = new XML(
-					"<manifestAdditions><![CDATA["+
-					"<manifest android:installLocation=\"auto\" >\n" +
-					manifestAdditionsContent + "\n" +
-					"</manifest>\n" +
-					"]]></manifestAdditions>"
-			);
-			
-			
-			
 			try
 			{
-				
+				APM.io.showSpinner( "Updating app descriptor" );
+
 				//
 				//	LOAD TEMPLATE
 				
 				if (!FileUtils.tmpDirectory.exists) FileUtils.tmpDirectory.createDirectory();
 			
-				var specifiedDescriptor:File = new File( );
+				var specifiedDescriptor:File = new File( APM.config.workingDir ).resolvePath( _outputPath );
 				var configDescriptor:File = new File( APM.config.workingDir ).resolvePath( "config/application-descriptor.xml" );
 				var templateDescriptor:File = FileUtils.tmpDirectory.resolvePath( "application-descriptor.xml" );
 				
-				if (configDescriptor.exists)
+				if (specifiedDescriptor.exists)
+				{
+					_appDescriptor.load( specifiedDescriptor );
+				}
+				else if (configDescriptor.exists)
 				{
 					_appDescriptor.load( configDescriptor );
 				}
@@ -110,49 +85,32 @@ package com.apm.client.commands.project.processes
 				{
 					if (!templateDescriptor.exists)
 					{
-						writeEmptyApplicationTemplate( templateDescriptor );
+						writeApplicationTemplate( templateDescriptor );
 					}
 					_appDescriptor.load( templateDescriptor );
 				}
 			
-				_appDescriptor.xml.id = "air.com.distriqt.test";
-				_appDescriptor.xml.android.manifestAdditions = manifestAdditions;
+				_appDescriptor.updateFromProjectDefinition( APM.config.projectDefinition );
+				_appDescriptor.updateAndroidAdditions();
+				_appDescriptor.updateIOSAdditions();
+				_appDescriptor.save( specifiedDescriptor );
 				
-				Log.d( TAG, _appDescriptor.toString() );
-
+				APM.io.stopSpinner( true, "App descriptor generated: " + specifiedDescriptor.nativePath );
+				complete();
 			}
 			catch (e:Error)
 			{
-				trace( e );
+				APM.io.stopSpinner( false, "Error: " + e.message );
 				failure( e.message );
 			}
-
-			complete();
 		}
 		
 		
-		
-		private function stripManifestTag( manifest:XML ):String
-		{
-			var outputLines:Array = [];
-			var manifestLines:Array = manifest.toXMLString().split("\n");
-			for (var i:int = 0; i < manifestLines.length; i++)
-			{
-				var line:String = manifestLines[i];
-				if (line.indexOf( "<manifest" ) >= 0) continue;
-				if (line.indexOf( "</manifest>" ) >= 0) continue;
-				outputLines.push( line );
-			}
-			return outputLines.join("\n");
-		}
-		
-		
-		
-		private function writeEmptyApplicationTemplate( file:File ):void
+		private function writeApplicationTemplate( file:File ):void
 		{
 			var fs:FileStream = new FileStream();
 			fs.open( file, FileMode.WRITE );
-			fs.writeUTFBytes( APPLICATION_DESCRIPTOR_TEMPLATE.toString() );
+			fs.writeUTFBytes( ApplicationDescriptor.APPLICATION_DESCRIPTOR_TEMPLATE.toString() );
 			fs.close();
 		}
 		

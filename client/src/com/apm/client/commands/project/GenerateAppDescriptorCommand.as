@@ -110,14 +110,13 @@ package com.apm.client.commands.project
 		{
 			Log.d( TAG, "execute(): " + (_parameters.length > 0 ? _parameters[ 0 ] : "...") + "\n" );
 			
-			var appDescriptor:ApplicationDescriptor = appDescriptorFromProjectDefinition( APM.config.projectDefinition );
+			var appDescriptor:ApplicationDescriptor = new ApplicationDescriptor();
 
 			var outputPath:String = defaultOutputPath();
 			if (_parameters.length > 0)
 			{
 				outputPath = _parameters[0];
 			}
-			
 
 			_queue.addProcess( new AndroidManifestMergeProcess( appDescriptor ) );
 			_queue.addProcess( new IOSAdditionsMergeProcess( appDescriptor ) );
@@ -134,18 +133,17 @@ package com.apm.client.commands.project
 		}
 		
 		
-		public function appDescriptorFromProjectDefinition( project:ProjectDefinition ):ApplicationDescriptor
-		{
-			var appDescriptor:ApplicationDescriptor = new ApplicationDescriptor();
-			// TODO
-			return appDescriptor;
-		}
-		
-		
 		public function defaultOutputPath():String
 		{
 			var proj:ProjectDefinition = APM.config.projectDefinition;
-			return "src/" + proj.applicationName.replace( " ", "" ) + "-app.xml";
+			if (proj.applicationFilename != null)
+			{
+				return "src/" + proj.applicationFilename + "-app.xml";
+			}
+			else
+			{
+				return "src/" + proj.applicationName.replace( / /g, "" ) + "-app.xml";
+			}
 		}
 		
 		

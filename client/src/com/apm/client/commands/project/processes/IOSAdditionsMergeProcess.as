@@ -13,6 +13,7 @@
  */
 package com.apm.client.commands.project.processes
 {
+	import com.apm.client.APM;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.project.ApplicationDescriptor;
 	
@@ -46,7 +47,28 @@ package com.apm.client.commands.project.processes
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
+
 			// TODO
+			APM.io.showSpinner( "iOS additions merging" );
+			
+			var infoAdditions:XML =
+						<infoAdditions>
+							<key>UIDeviceFamily</key>
+							<array>
+								<string>1</string>
+								<string>2</string>
+							</array>
+						</infoAdditions>;
+			
+			var entitlements:XML =
+						<entitlements>
+						</entitlements>;
+			
+			_appDescriptor.iosInfoAdditions = infoAdditions.children().toXMLString();
+			_appDescriptor.iosEntitlements = entitlements.children().toXMLString();
+			
+			APM.io.stopSpinner( true, "iOS additions merge" );
+			
 			complete();
 		}
 		

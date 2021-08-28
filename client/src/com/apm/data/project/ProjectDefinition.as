@@ -107,7 +107,7 @@ package com.apm.data.project
 			var data:Object = toObject();
 			
 			// Ensures the output JSON format is in a familiar order
-			var keyOrder:Array = ["identifier", "name", "version", "dependencies", "configuration", "repositories"];
+			var keyOrder:Array = ["identifier", "name", "filename", "version", "versionLabel", "dependencies", "configuration", "repositories"];
 			JSONUtils.addMissingKeys( data, keyOrder );
 			
 			return JSON.stringify( data, keyOrder, 4 ) + "\n";
@@ -120,7 +120,9 @@ package com.apm.data.project
 			
 			data[ "identifier" ] = applicationId;
 			data[ "name" ] = applicationName;
+			data[ "filename" ] = applicationFilename;
 			data[ "version" ] = version;
+			data[ "versionLabel" ] = versionLabel;
 			
 			var repos:Array = [];
 			for each (var repo:Repository in _repositories)
@@ -161,10 +163,22 @@ package com.apm.data.project
 		public function set applicationName( value:String ):void { _data[ "name" ] = value; }
 		
 		
+		public function get applicationFilename():String { return _data[ "filename" ]; }
+		
+		
+		public function set applicationFilename( value:String ):void { _data[ "filename" ] = value; }
+		
+		
 		public function get version():String { return _data[ "version" ]; }
 		
 		
 		public function set version( value:String ):void { _data[ "version" ] = value; }
+		
+		
+		public function get versionLabel():String { return _data[ "versionLabel" ]; }
+		
+		
+		public function set versionLabel( value:String ):void { _data[ "versionLabel" ] = value; }
 		
 		
 		public function get repositories():Vector.<Repository> { return _repositories; }

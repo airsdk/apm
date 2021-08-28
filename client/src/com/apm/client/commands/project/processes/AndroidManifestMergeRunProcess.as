@@ -72,6 +72,7 @@ package com.apm.client.commands.project.processes
 		{
 			super.start( completeCallback, failureCallback );
 			
+			
 			var manifests:Array = findPackageManifests();
 			if (manifests.length == 0)
 			{
@@ -87,7 +88,11 @@ package com.apm.client.commands.project.processes
 			}
 			
 			var mainManifest:File = new File( APM.config.workingDir ).resolvePath( "config/android/AndroidManifest.xml" );
-			if (!mainManifest.exists)
+			if (mainManifest.exists)
+			{
+				APM.io.writeLine( "Merging with supplied main manifest: config/android/AndroidManifest.xml" );
+			}
+			else
 			{
 				if (!FileUtils.tmpDirectory.exists) FileUtils.tmpDirectory.createDirectory();
 				mainManifest = FileUtils.tmpDirectory.resolvePath( "AndroidManifest.xml" );
@@ -100,6 +105,10 @@ package com.apm.client.commands.project.processes
 			
 			if (NativeProcess.isSupported)
 			{
+				APM.io.writeLine( "Android package name: " + packageName() );
+				
+				APM.io.showSpinner( "Android manifest merging" );
+				
 				var processArgs:Vector.<String> = new Vector.<String>();
 				processArgs.push( "-jar" );
 				processArgs.push( mergeUtility.nativePath );
@@ -120,7 +129,7 @@ package com.apm.client.commands.project.processes
 				for (var paramName:String in APM.config.projectDefinition.configuration)
 				{
 					var paramValue:String = APM.config.projectDefinition.configuration[ paramName ];
-					processArgs.push( "--placeholder");
+					processArgs.push( "--placeholder" );
 					processArgs.push( paramName + "=" + paramValue );
 				}
 				
@@ -199,13 +208,14 @@ package com.apm.client.commands.project.processes
 		private function onExit( event:NativeProcessExitEvent ):void
 		{
 			Log.d( TAG, "Process exited with: " + event.exitCode );
-//			APM.io.stopSpinner( event.exitCode == 0, " checksum calculated" );
+			APM.io.stopSpinner( event.exitCode == 0, "Android manifest merge" );
 			
 			var mainManifest:File = FileUtils.tmpDirectory.resolvePath( "AndroidManifest.xml" );
 			if (mainManifest.exists)
 			{
 				mainManifest.deleteFile();
 			}
+			
 			
 			if (event.exitCode == 0)
 			{
@@ -227,12 +237,52 @@ package com.apm.client.commands.project.processes
 		
 		private function packageName():String
 		{
-			var noAndroidFlair:String = APM.config.env[ "AIR_NOANDROIDFLAIR" ];
-			if (noAndroidFlair == null || noAndroidFlair == "false")
+			/**
+			 * On Android, the ID is converted to the Android package name by prefixing “air.” to the AIR ID.
+			 * Thus, if your AIR ID is com.example.MyApp, then the Android package name is air.com.example.MyApp.
+			 *
+			 * In addition, if the ID is not a legal package name on the Android operating system,
+			 * it is converted to a legal name. Hyphen characters are changed to underscores and leading
+			 * digits in any ID component are preceded by a capital “A”. For example, the ID: 3-goats.1-boat,
+			 * is transformed to the package name: air.A3_goats.A1_boat.
+			 *
+			 * Note: The prefix added to the application ID can be used to identify AIR applications
+			 * in the Android Market. If you do not want your application to identified as an AIR
+			 * application because of the prefix, you must unpackage the APK file, change the application ID,
+			 * and repackage it as described in, Opt-out of AIR application analytics for Android.
+			 */
+			
+			var airApplicationId:String = APM.config.projectDefinition.applicationId;
+			var components:Array = airApplicationId.split( "." );
+			for (var i:int = 0; i < components.length; i++)
 			{
-				return "air." + APM.config.projectDefinition.applicationId;
+				var component:String = components[ i ];
+				component = component.replace( /-/g, "_" ); // replace hyphens with underscore
+				if (component.match( /^\d/ ))
+					component = "A" + component; // prefix numeric component with "A"
+				components[i] = component;
 			}
-			return APM.config.projectDefinition.applicationId;
+
+			var airPackageName:String = components.join(".");
+			if (noAndroidFlair())
+			{
+				return airPackageName;
+			}
+			return "air." + airPackageName;
+		}
+		
+		
+		private function noAndroidFlair():Boolean
+		{
+			var noAndroidFlair:String = APM.config.env[ "AIR_NOANDROIDFLAIR" ];
+			if (noAndroidFlair != null && noAndroidFlair == "true")
+			{
+				return true;
+			}
+			
+			// TODO :: Check adt.cfg as well
+			
+			return false;
 		}
 		
 		
