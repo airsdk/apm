@@ -13,7 +13,7 @@
  */
 package com.apm.client.logging
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	
 	
 	public class Log
@@ -128,7 +128,7 @@ package com.apm.client.logging
 		 */
 		public static function l( tag:String, message:String ):void
 		{
-			APMCore.instance.io.writeLine( tag + "::" + message );
+			APM.io.writeLine( tag + "::" + message );
 //			trace( tag + "::" + message );
 		}
 		
@@ -157,7 +157,7 @@ package com.apm.client.logging
 			if (_logLevel >= LEVEL_DEBUG)
 			{
 				trace( tag + "::" + message );
-				APMCore.instance.io.writeLine( "D::" + tag + "::" + message );
+				APM.io.writeLine( "D::" + tag + "::" + message );
 			}
 		}
 		

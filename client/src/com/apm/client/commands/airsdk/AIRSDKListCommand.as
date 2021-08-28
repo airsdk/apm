@@ -13,15 +13,18 @@
  */
 package com.apm.client.commands.airsdk
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
+	import com.apm.client.events.CommandEvent;
 	import com.apm.remote.airsdk.AIRSDKAPI;
 	import com.apm.remote.airsdk.AIRSDKBuild;
+	
+	import flash.events.EventDispatcher;
 	
 	import flash.globalization.DateTimeFormatter;
 	
 	
-	public class AIRSDKListCommand implements Command
+	public class AIRSDKListCommand extends EventDispatcher implements Command
 	{
 		
 		////////////////////////////////////////////////////////
@@ -99,27 +102,27 @@ package com.apm.client.commands.airsdk
 		}
 		
 		
-		public function execute( core:APMCore ):void
+		public function execute():void
 		{
-			core.io.showSpinner( "Retrieving AIR SDK list" );
+			APM.io.showSpinner( "Retrieving AIR SDK list" );
 			
 			_airsdkAPI.getReleases( function ( success:Boolean, builds:Array, message:String ):void {
 				if (success)
 				{
-					core.io.stopSpinner( true, "Downloaded AIR SDK list" );
+					APM.io.stopSpinner( true, "Downloaded AIR SDK list" );
 					
 					var dtf:DateTimeFormatter = new DateTimeFormatter( "en-US" );
 					dtf.setDateTimePattern( "yyyy-MM-dd" );
 					for each (var build:AIRSDKBuild in builds)
 					{
-						core.io.writeLine( " - " + build.version + "[" + dtf.format( build.releaseDate ) + "]" );
+						APM.io.writeLine( " - " + build.version + "[" + dtf.format( build.releaseDate ) + "]" );
 					}
 				}
 				else
 				{
-					core.io.stopSpinner( false, "ERROR: Could not get list" );
+					APM.io.stopSpinner( false, "ERROR: Could not get list" );
 				}
-				core.exit( APMCore.CODE_OK );
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
 			} );
 			
 		}

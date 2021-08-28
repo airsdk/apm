@@ -13,7 +13,7 @@
  */
 package com.apm.client.commands.project.processes
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.Consts;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
@@ -86,7 +86,7 @@ package com.apm.client.commands.project.processes
 				return;
 			}
 			
-			var mainManifest:File = new File( APMCore.instance.config.workingDir ).resolvePath( "config/android/AndroidManifest.xml" );
+			var mainManifest:File = new File( APM.config.workingDir ).resolvePath( "config/android/AndroidManifest.xml" );
 			if (!mainManifest.exists)
 			{
 				if (!FileUtils.tmpDirectory.exists) FileUtils.tmpDirectory.createDirectory();
@@ -117,14 +117,14 @@ package com.apm.client.commands.project.processes
 //				processArgs.push( "TARGET_SDK_VERSION=30" );
 				
 				// Parameters
-				for (var paramName:String in APMCore.instance.config.projectDefinition.configuration)
+				for (var paramName:String in APM.config.projectDefinition.configuration)
 				{
-					var paramValue:String = APMCore.instance.config.projectDefinition.configuration[ paramName ];
+					var paramValue:String = APM.config.projectDefinition.configuration[ paramName ];
 					processArgs.push( "--placeholder");
 					processArgs.push( paramName + "=" + paramValue );
 				}
 				
-				var javaHome:String = APMCore.instance.config.env[ "JAVA_HOME" ];
+				var javaHome:String = APM.config.env[ "JAVA_HOME" ];
 				if (javaHome == null) javaHome = "";
 				var java:File = new File( javaHome ).resolvePath( "bin/java" );
 				if (!java.exists)
@@ -157,7 +157,7 @@ package com.apm.client.commands.project.processes
 		{
 			var manifests:Array = FileUtils.getFilesByName(
 					"AndroidManifest.xml",
-					new File( APMCore.instance.config.packagesDir )
+					new File( APM.config.packagesDir )
 			);
 			return manifests;
 		}
@@ -199,7 +199,7 @@ package com.apm.client.commands.project.processes
 		private function onExit( event:NativeProcessExitEvent ):void
 		{
 			Log.d( TAG, "Process exited with: " + event.exitCode );
-//			_core.io.stopSpinner( event.exitCode == 0, " checksum calculated" );
+//			APM.io.stopSpinner( event.exitCode == 0, " checksum calculated" );
 			
 			var mainManifest:File = FileUtils.tmpDirectory.resolvePath( "AndroidManifest.xml" );
 			if (mainManifest.exists)
@@ -227,12 +227,12 @@ package com.apm.client.commands.project.processes
 		
 		private function packageName():String
 		{
-			var noAndroidFlair:String = APMCore.instance.config.env[ "AIR_NOANDROIDFLAIR" ];
+			var noAndroidFlair:String = APM.config.env[ "AIR_NOANDROIDFLAIR" ];
 			if (noAndroidFlair == null || noAndroidFlair == "false")
 			{
-				return "air." + APMCore.instance.config.projectDefinition.applicationId;
+				return "air." + APM.config.projectDefinition.applicationId;
 			}
-			return APMCore.instance.config.projectDefinition.applicationId;
+			return APM.config.projectDefinition.applicationId;
 		}
 		
 		

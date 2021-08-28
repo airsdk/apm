@@ -13,15 +13,18 @@
  */
 package com.apm.client.commands.general
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
+	import com.apm.client.events.CommandEvent;
 	import com.apm.client.logging.Log;
 	import com.apm.data.user.UserSettings;
+	
+	import flash.events.EventDispatcher;
 	
 	import flash.filesystem.File;
 	
 	
-	public class ConfigCommand implements Command
+	public class ConfigCommand extends EventDispatcher implements Command
 	{
 		
 		////////////////////////////////////////////////////////
@@ -97,7 +100,7 @@ package com.apm.client.commands.general
 		}
 		
 		
-		public function execute( core:APMCore ):void
+		public function execute():void
 		{
 			Log.d( TAG, "execute(): " + (_parameters.length > 0 ? _parameters[ 0 ] : "...") + "\n" );
 			try
@@ -111,8 +114,9 @@ package com.apm.client.commands.general
 						{
 							if (_parameters.length < 3)
 							{
-								core.usage( name );
-								return core.exit( APMCore.CODE_ERROR );
+								dispatchEvent( new CommandEvent( CommandEvent.PRINT_USAGE, name ));
+								dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+								return;
 							}
 							
 							var set_param:String = _parameters[ ++i ];
@@ -122,23 +126,23 @@ package com.apm.client.commands.general
 							{
 								case "publisher_token":
 								{
-									core.config.user.publisherToken = set_value;
+									APM.config.user.publisherToken = set_value;
 									break;
 								}
 								case "github_token":
 								{
-									core.config.user.githubToken = set_value;
+									APM.config.user.githubToken = set_value;
 									break;
 								}
 								case "disable_terminal_control_sequences":
 								{
-									core.config.user.disableTerminalControlSequences = (set_value == "true" || set_value == "1");
+									APM.config.user.disableTerminalControlSequences = (set_value == "true" || set_value == "1");
 									break;
 								}
 							}
-							core.config.user.save();
-							return core.exit( APMCore.CODE_OK );
-							break;
+							APM.config.user.save();
+							dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
+							return;
 						}
 						
 						case "get":
@@ -152,40 +156,41 @@ package com.apm.client.commands.general
 								{
 									case "publisher_token":
 									{
-										value = core.config.user.publisherToken;
+										value = APM.config.user.publisherToken;
 										break;
 									}
 									case "github_token":
 									{
-										value = core.config.user.githubToken;
+										value = APM.config.user.githubToken;
 										break;
 									}
 									case "disable_terminal_control_sequences":
 									{
-										value = core.config.user.disableTerminalControlSequences ? "true" : "false";
+										value = APM.config.user.disableTerminalControlSequences ? "true" : "false";
 										break;
 									}
 								}
 								
-								core.io.writeLine( param + "=" + (value == null ? "null" : value) );
-								return core.exit( APMCore.CODE_OK );
+								APM.io.writeLine( param + "=" + (value == null ? "null" : value) );
+								dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
+								return;
 							}
 							else
 							{
-								core.usage( name );
-								return core.exit( APMCore.CODE_ERROR );
+								dispatchEvent( new CommandEvent( CommandEvent.PRINT_USAGE, name ));
+								dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+								return;
 							}
 							break;
 						}
 					}
 				}
-				
-				core.exit( APMCore.CODE_OK );
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
 			}
 			catch (e:Error)
 			{
-				core.io.error( e );
-				core.exit( APMCore.CODE_ERROR );
+				APM.io.error( e );
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
 			}
 		}
 		

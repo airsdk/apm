@@ -13,18 +13,21 @@
  */
 package com.apm.client.commands.project
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.project.processes.AndroidManifestMergeProcess;
 	import com.apm.client.commands.project.processes.ApplicationDescriptorGenerationProcess;
 	import com.apm.client.commands.project.processes.IOSAdditionsMergeProcess;
+	import com.apm.client.events.CommandEvent;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.project.ApplicationDescriptor;
 	import com.apm.data.project.ProjectDefinition;
 	
+	import flash.events.EventDispatcher;
 	
-	public class GenerateAppDescriptorCommand implements Command
+	
+	public class GenerateAppDescriptorCommand extends EventDispatcher implements Command
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
@@ -103,13 +106,13 @@ package com.apm.client.commands.project
 		}
 		
 		
-		public function execute( core:APMCore ):void
+		public function execute():void
 		{
 			Log.d( TAG, "execute(): " + (_parameters.length > 0 ? _parameters[ 0 ] : "...") + "\n" );
 			
-			var appDescriptor:ApplicationDescriptor = appDescriptorFromProjectDefinition( core.config.projectDefinition );
+			var appDescriptor:ApplicationDescriptor = appDescriptorFromProjectDefinition( APM.config.projectDefinition );
 
-			var outputPath:String = defaultOutputPath( core );
+			var outputPath:String = defaultOutputPath();
 			if (_parameters.length > 0)
 			{
 				outputPath = _parameters[0];
@@ -122,11 +125,11 @@ package com.apm.client.commands.project
 			
 			_queue.start(
 					function():void {
-						core.exit( APMCore.CODE_OK );
+						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
 					},
 					function(error:String):void {
-						core.io.writeError( NAME, error );
-						core.exit( APMCore.CODE_ERROR );
+						APM.io.writeError( NAME, error );
+						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
 					});
 		}
 		
@@ -139,9 +142,9 @@ package com.apm.client.commands.project
 		}
 		
 		
-		public function defaultOutputPath( core:APMCore ):String
+		public function defaultOutputPath():String
 		{
-			var proj:ProjectDefinition = core.config.projectDefinition;
+			var proj:ProjectDefinition = APM.config.projectDefinition;
 			return "src/" + proj.applicationName.replace( " ", "" ) + "-app.xml";
 		}
 		

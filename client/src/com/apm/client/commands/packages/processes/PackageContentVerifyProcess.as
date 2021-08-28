@@ -14,7 +14,7 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.SemVer;
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.utils.FileUtils;
 	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.processes.ProcessBase;
@@ -46,7 +46,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _packageDir:File;
 		
 		
@@ -54,9 +53,8 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function PackageContentVerifyProcess( core:APMCore, packageDir:File )
+		public function PackageContentVerifyProcess( packageDir:File )
 		{
-			_core = core;
 			_packageDir = packageDir;
 		}
 		
@@ -77,17 +75,17 @@ package com.apm.client.commands.packages.processes
 			
 			var f:PackageDefinitionFile = new PackageDefinitionFile().load( packageDefinitionFile );
 			
-			_core.io.writeLine( "- identifier:  " + f.packageDef.identifier );
-			_core.io.writeLine( "- name:        " + f.packageDef.name );
-			_core.io.writeLine( "- description: " + f.packageDef.description );
-			_core.io.writeLine( "- type:        " + f.packageDef.type );
-			_core.io.writeLine( "- tags:        " + f.packageDef.tags.join(",") );
-			_core.io.writeLine( "- version:     " + (f.version == null ? "null" : f.version.toString()) );
-			_core.io.writeLine( "- sourceUrl:   " + f.version.sourceUrl );
+			APM.io.writeLine( "- identifier:  " + f.packageDef.identifier );
+			APM.io.writeLine( "- name:        " + f.packageDef.name );
+			APM.io.writeLine( "- description: " + f.packageDef.description );
+			APM.io.writeLine( "- type:        " + f.packageDef.type );
+			APM.io.writeLine( "- tags:        " + f.packageDef.tags.join(",") );
+			APM.io.writeLine( "- version:     " + (f.version == null ? "null" : f.version.toString()) );
+			APM.io.writeLine( "- sourceUrl:   " + f.version.sourceUrl );
 			
 			
 			
-			_core.io.showSpinner(  "Verifying package content" );
+			APM.io.showSpinner(  "Verifying package content" );
 
 			if (f.packageDef.identifier.length <= 5)
 			{
@@ -152,15 +150,15 @@ package com.apm.client.commands.packages.processes
 			
 			// TODO:: Other checks
 			
-			_core.io.stopSpinner(  true,"Package content verified" );
+			APM.io.stopSpinner(  true,"Package content verified" );
 			complete();
 		}
 		
 		
 		private function fail( tag:String, message:String ):void
 		{
-			_core.io.stopSpinner(  false,"Invalid" );
-			_core.io.writeError( tag, message );
+			APM.io.stopSpinner(  false,"Invalid" );
+			APM.io.writeError( tag, message );
 			return failure( message );
 		}
 		

@@ -13,18 +13,21 @@
  */
 package com.apm.client.commands.airsdk
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.airsdk.processes.DownloadAIRSDKProcess;
+	import com.apm.client.events.CommandEvent;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.client.processes.generic.ExtractZipProcess;
 	import com.apm.remote.airsdk.AIRSDKAPI;
 	import com.apm.remote.airsdk.AIRSDKBuild;
 	
+	import flash.events.EventDispatcher;
+	
 	import flash.filesystem.File;
 	
 	
-	public class AIRSDKInstallCommand implements Command
+	public class AIRSDKInstallCommand extends EventDispatcher implements Command
 	{
 		
 		////////////////////////////////////////////////////////
@@ -44,7 +47,6 @@ package com.apm.client.commands.airsdk
 		private var _parameters:Array;
 		
 		private var _airsdkAPI:AIRSDKAPI;
-		private var _core:APMCore;
 		
 		private var _loadQueue:ProcessQueue;
 		
@@ -107,65 +109,66 @@ package com.apm.client.commands.airsdk
 		}
 		
 		
-		public function execute( core:APMCore ):void
+		public function execute():void
 		{
-			_core = core;
 			if (_parameters == null || _parameters.length == 0)
 			{
-				core.io.writeLine( "You need to provide an AIR SDK version" );
-				return core.exit( APMCore.CODE_ERROR );
+				APM.io.writeLine( "You need to provide an AIR SDK version" );
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+				return;
 			}
 			else
 			{
 				var airsdkVersion:String = _parameters[ 0 ];
-				core.io.showSpinner( "Retrieving AIR SDK information : " + airsdkVersion );
+				APM.io.showSpinner( "Retrieving AIR SDK information : " + airsdkVersion );
 				
 				_airsdkAPI.getRelease( airsdkVersion, function ( success:Boolean, build:AIRSDKBuild, message:String ):void {
 					if (success)
 					{
-						core.io.stopSpinner( true, "Retrieved AIR SDK information : " + build.version );
+						APM.io.stopSpinner( true, "Retrieved AIR SDK information : " + build.version );
 						
 						// License Check
-						if (!core.config.user.hasAcceptedLicense)
+						if (!APM.config.user.hasAcceptedLicense)
 						{
-							core.io.writeLine( "=======================================" );
-							core.io.writeLine( "By downloading or using the SDK software, you hereby acknowledge that you have read HARMAN's AIR SDK developer license terms and agree to the terms therein." );
-							core.io.writeLine( "https://airsdk.harman.com/assets/pdfs/HARMAN%20AIR%20SDK%20License%20Agreement.pdf" );
-							core.io.writeLine( "=======================================" );
+							APM.io.writeLine( "=======================================" );
+							APM.io.writeLine( "By downloading or using the SDK software, you hereby acknowledge that you have read HARMAN's AIR SDK developer license terms and agree to the terms therein." );
+							APM.io.writeLine( "https://airsdk.harman.com/assets/pdfs/HARMAN%20AIR%20SDK%20License%20Agreement.pdf" );
+							APM.io.writeLine( "=======================================" );
 							
-							var acceptLicense:String = core.io.question( "\nDo you accept the terms of the license agreement? Y/n", "n" );
+							var acceptLicense:String = APM.io.question( "\nDo you accept the terms of the license agreement? Y/n", "n" );
 							if (acceptLicense.toLowerCase() != "y")
 							{
-								core.io.writeLine( "You must accept the license to download and use the AIR SDK" );
-								return core.exit( APMCore.CODE_ERROR );
+								APM.io.writeLine( "You must accept the license to download and use the AIR SDK" );
+								dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+								return;
 							}
 							
-							core.config.user.hasAcceptedLicense = true;
+							APM.config.user.hasAcceptedLicense = true;
 						}
 						else
 						{
-							core.io.writeLine( "Already accepted AIR License" );
+							APM.io.writeLine( "Already accepted AIR License" );
 						}
 						
-						core.io.writeLine( "\nStarting AIR SDK Installation" );
+						APM.io.writeLine( "\nStarting AIR SDK Installation" );
 						
 						
-						var airsdkZipFile:File = new File( _core.config.workingDir + File.separator + "AIRSDK_" + build.version + ".zip" );
+						var airsdkZipFile:File = new File( APM.config.workingDir + File.separator + "AIRSDK_" + build.version + ".zip" );
 						
-						var installDir:File = new File( _core.config.workingDir + File.separator + "AIRSDK_" + build.version );
+						var installDir:File = new File( APM.config.workingDir + File.separator + "AIRSDK_" + build.version );
 						
-						_loadQueue.addProcess( new DownloadAIRSDKProcess( _core, build, airsdkZipFile ) );
-						_loadQueue.addProcess( new ExtractZipProcess( _core, airsdkZipFile, installDir ));
+						_loadQueue.addProcess( new DownloadAIRSDKProcess( build, airsdkZipFile ) );
+						_loadQueue.addProcess( new ExtractZipProcess( airsdkZipFile, installDir ));
 						
 						_loadQueue.start( function ():void {
-							core.exit( APMCore.CODE_OK );
+							dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
 						} );
 					}
 					
 					else
 					{
-						core.io.stopSpinner( false, "ERROR: Could not get AIR SDK information" );
-						core.exit( APMCore.CODE_ERROR );
+						APM.io.stopSpinner( false, "ERROR: Could not get AIR SDK information" );
+						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
 					}
 				} );
 				

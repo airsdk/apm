@@ -14,12 +14,15 @@
 package com.apm.client.commands.general
 {
 	import com.apm.SemVer;
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.Consts;
 	import com.apm.client.commands.Command;
+	import com.apm.client.events.CommandEvent;
+	
+	import flash.events.EventDispatcher;
 	
 	
-	public class VersionCommand implements Command
+	public class VersionCommand extends EventDispatcher implements Command
 	{
 		
 		////////////////////////////////////////////////////////
@@ -94,10 +97,10 @@ package com.apm.client.commands.general
 		}
 		
 		
-		public function execute( core:APMCore ):void
+		public function execute():void
 		{
-			core.io.writeLine( "apm: v" + new SemVer( Consts.VERSION ).toString() );
-			core.exit( APMCore.CODE_OK );
+			APM.io.writeLine( "apm: v" + new SemVer( Consts.VERSION ).toString() );
+			dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
 		}
 		
 		

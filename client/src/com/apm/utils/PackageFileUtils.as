@@ -15,7 +15,6 @@
  */
 package com.apm.utils
 {
-	import com.apm.client.APMCore;
 	import com.apm.data.packages.PackageVersion;
 	
 	import flash.filesystem.File;
@@ -54,9 +53,9 @@ package com.apm.utils
 		}
 		
 		
-		public static function directoryForPackage( core:APMCore, identifier:String ):File
+		public static function directoryForPackage( packagesDir:String, identifier:String ):File
 		{
-			var packageDir:File = new File( core.config.packagesDir + File.separator + identifier );
+			var packageDir:File = new File( packagesDir + File.separator + identifier );
 			return packageDir;
 		}
 		
@@ -68,18 +67,18 @@ package com.apm.utils
 		}
 		
 		
-		public static function fileForPackage( core:APMCore, packageVersion:PackageVersion ):File
+		public static function fileForPackage( packagesDir:String, packageVersion:PackageVersion ):File
 		{
-			return PackageFileUtils.directoryForPackage( core, packageVersion.packageDef.identifier )
+			return PackageFileUtils.directoryForPackage( packagesDir, packageVersion.packageDef.identifier )
 					.resolvePath(
 							PackageFileUtils.filenameForPackage( packageVersion )
 					);
 		}
 		
 		
-		public static function cacheDirForPackage( core:APMCore, identifier:String ):File
+		public static function cacheDirForPackage( packagesDir:String, identifier:String ):File
 		{
-			return PackageFileUtils.directoryForPackage( core, identifier )
+			return PackageFileUtils.directoryForPackage( packagesDir, identifier )
 					.resolvePath(
 							"contents"
 					);

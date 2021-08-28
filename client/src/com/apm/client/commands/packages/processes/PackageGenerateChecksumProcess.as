@@ -16,7 +16,7 @@ package com.apm.client.commands.packages.processes
 	import by.blooddy.crypto.SHA256;
 	import by.blooddy.crypto.events.ProcessEvent;
 	
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.generic.ChecksumProcess;
 	import com.apm.data.packages.PackageDefinitionFile;
@@ -47,7 +47,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _packageDefinition:PackageDefinitionFile;
 		private var _file:File;
 		
@@ -56,9 +55,8 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function PackageGenerateChecksumProcess( core:APMCore, packageDefinition:PackageDefinitionFile, file:File )
+		public function PackageGenerateChecksumProcess( packageDefinition:PackageDefinitionFile, file:File )
 		{
-			_core = core;
 			_packageDefinition = packageDefinition;
 			_file = file;
 		}
@@ -67,10 +65,10 @@ package com.apm.client.commands.packages.processes
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			_core.io.showSpinner( "Generating package checksum: " + _file.nativePath );
+			APM.io.showSpinner( "Generating package checksum: " + _file.nativePath );
 			if (!_file.exists)
 			{
-				_core.io.stopSpinner( false, "Package doesn't exist: " + _file.nativePath );
+				APM.io.stopSpinner( false, "Package doesn't exist: " + _file.nativePath );
 				return failure();
 			}
 			
@@ -82,12 +80,12 @@ package com.apm.client.commands.packages.processes
 					{
 						var result:String = String(data);
 						_packageDefinition.version.checksum = result;
-						_core.io.stopSpinner( true, "Generated checksum: " + result );
+						APM.io.stopSpinner( true, "Generated checksum: " + result );
 						complete();
 					},
 					function( error:String ):void
 					{
-						_core.io.stopSpinner( false, "ERROR: " + error );
+						APM.io.stopSpinner( false, "ERROR: " + error );
 						failure();
 					});
 			

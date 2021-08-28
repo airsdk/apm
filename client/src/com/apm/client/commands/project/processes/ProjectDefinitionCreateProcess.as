@@ -13,7 +13,7 @@
  */
 package com.apm.client.commands.project.processes
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.project.ProjectDefinition;
 	
@@ -33,49 +33,48 @@ package com.apm.client.commands.project.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function ProjectDefinitionCreateProcess( core:APMCore )
+		public function ProjectDefinitionCreateProcess()
 		{
-			_core = core;
 		}
 		
 		
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			if (_core.config.projectDefinition != null)
+			if (APM.config.projectDefinition != null)
 			{
-				_core.io.writeLine( "Already have a config file " );
+				APM.io.writeLine( "Already have a config file " );
 				
-				var response:String = _core.io.question( "Overwrite? Y/n", "n" )
+				var response:String = APM.io.question( "Overwrite? Y/n", "n" )
 				if (response.toLowerCase() != "y")
 				{
-					return _core.exit( APMCore.CODE_ERROR );
+					complete();
+					return;
 				}
 			}
 			
-			_core.io.writeLine( "Creating new project definition file" );
+			APM.io.writeLine( "Creating new project definition file" );
 			
 			var project:ProjectDefinition = new ProjectDefinition();
 			
 			//
 			//	Walk through any questions
 			
-			project.applicationId = _core.io.question( "Application Identifier", "com.my.app" )
-			project.applicationName = _core.io.question( "Application Name", "My Application" )
-			project.version = _core.io.question( "Application Version", "1.0.0" )
+			project.applicationId = APM.io.question( "Application Identifier", "com.my.app" )
+			project.applicationName = APM.io.question( "Application Name", "My Application" )
+			project.version = APM.io.question( "Application Version", "1.0.0" )
 			
 			
 			// TODO
 			
 			
-			var projectFile:File = new File( _core.config.workingDir + File.separator + ProjectDefinition.DEFAULT_FILENAME );
+			var projectFile:File = new File( APM.config.workingDir + File.separator + ProjectDefinition.DEFAULT_FILENAME );
 			project.save( projectFile );
 			
 			complete();

@@ -13,7 +13,7 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
@@ -41,7 +41,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _uninstallingPackageIdentifier:String;
 		private var _packageIdentifier:String;
 		private var _skipChecks:Boolean;
@@ -51,10 +50,9 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function UninstallPackageProcess( core:APMCore, uninstallingPackageIdentifier:String, packageIdentifier:String, skipChecks:Boolean = false )
+		public function UninstallPackageProcess( uninstallingPackageIdentifier:String, packageIdentifier:String, skipChecks:Boolean = false )
 		{
 			super();
-			_core = core;
 			_uninstallingPackageIdentifier = uninstallingPackageIdentifier;
 			_packageIdentifier = packageIdentifier;
 			_skipChecks = skipChecks;
@@ -64,9 +62,9 @@ package com.apm.client.commands.packages.processes
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			_core.io.writeLine( "Uninstall package : " + _packageIdentifier );
+			APM.io.writeLine( "Uninstall package : " + _packageIdentifier );
 			
-			var uninstallingPackageDir:File = PackageFileUtils.cacheDirForPackage( _core, _packageIdentifier );
+			var uninstallingPackageDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDir, _packageIdentifier );
 			var f:File = uninstallingPackageDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 			if (!f.exists)
 			{
@@ -76,8 +74,8 @@ package com.apm.client.commands.packages.processes
 				}
 				else
 				{
-					_core.io.writeError( _packageIdentifier, "Package not found" );
-					_core.config.projectDefinition.removePackageDependency( _packageIdentifier ).save();
+					APM.io.writeError( _packageIdentifier, "Package not found" );
+					APM.config.projectDefinition.removePackageDependency( _packageIdentifier ).save();
 					return failure( "Package " + _packageIdentifier + " not found" );
 				}
 			}
@@ -88,7 +86,7 @@ package com.apm.client.commands.packages.processes
 			// need to determine if this package is required by another package currently installed
 			if (!_skipChecks && isPackageRequiredDependency( _uninstallingPackageIdentifier, _packageIdentifier ))
 			{
-				_core.io.writeError( _packageIdentifier, "Required by another package - skipping uninstall" );
+				APM.io.writeError( _packageIdentifier, "Required by another package - skipping uninstall" );
 				return complete();
 			}
 			
@@ -96,20 +94,20 @@ package com.apm.client.commands.packages.processes
 			for each (var dependency:PackageDependency in uninstallingPackageDefinition.dependencies)
 			{
 				processQueue.addProcessToStart(
-						new UninstallPackageProcess( _core, _uninstallingPackageIdentifier, dependency.identifier )
+						new UninstallPackageProcess( _uninstallingPackageIdentifier, dependency.identifier )
 				);
 			}
 			
 			var queue:ProcessQueue = new ProcessQueue();
 			
-			queue.addProcess( new UninstallFilesForPackageProcess( _core, uninstallingPackageDefinition ) );
+			queue.addProcess( new UninstallFilesForPackageProcess( uninstallingPackageDefinition ) );
 			
 			queue.start( function ():void {
-							 _core.config.projectDefinition.removePackageDependency( _packageIdentifier ).save();
+							 APM.config.projectDefinition.removePackageDependency( _packageIdentifier ).save();
 							 complete();
 						 },
 						 function ( error:String ):void {
-							 _core.io.writeError( _packageIdentifier, error );
+							 APM.io.writeError( _packageIdentifier, error );
 							 failure( error );
 						 } );
 			
@@ -121,7 +119,7 @@ package com.apm.client.commands.packages.processes
 			Log.d( TAG, "isPackageRequiredDependency( " + uninstallingPackageIdentifier + ", " + packageIdentifier + " )" );
 			if (!PackageIdentifier.isEquivalent( packageIdentifier, uninstallingPackageIdentifier ))
 			{
-				var packagesDir:File = new File( _core.config.packagesDir );
+				var packagesDir:File = new File( APM.config.packagesDir );
 				for each (var packageDir:File in packagesDir.getDirectoryListing())
 				{
 					Log.d( TAG, "isPackageRequiredDependency() : Directory : " + packageDir.name );

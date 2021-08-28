@@ -14,7 +14,7 @@
 package com.apm.client.commands.project.processes
 {
 	import com.apm.SemVer;
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.project.ApplicationDescriptor;
@@ -99,7 +99,7 @@ package com.apm.client.commands.project.processes
 				if (!FileUtils.tmpDirectory.exists) FileUtils.tmpDirectory.createDirectory();
 			
 				var specifiedDescriptor:File = new File( );
-				var configDescriptor:File = new File( APMCore.instance.config.workingDir ).resolvePath( "config/application-descriptor.xml" );
+				var configDescriptor:File = new File( APM.config.workingDir ).resolvePath( "config/application-descriptor.xml" );
 				var templateDescriptor:File = FileUtils.tmpDirectory.resolvePath( "application-descriptor.xml" );
 				
 				if (configDescriptor.exists)

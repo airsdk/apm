@@ -13,12 +13,15 @@
  */
 package com.apm.client.commands.packages
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
+	import com.apm.client.events.CommandEvent;
 	import com.apm.data.project.ProjectDefinition;
 	
+	import flash.events.EventDispatcher;
 	
-	public class ListCommand implements Command
+	
+	public class ListCommand extends EventDispatcher implements Command
 	{
 		
 		////////////////////////////////////////////////////////
@@ -91,30 +94,32 @@ package com.apm.client.commands.packages
 		}
 		
 		
-		public function execute( core:APMCore ):void
+		public function execute():void
 		{
-			var project:ProjectDefinition = core.config.projectDefinition;
+			var project:ProjectDefinition = APM.config.projectDefinition;
 			if (project == null)
 			{
-				core.io.writeLine( "ERROR: project definition not found" );
-				return core.exit( APMCore.CODE_ERROR );
+				APM.io.writeLine( "ERROR: project definition not found" );
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+				return;
 			}
 			
-			core.io.writeLine( project.applicationName + "@" + project.version + " " + core.config.workingDir + "" );
+			APM.io.writeLine( project.applicationName + "@" + project.version + " " + APM.config.workingDir + "" );
 			if (project.dependencies.length == 0)
 			{
-				core.io.writeLine( "└── (empty)" );
+				APM.io.writeLine( "└── (empty)" );
 			}
 			else
 			{
 				for (var i:int = 0; i < project.dependencies.length; i++)
 				{
-					core.io.writeLine(
+					APM.io.writeLine(
 							(i == project.dependencies.length - 1 ? "└──" : "├──") +
 							project.dependencies[ i ].toString() );
 				}
 			}
-			return core.exit( APMCore.CODE_OK );
+			dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
+			
 		}
 		
 	}

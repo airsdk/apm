@@ -13,7 +13,7 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.remote.repository.RepositoryAPI;
@@ -32,7 +32,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _packageIdentifier:String;
 		private var _repositoryAPI:RepositoryAPI;
 		
@@ -41,10 +40,9 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function ViewPackageProcess( core:APMCore, packageIdentifier:String )
+		public function ViewPackageProcess( packageIdentifier:String )
 		{
 			super();
-			_core = core;
 			_packageIdentifier = packageIdentifier;
 			_repositoryAPI = new RepositoryAPI();
 		}
@@ -53,20 +51,20 @@ package com.apm.client.commands.packages.processes
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			_core.io.showSpinner( "Finding package : " + _packageIdentifier );
+			APM.io.showSpinner( "Finding package : " + _packageIdentifier );
 			_repositoryAPI.getPackage( _packageIdentifier, function ( success:Boolean, packageDefinition:PackageDefinition ):void {
-				_core.io.stopSpinner( success, "No package found matching : " + _packageIdentifier, success );
+				APM.io.stopSpinner( success, "No package found matching : " + _packageIdentifier, success );
 				if (success)
 				{
-					_core.io.writeLine( packageDefinition.toDescriptiveString() );
+					APM.io.writeLine( packageDefinition.toDescriptiveString() );
 					
 					if (packageDefinition.license != null && packageDefinition.license.type != "none")
 					{
-						_core.io.writeLine( "license" );
-						_core.io.writeLine( "└── " + packageDefinition.license.toDescriptiveString() );
+						APM.io.writeLine( "license" );
+						APM.io.writeLine( "└── " + packageDefinition.license.toDescriptiveString() );
 						if (!packageDefinition.license.isPublic)
 						{
-							_core.io.writeLine( "└── more info: " + packageDefinition.purchaseUrl );
+							APM.io.writeLine( "└── more info: " + packageDefinition.purchaseUrl );
 						}
 					}
 					
@@ -75,19 +73,19 @@ package com.apm.client.commands.packages.processes
 					{
 						tagsLine += tag + " ";
 					}
-					_core.io.writeLine( "tags" );
-					_core.io.writeLine( "└── [ " + tagsLine + " ]" );
+					APM.io.writeLine( "tags" );
+					APM.io.writeLine( "└── [ " + tagsLine + " ]" );
 					
 					if (packageDefinition.versions.length == 0)
 					{
-						_core.io.writeLine( "└── (empty)" );
+						APM.io.writeLine( "└── (empty)" );
 					}
 					else
 					{
-						_core.io.writeLine( "versions" );
+						APM.io.writeLine( "versions" );
 						for (var i:int = 0; i < packageDefinition.versions.length; i++)
 						{
-							_core.io.writeLine(
+							APM.io.writeLine(
 									(i == packageDefinition.versions.length - 1 ? "└──" : "├──") +
 									packageDefinition.versions[ i ].toDescriptiveString() );
 						}

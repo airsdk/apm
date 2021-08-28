@@ -13,7 +13,7 @@
  */
 package com.apm.utils
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.logging.Log;
 	
 	import flash.filesystem.File;
@@ -66,7 +66,7 @@ package com.apm.utils
 		 */
 		public static function get tmpDirectory():File
 		{
-			var tmpDir:File = new File( APMCore.instance.config.workingDir ).resolvePath(".tmp" );
+			var tmpDir:File = new File( APM.config.workingDir ).resolvePath( ".tmp" );
 //			if (!tmpDir.exists) tmpDir.createDirectory();
 			return tmpDir;
 		}

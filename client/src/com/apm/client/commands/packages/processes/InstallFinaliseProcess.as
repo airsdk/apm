@@ -13,7 +13,7 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.commands.packages.data.InstallData;
 	import com.apm.client.commands.packages.data.InstallPackageData;
 	import com.apm.client.processes.ProcessBase;
@@ -38,7 +38,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _installData:InstallData;
 		
 		
@@ -46,9 +45,8 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function InstallFinaliseProcess( core:APMCore, installData:InstallData )
+		public function InstallFinaliseProcess( installData:InstallData )
 		{
-			_core = core;
 			_installData = installData;
 		}
 		
@@ -56,27 +54,27 @@ package com.apm.client.commands.packages.processes
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			_core.config.projectDefinition.clearPackageDependencies();
+			APM.config.projectDefinition.clearPackageDependencies();
 			
 			// save all the installed packages into the project file
 			for each (var p:InstallPackageData in _installData.packagesToInstall)
 			{
 				if (p.query.requiringPackage == null)
 				{
-					_core.config.projectDefinition.addPackageDependency( p.packageVersion );
+					APM.config.projectDefinition.addPackageDependency( p.packageVersion );
 				}
 				
 				// Ensure all extension parameters are added with defaults
 				for each (var param:PackageParameter in p.packageVersion.parameters)
 				{
-					if (!_core.config.projectDefinition.configuration.hasOwnProperty( param.name ))
+					if (!APM.config.projectDefinition.configuration.hasOwnProperty( param.name ))
 					{
-						_core.config.projectDefinition.configuration[ param.name ] = param.defaultValue;
+						APM.config.projectDefinition.configuration[ param.name ] = param.defaultValue;
 					}
 				}
 			}
 			
-			_core.config.projectDefinition.save();
+			APM.config.projectDefinition.save();
 			complete();
 		}
 		

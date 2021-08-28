@@ -13,7 +13,7 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.analytics.Analytics;
 	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.commands.packages.utils.PackageRequestUtils;
@@ -50,7 +50,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _package:PackageVersion;
 		private var _destination:File;
 		private var _loader:URLLoader;
@@ -60,16 +59,15 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function DownloadPackageProcess( core:APMCore, packageVersion:PackageVersion )
+		public function DownloadPackageProcess( packageVersion:PackageVersion )
 		{
 			super();
-			_core = core;
 			_package = packageVersion;
 			
-			var packagesDir:File = new File( _core.config.packagesDir );
+			var packagesDir:File = new File( APM.config.packagesDir );
 			if (!packagesDir.exists) packagesDir.createDirectory();
 			
-			var packageDir:File = PackageFileUtils.directoryForPackage( _core, packageVersion.packageDef.identifier );
+			var packageDir:File = PackageFileUtils.directoryForPackage( APM.config.packagesDir, packageVersion.packageDef.identifier );
 			if (!packageDir.exists) packageDir.createDirectory();
 			
 			_destination = packageDir.resolvePath(
@@ -81,7 +79,7 @@ package com.apm.client.commands.packages.processes
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			_core.io.showProgressBar( "Downloading package : " + _package.packageDef.toString() );
+			APM.io.showProgressBar( "Downloading package : " + _package.packageDef.toString() );
 			if (_destination.exists)
 			{
 				checkExistingFile( true );
@@ -116,7 +114,7 @@ package com.apm.client.commands.packages.processes
 		{
 			if (fileValid)
 			{
-				_core.io.completeProgressBar( fileValid, "Package already downloaded" );
+				APM.io.completeProgressBar( fileValid, "Package already downloaded" );
 				complete();
 			}
 			else
@@ -127,7 +125,7 @@ package com.apm.client.commands.packages.processes
 				}
 				else
 				{
-					_core.io.writeLine( "Downloaded file failed checks - retry install again later!" );
+					APM.io.writeLine( "Downloaded file failed checks - retry install again later!" );
 					return failure( "Downloaded file failed checks" );
 				}
 			}
@@ -151,7 +149,7 @@ package com.apm.client.commands.packages.processes
 		{
 			if (fileValid)
 			{
-				_core.io.completeProgressBar( true, "downloaded" );
+				APM.io.completeProgressBar( true, "downloaded" );
 				Analytics.instance.download(
 						_package.packageDef.identifier,
 						_package.version.toString(),
@@ -159,7 +157,7 @@ package com.apm.client.commands.packages.processes
 			}
 			else
 			{
-				_core.io.completeProgressBar( false, "Downloaded file failed checks - retry install again later!" );
+				APM.io.completeProgressBar( false, "Downloaded file failed checks - retry install again later!" );
 				failure( "Downloaded file failed checks" );
 			}
 		}
@@ -210,7 +208,7 @@ package com.apm.client.commands.packages.processes
 			
 			PackageRequestUtils.generateURLRequestForPackage(
 					_package.sourceUrl,
-					_core.config.user.githubToken,
+					APM.config.user.githubToken,
 					function ( req:URLRequest ):void {
 						_loader.load( req );
 					} );
@@ -221,7 +219,7 @@ package com.apm.client.commands.packages.processes
 		{
 			if (event.bytesTotal > 0)
 			{
-				_core.io.updateProgressBar(
+				APM.io.updateProgressBar(
 						event.bytesLoaded / event.bytesTotal,
 						"Downloading package : " + _package.packageDef.toString() );
 			}
@@ -266,7 +264,7 @@ package com.apm.client.commands.packages.processes
 				default:
 					message = event.text;
 			}
-			_core.io.completeProgressBar( false, message );
+			APM.io.completeProgressBar( false, message );
 			failure( message );
 		}
 		
@@ -280,7 +278,7 @@ package com.apm.client.commands.packages.processes
 		
 		private function loader_securityErrorHandler( event:SecurityErrorEvent ):void
 		{
-			_core.io.completeProgressBar( false, event.text );
+			APM.io.completeProgressBar( false, event.text );
 			failure();
 		}
 		

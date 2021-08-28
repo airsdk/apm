@@ -13,7 +13,7 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.commands.packages.data.InstallData;
 	import com.apm.client.commands.packages.data.InstallPackageData;
 	import com.apm.utils.DeployFileUtils;
@@ -43,7 +43,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _installData:InstallData;
 		
 		
@@ -51,9 +50,8 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function InstallDeployProcess( core:APMCore, installData:InstallData )
+		public function InstallDeployProcess( installData:InstallData )
 		{
-			_core = core;
 			_installData = installData;
 		}
 		
@@ -63,21 +61,21 @@ package com.apm.client.commands.packages.processes
 			super.start( completeCallback, failureCallback );
 			for each (var p:InstallPackageData in _installData.packagesToInstall)
 			{
-				_core.io.showSpinner( "Deploying package: " + p.packageVersion.packageDef.toString() );
-				var packageDir:File = PackageFileUtils.cacheDirForPackage( _core, p.packageVersion.packageDef.identifier );
+				APM.io.showSpinner( "Deploying package: " + p.packageVersion.packageDef.toString() );
+				var packageDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDir, p.packageVersion.packageDef.identifier );
 				for each (var ref:File in packageDir.getDirectoryListing())
 				{
 					if (ref.isDirectory)
 					{
-						_core.io.updateSpinner( "Deploying package: " + p.packageVersion.packageDef.toString() + " " + ref.name );
-						var deployLocation:File = DeployFileUtils.getDeployLocation( _core.config, ref.name );
+						APM.io.updateSpinner( "Deploying package: " + p.packageVersion.packageDef.toString() + " " + ref.name );
+						var deployLocation:File = DeployFileUtils.getDeployLocation( APM.config, ref.name );
 						if (deployLocation != null)
 						{
 							FileUtils.copyDirectoryTo( ref, deployLocation, true );
 						}
 					}
 				}
-				_core.io.stopSpinner( true, "Deployed: " + p.packageVersion.packageDef.toString() );
+				APM.io.stopSpinner( true, "Deployed: " + p.packageVersion.packageDef.toString() );
 			}
 			complete();
 		}

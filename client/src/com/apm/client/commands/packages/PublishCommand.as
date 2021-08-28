@@ -13,7 +13,7 @@
  */
 package com.apm.client.commands.packages
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.Consts;
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.packages.processes.PackageContentCreateProcess;
@@ -23,16 +23,19 @@ package com.apm.client.commands.packages
 	import com.apm.client.commands.packages.processes.PackageGenerateChecksumProcess;
 	import com.apm.client.commands.packages.processes.PackagePublishProcess;
 	import com.apm.client.commands.packages.processes.PackageRemoteContentVerifyProcess;
+	import com.apm.client.events.CommandEvent;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.client.processes.generic.ExtractZipProcess;
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.utils.PackageFileUtils;
 	
+	import flash.events.EventDispatcher;
+	
 	import flash.filesystem.File;
 	
 	
-	public class PublishCommand implements Command
+	public class PublishCommand extends EventDispatcher implements Command
 	{
 		
 		////////////////////////////////////////////////////////
@@ -108,26 +111,27 @@ package com.apm.client.commands.packages
 		}
 		
 		
-		public function execute( core:APMCore ):void
+		public function execute():void
 		{
 			var path:String = "";
 			if (_parameters != null && _parameters.length > 0)
 			{
 				path = _parameters[ 0 ];
 			}
-			core.io.writeLine( "Publishing package: " + path );
+			APM.io.writeLine( "Publishing package: " + path );
 			
-			var tmpDir:File = new File( core.config.workingDir + File.separator + ".apm__tmp" );
+			var tmpDir:File = new File( APM.config.workingDir + File.separator + ".apm__tmp" );
 			if (tmpDir.exists)
 			{
 				cleanup( tmpDir );
 			}
 			
-			var source:File = new File( core.config.workingDir + File.separator + path );
+			var source:File = new File( APM.config.workingDir + File.separator + path );
 			if (!source.exists)
 			{
-				core.io.writeError( source.name, "Specified package directory / file does not exist" );
-				return core.exit( APMCore.CODE_ERROR );
+				APM.io.writeError( source.name, "Specified package directory / file does not exist" );
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+				return;
 			}
 
 			
@@ -137,41 +141,42 @@ package com.apm.client.commands.packages
 				var f:File = source.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 				if (!f.exists)
 				{
-					core.io.writeError( PackageDefinitionFile.DEFAULT_FILENAME, "Package definition file does not exist" );
-					return core.exit( APMCore.CODE_ERROR );
+					APM.io.writeError( PackageDefinitionFile.DEFAULT_FILENAME, "Package definition file does not exist" );
+					dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+					return;
 				}
 				
-				_queue.addProcess( new PackageContentVerifyProcess( core, source ));
-				_queue.addProcess( new PackageDefinitionLoadProcess( core, packageDefinitionFile, f ));
+				_queue.addProcess( new PackageContentVerifyProcess( source ));
+				_queue.addProcess( new PackageDefinitionLoadProcess( packageDefinitionFile, f ));
 			}
 			else if (source.extension == "zip" || source.extension == PackageFileUtils.AIRPACKAGEEXTENSION)
 			{
 				var pf:File = tmpDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 				
-				_queue.addProcess( new ExtractZipProcess( core, source, tmpDir ) );
-				_queue.addProcess( new PackageContentVerifyProcess( core, tmpDir ));
-				_queue.addProcess( new PackageDefinitionLoadProcess( core, packageDefinitionFile, pf ));
-				_queue.addProcess( new PackageGenerateChecksumProcess( core, packageDefinitionFile, source ));
+				_queue.addProcess( new ExtractZipProcess( source, tmpDir ) );
+				_queue.addProcess( new PackageContentVerifyProcess( tmpDir ));
+				_queue.addProcess( new PackageDefinitionLoadProcess( packageDefinitionFile, pf ));
+				_queue.addProcess( new PackageGenerateChecksumProcess( packageDefinitionFile, source ));
 			}
 			else
 			{
-				core.io.writeError( source.name, "Cannot publish this file / directory" );
-				return core.exit( APMCore.CODE_ERROR );
+				APM.io.writeError( source.name, "Cannot publish this file / directory" );
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+				return;
 			}
 			
-			_queue.addProcess( new PackageRemoteContentVerifyProcess( core, packageDefinitionFile ) );
-			_queue.addProcess( new PackagePublishProcess( core, packageDefinitionFile ) );
+			_queue.addProcess( new PackageRemoteContentVerifyProcess( packageDefinitionFile ) );
+			_queue.addProcess( new PackagePublishProcess( packageDefinitionFile ) );
 			
 			_queue.start(
 					function ():void {
 						cleanup( tmpDir );
-						core.exit( APMCore.CODE_OK );
+						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
 					},
 					function ( message:String ):void {
 						cleanup( tmpDir );
-						core.io.writeError( "ERROR", message );
-						core.exit( APMCore.CODE_ERROR );
-						
+						APM.io.writeError( "ERROR", message );
+						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
 					}
 			);
 		}

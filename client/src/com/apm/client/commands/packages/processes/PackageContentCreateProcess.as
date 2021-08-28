@@ -13,7 +13,7 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.utils.FileUtils;
 	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.processes.ProcessBase;
@@ -44,7 +44,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _packageDir:File;
 		
 		
@@ -52,9 +51,8 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function PackageContentCreateProcess( core:APMCore, packageDir:File )
+		public function PackageContentCreateProcess( packageDir:File )
 		{
-			_core = core;
 			_packageDir = packageDir;
 		}
 		
@@ -64,16 +62,16 @@ package com.apm.client.commands.packages.processes
 			super.start( completeCallback, failureCallback );
 			if (!_packageDir.exists || !_packageDir.isDirectory)
 			{
-				_core.io.writeError( _packageDir.name, "Specified package directory does not exist" );
+				APM.io.writeError( _packageDir.name, "Specified package directory does not exist" );
 				return failure();
 			}
 			
-			_core.io.showSpinner( "Building package" );
+			APM.io.showSpinner( "Building package" );
 			
 			var packageDefinitionFile:File = _packageDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 			if (!packageDefinitionFile.exists)
 			{
-				_core.io.writeError( PackageDefinitionFile.DEFAULT_FILENAME, "Package definition file does not exist" );
+				APM.io.writeError( PackageDefinitionFile.DEFAULT_FILENAME, "Package definition file does not exist" );
 				return failure();
 			}
 			var packDefFile:PackageDefinitionFile = new PackageDefinitionFile().load( packageDefinitionFile );
@@ -126,7 +124,7 @@ package com.apm.client.commands.packages.processes
 
 			
 			var packageFileName:String = packDefFile.packageDef.identifier + "_" + packDefFile.version.version.toString() + "." + PackageFileUtils.AIRPACKAGEEXTENSION;
-			var packageFilePath:String = _core.config.workingDir + File.separator + packageFileName;
+			var packageFilePath:String = APM.config.workingDir + File.separator + packageFileName;
 			var packageFile:File = new File( packageFilePath );
 			
 			var outStream:FileStream = new FileStream();
@@ -134,7 +132,7 @@ package com.apm.client.commands.packages.processes
 			zip.serialize( outStream );
 			outStream.close();
 			
-			_core.io.stopSpinner( true, "Package built: " + packageFileName );
+			APM.io.stopSpinner( true, "Package built: " + packageFileName );
 			
 			complete();
 		}
@@ -142,7 +140,7 @@ package com.apm.client.commands.packages.processes
 		
 		private function addFileToZip( zip:Zip, f:File, path:String = "" ):void
 		{
-			_core.io.updateSpinner();
+			APM.io.updateSpinner();
 			if (f.isDirectory)
 			{
 				var files:Array = f.getDirectoryListing();

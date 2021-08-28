@@ -13,7 +13,7 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageDefinitionFile;
 	
@@ -41,7 +41,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _packageDefinition:PackageDefinitionFile;
 		private var _file:File;
 		
@@ -50,9 +49,8 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function PackageDefinitionLoadProcess( core:APMCore, packageDefinition:PackageDefinitionFile, file:File )
+		public function PackageDefinitionLoadProcess( packageDefinition:PackageDefinitionFile, file:File )
 		{
-			_core = core;
 			_packageDefinition = packageDefinition;
 			_file = file;
 		}
@@ -61,10 +59,10 @@ package com.apm.client.commands.packages.processes
 		override public function start( completeCallback:Function=null, failureCallback:Function=null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			_core.io.showSpinner( "Loading package definition file: " + _file.nativePath );
+			APM.io.showSpinner( "Loading package definition file: " + _file.nativePath );
 			if (!_file.exists)
 			{
-				_core.io.stopSpinner( false, "Package definition file doesn't exist: " + _file.nativePath );
+				APM.io.stopSpinner( false, "Package definition file doesn't exist: " + _file.nativePath );
 				return failure();
 			}
 			
@@ -92,7 +90,7 @@ package com.apm.client.commands.packages.processes
 				changelogFileStream.close();
 			}
 			
-			_core.io.stopSpinner( true, "Package definition file loaded" );
+			APM.io.stopSpinner( true, "Package definition file loaded" );
 			complete();
 		}
 		

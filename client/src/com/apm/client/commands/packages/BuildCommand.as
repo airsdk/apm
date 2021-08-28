@@ -13,18 +13,21 @@
  */
 package com.apm.client.commands.packages
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.packages.processes.PackageContentCreateProcess;
 	import com.apm.client.commands.packages.processes.PackageContentVerifyProcess;
 	import com.apm.client.commands.packages.processes.PackageDependenciesVerifyProcess;
 	import com.apm.client.commands.packages.processes.ViewPackageProcess;
+	import com.apm.client.events.CommandEvent;
 	import com.apm.client.processes.ProcessQueue;
+	
+	import flash.events.EventDispatcher;
 	
 	import flash.filesystem.File;
 	
 	
-	public class BuildCommand implements Command
+	public class BuildCommand extends EventDispatcher implements Command
 	{
 		
 		////////////////////////////////////////////////////////
@@ -101,7 +104,7 @@ package com.apm.client.commands.packages
 		}
 		
 		
-		public function execute( core:APMCore ):void
+		public function execute():void
 		{
 			var path:String = "";
 			if (_parameters != null && _parameters.length > 0)
@@ -109,21 +112,21 @@ package com.apm.client.commands.packages
 				path = _parameters[0];
 			}
 			
-			core.io.writeLine( "Building package" );
+			APM.io.writeLine( "Building package" );
 			
-			var packageDir:File = new File( core.config.workingDir + File.separator + path );
+			var packageDir:File = new File( APM.config.workingDir + File.separator + path );
 			
-			_queue.addProcess( new PackageContentVerifyProcess( core, packageDir ));
-			_queue.addProcess( new PackageContentCreateProcess( core, packageDir ));
+			_queue.addProcess( new PackageContentVerifyProcess( packageDir ));
+			_queue.addProcess( new PackageContentCreateProcess( packageDir ));
 			
 			_queue.start(
 					function ():void
 					{
-						core.exit( APMCore.CODE_OK );
+						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
 					},
 					function ( message:String ):void
 					{
-						core.exit( APMCore.CODE_ERROR );
+						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
 					}
 			);
 		}

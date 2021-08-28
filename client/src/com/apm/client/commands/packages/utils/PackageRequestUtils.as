@@ -14,7 +14,7 @@
 package com.apm.client.commands.packages.utils
 {
 	import com.apm.SemVer;
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.Consts;
 	import com.apm.client.logging.Log;
 	import com.apm.remote.github.GitHubAPI;

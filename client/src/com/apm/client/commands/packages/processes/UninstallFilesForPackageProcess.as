@@ -13,7 +13,7 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.utils.DeployFileUtils;
 	import com.apm.utils.FileUtils;
 	import com.apm.utils.PackageFileUtils;
@@ -41,7 +41,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _packageDefinition:PackageDefinitionFile;
 		
 		
@@ -49,10 +48,9 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function UninstallFilesForPackageProcess( core:APMCore, packageDefinition:PackageDefinitionFile )
+		public function UninstallFilesForPackageProcess( packageDefinition:PackageDefinitionFile )
 		{
 			super();
-			_core = core;
 			_packageDefinition = packageDefinition;
 		}
 		
@@ -60,14 +58,14 @@ package com.apm.client.commands.packages.processes
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			_core.io.showSpinner( "Removing package : " + _packageDefinition.packageDef.identifier );
+			APM.io.showSpinner( "Removing package : " + _packageDefinition.packageDef.identifier );
 			
-			var cacheDir:File = PackageFileUtils.cacheDirForPackage( _core, _packageDefinition.packageDef.identifier );
+			var cacheDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDir, _packageDefinition.packageDef.identifier );
 			for each (var ref:File in cacheDir.getDirectoryListing())
 			{
 				if (ref.isDirectory)
 				{
-					var deployLocation:File = DeployFileUtils.getDeployLocation( _core.config, ref.name );
+					var deployLocation:File = DeployFileUtils.getDeployLocation( APM.config, ref.name );
 					
 					var listing:Array = generateDirectoryListing( ref );
 					
@@ -78,10 +76,10 @@ package com.apm.client.commands.packages.processes
 			}
 			cacheDir.deleteDirectory( true );
 			
-			var packageDir:File = PackageFileUtils.directoryForPackage( _core, _packageDefinition.packageDef.identifier );
+			var packageDir:File = PackageFileUtils.directoryForPackage( APM.config.packagesDir, _packageDefinition.packageDef.identifier );
 			packageDir.deleteDirectory( true );
 			
-			_core.io.stopSpinner( true, "Removed package : " + _packageDefinition.packageDef.identifier );
+			APM.io.stopSpinner( true, "Removed package : " + _packageDefinition.packageDef.identifier );
 			complete();
 		}
 		
@@ -91,7 +89,7 @@ package com.apm.client.commands.packages.processes
 			for each (var path:String in listing)
 			{
 				Log.d( TAG, "Removing package : " + _packageDefinition.packageDef.identifier + " / " + path );
-				_core.io.updateSpinner( "Removing package : " + _packageDefinition.packageDef.identifier + " / " + path );
+				APM.io.updateSpinner( "Removing package : " + _packageDefinition.packageDef.identifier + " / " + path );
 				var f:File = directory.resolvePath( path );
 				if (f.exists)
 					f.deleteFile();

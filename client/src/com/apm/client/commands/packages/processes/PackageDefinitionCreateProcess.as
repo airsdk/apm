@@ -15,7 +15,7 @@ package com.apm.client.commands.packages.processes
 {
 	import com.adobe.formatters.DateFormatter;
 	import com.apm.SemVer;
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageDefinition;
@@ -45,7 +45,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _path:String;
 		
 		
@@ -53,9 +52,8 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function PackageDefinitionCreateProcess( core:APMCore, path:String )
+		public function PackageDefinitionCreateProcess( path:String )
 		{
-			_core = core;
 			_path = path;
 		}
 		
@@ -63,34 +61,34 @@ package com.apm.client.commands.packages.processes
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			var directory:File = new File( _core.config.workingDir + File.separator + _path );
+			var directory:File = new File( APM.config.workingDir + File.separator + _path );
 			if (!directory.exists) directory.createDirectory();
 			
 			
-			_core.io.writeLine( "Creating new package definition file" );
+			APM.io.writeLine( "Creating new package definition file" );
 			
 			var f:PackageDefinitionFile = new PackageDefinitionFile();
 			
 			//
 			//	Walk through any questions
 			
-			f.packageDef.name = _core.io.question( "Package Name", "My Package" );
-			f.packageDef.identifier = _core.io.question( "Package Identifier", "com.my.package" );
-			f.packageDef.type = _core.io.question( "Type [swc/ane/src]", "ane" );
+			f.packageDef.name = APM.io.question( "Package Name", "My Package" );
+			f.packageDef.identifier = APM.io.question( "Package Identifier", "com.my.package" );
+			f.packageDef.type = APM.io.question( "Type [swc/ane/src]", "ane" );
 			
 			if (f.packageDef.type != PackageDefinition.TYPE_ANE && f.packageDef.type != PackageDefinition.TYPE_SWC && f.packageDef.type != PackageDefinition.TYPE_SRC)
 			{
-				_core.io.writeError( "INVALID TYPE", "Type must be one of 'ane', 'swc' or 'src'" );
+				APM.io.writeError( "INVALID TYPE", "Type must be one of 'ane', 'swc' or 'src'" );
 				return failure();
 			}
 			
 			f.version.version = SemVer.fromString(
-					_core.io.question( "Package Version", "1.0.0" )
+					APM.io.question( "Package Version", "1.0.0" )
 			);
 			
 			if (f.version.version == null)
 			{
-				_core.io.writeError( "INVALID VERSION", "Version must follow semantic versioning" );
+				APM.io.writeError( "INVALID VERSION", "Version must follow semantic versioning" );
 				return failure();
 			}
 			

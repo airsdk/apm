@@ -22,7 +22,7 @@ package com.apm.data.user
 	 * The user settings / config file, located at HOME_DIRECTORY / .apm_config
 	 * <br/>
 	 *
-	 * Contains user specific settings for APM across all projects.
+	 * Contains user specific settings for APMConsoleApp across all projects.
 	 * <br/>
 	 *
 	 * May be empty or not present.

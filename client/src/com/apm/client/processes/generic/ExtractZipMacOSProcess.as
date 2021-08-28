@@ -13,7 +13,7 @@
  */
 package com.apm.client.processes.generic
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.generic.ExtractZipAS3Process;
@@ -47,9 +47,9 @@ package com.apm.client.processes.generic
 		//  FUNCTIONALITY
 		//
 		
-		public function ExtractZipMacOSProcess( core:APMCore, zipFile:File, outputDir:File )
+		public function ExtractZipMacOSProcess( zipFile:File, outputDir:File )
 		{
-			super( core, zipFile, outputDir );
+			super( zipFile, outputDir );
 		}
 		
 		
@@ -78,7 +78,7 @@ package com.apm.client.processes.generic
 					return super.start( complete, failure );
 				}
 				
-				_core.io.showSpinner( message );
+				APM.io.showSpinner( message );
 				
 				_process = new NativeProcess();
 				_process.addEventListener( NativeProcessExitEvent.EXIT, onExit );
@@ -103,7 +103,7 @@ package com.apm.client.processes.generic
 					.replace( /\r/g, "" )
 					.replace( /\t/g, "" );
 			
-			_core.io.updateSpinner( "extracting : " + data );
+			APM.io.updateSpinner( "extracting : " + data );
 		}
 		
 		
@@ -116,7 +116,7 @@ package com.apm.client.processes.generic
 		private function onExit( event:NativeProcessExitEvent ):void
 		{
 			Log.d( TAG, "Process exited with: " + event.exitCode );
-			_core.io.stopSpinner( event.exitCode == 0, "extracted" );
+			APM.io.stopSpinner( event.exitCode == 0, "extracted" );
 			complete();
 		}
 		

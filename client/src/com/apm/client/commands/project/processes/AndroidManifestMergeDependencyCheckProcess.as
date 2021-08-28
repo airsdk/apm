@@ -14,7 +14,7 @@
 package com.apm.client.commands.project.processes
 {
 	import com.apm.SemVer;
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.Consts;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
@@ -107,7 +107,7 @@ package com.apm.client.commands.project.processes
 		
 		private function downloadUtility():void
 		{
-			APMCore.instance.io.showProgressBar( "Downloading manifest merge tool" );
+			APM.io.showProgressBar( "Downloading manifest merge tool" );
 			
 			var headers:Array = [];
 			headers.push( new URLRequestHeader( "User-Agent", "apm v" + new SemVer( Consts.VERSION ).toString() ) );
@@ -137,7 +137,7 @@ package com.apm.client.commands.project.processes
 		{
 			if (event.bytesTotal > 0)
 			{
-				APMCore.instance.io.updateProgressBar(
+				APM.io.updateProgressBar(
 						event.bytesLoaded / event.bytesTotal,
 						"Downloading manifest merge tool" );
 			}
@@ -151,7 +151,7 @@ package com.apm.client.commands.project.processes
 			var fileStream:FileStream = new FileStream();
 			fileStream.addEventListener( Event.CLOSE, function ( event:Event ):void {
 				event.currentTarget.removeEventListener( event.type, arguments.callee );
-				APMCore.instance.io.completeProgressBar( true, "Merge tool available" );
+				APM.io.completeProgressBar( true, "Merge tool available" );
 				checkDownloadedFile();
 			} );
 
@@ -176,7 +176,7 @@ package com.apm.client.commands.project.processes
 				default:
 					message = event.text;
 			}
-			APMCore.instance.io.completeProgressBar( false, message );
+			APM.io.completeProgressBar( false, message );
 			failure( message );
 		}
 		
@@ -190,7 +190,7 @@ package com.apm.client.commands.project.processes
 		
 		private function loader_securityErrorHandler( event:SecurityErrorEvent ):void
 		{
-			APMCore.instance.io.completeProgressBar( false, event.text );
+			APM.io.completeProgressBar( false, event.text );
 			failure();
 		}
 		

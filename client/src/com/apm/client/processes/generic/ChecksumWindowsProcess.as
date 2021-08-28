@@ -13,7 +13,7 @@
  */
 package com.apm.client.processes.generic
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.logging.Log;
 	
 	import flash.desktop.NativeProcess;
@@ -46,7 +46,7 @@ package com.apm.client.processes.generic
 		//  FUNCTIONALITY
 		//
 		
-		public function ChecksumWindowsProcess( core:APMCore, file:File )
+		public function ChecksumWindowsProcess( core:APM, file:File )
 		{
 			super( core, file );
 		}
@@ -79,7 +79,7 @@ package com.apm.client.processes.generic
 					return super.start( complete, failure );
 				}
 				
-//				_core.io.showSpinner( message );
+//				APM.io.showSpinner( message );
 				
 				_process = new NativeProcess();
 				_process.addEventListener( NativeProcessExitEvent.EXIT, onExit );
@@ -121,7 +121,7 @@ package com.apm.client.processes.generic
 		private function onExit( event:NativeProcessExitEvent ):void
 		{
 			Log.d( TAG, "Process exited with: " + event.exitCode + " cs '" + _data + "'");
-//			_core.io.stopSpinner( event.exitCode == 0, " checksum calculated" );
+//			APM.io.stopSpinner( event.exitCode == 0, " checksum calculated" );
 			if (event.exitCode == 0)
 			{
 				var checksum:String = _data;

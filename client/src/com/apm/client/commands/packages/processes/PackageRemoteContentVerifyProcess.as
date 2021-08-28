@@ -13,7 +13,7 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.commands.packages.utils.PackageRequestUtils;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageDefinitionFile;
@@ -46,7 +46,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _packageDefinition:PackageDefinitionFile;
 		
 		
@@ -54,9 +53,8 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function PackageRemoteContentVerifyProcess( core:APMCore, packageDefinition:PackageDefinitionFile )
+		public function PackageRemoteContentVerifyProcess( packageDefinition:PackageDefinitionFile )
 		{
-			_core = core;
 			_packageDefinition = packageDefinition;
 		}
 		
@@ -64,16 +62,16 @@ package com.apm.client.commands.packages.processes
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			_core.io.showSpinner( "Checking remote content: " + _packageDefinition.version.sourceUrl );
+			APM.io.showSpinner( "Checking remote content: " + _packageDefinition.version.sourceUrl );
 			
 			for each (var dep:PackageDependency in _packageDefinition.dependencies)
 			{
-				_queue.addProcessToStart( new PackageDependenciesVerifyProcess( _core, dep ) );
+				_queue.addProcessToStart( new PackageDependenciesVerifyProcess( dep ) );
 			}
 			
 			// Check content available
 			checkRemoteContent( _packageDefinition.version.sourceUrl, function ( success:Boolean, message:String ):void {
-				_core.io.stopSpinner( success, success ? "Package content verified" : message );
+				APM.io.stopSpinner( success, success ? "Package content verified" : message );
 				
 				if (success) complete();
 				else failure();
@@ -99,7 +97,7 @@ package com.apm.client.commands.packages.processes
 			
 			PackageRequestUtils.generateURLRequestForPackage(
 					url,
-					_core.config.user.githubToken,
+					APM.config.user.githubToken,
 					function ( req:URLRequest ):void {
 						_loader.load( req );
 					} );

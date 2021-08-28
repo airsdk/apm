@@ -13,7 +13,7 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.remote.repository.RepositoryAPI;
@@ -35,7 +35,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _packageDefinition:PackageDefinitionFile;
 		private var _repositoryAPI:RepositoryAPI;
 		
@@ -44,9 +43,8 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function PackagePublishProcess( core:APMCore, packageDefinition:PackageDefinitionFile )
+		public function PackagePublishProcess( packageDefinition:PackageDefinitionFile )
 		{
-			_core = core;
 			_packageDefinition = packageDefinition;
 			
 			_repositoryAPI = new RepositoryAPI();
@@ -56,17 +54,17 @@ package com.apm.client.commands.packages.processes
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			if (_core.config.user.publisherToken == null || _core.config.user.publisherToken.length == 0)
+			if (APM.config.user.publisherToken == null || APM.config.user.publisherToken.length == 0)
 			{
 				return failure( "No publisher token currently set" );
 			}
 			
-			_core.io.showSpinner( "Publish package" );
+			APM.io.showSpinner( "Publish package" );
 			
 			_repositoryAPI
-					.setToken( _core.config.user.publisherToken )
+					.setToken( APM.config.user.publisherToken )
 					.publish( _packageDefinition,function ( success:Boolean, packageDefinition:* ):void {
-						_core.io.stopSpinner( success, "Package published" );
+						APM.io.stopSpinner( success, "Package published" );
 						complete();
 					} );
 			

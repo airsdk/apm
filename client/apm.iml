@@ -2,7 +2,7 @@
 <module type="Flex" version="4">
   <component name="FlexBuildConfigurationManager" active="apm">
     <configurations>
-      <configuration name="apm" target-platform="Desktop" pure-as="true" main-class="APM" output-file="apm.swf" output-folder="$MODULE_DIR$/out">
+      <configuration name="apm" target-platform="Desktop" pure-as="true" main-class="APMConsoleApp" output-file="apm.swf" output-folder="$MODULE_DIR$/out">
         <dependencies target-player="32.0">
           <entries>
             <entry library-id="bbc1d467-3c84-470d-8330-75d7c327a77a">

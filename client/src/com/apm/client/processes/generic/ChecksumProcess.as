@@ -13,7 +13,7 @@
  */
 package com.apm.client.processes.generic
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	
@@ -51,17 +51,17 @@ package com.apm.client.processes.generic
 			super.start( completeCallback, failureCallback );
 			Log.d( TAG, "start: " + _file.name );
 			var subprocess:ProcessBase;
-			if (APMCore.instance.config.isMacOS)
+			if (APM.config.isMacOS)
 			{
-				subprocess = new ChecksumMacOSProcess( APMCore.instance, _file );
+				subprocess = new ChecksumMacOSProcess( APM.instance, _file );
 			}
-			else if (APMCore.instance.config.isWindows)
+			else if (APM.config.isWindows)
 			{
-				subprocess = new ChecksumWindowsProcess( APMCore.instance, _file );
+				subprocess = new ChecksumWindowsProcess( APM.instance, _file );
 			}
 			else
 			{
-				subprocess = new ChecksumAS3Process( APMCore.instance, _file );
+				subprocess = new ChecksumAS3Process( APM.instance, _file );
 			}
 			subprocess.start( complete, failure );
 		}

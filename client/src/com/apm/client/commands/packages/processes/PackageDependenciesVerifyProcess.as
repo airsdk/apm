@@ -13,7 +13,7 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageDefinitionFile;
@@ -39,7 +39,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _dependency:PackageDependency;
 		private var _repositoryAPI:RepositoryAPI;
 		
@@ -48,9 +47,8 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function PackageDependenciesVerifyProcess( core:APMCore, dependency:PackageDependency )
+		public function PackageDependenciesVerifyProcess( dependency:PackageDependency )
 		{
-			_core = core;
 			_dependency = dependency;
 			_repositoryAPI = new RepositoryAPI();
 		}
@@ -59,7 +57,7 @@ package com.apm.client.commands.packages.processes
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			_core.io.showSpinner( "Checking dependency: " + _dependency.toString() );
+			APM.io.showSpinner( "Checking dependency: " + _dependency.toString() );
 			
 			if (_dependency.identifier == null || _dependency.identifier.length == 0 || _dependency.version == null)
 			{
@@ -68,12 +66,12 @@ package com.apm.client.commands.packages.processes
 			_repositoryAPI.getPackageVersion( _dependency.identifier, _dependency.version, function ( success:Boolean, packageDef:PackageDefinition ):void {
 				if (success && packageDef != null)
 				{
-					_core.io.stopSpinner( true, "VERIFIED: " + _dependency.toString() );
+					APM.io.stopSpinner( true, "VERIFIED: " + _dependency.toString() );
 					complete();
 				}
 				else
 				{
-					_core.io.stopSpinner( false, "Could not verify: " + _dependency.toString() );
+					APM.io.stopSpinner( false, "Could not verify: " + _dependency.toString() );
 					failure( "INVALID DEPENDENCY [" + _dependency.toString() + "] - check your dependencies in the " + PackageDefinitionFile.DEFAULT_FILENAME );
 				}
 			} );

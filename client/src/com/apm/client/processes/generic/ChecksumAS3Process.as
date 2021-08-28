@@ -16,7 +16,7 @@ package com.apm.client.processes.generic
 	import by.blooddy.crypto.SHA256;
 	import by.blooddy.crypto.events.ProcessEvent;
 	
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	
 	import com.apm.client.logging.Log;
 	
@@ -41,7 +41,7 @@ package com.apm.client.processes.generic
 		//  VARIABLES
 		//
 		
-		protected var _core:APMCore;
+		protected var _core:APM;
 		protected var _file:File;
 		private var _hash:SHA256;
 		private var _data:ByteArray;
@@ -51,7 +51,7 @@ package com.apm.client.processes.generic
 		//  FUNCTIONALITY
 		//
 		
-		public function ChecksumAS3Process( core:APMCore, file:File )
+		public function ChecksumAS3Process( core:APM, file:File )
 		{
 			_core = core;
 			_file = file;

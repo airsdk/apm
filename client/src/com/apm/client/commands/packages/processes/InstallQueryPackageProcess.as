@@ -14,7 +14,7 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.SemVer;
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.commands.packages.data.InstallData;
 	import com.apm.client.commands.packages.data.InstallQueryRequest;
 	import com.apm.client.commands.packages.utils.ProjectDefinitionValidator;
@@ -42,7 +42,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _installData:InstallData;
 		private var _request:InstallQueryRequest;
 		private var _failIfInstalled:Boolean;
@@ -55,13 +54,11 @@ package com.apm.client.commands.packages.processes
 		//
 		
 		public function InstallQueryPackageProcess(
-				core:APMCore,
 				data:InstallData,
 				request:InstallQueryRequest,
 				failIfInstalled:Boolean=true )
 		{
 			super();
-			_core = core;
 			_installData = data;
 			_request = request;
 			_failIfInstalled = failIfInstalled;
@@ -79,13 +76,13 @@ package com.apm.client.commands.packages.processes
 				return complete();
 			}
 			
-			_core.io.showSpinner( "Finding package : " + _request.description() );
+			APM.io.showSpinner( "Finding package : " + _request.description() );
 			_repositoryAPI.getPackageVersion(
 					_request.packageIdentifier,
 					SemVer.fromString( _request.version ),
 					function ( success:Boolean, packageDefinition:PackageDefinition ):void {
 						var foundVersion:Boolean = success && packageDefinition.versions.length > 0;
-						_core.io.stopSpinner( foundVersion,
+						APM.io.stopSpinner( foundVersion,
 											  "No package found matching : " + _request.description(),
 											  foundVersion );
 						try
@@ -93,7 +90,7 @@ package com.apm.client.commands.packages.processes
 							if (foundVersion)
 							{
 								var packageVersionForInstall:PackageVersion = packageDefinition.versions[ 0 ];
-								_core.io.writeLine( packageDefinition.toString() );
+								APM.io.writeLine( packageDefinition.toString() );
 								
 								// Update the request (in case this was a latest version request)
 								if (_request.version == "latest")
@@ -101,20 +98,20 @@ package com.apm.client.commands.packages.processes
 									_request.version = packageVersionForInstall.version.toString();
 									
 									// Perform a delayed "already installed" check
-									switch (ProjectDefinitionValidator.checkPackageAlreadyInstalled( _core.config.projectDefinition, _request ))
+									switch (ProjectDefinitionValidator.checkPackageAlreadyInstalled( APM.config.projectDefinition, _request ))
 									{
 										case ProjectDefinitionValidator.ALREADY_INSTALLED:
 											if (_failIfInstalled)
 											{
-												var existingDependency:PackageDependency = ProjectDefinitionValidator.getInstalledPackageDependency( _core.config.projectDefinition, _request );
+												var existingDependency:PackageDependency = ProjectDefinitionValidator.getInstalledPackageDependency( APM.config.projectDefinition, _request );
 												
-												_core.io.writeLine( "Already installed: " + existingDependency.toString() + " >= " + _request.version );
+												APM.io.writeLine( "Already installed: " + existingDependency.toString() + " >= " + _request.version );
 												failure();
 											}
 											break;
 										
 										case ProjectDefinitionValidator.HIGHER_VERSION_REQUESTED:
-											processQueue.addProcessToStart( new UninstallPackageProcess( _core, packageDefinition.identifier, packageDefinition.identifier ) );
+											processQueue.addProcessToStart( new UninstallPackageProcess( packageDefinition.identifier, packageDefinition.identifier ) );
 											break;
 											
 										case ProjectDefinitionValidator.UNKNOWN_LATEST_REQUESTED:
@@ -130,7 +127,6 @@ package com.apm.client.commands.packages.processes
 								{
 									_queue.addProcess(
 											new InstallQueryPackageProcess(
-													_core,
 													_installData,
 													new InstallQueryRequest(
 															dep.packageDef.identifier,
@@ -144,7 +140,7 @@ package com.apm.client.commands.packages.processes
 							{
 								// View the package to show available versions
 								_queue.clear();
-								_queue.addProcess( new ViewPackageProcess( _core, _request.packageIdentifier ) );
+								_queue.addProcess( new ViewPackageProcess( _request.packageIdentifier ) );
 							}
 						}
 						catch (e:Error)

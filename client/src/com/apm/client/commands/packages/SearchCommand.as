@@ -13,13 +13,16 @@
  */
 package com.apm.client.commands.packages
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
+	import com.apm.client.events.CommandEvent;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.remote.repository.RepositoryAPI;
 	
+	import flash.events.EventDispatcher;
 	
-	public class SearchCommand implements Command
+	
+	public class SearchCommand extends EventDispatcher implements Command
 	{
 		
 		////////////////////////////////////////////////////////
@@ -96,29 +99,30 @@ package com.apm.client.commands.packages
 		}
 		
 		
-		public function execute( core:APMCore ):void
+		public function execute():void
 		{
 			if (_parameters == null || _parameters.length == 0)
 			{
-				core.io.writeLine( "no search params provided" );
-				core.usage( NAME );
-				return core.exit( APMCore.CODE_ERROR );
+				APM.io.writeLine( "no search params provided" );
+				dispatchEvent( new CommandEvent( CommandEvent.PRINT_USAGE, NAME ));
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+				return;
 			}
 			
 			var query:String = _parameters.join( " " );
-			core.io.showSpinner( "Searching packages for : " + query );
+			APM.io.showSpinner( "Searching packages for : " + query );
 			
 			_repositoryAPI.search( query, function ( success:Boolean, packages:Vector.<PackageDefinition> ):void {
-				core.io.stopSpinner( success, "Search complete" );
+				APM.io.stopSpinner( success, "Search complete" );
 				
 				if (success)
 				{
-					core.io.writeLine( "found [" + packages.length + "] matching package(s) for search '" + query + "'" )
+					APM.io.writeLine( "found [" + packages.length + "] matching package(s) for search '" + query + "'" )
 					if (packages.length > 0)
 					{
 						for (var i:int = 0; i < packages.length; i++)
 						{
-							core.io.writeLine(
+							APM.io.writeLine(
 									(i == packages.length - 1 ? "└──" : "├──") +
 									packages[ i ].toDescriptiveString()
 							);
@@ -126,14 +130,14 @@ package com.apm.client.commands.packages
 					}
 					else
 					{
-						core.io.writeLine( "└── no matching packages found" );
+						APM.io.writeLine( "└── no matching packages found" );
 					}
-					core.exit( APMCore.CODE_OK );
+					dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
 				}
 				else
 				{
-					core.io.writeLine( "error connecting to repository server" );
-					core.exit( APMCore.CODE_ERROR );
+					APM.io.writeLine( "error connecting to repository server" );
+					dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
 				}
 			} );
 		}
