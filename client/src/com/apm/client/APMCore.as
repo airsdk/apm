@@ -38,6 +38,7 @@ package com.apm.client
 	import com.apm.client.io.IO_MacOS;
 	import com.apm.client.io.IO_Windows;
 	import com.apm.client.logging.Log;
+	import com.apm.utils.FileUtils;
 	
 	import flash.desktop.NativeApplication;
 	import flash.display.Sprite;
@@ -353,6 +354,14 @@ package com.apm.client
 		 */
 		public function exit( returnCode:int = CODE_OK ):void
 		{
+			try
+			{
+				FileUtils.tmpDirectory.deleteDirectory( true );
+			}
+			catch (e:Error)
+			{
+			}
+
 			NativeApplication.nativeApplication.exit( returnCode );
 		}
 		

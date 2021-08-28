@@ -50,6 +50,7 @@ package com.apm.utils
 			DEPLOY_OPTIONS[ PackageFileUtils.AIRPACKAGE_ANE_DIR ] = "aneDir";
 			DEPLOY_OPTIONS[ PackageFileUtils.AIRPACKAGE_SWC_DIR ] = "swcDir";
 			DEPLOY_OPTIONS[ PackageFileUtils.AIRPACKAGE_SRC_DIR ] = "srcDir";
+			DEPLOY_OPTIONS[ PackageFileUtils.AIRPACKAGE_ASSETS ] = "assetsDir";
 		}
 		
 		
@@ -59,6 +60,7 @@ package com.apm.utils
 			DEFAULT_DIRS[ PackageFileUtils.AIRPACKAGE_ANE_DIR ] = "ane";
 			DEFAULT_DIRS[ PackageFileUtils.AIRPACKAGE_SWC_DIR ] = "libs";
 			DEFAULT_DIRS[ PackageFileUtils.AIRPACKAGE_SRC_DIR ] = "libs_src";
+			DEFAULT_DIRS[ PackageFileUtils.AIRPACKAGE_ASSETS ] = "assets";
 		}
 		
 		
@@ -79,11 +81,13 @@ package com.apm.utils
 					case PackageFileUtils.AIRPACKAGE_ANE_DIR:
 					case PackageFileUtils.AIRPACKAGE_SWC_DIR:
 					case PackageFileUtils.AIRPACKAGE_SRC_DIR:
+					case PackageFileUtils.AIRPACKAGE_ASSETS:
 						deployDirForType = working.resolvePath( DEFAULT_DIRS[ dirName ] );
 						break;
 					
+					case PackageFileUtils.AIRPACKAGE_PLATFORMS: // Should not be deployed
 					default:
-						deployDirForType = working.resolvePath( dirName );
+						return null;
 				}
 			}
 			if (!deployDirForType.exists) deployDirForType.createDirectory();

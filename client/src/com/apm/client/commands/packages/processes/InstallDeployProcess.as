@@ -71,7 +71,10 @@ package com.apm.client.commands.packages.processes
 					{
 						_core.io.updateSpinner( "Deploying package: " + p.packageVersion.packageDef.toString() + " " + ref.name );
 						var deployLocation:File = DeployFileUtils.getDeployLocation( _core.config, ref.name );
-						FileUtils.copyDirectoryTo( ref, deployLocation, true );
+						if (deployLocation != null)
+						{
+							FileUtils.copyDirectoryTo( ref, deployLocation, true );
+						}
 					}
 				}
 				_core.io.stopSpinner( true, "Deployed: " + p.packageVersion.packageDef.toString() );

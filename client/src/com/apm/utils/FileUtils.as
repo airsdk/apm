@@ -13,6 +13,7 @@
  */
 package com.apm.utils
 {
+	import com.apm.client.APMCore;
 	import com.apm.client.logging.Log;
 	
 	import flash.filesystem.File;
@@ -61,6 +62,17 @@ package com.apm.utils
 		
 		
 		/**
+		 * Returns a global location for utilities used by the client
+		 */
+		public static function get tmpDirectory():File
+		{
+			var tmpDir:File = new File( APMCore.instance.config.workingDir ).resolvePath(".tmp" );
+//			if (!tmpDir.exists) tmpDir.createDirectory();
+			return tmpDir;
+		}
+		
+		
+		/**
 		 * Finds all files in a directory and subdirectores with the specified name
 		 * @param filename	The file name to search for
 		 * @param directory	The base directory to search
@@ -75,7 +87,7 @@ package com.apm.utils
 				{
 					if (f.isDirectory)
 					{
-						files.concat(
+						files = files.concat(
 								getFilesByName( filename, f )
 						);
 					}
