@@ -126,10 +126,7 @@ package com.apm.client.commands.packages
 				cleanup( tmpDir );
 			}
 			
-			var absolute:File = new File( path );
-			var relative:File = new File( APM.config.workingDir + File.separator + path );
-
-			var source:File = (absolute.exists ? absolute : relative);
+			var source:File = getSourceForPath( path );
 			if (!source.exists)
 			{
 				APM.io.writeError( source.name, "Specified package directory / file does not exist" );
@@ -182,6 +179,31 @@ package com.apm.client.commands.packages
 						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
 					}
 			);
+		}
+		
+		
+		/**
+		 * Determines the File reference specified by path by checking it as an
+		 * absolute path and then a relative path to the working directory.
+		 *
+		 * @param path
+		 *
+		 * @return
+		 */
+		private function getSourceForPath( path:String ):File
+		{
+			try
+			{
+				var absolute:File = new File( path );
+				if (absolute.exists)
+				{
+					return absolute;
+				}
+			}
+			catch (e:Error)
+			{
+			}
+			return new File( APM.config.workingDir + File.separator + path );
 		}
 		
 		
