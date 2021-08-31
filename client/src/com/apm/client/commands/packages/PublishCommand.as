@@ -126,7 +126,10 @@ package com.apm.client.commands.packages
 				cleanup( tmpDir );
 			}
 			
-			var source:File = new File( APM.config.workingDir + File.separator + path );
+			var absolute:File = new File( path );
+			var relative:File = new File( APM.config.workingDir + File.separator + path );
+
+			var source:File = (absolute.exists ? absolute : relative);
 			if (!source.exists)
 			{
 				APM.io.writeError( source.name, "Specified package directory / file does not exist" );

@@ -33,6 +33,9 @@ package com.apm.utils
 		//
 		
 		
+		private static var _tmpDirName:String;
+		
+		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
@@ -66,7 +69,8 @@ package com.apm.utils
 		 */
 		public static function get tmpDirectory():File
 		{
-			var tmpDir:File = new File( APM.config.workingDir ).resolvePath( ".tmp" );
+			if (_tmpDirName == null) _tmpDirName = ".tmp"+ String( int(Math.random() * 1000000) );
+			var tmpDir:File = new File( APM.config.workingDir ).resolvePath( _tmpDirName );
 //			if (!tmpDir.exists) tmpDir.createDirectory();
 			return tmpDir;
 		}

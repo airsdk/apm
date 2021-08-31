@@ -76,6 +76,9 @@ package com.apm.data.project
 		
 		public function ApplicationDescriptor( airSDKVersion:AIRSDKVersion=null )
 		{
+			XML.ignoreWhitespace = true;
+			XML.ignoreComments = false;
+			
 			_airSDKVersion = (airSDKVersion == null ? new AIRSDKVersion( "33.1.1.556" ) : airSDKVersion);
 		}
 		
@@ -164,7 +167,6 @@ package com.apm.data.project
 			
 			for each (var extensionIDNode:XML in _xml.extensions.extensionID)
 			{
-				trace( extensionIDNode.toString() );
 				exists ||= (extensionID == extensionIDNode.toString());
 			}
 			if (!exists)

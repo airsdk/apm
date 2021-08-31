@@ -24,6 +24,9 @@ package com.apm.utils
 	import flash.filesystem.File;
 	
 	
+	/**
+	 * Utilities for checking packages available locally in the install cache
+	 */
 	public class PackageCacheUtils
 	{
 		////////////////////////////////////////////////////////
@@ -47,6 +50,14 @@ package com.apm.utils
 		}
 		
 		
+		/**
+		 * Checks if the specified package is installed. Optionally specify the version if you need to
+		 * check for a specific version.
+		 *
+		 * @param packageIdentifier	The identifier of the package to check for
+		 * @param version			Specific version to check. If <code>null</code> this will return true for any installed version of the package.
+		 * @return <code>true</code> if the package is installed and <code>false</code> if not.
+		 */
 		public static function isPackageInstalled( packageIdentifier:String, version:SemVer=null ):Boolean
 		{
 			var uninstallingPackageDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDir, packageIdentifier );
@@ -68,32 +79,46 @@ package com.apm.utils
 		}
 		
 		
+		/**
+		 * Iterates over the locally installed packages and checks the listed dependencies for the specified package identifier
+		 *
+		 * @param uninstallingPackageIdentifier	Ignores any dependencies from this package, eg if this package is being uninstalled we don't want to consider it's dependencies as required any longer.
+		 * @param packageIdentifier				The package identifier of the dependency to search for
+		 * @return	<code>true</code> if the packageIdentifier is required by another package and <code>false</code> if not.
+		 */
 		public static function isPackageRequiredDependency( uninstallingPackageIdentifier:String, packageIdentifier:String ):Boolean
 		{
 			Log.d( TAG, "isPackageRequiredDependency( " + uninstallingPackageIdentifier + ", " + packageIdentifier + " )" );
-			if (!PackageIdentifier.isEquivalent( packageIdentifier, uninstallingPackageIdentifier ))
+			if (PackageIdentifier.isEquivalent( packageIdentifier, uninstallingPackageIdentifier ))
 			{
-				for each (var packageDefinition:PackageDefinitionFile in getCachedPackages())
-				{
-					Log.d( TAG, "isPackageRequiredDependency() : Checking : " + packageDefinition.packageDef.identifier );
+				return false;
+			}
+			
+			for each (var packageDefinition:PackageDefinitionFile in getCachedPackages())
+			{
+				Log.d( TAG, "isPackageRequiredDependency() : Checking : " + packageDefinition.packageDef.identifier );
 
-					// Ignore the package being uninstalled and the current package
-					if (PackageIdentifier.isEquivalent( packageDefinition.packageDef.identifier, uninstallingPackageIdentifier )
-							|| PackageIdentifier.isEquivalent( packageDefinition.packageDef.identifier, packageIdentifier ))
-						continue;
-					
-					for each (var dep:PackageDependency in packageDefinition.dependencies)
-					{
-						Log.d( TAG, "isPackageRequiredDependency() : Checking dependency [" + packageDefinition.packageDef.identifier + "] : " + dep.identifier );
-						if (PackageIdentifier.isEquivalent( dep.identifier, packageIdentifier ))
-							return true;
-					}
+				// Ignore the package being uninstalled and the current package
+				if (PackageIdentifier.isEquivalent( packageDefinition.packageDef.identifier, uninstallingPackageIdentifier )
+						|| PackageIdentifier.isEquivalent( packageDefinition.packageDef.identifier, packageIdentifier ))
+					continue;
+				
+				for each (var dep:PackageDependency in packageDefinition.dependencies)
+				{
+					Log.d( TAG, "isPackageRequiredDependency() : Checking dependency [" + packageDefinition.packageDef.identifier + "] : " + dep.identifier );
+					if (PackageIdentifier.isEquivalent( dep.identifier, packageIdentifier ))
+						return true;
 				}
 			}
 			return false;
 		}
 		
 		
+		/**
+		 * Returns an array of packages that are installed in the local cache.
+		 *
+		 * @return A <code>Vector</code> of <code>PackageDefinitionFile</code> references for each package installed
+		 */
 		public static function getCachedPackages():Vector.<PackageDefinitionFile>
 		{
 			var cachedPackages:Vector.<PackageDefinitionFile> = new Vector.<PackageDefinitionFile>();

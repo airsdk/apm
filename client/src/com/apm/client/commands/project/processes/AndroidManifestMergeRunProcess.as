@@ -72,8 +72,7 @@ package com.apm.client.commands.project.processes
 		{
 			super.start( completeCallback, failureCallback );
 			
-			var filename:String = Consts.MERGE_TOOL_FILENAME.replace( /@VERSION@/g, Consts.MERGE_TOOL_VERSION );
-			var mergeUtility:File = FileUtils.toolsDirectory.resolvePath( filename );
+			var mergeUtility:File = FileUtils.toolsDirectory.resolvePath( AndroidManifestMerge.mergeToolFilename );
 			if (!mergeUtility.exists)
 			{
 				failure( "Merge utility not found" );
@@ -122,6 +121,7 @@ package com.apm.client.commands.project.processes
 //				processArgs.push( "MIN_SDK_VERSION=19" );
 //				processArgs.push( "--property" );
 //				processArgs.push( "TARGET_SDK_VERSION=30" );
+				processArgs.push( "--remove-tools-declarations" );
 				
 				// Parameters
 				for (var paramName:String in APM.config.projectDefinition.configuration)

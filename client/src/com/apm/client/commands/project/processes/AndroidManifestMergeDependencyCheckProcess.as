@@ -48,7 +48,7 @@ package com.apm.client.commands.project.processes
 		
 		private static const TAG:String = "AndroidManifestMergeDependencyCheckProcess";
 		
-		private static const SOURCE_URL:String = "https://github.com/distriqt/android-manifest-merger/releases/download/v@VERSION@/"
+		private static const SOURCE_URL:String = "https://github.com/distriqt/android-manifest-merger/releases/download/v@MERGE_TOOL_VERSION@/"
 		
 		
 		////////////////////////////////////////////////////////
@@ -74,7 +74,7 @@ package com.apm.client.commands.project.processes
 			super.start( completeCallback, failureCallback );
 			try
 			{
-				var filename:String = Consts.MERGE_TOOL_FILENAME.replace( /@VERSION@/g, Consts.MERGE_TOOL_VERSION );
+				var filename:String = AndroidManifestMerge.mergeToolFilename;
 				var toolsDirectory:String = FileUtils.toolsDirectory.nativePath;
 				
 				if (!FileUtils.toolsDirectory.exists) FileUtils.toolsDirectory.createDirectory();
@@ -114,8 +114,8 @@ package com.apm.client.commands.project.processes
 			headers.push( new URLRequestHeader( "Accept", "application/octet-stream" ) );
 			
 			
-			var filename:String = Consts.MERGE_TOOL_FILENAME.replace( /@VERSION@/g, Consts.MERGE_TOOL_VERSION );
-			var url:String = SOURCE_URL.replace( /@VERSION@/g, Consts.MERGE_TOOL_VERSION ) + filename;
+			var url:String = SOURCE_URL.replace( /@MERGE_TOOL_VERSION@/g, AndroidManifestMerge.MERGE_TOOL_VERSION )
+								+ AndroidManifestMerge.mergeToolFilename;
 			
 			var req:URLRequest = new URLRequest( url );
 			req.method = URLRequestMethod.GET;

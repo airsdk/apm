@@ -48,6 +48,12 @@ package com.apm.client.commands.project.processes
 		{
 			super.start( completeCallback, failureCallback );
 
+			// We could consider using PListBuddy here?
+			// /usr/libexec/PlistBuddy -x -c "Merge package/InfoAdditions.plist" out.plist
+			// https://marcosantadev.com/manage-plist-files-plistbuddy/
+			// https://medium.com/@marksiu/what-is-plistbuddy-76cb4f0c262d
+			
+			
 			// TODO
 			APM.io.showSpinner( "iOS additions merging" );
 			

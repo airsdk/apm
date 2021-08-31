@@ -60,17 +60,20 @@
 	</target>
 
 
+    <!-- CLEAN -->
+
     <target name="clean" >
         <delete dir="${apm.builddir}" />
     </target>
 
+
     <!-- BUILD -->
 
-    <target name="build" depends="version">
+    <target name="build" depends="version_write">
 		<echo message="Building apm..."/>
 		<mxmlc 
             output="${apm.builddir}/apm.swf" 
-            file="${apm.clientdir}/src/APM.as"
+            file="${apm.clientdir}/src/APMConsoleApp.as"
 			failonerror="true"
             maxmemory="1024m">
 			<load-config filename="${air.sdk}/frameworks/air-config.xml" />
