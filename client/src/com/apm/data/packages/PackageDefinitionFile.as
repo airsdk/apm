@@ -14,7 +14,8 @@
 package com.apm.data.packages
 {
 	import com.apm.SemVer;
-	import com.apm.data.utils.JSONUtils;
+	import com.apm.data.packages.PackageLicense;
+	import com.apm.utils.JSONUtils;
 	
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
@@ -52,6 +53,9 @@ package com.apm.data.packages
 		private var _packageDependencies:Vector.<PackageDependency>;
 		
 		
+		public function get sourceFile():File { return _sourceFile; }
+		
+		
 		public function get packageDef():PackageDefinition { return _packageDef; }
 		
 		
@@ -59,6 +63,11 @@ package com.apm.data.packages
 		
 		
 		public function get dependencies():Vector.<PackageDependency> { return _packageDependencies; }
+		
+		
+		public var readme : String = "";
+		
+		public var changelog : String = "";
 		
 		
 		
@@ -129,6 +138,9 @@ package com.apm.data.packages
 				}
 			}
 			
+			if (data.hasOwnProperty( "purchaseUrl" )) _packageDef.purchaseUrl = data[ "purchaseUrl" ];
+			if (data.hasOwnProperty( "license" )) _packageDef.license = new PackageLicense().fromObject( data[ "license" ] );
+			
 		}
 		
 		
@@ -184,6 +196,12 @@ package com.apm.data.packages
 			{
 				data["checksum"] = _packageVersion.checksum;
 			}
+			
+			if (_packageDef.license)
+			{
+				data["license"] = _packageDef.license.toObject();
+			}
+			data[ "purchaseUrl" ] = _packageDef.purchaseUrl;
 			
 			return data;
 		}

@@ -14,8 +14,9 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.SemVer;
-	import com.apm.client.APMCore;
-	import com.apm.client.commands.packages.utils.FileUtils;
+	import com.apm.client.APM;
+	import com.apm.utils.FileUtils;
+	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageDefinitionFile;
@@ -45,7 +46,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _packageDir:File;
 		
 		
@@ -53,15 +53,15 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function PackageContentVerifyProcess( core:APMCore, packageDir:File )
+		public function PackageContentVerifyProcess( packageDir:File )
 		{
-			_core = core;
 			_packageDir = packageDir;
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
+			super.start( completeCallback, failureCallback );
 			if (!_packageDir.exists || !_packageDir.isDirectory)
 			{
 				return fail( _packageDir.name, "Specified package directory does not exist" );
@@ -75,17 +75,17 @@ package com.apm.client.commands.packages.processes
 			
 			var f:PackageDefinitionFile = new PackageDefinitionFile().load( packageDefinitionFile );
 			
-			_core.io.writeLine( "- identifier:  " + f.packageDef.identifier );
-			_core.io.writeLine( "- name:        " + f.packageDef.name );
-			_core.io.writeLine( "- description: " + f.packageDef.description );
-			_core.io.writeLine( "- type:        " + f.packageDef.type );
-			_core.io.writeLine( "- tags:        " + f.packageDef.tags.join(",") );
-			_core.io.writeLine( "- version:     " + (f.version == null ? "null" : f.version.toString()) );
-			_core.io.writeLine( "- sourceUrl:   " + f.version.sourceUrl );
+			APM.io.writeLine( "- identifier:  " + f.packageDef.identifier );
+			APM.io.writeLine( "- name:        " + f.packageDef.name );
+			APM.io.writeLine( "- description: " + f.packageDef.description );
+			APM.io.writeLine( "- type:        " + f.packageDef.type );
+			APM.io.writeLine( "- tags:        " + f.packageDef.tags.join(",") );
+			APM.io.writeLine( "- version:     " + (f.version == null ? "null" : f.version.toString()) );
+			APM.io.writeLine( "- sourceUrl:   " + f.version.sourceUrl );
 			
 			
 			
-			_core.io.showSpinner(  "Verifying package content" );
+			APM.io.showSpinner(  "Verifying package content" );
 
 			if (f.packageDef.identifier.length <= 5)
 			{
@@ -99,7 +99,7 @@ package com.apm.client.commands.packages.processes
 			{
 				return fail( PackageDefinitionFile.DEFAULT_FILENAME, "You must provide a package name" );
 			}
-			if (f.packageDef.type != "swc" && f.packageDef.type != "ane" && f.packageDef.type != "src")
+			if (f.packageDef.type != PackageDefinition.TYPE_ANE && f.packageDef.type != PackageDefinition.TYPE_SWC && f.packageDef.type != PackageDefinition.TYPE_SRC)
 			{
 				return fail( PackageDefinitionFile.DEFAULT_FILENAME, "type must be one of 'ane', 'swc' or 'src'" );
 			}
@@ -122,45 +122,44 @@ package com.apm.client.commands.packages.processes
 			// Ensure has some appropriate content
 			switch (f.packageDef.type)
 			{
-				case "ane":
-					var aneDir:File = _packageDir.resolvePath( "ane" );
+				case PackageDefinition.TYPE_ANE:
+					var aneDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_ANE_DIR );
 					if (!aneDir.exists || FileUtils.countFilesByType( aneDir, "ane") == 0)
 					{
-						return fail( "CONTENT", "No 'ane' file found in the 'ane' directory" );
+						return fail( "CONTENT", "No 'ane' file found in the '" + PackageFileUtils.AIRPACKAGE_ANE_DIR + "' directory" );
 					}
 					break;
-				case "swc":
-					var libDir:File = _packageDir.resolvePath( "lib" );
+				case PackageDefinition.TYPE_SWC:
+					var libDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_SWC_DIR );
 					if (!libDir.exists || FileUtils.countFilesByType( libDir, "swc") == 0)
 					{
-						return fail( "CONTENT", "No 'swc' file found in the 'lib' directory" );
+						return fail( "CONTENT", "No 'swc' file found in the '" + PackageFileUtils.AIRPACKAGE_SWC_DIR + "' directory" );
 					}
 					break;
-				case "src":
-					var srcDir:File = _packageDir.resolvePath( "src" );
+				case PackageDefinition.TYPE_SRC:
+					var srcDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_SRC_DIR );
 					if (!srcDir.exists || FileUtils.countFilesByType( srcDir, "as") == 0)
 					{
-						return fail( "CONTENT", "No 'as' files found in the 'src' directory" );
+						return fail( "CONTENT", "No 'as' files found in the '" + PackageFileUtils.AIRPACKAGE_SRC_DIR + "' directory" );
 					}
 					break;
 			}
 			
-			
-			var changeLogFile:File = _packageDir.resolvePath( "CHANGELOG.md" );
-			var licenseFile:File = _packageDir.resolvePath( "LICENSE.md" );
+//			var changeLogFile:File = _packageDir.resolvePath( "CHANGELOG.md" );
+//			var licenseFile:File = _packageDir.resolvePath( "LICENSE.md" );
 			
 			// TODO:: Other checks
 			
-			_core.io.stopSpinner(  true,"Package content verified" );
+			APM.io.stopSpinner(  true,"Package content verified" );
 			complete();
 		}
 		
 		
 		private function fail( tag:String, message:String ):void
 		{
-			_core.io.stopSpinner(  false,"Invalid" );
-			_core.io.writeError( tag, message );
-			return failure();
+			APM.io.stopSpinner(  false,"Invalid" );
+			APM.io.writeError( tag, message );
+			return failure( message );
 		}
 		
 		

@@ -13,9 +13,10 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
+	import com.apm.client.analytics.Analytics;
 	import com.apm.client.commands.packages.data.InstallPackageData;
-	import com.apm.client.commands.packages.utils.PackageFileUtils;
+	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.client.processes.generic.ExtractZipProcess;
@@ -39,7 +40,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _installData:InstallPackageData;
 		
 		
@@ -47,36 +47,52 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function InstallPackageProcess( core:APMCore, installData:InstallPackageData )
+		public function InstallPackageProcess( installData:InstallPackageData )
 		{
 			super();
-			_core = core;
 			_installData = installData;
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
-			_core.io.writeLine( "Installing package : " + _installData.packageVersion.packageDef.toString() );
+			super.start( completeCallback, failureCallback );
+			APM.io.writeLine( "Installing package : " + _installData.packageVersion.packageDef.toString() );
+			
+			var packageDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDir, _installData.packageVersion.packageDef.identifier );
+			var packageFile:File = PackageFileUtils.fileForPackage( APM.config.packagesDir, _installData.packageVersion );
 			
 			var queue:ProcessQueue = new ProcessQueue();
 			
-			queue.addProcess( new DownloadPackageProcess( _core, _installData.packageVersion ) );
-			
-			var packageDir:File = PackageFileUtils.cacheDirForPackage( _core, _installData.packageVersion.packageDef.identifier );
-			var packageFile:File = PackageFileUtils.fileForPackage( _core, _installData.packageVersion );
-			
-			queue.addProcess( new ExtractZipProcess( _core, packageFile, packageDir ) );
+			queue.addProcess( new DownloadPackageProcess( _installData.packageVersion ) );
+			queue.addProcess( new ExtractZipProcess( packageFile, packageDir ) );
 			
 			queue.start( function ():void {
-							 _core.io.writeLine( "Installed package : " + _installData.packageVersion.packageDef.toString() );
-							 complete();
+							 if (_installData.query.isNew)
+							 {
+								 Analytics.instance.install(
+										 _installData.packageVersion.packageDef.identifier,
+										 _installData.packageVersion.version.toString(),
+										 complete );
+							 }
+							 else
+							 {
+								 complete();
+							 }
+				
 						 },
 						 function ( error:String ):void {
-							 _core.io.writeError( "ERROR", "Failed to install package : " + _installData.packageVersion.packageDef.toString() );
+							 APM.io.writeError( "ERROR", "Failed to install package : " + _installData.packageVersion.packageDef.toString() );
 							 failure( error );
 						 } );
 			
+		}
+		
+		
+		override protected function complete( data:Object=null ):void
+		{
+			APM.io.writeLine( "Installed package : " + _installData.packageVersion.packageDef.toString() );
+			super.complete();
 		}
 		
 		

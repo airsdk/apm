@@ -34,7 +34,7 @@ package com.apm.client.processes
 		 * Will be called when the process should start running.
 		 * The process must dispatch a ProcessEvent.COMPLETE function when complete.
 		 */
-		function start():void;
+		function start( complete:Function=null, failure:Function=null ):void;
 		
 		
 	}

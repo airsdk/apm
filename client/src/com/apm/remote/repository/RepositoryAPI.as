@@ -16,7 +16,6 @@ package com.apm.remote.repository
 	import com.apm.SemVer;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageDefinitionFile;
-	import com.apm.data.packages.PackageVersion;
 	import com.apm.remote.lib.APIRequestQueue;
 	
 	import flash.net.URLRequest;
@@ -47,7 +46,6 @@ package com.apm.remote.repository
 		private var _token:String;
 		
 		
-		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
@@ -73,10 +71,30 @@ package com.apm.remote.repository
 		}
 		
 		
+		public function logEvent( event:String, identifier:String, version:String, callback:Function = null ):void
+		{
+			var vars:URLVariables = new URLVariables();
+			vars[ "v" ] = version;
+			
+			var req:URLRequest = new URLRequest();
+			req.method = URLRequestMethod.POST;
+			req.url = _endpoint + "/api/packages/" + identifier + "/" + version + "/analytics/" + event;
+			req.data = vars;
+			
+			_requestQueue.add( req, "analytics", function ( success:Boolean, data:* ):void {
+				if (callback != null)
+				{
+					callback();
+				}
+			} );
+		}
+		
+		
 		public function search( query:String, callback:Function = null ):void
 		{
 			var vars:URLVariables = new URLVariables();
 			vars[ "q" ] = query;
+//			vars[ "t" ] = query;
 			
 			var req:URLRequest = new URLRequest();
 			req.method = URLRequestMethod.GET;
@@ -170,9 +188,6 @@ package com.apm.remote.repository
 		}
 		
 		
-		
-		
-		
 		//
 		//	PUBLISH ACTIONS
 		//
@@ -183,14 +198,16 @@ package com.apm.remote.repository
 			var headers:Array = [];
 			headers.push( new URLRequestHeader( "Authorization", "token " + _token ) );
 			headers.push( new URLRequestHeader( "Content-Type", "application/json" ) );
-
+			
 			var req:URLRequest = new URLRequest();
 			req.requestHeaders = headers;
 			req.method = URLRequestMethod.POST;
 			req.url = _endpoint + "/api/packages/" + packageDef.packageDef.identifier + "/update";
 			req.data = JSON.stringify( {
-				packageDef : packageDef.toObject( true, true )
-			} );
+										   packageDef: packageDef.toObject( true, true ),
+										   readme:     packageDef.readme,
+										   changelog:  packageDef.changelog
+									   } );
 			
 			_requestQueue.add( req, "publish", function ( success:Boolean, data:* ):void {
 				
@@ -198,7 +215,7 @@ package com.apm.remote.repository
 				{
 					callback( success, data );
 				}
-			});
+			} );
 		}
 		
 	}

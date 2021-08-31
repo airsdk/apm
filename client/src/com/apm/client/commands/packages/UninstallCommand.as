@@ -13,14 +13,19 @@
  */
 package com.apm.client.commands.packages
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
+	import com.apm.client.analytics.Analytics;
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.packages.processes.UninstallPackageProcess;
+	import com.apm.client.events.CommandEvent;
 	import com.apm.client.processes.ProcessQueue;
+	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.project.ProjectDefinition;
 	
+	import flash.events.EventDispatcher;
 	
-	public class UninstallCommand implements Command
+	
+	public class UninstallCommand extends EventDispatcher implements Command
 	{
 		
 		////////////////////////////////////////////////////////
@@ -39,7 +44,7 @@ package com.apm.client.commands.packages
 		
 		private var _parameters:Array;
 		private var _queue:ProcessQueue;
-		
+		private var _packageDependency:PackageDependency;
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
@@ -96,33 +101,40 @@ package com.apm.client.commands.packages
 		}
 		
 		
-		public function execute( core:APMCore ):void
+		public function execute():void
 		{
-			var project:ProjectDefinition = core.config.projectDefinition;
+			var project:ProjectDefinition = APM.config.projectDefinition;
 			if (project == null)
 			{
-				return core.exit( APMCore.CODE_ERROR );
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+				return;
 			}
 			
 			if (_parameters != null && _parameters.length > 0)
 			{
 				var packageIdentifier:String = _parameters[ 0 ];
-				_queue.addProcess( new UninstallPackageProcess( core, packageIdentifier, packageIdentifier ) );
+				_packageDependency = project.getPackageDependency( packageIdentifier );
+				if (_packageDependency != null)
+				{
+					_queue.addProcess( new UninstallPackageProcess( packageIdentifier, packageIdentifier ) );
+				}
 			}
-			
 			
 			if (_queue.length == 0)
 			{
-				core.io.writeLine( "Nothing to uninstall" );
-				return core.exit( APMCore.CODE_OK )
+				APM.io.writeLine( "Nothing to uninstall" );
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
+				return;
 			}
 			
 			_queue.start(
 					function ():void {
-						core.exit( APMCore.CODE_OK );
+						Analytics.instance.uninstall( _packageDependency.identifier, _packageDependency.version.toString(), function ():void {
+							dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
+						} );
 					},
 					function ( error:String ):void {
-						core.exit( APMCore.CODE_ERROR );
+						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
 					} );
 			
 		}

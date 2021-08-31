@@ -13,11 +13,11 @@
  */
 package com.apm.data.project
 {
-	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageDependency;
+	import com.apm.data.packages.PackageIdentifier;
 	import com.apm.data.packages.PackageVersion;
 	import com.apm.data.packages.Repository;
-	import com.apm.data.utils.JSONUtils;
+	import com.apm.utils.JSONUtils;
 	
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
@@ -107,7 +107,7 @@ package com.apm.data.project
 			var data:Object = toObject();
 			
 			// Ensures the output JSON format is in a familiar order
-			var keyOrder:Array = [ "identifier", "name", "version", "dependencies", "configuration", "repositories" ];
+			var keyOrder:Array = ["identifier", "name", "filename", "version", "versionLabel", "dependencies", "configuration", "repositories"];
 			JSONUtils.addMissingKeys( data, keyOrder );
 			
 			return JSON.stringify( data, keyOrder, 4 ) + "\n";
@@ -120,7 +120,9 @@ package com.apm.data.project
 			
 			data[ "identifier" ] = applicationId;
 			data[ "name" ] = applicationName;
+			data[ "filename" ] = applicationFilename;
 			data[ "version" ] = version;
+			data[ "versionLabel" ] = versionLabel;
 			
 			var repos:Array = [];
 			for each (var repo:Repository in _repositories)
@@ -136,8 +138,8 @@ package com.apm.data.project
 			}
 			data[ "dependencies" ] = deps;
 			
-			data["configuration"] = _configuration;
-			data["deployOptions"] = _deployOptions;
+			data[ "configuration" ] = _configuration;
+			data[ "deployOptions" ] = _deployOptions;
 			
 			_data = data;
 			
@@ -161,10 +163,22 @@ package com.apm.data.project
 		public function set applicationName( value:String ):void { _data[ "name" ] = value; }
 		
 		
+		public function get applicationFilename():String { return _data[ "filename" ]; }
+		
+		
+		public function set applicationFilename( value:String ):void { _data[ "filename" ] = value; }
+		
+		
 		public function get version():String { return _data[ "version" ]; }
 		
 		
 		public function set version( value:String ):void { _data[ "version" ] = value; }
+		
+		
+		public function get versionLabel():String { return _data[ "versionLabel" ]; }
+		
+		
+		public function set versionLabel( value:String ):void { _data[ "versionLabel" ] = value; }
 		
 		
 		public function get repositories():Vector.<Repository> { return _repositories; }
@@ -215,10 +229,6 @@ package com.apm.data.project
 		}
 		
 		
-		
-		
-		
-		
 		public function clearPackageDependencies():ProjectDefinition
 		{
 			_dependencies = new Vector.<PackageDependency>();
@@ -237,7 +247,7 @@ package com.apm.data.project
 			{
 				var dep:PackageDependency = new PackageDependency();
 				dep.identifier = packageVersion.packageDef.identifier;
-				dep.version =packageVersion.version;
+				dep.version = packageVersion.version;
 				
 				dependencies.push( dep );
 			}
@@ -256,20 +266,26 @@ package com.apm.data.project
 		 */
 		public function hasDependency( identifier:String ):Boolean
 		{
+			return getPackageDependency( identifier ) != null;
+		}
+		
+		
+		public function getPackageDependency( identifier:String ):PackageDependency
+		{
 			for each (var dep:PackageDependency in _dependencies)
 			{
-				if (dep.identifier == identifier)
-					return true;
+				if (PackageIdentifier.isEquivalent( dep.identifier, identifier ))
+					return dep;
 			}
-			return false;
+			return null;
 		}
 		
 		
 		public function removePackageDependency( identifier:String ):ProjectDefinition
 		{
-			for (var i:int = _dependencies.length-1; i >= 0; --i)
+			for (var i:int = _dependencies.length - 1; i >= 0; --i)
 			{
-				if (_dependencies[i].identifier == identifier)
+				if (PackageIdentifier.isEquivalent( _dependencies[ i ].identifier, identifier ))
 				{
 					_dependencies.splice( i, 1 );
 				}

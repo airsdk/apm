@@ -14,7 +14,7 @@
 package com.apm.client.commands.packages
 {
 	import com.apm.SemVer;
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.packages.data.InstallData;
 	import com.apm.client.commands.packages.data.InstallQueryRequest;
@@ -22,11 +22,14 @@ package com.apm.client.commands.packages
 	import com.apm.client.commands.packages.processes.InstallQueryPackageProcess;
 	import com.apm.client.commands.packages.processes.UninstallPackageProcess;
 	import com.apm.client.commands.packages.utils.ProjectDefinitionValidator;
+	import com.apm.client.events.CommandEvent;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.project.ProjectDefinition;
 	
+	import flash.events.EventDispatcher;
 	
-	public class InstallCommand implements Command
+	
+	public class InstallCommand extends EventDispatcher implements Command
 	{
 		
 		////////////////////////////////////////////////////////
@@ -107,12 +110,13 @@ package com.apm.client.commands.packages
 		}
 		
 		
-		public function execute( core:APMCore ):void
+		public function execute():void
 		{
-			var project:ProjectDefinition = core.config.projectDefinition;
+			var project:ProjectDefinition = APM.config.projectDefinition;
 			if (project == null)
 			{
-				return core.exit( APMCore.CODE_ERROR );
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+				return;
 			}
 			
 			var packageIdentifier:String = null;
@@ -131,8 +135,9 @@ package com.apm.client.commands.packages
 				if (SemVer.fromString( request.version ) == null && version != "latest")
 				{
 					// Invalid version passed
-					core.io.writeLine( "Invalid version code : " + version );
-					return core.exit( APMCore.CODE_ERROR );
+					APM.io.writeLine( "Invalid version code : " + version );
+					dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+					return;
 				}
 				
 				switch (ProjectDefinitionValidator.checkPackageAlreadyInstalled( project, request ))
@@ -142,8 +147,9 @@ package com.apm.client.commands.packages
 						break;
 					
 					case ProjectDefinitionValidator.ALREADY_INSTALLED:
-						core.io.writeLine( "Already installed: " + project.dependencies[ i ].toString() + " >= " + request.version.toString() );
-						return core.exit( APMCore.CODE_OK );
+						APM.io.writeLine( "Already installed: " + project.dependencies[ i ].toString() + " >= " + request.version.toString() );
+						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
+						return;
 					
 					case ProjectDefinitionValidator.UNKNOWN_LATEST_REQUESTED:
 						// exists but requesting latest
@@ -151,14 +157,13 @@ package com.apm.client.commands.packages
 					
 					case ProjectDefinitionValidator.HIGHER_VERSION_REQUESTED:
 						// To upgrade we first uninstall then continue with the install
-						_queue.addProcessToStart( new UninstallPackageProcess( core, packageIdentifier, packageIdentifier ) );
+						_queue.addProcessToStart( new UninstallPackageProcess( packageIdentifier, packageIdentifier ) );
 						break;
 				}
 				
 				// Install
 				_queue.addProcess(
 						new InstallQueryPackageProcess(
-								core,
 								_installData,
 								request
 						)
@@ -173,7 +178,6 @@ package com.apm.client.commands.packages
 				{
 					_queue.addProcess(
 							new InstallQueryPackageProcess(
-									core,
 									_installData,
 									new InstallQueryRequest(
 											project.dependencies[ i ].identifier,
@@ -186,17 +190,17 @@ package com.apm.client.commands.packages
 			
 			_queue.start(
 					function ():void {
-						_queue.addProcess( new InstallDataValidationProcess( core, _installData ) );
+						_queue.addProcess( new InstallDataValidationProcess( _installData ) );
 						_queue.start(
 								function ():void {
-									core.exit( APMCore.CODE_OK );
+									dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
 								},
 								function ( error:String ):void {
-									core.exit( APMCore.CODE_ERROR );
+									dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
 								} );
 					},
 					function ( error:String ):void {
-						core.exit( APMCore.CODE_ERROR );
+						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
 					} );
 		}
 		

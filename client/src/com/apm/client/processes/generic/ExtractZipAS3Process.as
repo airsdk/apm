@@ -13,7 +13,7 @@
  */
 package com.apm.client.processes.generic
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.processes.ProcessBase;
 	
 	import flash.filesystem.File;
@@ -38,7 +38,6 @@ package com.apm.client.processes.generic
 		//  VARIABLES
 		//
 		
-		protected var _core:APMCore;
 		protected var _zipFile:File;
 		protected var _outputDir:File;
 		
@@ -47,18 +46,18 @@ package com.apm.client.processes.generic
 		//  FUNCTIONALITY
 		//
 		
-		public function ExtractZipAS3Process( core:APMCore, zipFile:File, outputDir:File )
+		public function ExtractZipAS3Process( zipFile:File, outputDir:File )
 		{
-			_core = core;
 			_zipFile = zipFile;
 			_outputDir = outputDir;
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function=null, failureCallback:Function=null ):void
 		{
+			super.start( complete, failure );
 			var message:String = "extracting " + _zipFile.nativePath;
-			_core.io.showProgressBar( message );
+			APM.io.showProgressBar( message );
 			
 			try
 			{
@@ -98,9 +97,9 @@ package com.apm.client.processes.generic
 						
 						bytesLoaded += zipFile.sizeCompressed;
 						
-						_core.io.updateProgressBar( bytesLoaded / sourceBytes.length, message );
+						APM.io.updateProgressBar( bytesLoaded / sourceBytes.length, message );
 					}
-					_core.io.completeProgressBar( true, "extracted" );
+					APM.io.completeProgressBar( true, "extracted" );
 				}
 				else
 				{
@@ -109,7 +108,7 @@ package com.apm.client.processes.generic
 			}
 			catch (e:Error)
 			{
-				_core.io.completeProgressBar( false, e.message );
+				APM.io.completeProgressBar( false, e.message );
 			}
 			complete();
 		}

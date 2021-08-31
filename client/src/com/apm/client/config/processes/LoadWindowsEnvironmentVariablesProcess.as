@@ -55,8 +55,9 @@ package com.apm.client.config.processes
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
+			super.start( completeCallback, failureCallback );
 			Log.d( TAG, "start()" );
 			if (NativeProcess.isSupported)
 			{

@@ -13,12 +13,8 @@
  * @created		12/7/21
  * @copyright	http://distriqt.com/copyright/license.txt
  */
-package com.apm.client.commands.packages.utils
+package com.apm.utils
 {
-	import com.apm.client.APMCore;
-	import com.apm.client.APMCore;
-	import com.apm.client.Consts;
-	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageVersion;
 	
 	import flash.filesystem.File;
@@ -32,7 +28,15 @@ package com.apm.client.commands.packages.utils
 		
 		private static const TAG:String = "PackageFileUtils";
 		
-		public static const AIRPACKAGEEXTENSION : String = "airpackage";
+		public static const AIRPACKAGEEXTENSION:String = "airpackage";
+		
+		
+		public static const AIRPACKAGE_SWC_DIR:String = "swc";
+		public static const AIRPACKAGE_ANE_DIR:String = "ane";
+		public static const AIRPACKAGE_SRC_DIR:String = "src";
+		
+		public static const AIRPACKAGE_ASSETS:String = "assets";
+		public static const AIRPACKAGE_PLATFORMS:String = "platforms";
 		
 		
 		////////////////////////////////////////////////////////
@@ -49,9 +53,9 @@ package com.apm.client.commands.packages.utils
 		}
 		
 		
-		public static function directoryForPackage( core:APMCore, identifier:String ):File
+		public static function directoryForPackage( packagesDir:String, identifier:String ):File
 		{
-			var packageDir:File = new File( core.config.packagesDir + File.separator + identifier );
+			var packageDir:File = new File( packagesDir + File.separator + identifier );
 			return packageDir;
 		}
 		
@@ -63,21 +67,25 @@ package com.apm.client.commands.packages.utils
 		}
 		
 		
-		public static function fileForPackage( core:APMCore, packageVersion:PackageVersion ):File
+		public static function fileForPackage( packagesDir:String, packageVersion:PackageVersion ):File
 		{
-			return PackageFileUtils.directoryForPackage( core, packageVersion.packageDef.identifier )
+			return PackageFileUtils.directoryForPackage( packagesDir, packageVersion.packageDef.identifier )
 					.resolvePath(
 							PackageFileUtils.filenameForPackage( packageVersion )
 					);
 		}
 		
 		
-		public static function cacheDirForPackage( core:APMCore, identifier:String ):File
+		public static function cacheDirForPackage( packagesDir:String, identifier:String ):File
 		{
-			return PackageFileUtils.directoryForPackage( core, identifier )
-					.resolvePath(
-					"contents"
-					);
+			return PackageFileUtils.directoryForPackage( packagesDir, identifier )
+					.resolvePath( cacheDirName() );
+		}
+		
+		
+		public static function cacheDirName():String
+		{
+			return "contents";
 		}
 		
 	}

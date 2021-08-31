@@ -15,8 +15,10 @@ package com.apm.client.commands
 {
 	import com.apm.client.*;
 	
+	import flash.events.IEventDispatcher;
 	
-	public interface Command
+	
+	public interface Command extends IEventDispatcher
 	{
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
@@ -24,10 +26,8 @@ package com.apm.client.commands
 		
 		/**
 		 * Starts the command execution with the current core configuration
-		 *
-		 * @param core
 		 */
-		function execute( core:APMCore ):void;
+		function execute():void;
 		
 		
 		/**

@@ -13,7 +13,7 @@
  */
 package com.apm.data.packages
 {
-	import flash.filesystem.File;
+	import com.apm.data.packages.PackageIdentifier;
 	
 	
 	public class PackageDefinition
@@ -23,6 +23,10 @@ package com.apm.data.packages
 		//
 		
 		private static const TAG:String = "PackageDefinition";
+		
+		public static const TYPE_ANE : String = "ane";
+		public static const TYPE_SWC : String = "swc";
+		public static const TYPE_SRC : String = "src";
 		
 		
 		////////////////////////////////////////////////////////
@@ -34,12 +38,14 @@ package com.apm.data.packages
 		public var description:String = "";
 		public var url:String = "";
 		public var docUrl:String = "";
-		public var type:String = "ane";
+		public var type:String = TYPE_ANE;
 		public var publishedAt:String = "";
 		
 		public var versions:Vector.<PackageVersion>;
 		public var tags:Vector.<String>;
 		
+		public var purchaseUrl:String = "";
+		public var license:PackageLicense;
 		
 		
 		////////////////////////////////////////////////////////
@@ -55,16 +61,13 @@ package com.apm.data.packages
 		
 		public function equals( p:PackageDefinition ):Boolean
 		{
-			if (identifier == p.identifier && type == p.type)
-				return true;
-			return false;
+			return PackageIdentifier.isEquivalent( identifier, p.identifier ) && type == p.type;
 		}
 		
 		
 		public function toString():String
 		{
-			return identifier +
-					"@" + (versions.length > 0 ? versions[ 0 ].toString() : "x.x.x");
+			return (identifier == null ? "none" : identifier) + "@" + (versions.length > 0 ? versions[ 0 ].toString() : "x.x.x");
 		}
 		
 		
@@ -97,19 +100,23 @@ package com.apm.data.packages
 						versions.push( version );
 					}
 				}
-				if (data.hasOwnProperty("tags" ))
+				if (data.hasOwnProperty( "tags" ))
 				{
 					for each (var tag:Object in data.tags)
 					{
 						tags.push( tag.name );
 					}
 				}
+				
+				if (data.hasOwnProperty( "purchaseUrl" )) this.purchaseUrl = data[ "purchaseUrl" ];
+				if (data.hasOwnProperty( "license" )) this.license = new PackageLicense().fromObject( data[ "license" ] );
+				
 			}
 			return this;
 		}
 		
 		
-		public function toObject( forceObjectOutput:Boolean=false ):Object
+		public function toObject( forceObjectOutput:Boolean = false ):Object
 		{
 			var data:Object = {};
 			data.identifier = identifier;
@@ -135,9 +142,14 @@ package com.apm.data.packages
 				}
 			}
 			
+			if (license)
+			{
+				data.license = license.toObject();
+			}
+			data.purchaseUrl = purchaseUrl;
+			
 			return data;
 		}
-		
 		
 		
 	}

@@ -13,6 +13,7 @@
  */
 package com.apm.client.config
 {
+	import com.apm.client.config.processes.CheckNetworkProcess;
 	import com.apm.client.config.processes.LoadMacOSEnvironmentVariablesProcess;
 	import com.apm.client.config.processes.LoadProjectDefinitionProcess;
 	import com.apm.client.config.processes.LoadUserSettingsProcess;
@@ -64,6 +65,9 @@ package com.apm.client.config
 		// Settings loaded from the users' home directory
 		public var user:UserSettings;
 		
+		// Whether there is an active internet connection
+		public var hasNetwork:Boolean = false;
+		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
@@ -80,8 +84,9 @@ package com.apm.client.config
 		 * and is called before any commands are executed.
 		 *
 		 * @param callback
+		 * @param checkNetwork If true a check will be performed for an active network connection
 		 */
-		public function loadEnvironment( callback:Function ):void
+		public function loadEnvironment( callback:Function, checkNetwork:Boolean=false ):void
 		{
 			Log.d( TAG, "loadEnvironment()" );
 			
@@ -101,6 +106,7 @@ package com.apm.client.config
 			_loadQueue.addProcess( new LoadProjectDefinitionProcess( this ) );
 			_loadQueue.addProcess( new LoadUserSettingsProcess( this ) );
 //			_loadQueue.addProcess( new DebugDelayProcess( 3000 ) );
+			if (checkNetwork) _loadQueue.addProcess( new CheckNetworkProcess( this ) );
 			
 			_loadQueue.start(
 					function ():void {

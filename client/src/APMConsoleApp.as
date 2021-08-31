@@ -13,23 +13,24 @@
  */
 package
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.events.APMEvent;
 	
 	import flash.desktop.NativeApplication;
 	import flash.desktop.SystemIdleMode;
+	import flash.display.Sprite;
 	import flash.events.InvokeEvent;
 	import flash.system.System;
 	import flash.utils.setInterval;
 	
 	
-	public class APM extends APMCore
+	public class APMConsoleApp extends Sprite
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "APM";
+		private static const TAG:String = "APMConsoleApp";
 		
 		
 		////////////////////////////////////////////////////////
@@ -37,24 +38,28 @@ package
 		//
 		
 		
+		protected var apmContext:APM;
+		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
 		
-		public function APM()
+		public function APMConsoleApp()
 		{
-			NativeApplication.nativeApplication.addEventListener( InvokeEvent.INVOKE, invokeHandler );
+			apmContext = new APM();
 			
 			NativeApplication.nativeApplication.executeInBackground = true;
 			NativeApplication.nativeApplication.systemIdleMode = SystemIdleMode.KEEP_AWAKE;
 			NativeApplication.nativeApplication.idleThreshold = 86400;
+			
+			NativeApplication.nativeApplication.addEventListener( InvokeEvent.INVOKE, invokeHandler );
 		}
 		
 		
 		private function invokeHandler( event:InvokeEvent ):void
 		{
-			main( event.arguments );
+			apmContext.main( event.arguments );
 		}
 		
 		

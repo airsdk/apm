@@ -13,11 +13,15 @@
  */
 package com.apm.client.commands.general
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
+	import com.apm.client.events.CommandEvent;
+	import com.apm.client.events.CommandEvent;
+	
+	import flash.events.EventDispatcher;
 	
 	
-	public class HelpCommand implements Command
+	public class HelpCommand extends EventDispatcher implements Command
 	{
 		
 		////////////////////////////////////////////////////////
@@ -91,17 +95,17 @@ package com.apm.client.commands.general
 		}
 		
 		
-		public function execute( core:APMCore ):void
+		public function execute():void
 		{
 			if (_parameters && _parameters.length > 0)
 			{
-				core.usage( _parameters.join("/") );
+				dispatchEvent( new CommandEvent( CommandEvent.PRINT_USAGE, _parameters.join("/") ));
 			}
 			else
 			{
-				core.usage();
+				dispatchEvent( new CommandEvent( CommandEvent.PRINT_USAGE ));
 			}
-			core.exit( APMCore.CODE_OK );
+			dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
 		}
 		
 		

@@ -13,14 +13,17 @@
  */
 package com.apm.client.commands.project
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.project.processes.ProjectDefinitionCreateProcess;
+	import com.apm.client.events.CommandEvent;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessQueue;
 	
+	import flash.events.EventDispatcher;
 	
-	public class InitCommand implements Command
+	
+	public class InitCommand extends EventDispatcher implements Command
 	{
 		
 		////////////////////////////////////////////////////////
@@ -97,19 +100,20 @@ package com.apm.client.commands.project
 		}
 		
 		
-		public function execute( core:APMCore ):void
+		public function execute():void
 		{
 			Log.d( TAG, "execute(): " + (_parameters.length > 0 ? _parameters[ 0 ] : "...") + "\n" );
 			try
 			{
-				_queue.addProcess( new ProjectDefinitionCreateProcess( core ) );
+				_queue.addProcess( new ProjectDefinitionCreateProcess() );
 				_queue.start( function ():void {
-					core.exit( APMCore.CODE_OK );
+					dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
 				} );
 			}
 			catch (e:Error)
 			{
-				core.io.error( e );
+				APM.io.error( e );
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
 			}
 		}
 		

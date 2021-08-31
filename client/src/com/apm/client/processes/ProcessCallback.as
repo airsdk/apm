@@ -41,7 +41,7 @@ package com.apm.client.processes
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function=null, failureCallback:Function=null ):void
 		{
 			if (_callback != null) _callback();
 			complete();

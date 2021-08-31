@@ -11,9 +11,11 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		22/6/21
  */
-package com.apm.data.utils
+package com.apm.utils
 {
 	import by.blooddy.crypto.SHA256;
+	
+	import com.apm.client.processes.generic.ChecksumProcess;
 	
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
@@ -44,23 +46,39 @@ package com.apm.data.utils
 		}
 		
 		
-		public static function sha256Checksum( f:File ):String
+		public static function sha256Checksum( f:File, callback:Function=null ):String
 		{
-			var data:ByteArray = new ByteArray();
-			
-			var fs:FileStream = new FileStream();
-			fs.open( f, FileMode.READ );
-			fs.readBytes( data );
-			fs.close();
-			
-			try
+			if (callback == null)
 			{
-				return SHA256.hashBytes( data );
+				var data:ByteArray = new ByteArray();
+				
+				var fs:FileStream = new FileStream();
+				fs.open( f, FileMode.READ );
+				fs.readBytes( data );
+				fs.close();
+				
+				try
+				{
+					return SHA256.hashBytes( data );
+				}
+				catch (e:Error)
+				{
+				}
 			}
-			catch (e:Error)
+			else
 			{
+				var process:ChecksumProcess = new ChecksumProcess( f );
+				process.start(
+						function( data:Object ):void
+						{
+							callback( data );
+						},
+						function( error:String ):void
+						{
+							callback( null );
+						});
 			}
-			return "";
+			return null;
 		}
 		
 		

@@ -32,9 +32,19 @@ package com.apm.client.processes
 		//
 		
 		protected var _queue:ProcessQueue;
-
+		
+		
 		public function get processQueue():ProcessQueue { return _queue; }
+		
+		
 		public function set processQueue( value:ProcessQueue ):void { _queue = value; }
+		
+		
+		protected var _completeCallback:Function;
+		protected var _failureCallback:Function;
+		
+		private var _finished:Boolean = false;
+		
 		
 		
 		////////////////////////////////////////////////////////
@@ -46,23 +56,32 @@ package com.apm.client.processes
 		}
 		
 		
-		public function start():void
+		public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
-			throw new Error( "Not implemented" );
+			_completeCallback = completeCallback;
+			_failureCallback = failureCallback;
 		}
 		
 		
-		
-		
-		protected function complete():void
+		protected function complete( data:Object = null ):void
 		{
-			dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ) );
+			if (!_finished)
+			{
+				_finished = true;
+				if (_completeCallback) _completeCallback( data );
+				dispatchEvent( new ProcessEvent( ProcessEvent.COMPLETE ) );
+			}
 		}
 		
 		
 		protected function failure( error:String = "" ):void
 		{
-			dispatchEvent( new ProcessEvent( ProcessEvent.FAILED, error ) );
+			if (!_finished)
+			{
+				_finished = true;
+				if (_failureCallback) _failureCallback();
+				dispatchEvent( new ProcessEvent( ProcessEvent.FAILED, error ) );
+			}
 		}
 		
 	}

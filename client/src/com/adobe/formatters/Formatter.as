@@ -10,9 +10,6 @@
 package com.adobe.formatters
 {
 
-import mx.managers.ISystemManager;
-import mx.managers.SystemManager;
-import mx.resources.ResourceBundle;
 
 /**
  *  The Formatter class is the base class for all data formatters.
@@ -44,7 +41,7 @@ public class Formatter
      *  A ResourceBundle object containing all symbols
 	 *  from <code>formatters.properties</code>.
      */
-	protected static var packageResources:ResourceBundle;
+	// protected static var packageResources:ResourceBundle;
 	    
 	//--------------------------------------------------------------------------
 	//

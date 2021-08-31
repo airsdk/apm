@@ -13,7 +13,7 @@
  */
 package com.apm.client.commands.airsdk.processes
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.remote.airsdk.AIRSDKAPI;
@@ -49,7 +49,6 @@ package com.apm.client.commands.airsdk.processes
 		//
 		
 		
-		private var _core:APMCore;
 		private var _build:AIRSDKBuild;
 		private var _destination:File;
 		
@@ -61,18 +60,18 @@ package com.apm.client.commands.airsdk.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function DownloadAIRSDKProcess( core:APMCore, build:AIRSDKBuild, destination:File )
+		public function DownloadAIRSDKProcess( build:AIRSDKBuild, destination:File )
 		{
-			_core = core;
 			_build = build;
 			_destination = destination;
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
+			super.start( completeCallback, failureCallback );
 			Log.d( TAG, "start()" );
-			_core.io.showProgressBar( "Downloading AIR v" + _build.version );
+			APM.io.showProgressBar( "Downloading AIR v" + _build.version );
 			if (_destination.exists)
 			{
 				checkExistingFile( true );
@@ -90,7 +89,7 @@ package com.apm.client.commands.airsdk.processes
 			if (_destination.exists)
 			{
 				fileValid = verifyFile();
-				_core.io.completeProgressBar( true, "AIR SDK already downloaded" );
+				APM.io.completeProgressBar( true, "AIR SDK already downloaded" );
 			}
 			
 			if (!fileValid)
@@ -98,7 +97,7 @@ package com.apm.client.commands.airsdk.processes
 				if (downloadIfCheckFails)
 					return downloadFile();
 				else
-					_core.io.writeLine( "Downloaded file failed checks - retry download again later!" );
+					APM.io.writeLine( "Downloaded file failed checks - retry download again later!" );
 			}
 			
 			complete();
@@ -114,11 +113,11 @@ package com.apm.client.commands.airsdk.processes
 			}
 			if (fileValid)
 			{
-				_core.io.completeProgressBar( true, "downloaded" );
+				APM.io.completeProgressBar( true, "downloaded" );
 			}
 			else
 			{
-				_core.io.completeProgressBar( false, "Downloaded file failed checks - retry download again later!" );
+				APM.io.completeProgressBar( false, "Downloaded file failed checks - retry download again later!" );
 			}
 			complete();
 		}
@@ -134,7 +133,7 @@ package com.apm.client.commands.airsdk.processes
 		private function downloadFile():void
 		{
 			var url:String = AIRSDKAPI.DOWNLOAD_ENDPOINT +
-					(_core.config.isMacOS ? _build.urls[ "AIR_Mac" ] : _build.urls[ "AIR_Win" ]);
+					(APM.config.isMacOS ? _build.urls[ "AIR_Mac" ] : _build.urls[ "AIR_Win" ]);
 			
 			var vars:URLVariables = new URLVariables();
 			vars[ "license" ] = "accepted";
@@ -159,7 +158,7 @@ package com.apm.client.commands.airsdk.processes
 		{
 			if (event.bytesTotal > 0)
 			{
-				_core.io.updateProgressBar(
+				APM.io.updateProgressBar(
 						event.bytesLoaded / event.bytesTotal,
 						"Downloading AIR v" + _build.version );
 			}
@@ -180,7 +179,7 @@ package com.apm.client.commands.airsdk.processes
 		
 		private function loader_errorHandler( event:IOErrorEvent ):void
 		{
-			_core.io.completeProgressBar( false, event.text );
+			APM.io.completeProgressBar( false, event.text );
 		}
 		
 		
@@ -192,7 +191,7 @@ package com.apm.client.commands.airsdk.processes
 		
 		private function loader_securityErrorHandler( event:SecurityErrorEvent ):void
 		{
-			_core.io.completeProgressBar( false, event.text );
+			APM.io.completeProgressBar( false, event.text );
 		}
 		
 		

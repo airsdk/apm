@@ -14,8 +14,7 @@
 package com.apm.client.commands.packages.utils
 {
 	import com.apm.client.commands.packages.data.*;
-	import com.apm.client.commands.packages.data.InstallData;
-	import com.apm.client.commands.packages.data.InstallPackageData;
+	import com.apm.data.packages.PackageIdentifier;
 	
 	
 	public class InstallDataValidator
@@ -58,10 +57,10 @@ package com.apm.client.commands.packages.utils
 			var packageGroups:Object = groupPackagesByIdentifier( data.packagesAll );
 			for (var packageIdentifier:String in packageGroups)
 			{
-				var group:InstallPackageDataGroup = packageGroups[packageIdentifier];
+				var group:InstallPackageDataGroup = packageGroups[ packageIdentifier ];
 				if (group.length == 1)
 				{
-					data.packagesToInstall.push( group.versions[0] );
+					data.packagesToInstall.push( group.versions[ 0 ] );
 				}
 				else
 				{
@@ -72,9 +71,9 @@ package com.apm.client.commands.packages.utils
 						data.packagesToInstall.push( resolvedPackage );
 						for (var i:int = 0; i < group.length; i++)
 						{
-							if (!group.versions[i].equals( resolvedPackage ))
+							if (!group.versions[ i ].equals( resolvedPackage ))
 							{
-								data.packagesToRemove.push( group.versions[i] );
+								data.packagesToRemove.push( group.versions[ i ] );
 							}
 						}
 					}
@@ -101,17 +100,18 @@ package com.apm.client.commands.packages.utils
 			var groups:Object = {};
 			for (var i:int = 0; i < packages.length; i++)
 			{
-				if (!groups.hasOwnProperty(packages[i].packageVersion.packageDef.identifier))
+				var identifier:String = PackageIdentifier.identifierWithoutVariant( packages[ i ].packageVersion.packageDef.identifier );
+				if (!groups.hasOwnProperty( identifier ))
 				{
-					groups[ packages[i].packageVersion.packageDef.identifier ] = new InstallPackageDataGroup();
+					groups[ identifier ] = new InstallPackageDataGroup();
 				}
 				// Filter identical duplicates
-				var packageGroup:InstallPackageDataGroup = groups[ packages[i].packageVersion.packageDef.identifier ];
-				packageGroup.addIfNotExists( packages[i] );
+				var packageGroup:InstallPackageDataGroup = groups[ identifier ];
+				packageGroup.addIfNotExists( packages[ i ] );
 			}
 			for (var packageIdentifier:String in groups)
 			{
-				var g:InstallPackageDataGroup = groups[packageIdentifier];
+				var g:InstallPackageDataGroup = groups[ packageIdentifier ];
 				if (g.length > 1)
 				{
 					g.sortByVersion();
@@ -119,12 +119,6 @@ package com.apm.client.commands.packages.utils
 			}
 			return groups;
 		}
-		
-		
-		
-		
-		
-		
 		
 		
 		/**
@@ -139,11 +133,11 @@ package com.apm.client.commands.packages.utils
 			potentialPackages.sortByVersion();
 			
 			// take the most recent / highest version as the candidate
-			var candidate:InstallPackageData = potentialPackages.versions[0];
+			var candidate:InstallPackageData = potentialPackages.versions[ 0 ];
 			var candidateMajor:int = candidate.packageVersion.version.major;
 			for (var i:int = 0; i < potentialPackages.length; i++)
 			{
-				var otherMajor:int = potentialPackages.versions[i].packageVersion.version.major;
+				var otherMajor:int = potentialPackages.versions[ i ].packageVersion.version.major;
 				if (candidateMajor != otherMajor)
 				{
 					// Conflicting major versions!

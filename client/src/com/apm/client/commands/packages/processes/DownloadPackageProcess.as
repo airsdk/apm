@@ -13,13 +13,15 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.client.APMCore;
-	import com.apm.client.commands.packages.utils.PackageFileUtils;
+	import com.apm.client.APM;
+	import com.apm.client.analytics.Analytics;
+	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.commands.packages.utils.PackageRequestUtils;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageVersion;
-	import com.apm.data.utils.Checksum;
+	import com.apm.utils.Checksum;
+	import com.apm.utils.PackageFileUtils;
 	
 	import flash.events.Event;
 	import flash.events.HTTPStatusEvent;
@@ -48,7 +50,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _package:PackageVersion;
 		private var _destination:File;
 		private var _loader:URLLoader;
@@ -58,16 +59,15 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function DownloadPackageProcess( core:APMCore, packageVersion:PackageVersion )
+		public function DownloadPackageProcess( packageVersion:PackageVersion )
 		{
 			super();
-			_core = core;
 			_package = packageVersion;
 			
-			var packagesDir:File = new File( _core.config.packagesDir );
+			var packagesDir:File = new File( APM.config.packagesDir );
 			if (!packagesDir.exists) packagesDir.createDirectory();
 			
-			var packageDir:File = PackageFileUtils.directoryForPackage( _core, packageVersion.packageDef.identifier );
+			var packageDir:File = PackageFileUtils.directoryForPackage( APM.config.packagesDir, packageVersion.packageDef.identifier );
 			if (!packageDir.exists) packageDir.createDirectory();
 			
 			_destination = packageDir.resolvePath(
@@ -76,9 +76,10 @@ package com.apm.client.commands.packages.processes
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
-			_core.io.showProgressBar( "Downloading package : " + _package.packageDef.toString() );
+			super.start( completeCallback, failureCallback );
+			APM.io.showProgressBar( "Downloading package : " + _package.packageDef.toString() );
 			if (_destination.exists)
 			{
 				checkExistingFile( true );
@@ -90,16 +91,33 @@ package com.apm.client.commands.packages.processes
 		}
 		
 		
+		////////////////////////////////////////////////////////
+		//	FILE CHECKS
+		//
+		
 		private function checkExistingFile( downloadIfCheckFails:Boolean = false ):void
 		{
-			var fileValid:Boolean = false;
 			if (_destination.exists)
 			{
-				fileValid = verifyFile( _package.checksum );
-				_core.io.completeProgressBar( fileValid, "Package already downloaded" );
+				verifyFile( _package.checksum, function ( fileValid:Boolean ):void {
+					checkExistingFileComplete( downloadIfCheckFails, fileValid );
+				} );
 			}
-			
-			if (!fileValid)
+			else
+			{
+				checkExistingFileComplete( downloadIfCheckFails, false );
+			}
+		}
+		
+		
+		private function checkExistingFileComplete( downloadIfCheckFails:Boolean, fileValid:Boolean ):void
+		{
+			if (fileValid)
+			{
+				APM.io.completeProgressBar( fileValid, "Package already downloaded" );
+				complete();
+			}
+			else
 			{
 				if (downloadIfCheckFails)
 				{
@@ -107,47 +125,75 @@ package com.apm.client.commands.packages.processes
 				}
 				else
 				{
-					_core.io.writeLine( "Downloaded file failed checks - retry install again later!" );
+					APM.io.writeLine( "Downloaded file failed checks - retry install again later!" );
 					return failure( "Downloaded file failed checks" );
 				}
 			}
-			
-			complete();
 		}
 		
 		
 		private function checkDownloadedFile():void
 		{
-			var fileValid:Boolean = false;
 			if (_destination.exists)
 			{
-				fileValid = verifyFile( _package.checksum );
-			}
-			if (fileValid)
-			{
-				_core.io.completeProgressBar( true, "downloaded" );
-				complete();
+				verifyFile( _package.checksum, checkDownloadFileComplete );
 			}
 			else
 			{
-				_core.io.completeProgressBar( false, "Downloaded file failed checks - retry install again later!" );
+				checkDownloadFileComplete( false );
+			}
+		}
+		
+		
+		private function checkDownloadFileComplete( fileValid:Boolean ):void
+		{
+			if (fileValid)
+			{
+				APM.io.completeProgressBar( true, "downloaded" );
+				Analytics.instance.download(
+						_package.packageDef.identifier,
+						_package.version.toString(),
+						complete );
+			}
+			else
+			{
+				APM.io.completeProgressBar( false, "Downloaded file failed checks - retry install again later!" );
 				failure( "Downloaded file failed checks" );
 			}
 		}
 		
 		
-		private function verifyFile( checksum:String ):Boolean
+		private function verifyFile( checksum:String, callback:Function ):void
 		{
 			// No checksum provided so don't perform check
-			if (checksum == null || checksum.length == 0) return true;
-			
-			var calculatedSum:String = "";
-			if (_destination.exists)
+			if (checksum == null || checksum.length == 0)
 			{
-				calculatedSum = Checksum.sha256Checksum( _destination );
+				callback( true );
 			}
-			return calculatedSum == checksum;
+			else
+			{
+				if (_destination.exists)
+				{
+					Checksum.sha256Checksum( _destination, function( calculatedSum:String ):void
+					{
+						callback( calculatedSum == checksum );
+					});
+				}
+			}
 		}
+		
+		
+		////////////////////////////////////////////////////////
+		//	DOWNLOADING
+		//
+		
+		private function isPrivateLicense():Boolean
+		{
+			return (_package.packageDef.license != null && !_package.packageDef.license.isPublic);
+		}
+		
+		
+		private var _httpStatus:int = 0;
 		
 		
 		private function downloadPackage():void
@@ -162,7 +208,7 @@ package com.apm.client.commands.packages.processes
 			
 			PackageRequestUtils.generateURLRequestForPackage(
 					_package.sourceUrl,
-					_core,
+					APM.config.user.githubToken,
 					function ( req:URLRequest ):void {
 						_loader.load( req );
 					} );
@@ -173,7 +219,7 @@ package com.apm.client.commands.packages.processes
 		{
 			if (event.bytesTotal > 0)
 			{
-				_core.io.updateProgressBar(
+				APM.io.updateProgressBar(
 						event.bytesLoaded / event.bytesTotal,
 						"Downloading package : " + _package.packageDef.toString() );
 			}
@@ -199,21 +245,41 @@ package com.apm.client.commands.packages.processes
 		
 		private function loader_errorHandler( event:IOErrorEvent ):void
 		{
-			_core.io.completeProgressBar( false, event.text );
-			complete();
+			var message:String = "";
+			switch (_httpStatus)
+			{
+				case 404:
+				{
+					if (isPrivateLicense())
+					{
+						message = "[" + _httpStatus + "] There was an issue accessing the package, this is a private package so check you have a valid license and that you have correctly set your github access token";
+					}
+					else
+					{
+						message = "[" + _httpStatus + "] There was an issue accessing the package";
+					}
+					break;
+				}
+				
+				default:
+					message = event.text;
+			}
+			APM.io.completeProgressBar( false, message );
+			failure( message );
 		}
 		
 		
 		private function loader_statusHandler( event:HTTPStatusEvent ):void
 		{
 			Log.d( TAG, "loader_statusHandler(): " + event.status );
+			_httpStatus = event.status;
 		}
 		
 		
 		private function loader_securityErrorHandler( event:SecurityErrorEvent ):void
 		{
-			_core.io.completeProgressBar( false, event.text );
-			complete();
+			APM.io.completeProgressBar( false, event.text );
+			failure();
 		}
 		
 		

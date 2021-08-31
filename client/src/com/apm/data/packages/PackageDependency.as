@@ -56,7 +56,7 @@ package com.apm.data.packages
 		
 		public function toString():String
 		{
-			return identifier + "@" + version.toString()
+			return (identifier == null ? "none" : identifier) + "@" + (version == null ? "unknown" : version.toString());
 		}
 		
 		
@@ -82,10 +82,19 @@ package com.apm.data.packages
 			{
 				if (data is String)
 				{
+					var line:String = String(data);
 					// single line format com.package.example:1.0.0
 					this._singleLineOutput = true;
-					this.identifier = data.substring( 0, String( data ).indexOf( ":" ) );
-					this.version = SemVer.fromString( String( data ).substring( data.indexOf( ":" ) + 1 ) );
+					if (line.indexOf(":") > 0)
+					{
+						this.identifier = line.substring( 0, line.indexOf(":") );
+						this.version = SemVer.fromString( line.substring( line.indexOf(":") + 1 ) );
+					}
+					else
+					{
+						this.identifier = line;
+						this.version = null;
+					}
 				}
 				else
 				{

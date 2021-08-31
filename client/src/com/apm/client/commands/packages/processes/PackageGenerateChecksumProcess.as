@@ -16,8 +16,9 @@ package com.apm.client.commands.packages.processes
 	import by.blooddy.crypto.SHA256;
 	import by.blooddy.crypto.events.ProcessEvent;
 	
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.processes.ProcessBase;
+	import com.apm.client.processes.generic.ChecksumProcess;
 	import com.apm.data.packages.PackageDefinitionFile;
 	
 	import flash.filesystem.File;
@@ -46,7 +47,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _packageDefinition:PackageDefinitionFile;
 		private var _file:File;
 		
@@ -55,46 +55,39 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function PackageGenerateChecksumProcess( core:APMCore, packageDefinition:PackageDefinitionFile, file:File )
+		public function PackageGenerateChecksumProcess( packageDefinition:PackageDefinitionFile, file:File )
 		{
-			_core = core;
 			_packageDefinition = packageDefinition;
 			_file = file;
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
-			_core.io.showSpinner( "Generating package checksum: " + _file.nativePath );
+			super.start( completeCallback, failureCallback );
+			APM.io.showSpinner( "Generating package checksum: " + _file.nativePath );
 			if (!_file.exists)
 			{
-				_core.io.stopSpinner( false, "Package doesn't exist: " + _file.nativePath );
+				APM.io.stopSpinner( false, "Package doesn't exist: " + _file.nativePath );
 				return failure();
 			}
 			
-			var data:ByteArray = new ByteArray();
-
-			var fs:FileStream = new FileStream();
-			fs.open( _file, FileMode.READ );
-			fs.readBytes( data );
-			fs.close();
 			
+			var subprocess:ChecksumProcess = new ChecksumProcess( _file );
 			
-			var hashAlgorithm:SHA256 = new SHA256();
-			
-			hashAlgorithm.addEventListener( ProcessEvent.COMPLETE, function(event:ProcessEvent):void {
-				var result:String = event.data;
-				_packageDefinition.version.checksum = result;
-				_core.io.stopSpinner( true, "Generated checksum: " + result );
-				complete();
-			} );
-			
-			hashAlgorithm.addEventListener( ProcessEvent.ERROR, function(event:ProcessEvent):void {
-				var error:Error = event.data;
-				_core.io.stopSpinner( false, "ERROR: " + error.message );
-				failure();
-			} );
-			hashAlgorithm.hashBytes( data );
+			subprocess.start(
+					function( data:Object ):void
+					{
+						var result:String = String(data);
+						_packageDefinition.version.checksum = result;
+						APM.io.stopSpinner( true, "Generated checksum: " + result );
+						complete();
+					},
+					function( error:String ):void
+					{
+						APM.io.stopSpinner( false, "ERROR: " + error );
+						failure();
+					});
 			
 		}
 		

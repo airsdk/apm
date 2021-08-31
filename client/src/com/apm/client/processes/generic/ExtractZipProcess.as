@@ -13,7 +13,7 @@
  */
 package com.apm.client.processes.generic
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.processes.ProcessBase;
 	
 	import flash.filesystem.File;
@@ -32,7 +32,6 @@ package com.apm.client.processes.generic
 		//  VARIABLES
 		//
 		
-		protected var _core:APMCore;
 		protected var _zipFile:File;
 		protected var _outputDir:File;
 		
@@ -41,20 +40,30 @@ package com.apm.client.processes.generic
 		//  FUNCTIONALITY
 		//
 		
-		public function ExtractZipProcess( core:APMCore, zipFile:File, outputDir:File )
+		public function ExtractZipProcess( zipFile:File, outputDir:File )
 		{
-			_core = core;
 			_zipFile = zipFile;
 			_outputDir = outputDir;
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function=null, failureCallback:Function=null ):void
 		{
-			if (_core.config.isMacOS) processQueue.addProcessToStart( new ExtractZipMacOSProcess( _core, _zipFile, _outputDir ) );
-			else if (_core.config.isWindows) processQueue.addProcessToStart( new ExtractZipWindowsProcess( _core, _zipFile, _outputDir ) );
-			else processQueue.addProcessToStart( new ExtractZipAS3Process( _core, _zipFile, _outputDir ) );
-			complete();
+			super.start( completeCallback, failureCallback );
+			var subprocess:ProcessBase;
+			if (APM.config.isMacOS)
+			{
+				subprocess = new ExtractZipMacOSProcess( _zipFile, _outputDir );
+			}
+			else if (APM.config.isWindows)
+			{
+				subprocess = new ExtractZipWindowsProcess( _zipFile, _outputDir );
+			}
+			else
+			{
+				subprocess = new ExtractZipAS3Process( _zipFile, _outputDir );
+			}
+			subprocess.start( complete, failure );
 		}
 		
 	}

@@ -15,7 +15,9 @@ package com.apm.client.commands.packages.utils
 {
 	import com.apm.SemVer;
 	import com.apm.client.commands.packages.data.InstallQueryRequest;
+	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.project.ProjectDefinition;
+	import com.apm.data.packages.PackageIdentifier;
 	
 	
 	public class ProjectDefinitionValidator
@@ -51,7 +53,7 @@ package com.apm.client.commands.packages.utils
 			// Check package not already installed
 			for (var i:int = 0; i < project.dependencies.length; i++)
 			{
-				if (request.packageIdentifier == project.dependencies[ i ].identifier)
+				if (PackageIdentifier.isEquivalent( request.packageIdentifier, project.dependencies[i].identifier ))
 				{
 					if (request.version == "latest")
 					{
@@ -69,6 +71,19 @@ package com.apm.client.commands.packages.utils
 				}
 			}
 			return NOT_INSTALLED;
+		}
+		
+		
+		public static function getInstalledPackageDependency( project:ProjectDefinition, request:InstallQueryRequest ):PackageDependency
+		{
+			for (var i:int = 0; i < project.dependencies.length; i++)
+			{
+				if (PackageIdentifier.isEquivalent( request.packageIdentifier, project.dependencies[ i ].identifier ))
+				{
+					return project.dependencies[ i ];
+				}
+			}
+			return null;
 		}
 		
 		

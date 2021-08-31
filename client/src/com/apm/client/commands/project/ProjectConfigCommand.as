@@ -13,12 +13,15 @@
  */
 package com.apm.client.commands.project
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
+	import com.apm.client.events.CommandEvent;
 	import com.apm.client.logging.Log;
 	
+	import flash.events.EventDispatcher;
 	
-	public class ProjectConfigCommand implements Command
+	
+	public class ProjectConfigCommand extends EventDispatcher implements Command
 	{
 		
 		////////////////////////////////////////////////////////
@@ -95,7 +98,7 @@ package com.apm.client.commands.project
 		}
 		
 		
-		public function execute( core:APMCore ):void
+		public function execute():void
 		{
 			Log.d( TAG, "execute(): " + (_parameters.length > 0 ? _parameters[ 0 ] : "...") + "\n" );
 			try
@@ -109,16 +112,18 @@ package com.apm.client.commands.project
 						{
 							if (_parameters.length < 3)
 							{
-								core.usage( name );
-								return core.exit( APMCore.CODE_ERROR );
+								dispatchEvent( new CommandEvent( CommandEvent.PRINT_USAGE, name ));
+								dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+								return;
 							}
 							
 							var set_param:String = _parameters[ ++i ];
 							var set_value:String = _parameters.slice( ++i ).join(" ");
 							
-							core.config.projectDefinition.setConfigurationParam( set_param, set_value );
-							core.config.projectDefinition.save();
-							return core.exit( APMCore.CODE_OK );
+							APM.config.projectDefinition.setConfigurationParam( set_param, set_value );
+							APM.config.projectDefinition.save();
+							dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
+							return;
 							break;
 						}
 						
@@ -127,14 +132,16 @@ package com.apm.client.commands.project
 							if (_parameters.length >= 2)
 							{
 								var param:String = _parameters[ ++i ];
-								var value:String = core.config.projectDefinition.getConfigurationParam( param );
-								core.io.writeLine( param + "=" + (value == null ? "null" : value) );
-								return core.exit( APMCore.CODE_OK );
+								var value:String = APM.config.projectDefinition.getConfigurationParam( param );
+								APM.io.writeLine( param + "=" + (value == null ? "null" : value) );
+								dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
+								return;
 							}
 							else
 							{
-								core.usage( name );
-								return core.exit( APMCore.CODE_ERROR );
+								dispatchEvent( new CommandEvent( CommandEvent.PRINT_USAGE, name ));
+								dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+								return;
 							}
 							break;
 						}
@@ -142,16 +149,16 @@ package com.apm.client.commands.project
 				}
 
 				// print all config
-				for (var key:String in core.config.projectDefinition.configuration)
+				for (var key:String in APM.config.projectDefinition.configuration)
 				{
-					core.io.writeLine( key + "=" + core.config.projectDefinition.getConfigurationParam( key ) );
+					APM.io.writeLine( key + "=" + APM.config.projectDefinition.getConfigurationParam( key ) );
 				}
-				core.exit( APMCore.CODE_OK );
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
 			}
 			catch (e:Error)
 			{
-				core.io.error( e );
-				core.exit( APMCore.CODE_ERROR );
+				APM.io.error( e );
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
 			}
 		}
 		

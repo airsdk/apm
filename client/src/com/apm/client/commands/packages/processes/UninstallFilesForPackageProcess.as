@@ -13,17 +13,13 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.client.APMCore;
-	import com.apm.client.commands.packages.data.InstallPackageData;
-	import com.apm.client.commands.packages.data.InstallQueryRequest;
-	import com.apm.client.commands.packages.utils.DeployFileUtils;
-	import com.apm.client.commands.packages.utils.FileUtils;
-	import com.apm.client.commands.packages.utils.PackageFileUtils;
+	import com.apm.client.APM;
+	import com.apm.utils.DeployFileUtils;
+	import com.apm.utils.FileUtils;
+	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
-	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.packages.PackageDefinitionFile;
-	import com.apm.data.packages.PackageDependency;
 	
 	import flash.filesystem.File;
 	
@@ -45,7 +41,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _packageDefinition:PackageDefinitionFile;
 		
 		
@@ -53,61 +48,68 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function UninstallFilesForPackageProcess( core:APMCore, packageDefinition:PackageDefinitionFile )
+		public function UninstallFilesForPackageProcess( packageDefinition:PackageDefinitionFile )
 		{
 			super();
-			_core = core;
 			_packageDefinition = packageDefinition;
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
-			_core.io.showSpinner( "Removing package : " + _packageDefinition.packageDef.identifier );
+			super.start( completeCallback, failureCallback );
+			APM.io.showSpinner( "Removing package : " + _packageDefinition.packageDef.identifier );
 			
-			var cacheDir:File = PackageFileUtils.cacheDirForPackage( _core, _packageDefinition.packageDef.identifier );
+			var cacheDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDir, _packageDefinition.packageDef.identifier );
 			for each (var ref:File in cacheDir.getDirectoryListing())
 			{
 				if (ref.isDirectory)
 				{
-					var deployLocation:File = DeployFileUtils.getDeployLocation( _core.config, ref.name );
-
-					var listing:Array = generateDirectoryListing( ref );
-
-					deleteListedFilesFromDirectory( listing, deployLocation );
-//					FileUtils.copyDirectoryTo( ref, deployLocation, true );
+					var deployLocation:File = DeployFileUtils.getDeployLocation( APM.config, ref.name );
+					if (deployLocation != null)
+					{
+						var listing:Array = generateDirectoryListing( ref );
+						
+						deleteListedFilesFromDirectory( listing, deployLocation );
+						
+						FileUtils.removeEmptyDirectories( deployLocation, true );
+					}
 				}
 			}
 			cacheDir.deleteDirectory( true );
 			
-			var packageDir:File = PackageFileUtils.directoryForPackage( _core, _packageDefinition.packageDef.identifier );
+			var packageDir:File = PackageFileUtils.directoryForPackage( APM.config.packagesDir, _packageDefinition.packageDef.identifier );
 			packageDir.deleteDirectory( true );
 			
-			_core.io.stopSpinner( true, "Removed package : " + _packageDefinition.packageDef.identifier );
+			APM.io.stopSpinner( true, "Removed package : " + _packageDefinition.packageDef.identifier );
 			complete();
 		}
 		
-
+		
 		private function deleteListedFilesFromDirectory( listing:Array, directory:File ):void
 		{
 			for each (var path:String in listing)
 			{
-				_core.io.updateSpinner( "Removing package : " + _packageDefinition.packageDef.identifier + " / " + path );
+				Log.d( TAG, "Removing package : " + _packageDefinition.packageDef.identifier + " / " + path );
+				APM.io.updateSpinner( "Removing package : " + _packageDefinition.packageDef.identifier + " / " + path );
 				var f:File = directory.resolvePath( path );
 				if (f.exists)
 					f.deleteFile();
 			}
 		}
 		
-		private function generateDirectoryListing( directory:File, path:String="", listing:Array=null ):Array
+		
+		private static function generateDirectoryListing( directory:File, path:String = "", listing:Array = null ):Array
 		{
 			if (listing == null) listing = [];
 			for each (var f:File in directory.getDirectoryListing())
 			{
-				if (f.isDirectory) {
+				if (f.isDirectory)
+				{
 					generateDirectoryListing( f, path + f.name + File.separator, listing );
 				}
-				else {
+				else
+				{
 					listing.push( path + f.name );
 				}
 			}

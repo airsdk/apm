@@ -13,12 +13,12 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.commands.packages.data.InstallData;
 	import com.apm.client.commands.packages.data.InstallPackageData;
-	import com.apm.client.commands.packages.utils.DeployFileUtils;
-	import com.apm.client.commands.packages.utils.FileUtils;
-	import com.apm.client.commands.packages.utils.PackageFileUtils;
+	import com.apm.utils.DeployFileUtils;
+	import com.apm.utils.FileUtils;
+	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageParameter;
@@ -43,7 +43,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _installData:InstallData;
 		
 		
@@ -51,29 +50,32 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function InstallDeployProcess( core:APMCore, installData:InstallData )
+		public function InstallDeployProcess( installData:InstallData )
 		{
-			_core = core;
 			_installData = installData;
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
+			super.start( completeCallback, failureCallback );
 			for each (var p:InstallPackageData in _installData.packagesToInstall)
 			{
-				_core.io.showSpinner( "Deploying package: " + p.packageVersion.packageDef.toString() );
-				var packageDir:File = PackageFileUtils.cacheDirForPackage( _core, p.packageVersion.packageDef.identifier );
+				APM.io.showSpinner( "Deploying package: " + p.packageVersion.packageDef.toString() );
+				var packageDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDir, p.packageVersion.packageDef.identifier );
 				for each (var ref:File in packageDir.getDirectoryListing())
 				{
 					if (ref.isDirectory)
 					{
-						_core.io.updateSpinner( "Deploying package: " + p.packageVersion.packageDef.toString() + " " + ref.name );
-						var deployLocation:File = DeployFileUtils.getDeployLocation( _core.config, ref.name );
-						FileUtils.copyDirectoryTo( ref, deployLocation, true );
+						APM.io.updateSpinner( "Deploying package: " + p.packageVersion.packageDef.toString() + " " + ref.name );
+						var deployLocation:File = DeployFileUtils.getDeployLocation( APM.config, ref.name );
+						if (deployLocation != null)
+						{
+							FileUtils.copyDirectoryTo( ref, deployLocation, true );
+						}
 					}
 				}
-				_core.io.stopSpinner( true, "Deployed: " + p.packageVersion.packageDef.toString() );
+				APM.io.stopSpinner( true, "Deployed: " + p.packageVersion.packageDef.toString() );
 			}
 			complete();
 		}

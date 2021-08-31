@@ -13,13 +13,16 @@
  */
 package com.apm.client.commands.packages
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.packages.processes.ViewPackageProcess;
+	import com.apm.client.events.CommandEvent;
 	import com.apm.client.processes.ProcessQueue;
 	
+	import flash.events.EventDispatcher;
 	
-	public class ViewCommand implements Command
+	
+	public class ViewCommand extends EventDispatcher implements Command
 	{
 		
 		////////////////////////////////////////////////////////
@@ -94,20 +97,26 @@ package com.apm.client.commands.packages
 		}
 		
 		
-		public function execute( core:APMCore ):void
+		public function execute():void
 		{
 			if (_parameters == null || _parameters.length == 0)
 			{
-				core.io.writeLine( "No search params provided" );
-				return core.exit( APMCore.CODE_ERROR );
+				APM.io.writeLine( "No search params provided" );
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+				return;
 			}
 			
 			var identifier:String = _parameters[ 0 ];
 			
-			_queue.addProcess( new ViewPackageProcess( core, identifier ) );
-			_queue.start( function ():void {
-				core.exit( APMCore.CODE_OK );
-			} );
+			_queue.addProcess( new ViewPackageProcess( identifier ) );
+			_queue.start( function ():void
+						  {
+							  dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
+						  },
+						  function ( message:String ):void
+						  {
+							  dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+						  });
 		}
 		
 	}

@@ -11,7 +11,7 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		28/6/21
  */
-package com.apm.data.utils
+package com.apm.utils
 {
 	
 	public class JSONUtils

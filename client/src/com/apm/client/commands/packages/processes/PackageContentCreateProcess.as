@@ -13,11 +13,11 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.SemVer;
-	import com.apm.client.APMCore;
-	import com.apm.client.Consts;
-	import com.apm.client.commands.packages.utils.PackageFileUtils;
+	import com.apm.client.APM;
+	import com.apm.utils.FileUtils;
+	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.processes.ProcessBase;
+	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageDefinitionFile;
 	
 	import flash.filesystem.File;
@@ -44,7 +44,6 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _core:APMCore;
 		private var _packageDir:File;
 		
 		
@@ -52,27 +51,27 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function PackageContentCreateProcess( core:APMCore, packageDir:File )
+		public function PackageContentCreateProcess( packageDir:File )
 		{
-			_core = core;
 			_packageDir = packageDir;
 		}
 		
 		
-		override public function start():void
+		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
+			super.start( completeCallback, failureCallback );
 			if (!_packageDir.exists || !_packageDir.isDirectory)
 			{
-				_core.io.writeError( _packageDir.name, "Specified package directory does not exist" );
+				APM.io.writeError( _packageDir.name, "Specified package directory does not exist" );
 				return failure();
 			}
 			
-			_core.io.showSpinner( "Building package" );
+			APM.io.showSpinner( "Building package" );
 			
 			var packageDefinitionFile:File = _packageDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 			if (!packageDefinitionFile.exists)
 			{
-				_core.io.writeError( PackageDefinitionFile.DEFAULT_FILENAME, "Package definition file does not exist" );
+				APM.io.writeError( PackageDefinitionFile.DEFAULT_FILENAME, "Package definition file does not exist" );
 				return failure();
 			}
 			var packDefFile:PackageDefinitionFile = new PackageDefinitionFile().load( packageDefinitionFile );
@@ -81,40 +80,51 @@ package com.apm.client.commands.packages.processes
 			var zip:Zip = new Zip();
 			
 			
-			
-			var libDir:File = _packageDir.resolvePath( "lib" );
-			var aneDir:File = _packageDir.resolvePath( "ane" );
-			var srcDir:File = _packageDir.resolvePath( "src" );
+			var aneDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_ANE_DIR );
+			var swcDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_SWC_DIR );
+			var srcDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_SRC_DIR );
 			var readmeFile:File = _packageDir.resolvePath( "README.md" );
 			var changeLogFile:File = _packageDir.resolvePath( "CHANGELOG.md" );
 			var licenseFile:File = _packageDir.resolvePath( "LICENSE.md" );
-			var androidFile:File = _packageDir.resolvePath( "android.xml" );
-			var iosFile:File = _packageDir.resolvePath( "ios.xml" );
 			
 			addFileToZip( zip, packageDefinitionFile );
 			addFileToZip( zip, readmeFile );
 			
 			if (changeLogFile.exists) addFileToZip( zip, changeLogFile );
 			if (licenseFile.exists) addFileToZip( zip, licenseFile );
-			if (androidFile.exists) addFileToZip( zip, androidFile );
-			if (iosFile.exists) addFileToZip( zip, iosFile );
-			
 			
 			switch (packDefFile.packageDef.type)
 			{
-				case "swc":
-					addFileToZip( zip, libDir );
+				case PackageDefinition.TYPE_SWC:
+					addFileToZip( zip, swcDir );
 					break;
-				case "ane":
+				case PackageDefinition.TYPE_ANE:
 					addFileToZip( zip, aneDir );
 					break;
-				case "src":
+				case PackageDefinition.TYPE_SRC:
 					addFileToZip( zip, srcDir );
 					break;
 			}
 			
+			// Platform specific asset files (assets that need to be packaged with an app)
+			var assetsDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_ASSETS );
+			if (assetsDir.exists)
+			{
+				FileUtils.removeEmptyDirectories( assetsDir );
+				addFileToZip( zip, assetsDir );
+			}
+			
+			// Platform specific configuration files (AndroidManifest.xml, InfoAdditions.xml etc)
+			var platformsDir:File = _packageDir.resolvePath( PackageFileUtils.AIRPACKAGE_PLATFORMS );
+			if (platformsDir.exists)
+			{
+				FileUtils.removeEmptyDirectories( platformsDir );
+				addFileToZip( zip, platformsDir );
+			}
+
+			
 			var packageFileName:String = packDefFile.packageDef.identifier + "_" + packDefFile.version.version.toString() + "." + PackageFileUtils.AIRPACKAGEEXTENSION;
-			var packageFilePath:String = _core.config.workingDir + File.separator + packageFileName;
+			var packageFilePath:String = APM.config.workingDir + File.separator + packageFileName;
 			var packageFile:File = new File( packageFilePath );
 			
 			var outStream:FileStream = new FileStream();
@@ -122,15 +132,15 @@ package com.apm.client.commands.packages.processes
 			zip.serialize( outStream );
 			outStream.close();
 			
-			_core.io.stopSpinner(  true,"Package built: " + packageFileName );
+			APM.io.stopSpinner( true, "Package built: " + packageFileName );
 			
 			complete();
 		}
 		
 		
-		private function addFileToZip( zip:Zip, f:File, path:String="" ):void
+		private function addFileToZip( zip:Zip, f:File, path:String = "" ):void
 		{
-			_core.io.updateSpinner();
+			APM.io.updateSpinner();
 			if (f.isDirectory)
 			{
 				var files:Array = f.getDirectoryListing();
@@ -153,9 +163,6 @@ package com.apm.client.commands.packages.processes
 				zip.addFile( filePath, content );
 			}
 		}
-		
-		
-		
 		
 		
 	}

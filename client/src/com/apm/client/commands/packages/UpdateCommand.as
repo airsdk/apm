@@ -13,17 +13,20 @@
  */
 package com.apm.client.commands.packages
 {
-	import com.apm.client.APMCore;
+	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.packages.data.InstallData;
 	import com.apm.client.commands.packages.data.InstallQueryRequest;
 	import com.apm.client.commands.packages.processes.InstallDataValidationProcess;
 	import com.apm.client.commands.packages.processes.InstallQueryPackageProcess;
+	import com.apm.client.events.CommandEvent;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.project.ProjectDefinition;
 	
+	import flash.events.EventDispatcher;
 	
-	public class UpdateCommand implements Command
+	
+	public class UpdateCommand extends EventDispatcher implements Command
 	{
 		
 		////////////////////////////////////////////////////////
@@ -104,12 +107,13 @@ package com.apm.client.commands.packages
 		}
 		
 		
-		public function execute( core:APMCore ):void
+		public function execute():void
 		{
-			var project:ProjectDefinition = core.config.projectDefinition;
+			var project:ProjectDefinition = APM.config.projectDefinition;
 			if (project == null)
 			{
-				return core.exit( APMCore.CODE_ERROR );
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+				return;
 			}
 			
 			var packageIdentifier:String = null;
@@ -125,7 +129,6 @@ package com.apm.client.commands.packages
 				{
 					_queue.addProcess(
 							new InstallQueryPackageProcess(
-									core,
 									_installData,
 									new InstallQueryRequest(
 											project.dependencies[ i ].identifier,
@@ -139,23 +142,26 @@ package com.apm.client.commands.packages
 			
 			if (_queue.length == 0)
 			{
-				core.io.writeLine( "Nothing to update" );
-				return core.exit( APMCore.CODE_OK )
+				APM.io.writeLine( "Nothing to update" );
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
+				return;
 			}
 			
 			_queue.start(
 					function ():void {
-						_queue.addProcess( new InstallDataValidationProcess( core, _installData ) );
+						_queue.addProcess( new InstallDataValidationProcess( _installData ) );
 						_queue.start(
-								function ():void {
-									core.exit( APMCore.CODE_OK );
+								function ():void
+								{
+									dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
 								},
-								function ( error:String ):void {
-									core.exit( APMCore.CODE_ERROR );
+								function ( message:String ):void
+								{
+									dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
 								} );
 					},
 					function ( error:String ):void {
-						core.exit( APMCore.CODE_ERROR );
+						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
 					} );
 			
 		}
