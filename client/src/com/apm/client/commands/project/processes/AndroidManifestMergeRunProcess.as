@@ -14,7 +14,6 @@
 package com.apm.client.commands.project.processes
 {
 	import com.apm.client.APM;
-	import com.apm.client.Consts;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.project.ApplicationDescriptor;
@@ -131,9 +130,7 @@ package com.apm.client.commands.project.processes
 					processArgs.push( paramName + "=" + paramValue );
 				}
 				
-				var javaHome:String = APM.config.env[ "JAVA_HOME" ];
-				if (javaHome == null) javaHome = "";
-				var java:File = new File( javaHome ).resolvePath( "bin/java" );
+				var java:File = APM.config.getJava();
 				if (!java.exists)
 				{
 					return failure( "Could not locate java installation - Check you have set the JAVA_HOME environment variable correctly" )
@@ -155,7 +152,7 @@ package com.apm.client.commands.project.processes
 			}
 			else
 			{
-				APM.io.writeError( TAG, "Native process not supported - Manifest merge tool cannot be run");
+				APM.io.writeError( TAG, "Native process not supported - Manifest merge tool cannot be run" );
 				failure( "Native process not supported - Manifest merge tool cannot be run" );
 			}
 		}
@@ -178,7 +175,7 @@ package com.apm.client.commands.project.processes
 			{
 				args.push( manifestFile.nativePath );
 			}
-			return args.join( ":" );
+			return args.join( APM.config.isWindows ? ";" : ":" );
 		}
 		
 		
@@ -214,7 +211,6 @@ package com.apm.client.commands.project.processes
 			{
 				mainManifest.deleteFile();
 			}
-			
 			
 			if (event.exitCode == 0)
 			{
@@ -259,10 +255,10 @@ package com.apm.client.commands.project.processes
 				component = component.replace( /-/g, "_" ); // replace hyphens with underscore
 				if (component.match( /^\d/ ))
 					component = "A" + component; // prefix numeric component with "A"
-				components[i] = component;
+				components[ i ] = component;
 			}
-
-			var airPackageName:String = components.join(".");
+			
+			var airPackageName:String = components.join( "." );
 			if (noAndroidFlair())
 			{
 				return airPackageName;

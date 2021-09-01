@@ -136,6 +136,24 @@ package com.apm.client.config
 		}
 		
 		
+		public function getJava():File
+		{
+			var java:File;
+			var javaHome:String = env[ "JAVA_HOME" ];
+			if (javaHome == null) javaHome = "";
+			if (isWindows)
+			{
+				java = new File( javaHome ).resolvePath( "bin\\java.exe" );
+			}
+			else
+			{
+				java = new File( javaHome ).resolvePath( "bin/java" );
+			}
+			return java;
+		}
+		
+		
+		
 		//
 		//	UTILITIES
 		//
