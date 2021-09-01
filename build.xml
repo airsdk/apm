@@ -78,9 +78,9 @@
             maxmemory="1024m">
 			<load-config filename="${air.sdk}/frameworks/air-config.xml" />
 			<source-path path-element="${apm.clientdir}/src" />
-            <external-library-path dir="${apm.clientdir}/libs" append="true">
+            <library-path dir="${apm.clientdir}/libs" append="true">
                 <include name="*.swc" />
-            </external-library-path>
+            </library-path>
 		</mxmlc>
 		<echo message="Copying apm scripts..."/>
         <copy overwrite="true" todir="${apm.builddir}">
