@@ -34,16 +34,18 @@ package com.apm.client.processes.generic
 		
 		protected var _zipFile:File;
 		protected var _outputDir:File;
+		protected var _showOutputs:Boolean;
 		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function ExtractZipProcess( zipFile:File, outputDir:File )
+		public function ExtractZipProcess( zipFile:File, outputDir:File, showOutputs:Boolean=true )
 		{
 			_zipFile = zipFile;
 			_outputDir = outputDir;
+			_showOutputs = showOutputs;
 		}
 		
 		
@@ -53,15 +55,15 @@ package com.apm.client.processes.generic
 			var subprocess:ProcessBase;
 			if (APM.config.isMacOS)
 			{
-				subprocess = new ExtractZipMacOSProcess( _zipFile, _outputDir );
+				subprocess = new ExtractZipMacOSProcess( _zipFile, _outputDir, _showOutputs );
 			}
 			else if (APM.config.isWindows)
 			{
-				subprocess = new ExtractZipWindowsProcess( _zipFile, _outputDir );
+				subprocess = new ExtractZipWindowsProcess( _zipFile, _outputDir, _showOutputs );
 			}
 			else
 			{
-				subprocess = new ExtractZipAS3Process( _zipFile, _outputDir );
+				subprocess = new ExtractZipAS3Process( _zipFile, _outputDir, _showOutputs );
 			}
 			subprocess.start( complete, failure );
 		}

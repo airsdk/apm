@@ -58,7 +58,6 @@ package com.apm.client.processes.generic
 			_failureCallback = failureCallback;
 			_data = "";
 			Log.d( TAG, "start: " + _file.name );
-			Log.d( TAG, "start: " + _file.name );
 			var message:String = "calculating checksum " + _file.nativePath;
 			
 			if (NativeProcess.isSupported)

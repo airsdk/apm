@@ -1,4 +1,4 @@
 #!/bin/bash
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 #$SCRIPT_DIR/apm.app/Contents/MacOS/apm -workingdir "`pwd`" $@
- adl -profile extendedDesktop -cmd "$SCRIPT_DIR/apm.xml" -- -workingdir "`pwd`" $@
+adl -profile extendedDesktop -cmd "$SCRIPT_DIR/apm.xml" -- -workingdir "`pwd`" -appdir "$SCRIPT_DIR" $@

@@ -51,6 +51,8 @@ package com.apm.client.config
 		// The current working directory
 		public var workingDir:String;
 		
+		// The application directory containing apm etc
+		public var appDir:String = File.applicationDirectory.nativePath;
 		
 		// The directory for package storage (apm_packages)
 		public function get packagesDir():String { return workingDir + File.separator + "apm_packages"; }
