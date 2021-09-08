@@ -119,6 +119,10 @@ package com.apm.client.processes.upgrade
 			if (!FileUtils.tmpDirectory.exists) FileUtils.tmpDirectory.createDirectory();
 			
 			_destination = FileUtils.tmpDirectory.resolvePath( filename );
+			var appDir:File = new File( APM.config.appDir );
+			
+			Log.d( TAG, "Downloading to: " + _destination.nativePath );
+			Log.d( TAG, "Extracting to: " + appDir.nativePath );
 			
 			_installQueue = new ProcessQueue();
 			_installQueue.addProcess( new UpgradeClientDownloadProcess( url, _destination ) );

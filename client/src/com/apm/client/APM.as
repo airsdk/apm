@@ -377,7 +377,7 @@ package com.apm.client
 		{
 			try
 			{
-//				FileUtils.tmpDirectory.deleteDirectory( true );
+				FileUtils.tmpDirectory.deleteDirectory( true );
 			}
 			catch (e:Error)
 			{

@@ -68,6 +68,10 @@ package com.apm.client.processes.generic
 					_zipFile.copyTo( _zipFileRef );
 					_deleteAfter = true;
 				}
+				else
+				{
+					_zipFileRef = _zipFile;
+				}
 				
 				var processArgs:Vector.<String> = new Vector.<String>();
 				processArgs.push( "-command" );
@@ -84,7 +88,8 @@ package com.apm.client.processes.generic
 					// Fall back to as3 implementation
 					return super.start( complete, failure );
 				}
-			
+				
+				Log.d( TAG, "Starting extraction" );
 				if (_showOutputs)
 					APM.io.showSpinner( message );
 				
@@ -113,6 +118,8 @@ package com.apm.client.processes.generic
 			
 			if (_showOutputs)
 				APM.io.updateSpinner( "extracting : " + data );
+			
+			Log.d( TAG, "extracting : " + data );
 		}
 		
 		

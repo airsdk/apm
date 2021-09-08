@@ -83,7 +83,8 @@ package com.apm.client.commands.packages
 		
 		public function get requiresProject():Boolean
 		{
-			return true;
+			// Technically true, but false to allow updating of apm from anywhere
+			return false;
 		}
 		
 		
@@ -97,6 +98,7 @@ package com.apm.client.commands.packages
 		{
 			return description + "\n" +
 					"\n" +
+					"apm update apm           check for updates to the apm client and install if available\n"+
 					"apm update               update all dependencies in your project\n" +
 					"apm update <foo>         update the <foo> dependency in your project\n";
 		}
@@ -110,12 +112,6 @@ package com.apm.client.commands.packages
 		
 		public function execute():void
 		{
-			var project:ProjectDefinition = APM.config.projectDefinition;
-			if (project == null)
-			{
-				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
-				return;
-			}
 			
 			var packageIdentifier:String = null;
 			if (_parameters != null && _parameters.length > 0)
@@ -138,6 +134,13 @@ package com.apm.client.commands.packages
 			}
 			else
 			{
+				var project:ProjectDefinition = APM.config.projectDefinition;
+				if (project == null)
+				{
+					dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
+					return;
+				}
+				
 				if (project.dependencies.length > 0)
 				{
 					var updateRequired:Boolean = false;

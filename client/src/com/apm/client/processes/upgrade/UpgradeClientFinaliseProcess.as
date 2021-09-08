@@ -77,7 +77,7 @@ package com.apm.client.processes.upgrade
 				}
 				else
 				{
-					failure( "Could not set permissions: 'chmod +x AIR_TOOLS/apm'" );
+					failure( "Could not set permissions: try running 'chmod +x $AIR_TOOLS/apm'" );
 				}
 			}
 			else if (APM.config.isWindows)
