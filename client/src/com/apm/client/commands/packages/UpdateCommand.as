@@ -98,7 +98,7 @@ package com.apm.client.commands.packages
 		{
 			return description + "\n" +
 					"\n" +
-					"apm update apm           check for updates to the apm client and install if available\n"+
+					"apm update apm           check for a new release of the apm client and update if available\n"+
 					"apm update               update all dependencies in your project\n" +
 					"apm update <foo>         update the <foo> dependency in your project\n";
 		}
@@ -137,6 +137,7 @@ package com.apm.client.commands.packages
 				var project:ProjectDefinition = APM.config.projectDefinition;
 				if (project == null)
 				{
+					APM.io.writeError( "project.apm", "No project file found, run 'apm init' first" );
 					dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
 					return;
 				}
