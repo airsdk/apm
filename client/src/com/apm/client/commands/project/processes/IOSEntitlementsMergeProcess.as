@@ -24,7 +24,7 @@ package com.apm.client.commands.project.processes
 	import flash.filesystem.File;
 	
 	
-	public class IOSAdditionsMergeProcess extends ProcessBase
+	public class IOSEntitlementsMergeProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
@@ -45,7 +45,7 @@ package com.apm.client.commands.project.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function IOSAdditionsMergeProcess( appDescriptor:ApplicationDescriptor )
+		public function IOSEntitlementsMergeProcess( appDescriptor:ApplicationDescriptor )
 		{
 			_appDescriptor = appDescriptor;
 		}
@@ -56,51 +56,51 @@ package com.apm.client.commands.project.processes
 			super.start( completeCallback, failureCallback );
 			
 			if (!FileUtils.tmpDirectory.exists) FileUtils.tmpDirectory.createDirectory();
-			var infoAdditionsFile:File = FileUtils.tmpDirectory.resolvePath( "InfoAdditions.xml" );
+			var entitlementsFile:File = FileUtils.tmpDirectory.resolvePath( "Entitlements.xml" );
 			
 			// Check if there's a file in the config dir or create an empty info additions file for merging
-			var infoAdditionsProjectFile:File = new File( APM.config.workingDir ).resolvePath( "config/ios/InfoAdditions.xml" );
-			if (infoAdditionsProjectFile.exists)
+			var entitlementsProjectFile:File = new File( APM.config.workingDir ).resolvePath( "config/ios/Entitlements.xml" );
+			if (entitlementsProjectFile.exists)
 			{
-				APM.io.writeLine( "Merging with supplied info additions: config/ios/InfoAdditions.xml" );
+				APM.io.writeLine( "Merging with supplied info additions: config/ios/Entitlements.xml" );
 				
 				// Read content and inject any config parameters
-				var infoAdditionsProjectContent:String = FileUtils.readFileContentAsString( infoAdditionsProjectFile );
+				var entitlementsProjectContent:String = FileUtils.readFileContentAsString( entitlementsProjectFile );
 				for (var name:String in APM.config.projectDefinition.configuration)
 				{
 					var regex:RegExp = new RegExp( "\\$\\{" + name + "\\}", "g" );
 					var value:String = APM.config.projectDefinition.getConfigurationParam( name );
 					
-					infoAdditionsProjectContent = infoAdditionsProjectContent.replace( regex, value );
+					entitlementsProjectContent = entitlementsProjectContent.replace( regex, value );
 				}
-				FileUtils.writeStringAsFileContent( infoAdditionsFile, infoAdditionsProjectContent );
+				FileUtils.writeStringAsFileContent( entitlementsFile, entitlementsProjectContent );
 			}
 			else
 			{
-				new Plist().save( infoAdditionsFile ); // Just writes empty plist file
+				new Plist().save( entitlementsFile ); // Just writes empty plist file
 			}
 			
 			
-			APM.io.showSpinner( "iOS additions merging" );
 			
-			var packageInfoAdditions:Array = findPackageInfoAdditions();
-			
+			var packageInfoAdditions:Array = findPackageEntitlements();
 			_subqueue = new ProcessQueue();
 			for each (var packageInfoAdditionsFile:File in packageInfoAdditions)
 			{
 				Log.d( TAG, packageInfoAdditionsFile.nativePath );
-				_subqueue.addProcess( new IOSPlistMergeProcess( packageInfoAdditionsFile, infoAdditionsFile ) );
+				_subqueue.addProcess( new IOSPlistMergeProcess( packageInfoAdditionsFile, entitlementsFile ) );
 			}
+			
+			APM.io.showSpinner( "iOS entitlements merging" );
 			
 			_subqueue.start( function ():void {
 				
-								 _appDescriptor.iosInfoAdditions = new XML( FileUtils.readFileContentAsString( infoAdditionsFile ) ).dict.children().toXMLString();
+								 _appDescriptor.iosEntitlements = new XML( FileUtils.readFileContentAsString( entitlementsFile ) ).dict.children().toXMLString();
 				
-								 APM.io.stopSpinner( true, "iOS additions merge complete" );
+								 APM.io.stopSpinner( true, "iOS entitlements merge complete" );
 								 complete();
 							 },
 							 function ( error:String ):void {
-								 APM.io.stopSpinner( false, "iOS additions merge failed: " + error );
+								 APM.io.stopSpinner( false, "iOS entitlements merge failed: " + error );
 								 failure( error );
 							 }
 			);
@@ -108,10 +108,10 @@ package com.apm.client.commands.project.processes
 		}
 		
 		
-		private function findPackageInfoAdditions():Array
+		private function findPackageEntitlements():Array
 		{
 			var infoAdditions:Array = FileUtils.getFilesByName(
-					"InfoAdditions.xml",
+					"Entitlements.xml",
 					new File( APM.config.packagesDir )
 			);
 			return infoAdditions;

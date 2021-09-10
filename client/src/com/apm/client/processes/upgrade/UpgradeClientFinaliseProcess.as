@@ -82,7 +82,6 @@ package com.apm.client.processes.upgrade
 			}
 			else if (APM.config.isWindows)
 			{
-				// TODO: Confirm there's nothing to do on Windows ?
 				complete();
 			}
 			else

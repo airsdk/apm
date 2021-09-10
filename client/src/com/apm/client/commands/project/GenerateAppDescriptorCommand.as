@@ -18,6 +18,7 @@ package com.apm.client.commands.project
 	import com.apm.client.commands.project.processes.AndroidManifestMergeProcess;
 	import com.apm.client.commands.project.processes.ApplicationDescriptorGenerationProcess;
 	import com.apm.client.commands.project.processes.IOSAdditionsMergeProcess;
+	import com.apm.client.commands.project.processes.IOSEntitlementsMergeProcess;
 	import com.apm.client.events.CommandEvent;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessQueue;
@@ -91,7 +92,7 @@ package com.apm.client.commands.project
 					"\n" +
 					"apm generate app-descriptor             generates an application descriptor for your application with all required package additions\n" +
 					"apm generate app-descriptor [out.xml]   generates an application descriptor updating the specified out.xml file\n"
-			;
+					;
 		}
 		
 		
@@ -114,25 +115,26 @@ package com.apm.client.commands.project
 			// TODO:: Get AIR SDK version for app descriptor
 			var airSDKVersion:AIRSDKVersion = new AIRSDKVersion( "33.1.1.556" );
 			var appDescriptor:ApplicationDescriptor = new ApplicationDescriptor( airSDKVersion );
-
+			
 			var outputPath:String = defaultOutputPath();
 			if (_parameters.length > 0)
 			{
-				outputPath = _parameters[0];
+				outputPath = _parameters[ 0 ];
 			}
-
+			
 			_queue.addProcess( new AndroidManifestMergeProcess( appDescriptor ) );
 			_queue.addProcess( new IOSAdditionsMergeProcess( appDescriptor ) );
+			_queue.addProcess( new IOSEntitlementsMergeProcess( appDescriptor ) );
 			_queue.addProcess( new ApplicationDescriptorGenerationProcess( appDescriptor, outputPath ) );
 			
 			_queue.start(
-					function():void {
-						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
+					function ():void {
+						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ) );
 					},
-					function(error:String):void {
+					function ( error:String ):void {
 						APM.io.writeError( NAME, error );
-						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
-					});
+						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
+					} );
 		}
 		
 		
