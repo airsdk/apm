@@ -51,6 +51,8 @@ package com.apm.client.config
 		// The current working directory
 		public var workingDir:String;
 		
+		// The application directory containing apm etc
+		public var appDir:String = File.applicationDirectory.nativePath;
 		
 		// The directory for package storage (apm_packages)
 		public function get packagesDir():String { return workingDir + File.separator + "apm_packages"; }
@@ -134,6 +136,24 @@ package com.apm.client.config
 				return File.userDirectory.nativePath;
 			}
 		}
+		
+		
+		public function getJava():File
+		{
+			var java:File;
+			var javaHome:String = env[ "JAVA_HOME" ];
+			if (javaHome == null) javaHome = "";
+			if (isWindows)
+			{
+				java = new File( javaHome ).resolvePath( "bin\\java.exe" );
+			}
+			else
+			{
+				java = new File( javaHome ).resolvePath( "bin/java" );
+			}
+			return java;
+		}
+		
 		
 		
 		//

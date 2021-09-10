@@ -137,7 +137,7 @@ package com.apm.client.config.processes
 				var envVar:Array = line.split( "=" );
 				if (envVar.length == 2)
 				{
-					_environmentVariables[ envVar[ 0 ] ] = envVar[ 1 ];
+					_environmentVariables[ envVar[ 0 ] ] = envVar[ 1 ].replace( /\r/g, "" ).replace( /\n/g, "" );
 				}
 			}
 		}

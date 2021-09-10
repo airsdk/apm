@@ -61,9 +61,9 @@ package com.apm.remote.github
 		public function call( query:String, callback:Function ):void
 		{
 			var headers:Array = [];
+			headers.push( new URLRequestHeader( "Accept", "application/vnd.github.v3.raw" ) );
 			if (_token.length > 0)
 			{
-				headers.push( new URLRequestHeader( "Accept", "application/vnd.github.v3.raw" ) );
 				headers.push( new URLRequestHeader( "Authorization", "token " + _token ) );
 			}
 			

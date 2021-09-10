@@ -9,12 +9,15 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		13/8/21
+ * @created		27/8/21
  */
-package com.apm.client.processes.generic
+package com.apm.client.commands.project.processes
 {
 	import com.apm.client.APM;
 	import com.apm.client.logging.Log;
+	import com.apm.client.processes.ProcessBase;
+	import com.apm.data.project.ApplicationDescriptor;
+	import com.apm.utils.FileUtils;
 	
 	import flash.desktop.NativeProcess;
 	import flash.desktop.NativeProcessStartupInfo;
@@ -22,62 +25,106 @@ package com.apm.client.processes.generic
 	import flash.events.NativeProcessExitEvent;
 	import flash.events.ProgressEvent;
 	import flash.filesystem.File;
+	import flash.filesystem.FileMode;
+	import flash.filesystem.FileStream;
 	
 	
-	public class ChecksumMacOSProcess extends ChecksumAS3Process
+	/**
+	 * Takes 2 plist files and merges them with the PlistBuddy utility on macOS
+	 * <br/>
+	 *
+	 * We use PListBuddy here
+	 *
+	 * /usr/libexec/PlistBuddy -x -c "Merge package/InfoAdditions.plist" out.plist
+	 *
+	 * - https://marcosantadev.com/manage-plist-files-plistbuddy/
+	 * - https://medium.com/@marksiu/what-is-plistbuddy-76cb4f0c262d
+	 *
+	 */
+	public class IOSAdditionsMergeMacOSRunProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "ChecksumMacOSProcess";
+		private static const TAG:String = "IOSAdditionsMergeMacOSRunProcess";
+		
+		
+		
 		
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
 		
+		private var _mergePlist:File;
+		private var _destPlist:File;
+		
 		private var _process:NativeProcess;
 		
-		private var _data:String;
+		
 		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function ChecksumMacOSProcess( core:APM, file:File )
+		public function IOSAdditionsMergeMacOSRunProcess( mergePlist:File, destPlist:File )
 		{
-			super( core, file );
+			_mergePlist = mergePlist;
+			_destPlist = destPlist;
+		}
+		
+		
+		public static function get isSupported():Boolean
+		{
+			try
+			{
+				return (NativeProcess.isSupported && APM.config.isMacOS && new File( "/usr/libexec/PlistBuddy" ).exists)
+			}
+			catch (e:Error)
+			{
+			}
+			return false;
 		}
 		
 		
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
-			_completeCallback = completeCallback;
-			_failureCallback = failureCallback;
-			_data = "";
-			Log.d( TAG, "start: " + _file.name );
-			var message:String = "calculating checksum " + _file.nativePath;
+			super.start( completeCallback, failureCallback );
 			
-			if (NativeProcess.isSupported)
+			if (!isSupported)
+			{
+				failure( "Plist merging not supported" );
+				return;
+			}
+			
+			if (!_mergePlist.exists || !_destPlist.exists)
+			{
+				failure( "Plist file doesn't exist" );
+				return;
+			}
+			
+			
+			
+			//
+			// DOESN'T WORK
+			// Unfortunately this doesn't merge duplicate entries - "Duplicate Entry Was Skipped:"...
+			//
+			
+			var pListBuddy:File = new File( "/usr/libexec/PlistBuddy" );
+			
+			if (NativeProcess.isSupported || !pListBuddy.exists)
 			{
 				var processArgs:Vector.<String> = new Vector.<String>();
-				processArgs.push( "-a" );
-				processArgs.push( 256 );
-				processArgs.push( _file.nativePath );
+				processArgs.push( "-x" );
+				processArgs.push( "-c" );
+				processArgs.push( "Merge " + _mergePlist.nativePath + "" );
+				processArgs.push( _destPlist.nativePath );
 				
 				var processStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
-				processStartupInfo.executable = new File( "/usr/bin/shasum" );
+				processStartupInfo.executable = pListBuddy;
 				processStartupInfo.arguments = processArgs;
-				
-				if (!processStartupInfo.executable.exists)
-				{
-					// Fall back to as3 implementation
-					return super.start( complete, failure );
-				}
-				
-//				APM.io.showSpinner( message );
 				
 				_process = new NativeProcess();
 				_process.addEventListener( NativeProcessExitEvent.EXIT, onExit );
@@ -87,20 +134,19 @@ package com.apm.client.processes.generic
 				_process.addEventListener( IOErrorEvent.STANDARD_ERROR_IO_ERROR, onIOError );
 				
 				_process.start( processStartupInfo );
+				
 			}
 			else
 			{
-				super.start( complete, failure );
+				Log.d( TAG, "Native process not supported - PlistBuddy tool cannot be run" );
+				failure( "Native process not supported - PlistBuddy tool cannot be run" );
 			}
 		}
 		
 		
 		private function onOutputData( event:ProgressEvent ):void
 		{
-			_data += _process.standardOutput.readUTFBytes( _process.standardOutput.bytesAvailable )
-					.replace( /\n/g, "" )
-					.replace( /\r/g, "" )
-					.replace( /\t/g, "" );
+			Log.d( TAG, _process.standardOutput.readUTFBytes( _process.standardOutput.bytesAvailable ) );
 		}
 		
 		
@@ -113,15 +159,13 @@ package com.apm.client.processes.generic
 		private function onExit( event:NativeProcessExitEvent ):void
 		{
 			Log.d( TAG, "Process exited with: " + event.exitCode );
-//			APM.io.stopSpinner( event.exitCode == 0, " checksum calculated" );
 			if (event.exitCode == 0)
 			{
-				var checksum:String = _data.substring( 0, _data.indexOf( " " ) );
-				complete( checksum );
+				complete();
 			}
 			else
 			{
-				failure( _data );
+				failure( "error" );
 			}
 		}
 		

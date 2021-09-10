@@ -156,7 +156,7 @@ package com.apm.client.logging
 		{
 			if (_logLevel >= LEVEL_DEBUG)
 			{
-				trace( tag + "::" + message );
+//				trace( tag + "::" + message );
 				APM.io.writeLine( "D::" + tag + "::" + message );
 			}
 		}

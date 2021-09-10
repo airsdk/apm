@@ -20,6 +20,7 @@ package com.apm.client
 	import com.apm.client.commands.airsdk.AIRSDKViewCommand;
 	import com.apm.client.commands.general.ConfigCommand;
 	import com.apm.client.commands.general.HelpCommand;
+	import com.apm.client.commands.general.UpgradeCommand;
 	import com.apm.client.commands.general.VersionCommand;
 	import com.apm.client.commands.packages.BuildCommand;
 	import com.apm.client.commands.packages.CreateCommand;
@@ -140,6 +141,12 @@ package com.apm.client
 						case "-workingdir":
 						{
 							_config.workingDir = arguments[ ++i ];
+							break;
+						}
+						
+						case "-appdir":
+						{
+							_config.appDir = arguments[ ++i ];
 							break;
 						}
 						

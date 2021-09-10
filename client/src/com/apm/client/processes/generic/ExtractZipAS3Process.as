@@ -40,16 +40,18 @@ package com.apm.client.processes.generic
 		
 		protected var _zipFile:File;
 		protected var _outputDir:File;
+		protected var _showOutputs:Boolean;
 		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function ExtractZipAS3Process( zipFile:File, outputDir:File )
+		public function ExtractZipAS3Process( zipFile:File, outputDir:File, showOutputs:Boolean=true )
 		{
 			_zipFile = zipFile;
 			_outputDir = outputDir;
+			_showOutputs = showOutputs;
 		}
 		
 		
@@ -57,7 +59,9 @@ package com.apm.client.processes.generic
 		{
 			super.start( complete, failure );
 			var message:String = "extracting " + _zipFile.nativePath;
-			APM.io.showProgressBar( message );
+			
+			if (_showOutputs)
+				APM.io.showProgressBar( message );
 			
 			try
 			{
@@ -97,9 +101,11 @@ package com.apm.client.processes.generic
 						
 						bytesLoaded += zipFile.sizeCompressed;
 						
-						APM.io.updateProgressBar( bytesLoaded / sourceBytes.length, message );
+						if (_showOutputs)
+							APM.io.updateProgressBar( bytesLoaded / sourceBytes.length, message );
 					}
-					APM.io.completeProgressBar( true, "extracted" );
+					if (_showOutputs)
+						APM.io.completeProgressBar( true, "extracted" );
 				}
 				else
 				{
@@ -108,7 +114,8 @@ package com.apm.client.processes.generic
 			}
 			catch (e:Error)
 			{
-				APM.io.completeProgressBar( false, e.message );
+				if (_showOutputs)
+					APM.io.completeProgressBar( false, e.message );
 			}
 			complete();
 		}

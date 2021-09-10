@@ -21,6 +21,7 @@ package com.apm.client.commands.packages
 	import com.apm.client.commands.packages.processes.InstallQueryPackageProcess;
 	import com.apm.client.events.CommandEvent;
 	import com.apm.client.processes.ProcessQueue;
+	import com.apm.client.processes.upgrade.UpgradeClientProcess;
 	import com.apm.data.project.ProjectDefinition;
 	
 	import flash.events.EventDispatcher;
@@ -82,7 +83,8 @@ package com.apm.client.commands.packages
 		
 		public function get requiresProject():Boolean
 		{
-			return true;
+			// Technically true, but false to allow updating of apm from anywhere
+			return false;
 		}
 		
 		
@@ -96,6 +98,7 @@ package com.apm.client.commands.packages
 		{
 			return description + "\n" +
 					"\n" +
+					"apm update apm           check for a new release of the apm client and update if available\n"+
 					"apm update               update all dependencies in your project\n" +
 					"apm update <foo>         update the <foo> dependency in your project\n";
 		}
@@ -109,12 +112,6 @@ package com.apm.client.commands.packages
 		
 		public function execute():void
 		{
-			var project:ProjectDefinition = APM.config.projectDefinition;
-			if (project == null)
-			{
-				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
-				return;
-			}
 			
 			var packageIdentifier:String = null;
 			if (_parameters != null && _parameters.length > 0)
@@ -122,47 +119,88 @@ package com.apm.client.commands.packages
 				packageIdentifier = _parameters[ 0 ];
 			}
 			
-			if (project.dependencies.length > 0)
+			if (packageIdentifier == "apm")
 			{
-				// Install from list in project file
-				for (var i:int = 0; i < project.dependencies.length; i++)
+				// Unique condition to update client
+				_queue.addProcess( new UpgradeClientProcess() );
+				_queue.start(
+						function ():void {
+							dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ) );
+						},
+						function ( message:String ):void {
+							dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
+						}
+				);
+			}
+			else
+			{
+				var project:ProjectDefinition = APM.config.projectDefinition;
+				if (project == null)
 				{
-					_queue.addProcess(
-							new InstallQueryPackageProcess(
-									_installData,
-									new InstallQueryRequest(
-											project.dependencies[ i ].identifier,
-											"latest"
-									),
-									false
-							)
-					);
+					APM.io.writeError( "project.apm", "No project file found, run 'apm init' first" );
+					dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
+					return;
 				}
+				
+				if (project.dependencies.length > 0)
+				{
+					var updateRequired:Boolean = false;
+					// Install from list in project file
+					for (var i:int = 0; i < project.dependencies.length; i++)
+					{
+						if (packageIdentifier == null
+								|| packageIdentifier == project.dependencies[ i ].identifier)
+						{
+							updateRequired = true;
+							_queue.addProcess(
+									new InstallQueryPackageProcess(
+											_installData,
+											new InstallQueryRequest(
+													project.dependencies[ i ].identifier,
+													"latest"
+											),
+											false
+									)
+							);
+						}
+						else
+						{
+							_queue.addProcess(
+									new InstallQueryPackageProcess(
+											_installData,
+											new InstallQueryRequest(
+													project.dependencies[ i ].identifier,
+													project.dependencies[ i ].version.toString()
+											),
+											false
+									)
+							);
+						}
+					}
+				}
+				
+				if (_queue.length == 0 || !updateRequired)
+				{
+					APM.io.writeLine( "Nothing to update - check the package identifier is correct" );
+					dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ) );
+					return;
+				}
+				
+				_queue.start(
+						function ():void {
+							_queue.addProcess( new InstallDataValidationProcess( _installData ) );
+							_queue.start(
+									function ():void {
+										dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ) );
+									},
+									function ( message:String ):void {
+										dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
+									} );
+						},
+						function ( error:String ):void {
+							dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
+						} );
 			}
-			
-			if (_queue.length == 0)
-			{
-				APM.io.writeLine( "Nothing to update" );
-				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
-				return;
-			}
-			
-			_queue.start(
-					function ():void {
-						_queue.addProcess( new InstallDataValidationProcess( _installData ) );
-						_queue.start(
-								function ():void
-								{
-									dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
-								},
-								function ( message:String ):void
-								{
-									dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
-								} );
-					},
-					function ( error:String ):void {
-						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
-					} );
 			
 		}
 		

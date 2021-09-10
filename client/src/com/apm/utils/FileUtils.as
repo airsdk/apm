@@ -17,6 +17,8 @@ package com.apm.utils
 	import com.apm.client.logging.Log;
 	
 	import flash.filesystem.File;
+	import flash.filesystem.FileMode;
+	import flash.filesystem.FileStream;
 	
 	
 	public class FileUtils
@@ -45,7 +47,6 @@ package com.apm.utils
 		}
 		
 		
-		
 		/**
 		 * Returns a global location for files stored / downloaded / used by the client
 		 */
@@ -60,7 +61,7 @@ package com.apm.utils
 		 */
 		public static function get toolsDirectory():File
 		{
-			return appStorageDirectory.resolvePath("tools");
+			return appStorageDirectory.resolvePath( "tools" );
 		}
 		
 		
@@ -69,7 +70,7 @@ package com.apm.utils
 		 */
 		public static function get tmpDirectory():File
 		{
-			if (_tmpDirName == null) _tmpDirName = ".tmp"+ String( int(Math.random() * 1000000) );
+			if (_tmpDirName == null) _tmpDirName = ".tmp" + String( int( Math.random() * 1000000 ) );
 			var tmpDir:File = new File( APM.config.workingDir ).resolvePath( _tmpDirName );
 //			if (!tmpDir.exists) tmpDir.createDirectory();
 			return tmpDir;
@@ -103,7 +104,6 @@ package com.apm.utils
 			}
 			return files;
 		}
-		
 		
 		
 		public static function countFiles( directory:File ):int
@@ -183,6 +183,25 @@ package com.apm.utils
 					}
 				}
 			}
+		}
+		
+		
+		public static function readFileContentAsString( file:File ):String
+		{
+			var fs:FileStream = new FileStream();
+			fs.open( file, FileMode.READ );
+			var content:String = fs.readUTFBytes( fs.bytesAvailable );
+			fs.close();
+			return content;
+		}
+		
+		
+		public static function writeStringAsFileContent( file:File, content:String ):void
+		{
+			var fileStream:FileStream = new FileStream();
+			fileStream.open( file, FileMode.WRITE );
+			fileStream.writeUTFBytes( content );
+			fileStream.close();
 		}
 		
 		
