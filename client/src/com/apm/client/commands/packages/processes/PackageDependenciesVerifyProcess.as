@@ -64,7 +64,7 @@ package com.apm.client.commands.packages.processes
 				failure( "INVALID DEPENDENCY [" + _dependency.toString() + "] - check your dependencies in the " + PackageDefinitionFile.DEFAULT_FILENAME );
 			}
 			_repositoryAPI.getPackageVersion( _dependency.identifier, _dependency.version, function ( success:Boolean, packageDef:PackageDefinition ):void {
-				if (success && packageDef != null)
+				if (success && packageDef != null && packageDef.versions.length > 0)
 				{
 					APM.io.stopSpinner( true, "VERIFIED: " + _dependency.toString() );
 					complete();

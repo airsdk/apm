@@ -6,3 +6,4 @@ out
 .idea/tasks.xml
 .idea/shelf
 *.zip
+build.config
