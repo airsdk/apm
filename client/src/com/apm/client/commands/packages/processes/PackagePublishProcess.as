@@ -63,8 +63,8 @@ package com.apm.client.commands.packages.processes
 			
 			_repositoryAPI
 					.setToken( APM.config.user.publisherToken )
-					.publish( _packageDefinition,function ( success:Boolean, packageDefinition:* ):void {
-						APM.io.stopSpinner( success, "Package published" );
+					.publish( _packageDefinition, function ( success:Boolean, data:* ):void {
+						APM.io.stopSpinner( success, "Package published" + (success ? "" : " ERROR: " + data) );
 						complete();
 					} );
 			
