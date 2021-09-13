@@ -44,6 +44,7 @@ package com.apm.client
 	
 	import flash.desktop.NativeApplication;
 	import flash.events.EventDispatcher;
+	import flash.filesystem.File;
 	
 	
 	public class APM extends EventDispatcher
@@ -225,6 +226,18 @@ package com.apm.client
 			
 			try
 			{
+				try
+				{
+					io.writeLine("workingdir = " + _config.workingDir );
+					new File( _config.workingDir );
+				}
+				catch (e:Error)
+				{
+					io.writeError( "ENV", "working directory not set correctly - check you haven't modified the start script" );
+					return exit( CODE_ERROR );
+				}
+				
+				
 //				io.showSpinner( "loading environment ... " );
 				_config.loadEnvironment( function ( success:Boolean, error:String = null ):void {
 //					io.stopSpinner( success,"loaded environment", true );
