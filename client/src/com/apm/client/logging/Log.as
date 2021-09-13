@@ -171,6 +171,7 @@ package com.apm.client.logging
 		{
 			// TODO
 			d( tag, error.message );
+			d( tag, error.getStackTrace() );
 		}
 		
 	}

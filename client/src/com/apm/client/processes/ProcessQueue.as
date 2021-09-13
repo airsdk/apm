@@ -137,6 +137,9 @@ package com.apm.client.processes
 			}
 			catch (e:Error)
 			{
+				Log.d( TAG, "UNHANLDED PROCESS ERROR" );
+				Log.e( TAG, e );
+				
 				process_eventHandler( new ProcessEvent( ProcessEvent.FAILED, e.message ) );
 			}
 			
