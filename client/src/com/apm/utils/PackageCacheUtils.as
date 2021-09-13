@@ -123,15 +123,18 @@ package com.apm.utils
 		{
 			var cachedPackages:Vector.<PackageDefinitionFile> = new Vector.<PackageDefinitionFile>();
 			var packagesDir:File = new File( APM.config.packagesDir );
-			for each (var packageDir:File in packagesDir.getDirectoryListing())
+			if (packagesDir.exists)
 			{
-				if (packageDir.isDirectory)
+				for each (var packageDir:File in packagesDir.getDirectoryListing())
 				{
-					var projectDefinitionFile:File = packageDir.resolvePath( PackageFileUtils.cacheDirName() + "/" + PackageDefinitionFile.DEFAULT_FILENAME );
-					if (projectDefinitionFile.exists)
+					if (packageDir.isDirectory)
 					{
-						var packageDefinition:PackageDefinitionFile = new PackageDefinitionFile().load( projectDefinitionFile );
-						cachedPackages.push( packageDefinition );
+						var projectDefinitionFile:File = packageDir.resolvePath( PackageFileUtils.cacheDirName() + "/" + PackageDefinitionFile.DEFAULT_FILENAME );
+						if (projectDefinitionFile.exists)
+						{
+							var packageDefinition:PackageDefinitionFile = new PackageDefinitionFile().load( projectDefinitionFile );
+							cachedPackages.push( packageDefinition );
+						}
 					}
 				}
 			}
