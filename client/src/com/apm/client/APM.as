@@ -226,9 +226,9 @@ package com.apm.client
 			
 			try
 			{
+				// Working directory check
 				try
 				{
-					io.writeLine("workingdir = " + _config.workingDir );
 					new File( _config.workingDir );
 				}
 				catch (e:Error)
