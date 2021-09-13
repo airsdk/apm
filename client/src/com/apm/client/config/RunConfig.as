@@ -140,18 +140,20 @@ package com.apm.client.config
 		
 		public function getJava():File
 		{
-			var java:File;
-			var javaHome:String = env[ "JAVA_HOME" ];
-			if (javaHome == null) javaHome = "";
-			if (isWindows)
+			var defaultJavaHome:String = isWindows ? "" : "/usr/";
+			var javaHome:String = env[ "JAVA_HOME" ] || defaultJavaHome;
+			Log.v(TAG, "using JAVA_HOME=" + javaHome);
+			var binJavaPath:String = isWindows ? "bin\\java.exe" : "bin/java";
+			try
 			{
-				java = new File( javaHome ).resolvePath( "bin\\java.exe" );
+				return new File( javaHome ).resolvePath( binJavaPath );
 			}
-			else
-			{
-				java = new File( javaHome ).resolvePath( "bin/java" );
+			catch ( e:Error ) {
+				Log.l( TAG, "ERROR: Failed to find " + binJavaPath);
+				Log.e( TAG, e );
+				throw new Error( "Failed to find " + binJavaPath + " in JAVA_HOME=" + javaHome
+					+ ". Point JAVA_HOME to your java installation." );
 			}
-			return java;
 		}
 		
 		

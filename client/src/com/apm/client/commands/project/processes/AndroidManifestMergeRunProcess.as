@@ -130,11 +130,13 @@ package com.apm.client.commands.project.processes
 					processArgs.push( paramName + "=" + paramValue );
 				}
 				
+				Log.d(TAG, "Retrieving path to java installation...");
 				var java:File = APM.config.getJava();
 				if (!java.exists)
 				{
 					return failure( "Could not locate java installation - Check you have set the JAVA_HOME environment variable correctly" )
 				}
+				Log.d(TAG, "Java installation located.");
 				
 				var processStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
 				processStartupInfo.executable = java;
