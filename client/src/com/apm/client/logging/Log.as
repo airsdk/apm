@@ -86,6 +86,11 @@ package com.apm.client.logging
 		
 		private static var _logLevel:int = LEVEL_NORMAL;
 		
+		/**
+		 * Returns the current log level
+		 */
+		public static function get logLevel():int { return _logLevel; }
+		
 		
 		/**
 		 * Set the log output level
@@ -171,7 +176,10 @@ package com.apm.client.logging
 		{
 			// TODO
 			d( tag, error.message );
-			d( tag, error.getStackTrace() );
+			if (_logLevel >= LEVEL_DEBUG)
+			{
+				d( tag, error.getStackTrace() );
+			}
 		}
 		
 	}

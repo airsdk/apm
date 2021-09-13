@@ -25,21 +25,35 @@ package com.apm.client.io
 		//  FUNCTIONALITY
 		//
 		
-		function setTerminalControlSupported( supported:Boolean ):void;
+		function get terminalControlSupported():Boolean;
 		
-		function setColourSupported( supported:Boolean ):void;
+		
+		function set terminalControlSupported( value:Boolean ):void;
+		
+		
+		function get colourSupported():Boolean;
+		
+		
+		function set colourSupported( value:Boolean ):void;
+		
 		
 		function writeLine( s:String ):void;
 		
+		
 		function writeResult( success:Boolean, message:String ):void;
+		
 		
 		function writeError( tag:String, message:String ):void;
 		
+		
 		function out( s:String ):void;
+		
 		
 		function input( s:String = null ):String;
 		
+		
 		function question( question:String, defaultResponse:String = null ):String;
+		
 		
 		function error( e:Error ):void;
 		
@@ -50,9 +64,11 @@ package com.apm.client.io
 		
 		function showSpinner( message:String = "" ):void;
 		
-		function updateSpinner( message:String="" ):void;
 		
-		function stopSpinner( success:Boolean, message:String = "", removeSpinner:Boolean=false ):void;
+		function updateSpinner( message:String = "" ):void;
+		
+		
+		function stopSpinner( success:Boolean, message:String = "", removeSpinner:Boolean = false ):void;
 		
 		
 		//
@@ -61,7 +77,9 @@ package com.apm.client.io
 		
 		function showProgressBar( message:String = "" ):void;
 		
+		
 		function updateProgressBar( progress:Number, message:String = "" ):void;
+		
 		
 		function completeProgressBar( success:Boolean, message:String = "" ):void;
 		

@@ -17,6 +17,7 @@ package com.apm.client.processes
 	import com.apm.client.processes.events.ProcessEvent;
 	
 	import flash.events.EventDispatcher;
+	import flash.utils.getQualifiedClassName;
 	
 	
 	public class ProcessQueue extends EventDispatcher
@@ -137,7 +138,7 @@ package com.apm.client.processes
 			}
 			catch (e:Error)
 			{
-				Log.d( TAG, "UNHANLDED PROCESS ERROR" );
+				Log.d( TAG, "UNHANDLED PROCESS ERROR IN " + getQualifiedClassName(_currentProcess) );
 				Log.e( TAG, e );
 				
 				process_eventHandler( new ProcessEvent( ProcessEvent.FAILED, e.message ) );

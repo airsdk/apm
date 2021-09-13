@@ -115,6 +115,7 @@ package com.apm.client.commands.project.processes
 			}
 			catch (e:Error)
 			{
+				Log.e( TAG, e );
 				APM.io.stopSpinner( false, "Error: " + e.message );
 				failure( e.message );
 			}

@@ -14,6 +14,7 @@
 package com.apm.client.processes.generic
 {
 	import com.apm.client.APM;
+	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	
 	import flash.filesystem.File;
@@ -114,6 +115,7 @@ package com.apm.client.processes.generic
 			}
 			catch (e:Error)
 			{
+				Log.e( TAG, e );
 				if (_showOutputs)
 					APM.io.completeProgressBar( false, e.message );
 			}

@@ -28,6 +28,7 @@ package com.apm.client.commands.packages
 	import com.apm.client.processes.generic.ExtractZipProcess;
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.packages.PackageDependency;
+	import com.apm.utils.FileUtils;
 	import com.apm.utils.PackageFileUtils;
 	
 	import flash.events.EventDispatcher;
@@ -126,7 +127,7 @@ package com.apm.client.commands.packages
 				cleanup( tmpDir );
 			}
 			
-			var source:File = getSourceForPath( path );
+			var source:File = FileUtils.getSourceForPath( path );
 			if (!source.exists)
 			{
 				APM.io.writeError( source.name, "Specified package directory / file does not exist" );
@@ -182,29 +183,7 @@ package com.apm.client.commands.packages
 		}
 		
 		
-		/**
-		 * Determines the File reference specified by path by checking it as an
-		 * absolute path and then a relative path to the working directory.
-		 *
-		 * @param path
-		 *
-		 * @return
-		 */
-		private function getSourceForPath( path:String ):File
-		{
-			try
-			{
-				var absolute:File = new File( path );
-				if (absolute.exists)
-				{
-					return absolute;
-				}
-			}
-			catch (e:Error)
-			{
-			}
-			return new File( APM.config.workingDir + File.separator + path );
-		}
+		
 		
 		
 		private function cleanup( tmpDir:File ):void

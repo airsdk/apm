@@ -13,6 +13,8 @@
  */
 package com.apm.client.io
 {
+	import com.apm.client.logging.Log;
+	
 	import flash.system.System;
 	import flash.utils.clearInterval;
 	import flash.utils.setInterval;
@@ -44,6 +46,9 @@ package com.apm.client.io
 		private var _colourSupported:Boolean = false;
 		private var _terminalControlSupported:Boolean = false;
 		
+		// This check stops the rendering UI from deleting the last line
+		private var _lastOutputNonUI:Boolean = false;
+		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
@@ -55,15 +60,27 @@ package com.apm.client.io
 		}
 		
 		
-		public function setTerminalControlSupported( supported:Boolean ):void
+		public function get terminalControlSupported():Boolean
 		{
-			_terminalControlSupported = supported;
+			return _terminalControlSupported;
 		}
 		
 		
-		public function setColourSupported( supported:Boolean ):void
+		public function set terminalControlSupported( value:Boolean ):void
 		{
-			_colourSupported = supported;
+			_terminalControlSupported = value;
+		}
+		
+		
+		public function get colourSupported():Boolean
+		{
+			return _colourSupported;
+		}
+		
+		
+		public function set colourSupported( value:Boolean ):void
+		{
+			_colourSupported = value;
 		}
 		
 		
@@ -94,6 +111,7 @@ package com.apm.client.io
 		
 		public function out( s:String ):void
 		{
+			_lastOutputNonUI = true;
 			System.output( s );
 //			trace( s );
 		}
@@ -121,7 +139,11 @@ package com.apm.client.io
 		
 		public function error( e:Error ):void
 		{
-			System.output( "ERROR: " + e.message + "\n" );
+			writeLine( "ERROR: " + e.message );
+			if (Log.logLevel >= Log.LEVEL_DEBUG)
+			{
+				writeLine( "ERROR: " + e.getStackTrace() );
+			}
 		}
 		
 		
@@ -153,15 +175,15 @@ package com.apm.client.io
 		{
 			clearInterval( _spinnerInterval );
 			
-			if (removeSpinner)
+			if (removeSpinner && !_lastOutputNonUI)
 			{
 				System.output( ESCSEQ( "[1A" ) + ESCSEQ( "[K" ) + " \n" + ESCSEQ( "[1A" ) );
 			}
 			else
 			{
-				System.output( ESCSEQ( "[1A" ) + ESCSEQ( "[K" ) +
-									   (success ? _successChar : _failedChar) +
-									   " " + message );
+				if (!_lastOutputNonUI)
+					System.output( ESCSEQ( "[1A" ) + ESCSEQ( "[K" ) );
+				System.output( (success ? _successChar : _failedChar) + " " + message );
 				
 				var whitespace:String = "";
 				for (var i:int = 0; i < _spinnerMessage.length - message.length; i++) whitespace += " ";
@@ -183,7 +205,7 @@ package com.apm.client.io
 		{
 			if (_spinnerIndex >= _spinnerSequence.length) _spinnerIndex = 0;
 			var output:String = "";
-			if (!initial)
+			if (!initial && !_lastOutputNonUI)
 			{
 				if (!_terminalControlSupported)
 					return;
@@ -197,6 +219,7 @@ package com.apm.client.io
 			{
 				output += _spinnerSequence[ _spinnerIndex++ ] + " " + _spinnerMessage + "\n";
 			}
+			_lastOutputNonUI = false;
 			System.output( output );
 		}
 		
@@ -209,19 +232,26 @@ package com.apm.client.io
 		public function showProgressBar( message:String = "" ):void
 		{
 			System.output( message + "\n" );
+			_lastOutputNonUI = false;
 		}
 		
 		
 		public function updateProgressBar( progress:Number, message:String = "" ):void
 		{
 			var percent:int = int( Math.floor( progress * 100 ) );
-			System.output( ESCSEQ( "[1A" ) + ESCSEQ( "[K" ) + percent + "% " + message + "\n" );
+			if (!_lastOutputNonUI)
+				System.output( ESCSEQ( "[1A" ) + ESCSEQ( "[K" ) );
+			System.output( percent + "% " + message + "\n" );
+			_lastOutputNonUI = false;
 		}
 		
 		
 		public function completeProgressBar( success:Boolean, message:String = "" ):void
 		{
-			System.output( ESCSEQ( "[1A" ) + ESCSEQ( "[K" ) + (success ? _successChar : _failedChar) + " " + message + "\n" );
+			if (!_lastOutputNonUI)
+				System.output( ESCSEQ( "[1A" ) + ESCSEQ( "[K" ) );
+			System.output( (success ? _successChar : _failedChar) + " " + message + "\n" );
+			_lastOutputNonUI = false;
 		}
 		
 		
