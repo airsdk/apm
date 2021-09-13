@@ -24,7 +24,6 @@ package com.apm.client.config
 	import com.apm.data.user.UserSettings;
 	
 	import flash.filesystem.File;
-	
 	import flash.system.Capabilities;
 	
 	
@@ -49,10 +48,11 @@ package com.apm.client.config
 		
 		
 		// The current working directory
-		public var workingDir:String;
+		public var workingDir:String = File.workingDirectory.nativePath;
 		
 		// The application directory containing apm etc
 		public var appDir:String = File.applicationDirectory.nativePath;
+		
 		
 		// The directory for package storage (apm_packages)
 		public function get packagesDir():String { return workingDir + File.separator + "apm_packages"; }
@@ -88,7 +88,7 @@ package com.apm.client.config
 		 * @param callback
 		 * @param checkNetwork If true a check will be performed for an active network connection
 		 */
-		public function loadEnvironment( callback:Function, checkNetwork:Boolean=false ):void
+		public function loadEnvironment( callback:Function, checkNetwork:Boolean = false ):void
 		{
 			Log.d( TAG, "loadEnvironment()" );
 			
@@ -136,26 +136,79 @@ package com.apm.client.config
 				return File.userDirectory.nativePath;
 			}
 		}
+
 		
-		
+		/**
+		 * Attempts to find a java executable in the system.
+		 *
+		 * @return	A <code>File</code> reference to the java executable.
+		 */
 		public function getJava():File
 		{
-			var defaultJavaHome:String = isWindows ? "" : "/usr/";
-			var javaHome:String = env[ "JAVA_HOME" ] || defaultJavaHome;
-			Log.v(TAG, "using JAVA_HOME=" + javaHome);
-			var binJavaPath:String = isWindows ? "bin\\java.exe" : "bin/java";
+			var javaHome:String = env[ "JAVA_HOME" ];
+			var javaBinPath:String;
 			try
 			{
-				return new File( javaHome ).resolvePath( binJavaPath );
+				if (isWindows)
+				{
+					javaBinPath = "bin\\java.exe";
+					if (javaHome == null)
+					{
+						// Try to locate a java install
+						// Normally have a directory "Java/jdkx.x.x_x"
+						//  - so iterate over subdirectories checking for the java exe
+						
+						var javaDirectoryCandidates:Array = [
+							new File( "C:\\Program Files\\Java" ),
+							new File( "C:\\Program Files (x86)\\Java" )
+						];
+						
+						for each (var candidate:File in javaDirectoryCandidates)
+						{
+							if (candidate.exists && candidate.getDirectoryListing().length > 0)
+							{
+								for each (var javaCandidate:File in candidate.getDirectoryListing())
+								{
+									if (javaCandidate.resolvePath( javaBinPath ).exists)
+									{
+										javaHome = javaCandidate.nativePath;
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+				else if (isMacOS)
+				{
+					javaBinPath = "bin/java";
+					if (javaHome == null)
+					{
+						// Try default java install
+						javaHome = "/usr";
+					}
+				}
+				else
+				{
+					javaBinPath = "bin/java";
+					// TODO: Linux
+				}
+				
+				var java:File = new File( javaHome ).resolvePath( javaBinPath );
+				if (java.exists)
+				{
+					return java;
+				}
 			}
-			catch ( e:Error ) {
-				Log.l( TAG, "ERROR: Failed to find " + binJavaPath);
+			catch (e:Error)
+			{
+				Log.l( TAG, "ERROR: Failed to find " + javaBinPath );
 				Log.e( TAG, e );
-				throw new Error( "Failed to find " + binJavaPath + " in JAVA_HOME=" + javaHome
-					+ ". Point JAVA_HOME to your java installation." );
 			}
+			
+			throw new Error( "Failed to find '" + javaBinPath + "' in JAVA_HOME=" + javaHome
+									 + ". Point JAVA_HOME to your java installation." );
 		}
-		
 		
 		
 		//
@@ -172,6 +225,7 @@ package com.apm.client.config
 			{
 				return "macos";
 			}
+			// TODO:: Linux
 			return "";
 		}
 		
