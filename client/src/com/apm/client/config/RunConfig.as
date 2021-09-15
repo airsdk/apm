@@ -210,6 +210,12 @@ package com.apm.client.config
 									 + ". Point JAVA_HOME to your java installation." );
 		}
 		
+		public function getRemoteRepositoryEndpoint():String
+		{
+			var repo:String = env["APM_REPOSITORY"] || "https://repository.airsdk.dev";
+			Log.d( TAG, "APM_REPOSITORY=" + repo );
+			return repo;
+		}
 		
 		//
 		//	UTILITIES

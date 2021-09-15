@@ -14,6 +14,7 @@
 package com.apm.remote.repository
 {
 	import com.apm.SemVer;
+	import com.apm.client.APM;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.remote.lib.APIRequestQueue;
@@ -39,9 +40,6 @@ package com.apm.remote.repository
 		
 		private var _requestQueue:APIRequestQueue;
 		
-//		private var _endpoint:String = "http://localhost:3000";
-		private var _endpoint:String = "https://repository.airsdk.dev";
-		
 		// Auth token for publish actions
 		private var _token:String;
 		
@@ -57,10 +55,9 @@ package com.apm.remote.repository
 		}
 		
 		
-		public function setEndpoint( endpoint:String ):RepositoryAPI
+		private function get endpoint():String
 		{
-			this._endpoint = endpoint;
-			return this;
+			return APM.config.getRemoteRepositoryEndpoint();
 		}
 		
 		
@@ -78,7 +75,7 @@ package com.apm.remote.repository
 			
 			var req:URLRequest = new URLRequest();
 			req.method = URLRequestMethod.POST;
-			req.url = _endpoint + "/api/packages/" + identifier + "/" + version + "/analytics/" + event;
+			req.url = endpoint + "/api/packages/" + identifier + "/" + version + "/analytics/" + event;
 			req.data = vars;
 			
 			_requestQueue.add( req, "analytics", function ( success:Boolean, data:* ):void {
@@ -98,7 +95,7 @@ package com.apm.remote.repository
 			
 			var req:URLRequest = new URLRequest();
 			req.method = URLRequestMethod.GET;
-			req.url = _endpoint + "/api/search";
+			req.url = endpoint + "/api/search";
 			req.data = vars;
 			
 			_requestQueue.add( req, "search", function ( success:Boolean, data:* ):void {
@@ -132,7 +129,7 @@ package com.apm.remote.repository
 		{
 			var req:URLRequest = new URLRequest();
 			req.method = URLRequestMethod.GET;
-			req.url = _endpoint + "/api/packages/" + identifier;
+			req.url = endpoint + "/api/packages/" + identifier;
 			
 			_requestQueue.add( req, "getpackage", function ( success:Boolean, data:* ):void {
 				
@@ -162,7 +159,7 @@ package com.apm.remote.repository
 		{
 			var req:URLRequest = new URLRequest();
 			req.method = URLRequestMethod.GET;
-			req.url = _endpoint + "/api/packages/" + identifier + "/" + (version == null ? "latest" : version.toString());
+			req.url = endpoint + "/api/packages/" + identifier + "/" + (version == null ? "latest" : version.toString());
 			
 			_requestQueue.add( req, "getpackageversion", function ( success:Boolean, data:* ):void {
 				
@@ -202,7 +199,7 @@ package com.apm.remote.repository
 			var req:URLRequest = new URLRequest();
 			req.requestHeaders = headers;
 			req.method = URLRequestMethod.POST;
-			req.url = _endpoint + "/api/packages/" + packageDef.packageDef.identifier + "/update";
+			req.url = endpoint + "/api/packages/" + packageDef.packageDef.identifier + "/update";
 			req.data = JSON.stringify( {
 										   packageDef: packageDef.toObject( true, true ),
 										   readme:     packageDef.readme,
