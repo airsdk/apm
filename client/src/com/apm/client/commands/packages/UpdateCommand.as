@@ -16,7 +16,7 @@ package com.apm.client.commands.packages
 	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.packages.data.InstallData;
-	import com.apm.client.commands.packages.data.InstallQueryRequest;
+	import com.apm.client.commands.packages.data.InstallRequest;
 	import com.apm.client.commands.packages.processes.InstallDataValidationProcess;
 	import com.apm.client.commands.packages.processes.InstallQueryPackageProcess;
 	import com.apm.client.events.CommandEvent;
@@ -148,16 +148,18 @@ package com.apm.client.commands.packages
 					// Install from list in project file
 					for (var i:int = 0; i < project.dependencies.length; i++)
 					{
-						if (packageIdentifier == null
+						if ((packageIdentifier == null
 								|| packageIdentifier == project.dependencies[ i ].identifier)
+								&& project.dependencies[ i ].source != "file")
 						{
 							updateRequired = true;
 							_queue.addProcess(
 									new InstallQueryPackageProcess(
 											_installData,
-											new InstallQueryRequest(
+											new InstallRequest(
 													project.dependencies[ i ].identifier,
-													"latest"
+													"latest",
+													project.dependencies[ i ].source
 											),
 											false
 									)
@@ -168,9 +170,10 @@ package com.apm.client.commands.packages
 							_queue.addProcess(
 									new InstallQueryPackageProcess(
 											_installData,
-											new InstallQueryRequest(
+											new InstallRequest(
 													project.dependencies[ i ].identifier,
-													project.dependencies[ i ].version.toString()
+													project.dependencies[ i ].version.toString(),
+													project.dependencies[ i ].source
 											),
 											false
 									)

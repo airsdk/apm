@@ -88,12 +88,13 @@ package com.apm.client.commands.packages.data
 		}
 		
 		
-		public function contains( query:InstallQueryRequest ):Boolean
+		public function contains( query:InstallRequest ):Boolean
 		{
 			for each (var p:InstallPackageData in _packagesAll)
 			{
-				if (p.query.packageIdentifier == query.packageIdentifier
-						&& p.query.semVer.equals( query.semVer ))
+				if (p.request != null
+						&& p.request.packageIdentifier == query.packageIdentifier
+						&& p.request.semVer.equals( query.semVer ))
 				{
 					return true;
 				}
@@ -102,7 +103,7 @@ package com.apm.client.commands.packages.data
 		}
 		
 		
-		public function addPackage( packageVersion:PackageVersion, query:InstallQueryRequest ):void
+		public function addPackage( packageVersion:PackageVersion, query:InstallRequest ):void
 		{
 			var installPackageData:InstallPackageData = new InstallPackageData(
 					packageVersion,
@@ -119,7 +120,6 @@ package com.apm.client.commands.packages.data
 			}
 			
 			_packagesAll.push( installPackageData );
-			
 		}
 		
 		

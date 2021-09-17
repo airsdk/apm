@@ -18,6 +18,7 @@ package com.apm.client.commands.packages.processes
 	import com.apm.client.commands.packages.data.InstallPackageData;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageParameter;
+	import com.apm.data.packages.PackageVersion;
 	
 	
 	/**
@@ -54,14 +55,17 @@ package com.apm.client.commands.packages.processes
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			APM.config.projectDefinition.clearPackageDependencies();
+//			APM.config.projectDefinition.clearPackageDependencies();
 			
 			// save all the installed packages into the project file
 			for each (var p:InstallPackageData in _installData.packagesToInstall)
 			{
-				if (p.query.requiringPackage == null)
+				if (p.request.requiringPackage == null)
 				{
-					APM.config.projectDefinition.addPackageDependency( p.packageVersion );
+					var packageVersion:PackageVersion = p.packageVersion;
+					packageVersion.source = p.request.source;
+					
+					APM.config.projectDefinition.addPackageDependency( packageVersion );
 				}
 				
 				// Ensure all extension parameters are added with defaults

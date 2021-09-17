@@ -129,7 +129,7 @@ package com.apm.client.commands.packages
 			
 			_queue.start(
 					function ():void {
-						Analytics.instance.uninstall( _packageDependency.identifier, _packageDependency.version.toString(), function ():void {
+						Analytics.instance.uninstall( _packageDependency.identifier, _packageDependency.version.toString(), _packageDependency.source, function ():void {
 							dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
 						} );
 					},

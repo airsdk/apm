@@ -16,6 +16,7 @@ package com.apm.client.commands.packages.processes
 	import com.apm.client.APM;
 	import com.apm.client.analytics.Analytics;
 	import com.apm.client.commands.packages.data.InstallPackageData;
+	import com.apm.client.logging.Log;
 	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.ProcessQueue;
@@ -40,39 +41,69 @@ package com.apm.client.commands.packages.processes
 		//  VARIABLES
 		//
 		
-		private var _installData:InstallPackageData;
+		private var _packageData:InstallPackageData;
 		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function InstallPackageProcess( installData:InstallPackageData )
+		public function InstallPackageProcess( installPackageData:InstallPackageData )
 		{
 			super();
-			_installData = installData;
+			_packageData = installPackageData;
 		}
 		
 		
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			APM.io.writeLine( "Installing package : " + _installData.packageVersion.packageDef.toString() );
+			APM.io.writeLine( "Installing package : " + _packageData.packageVersion.packageDef.toString() );
 			
-			var packageDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDir, _installData.packageVersion.packageDef.identifier );
-			var packageFile:File = PackageFileUtils.fileForPackage( APM.config.packagesDir, _installData.packageVersion );
+			var cacheDirForPackage:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDir, _packageData.packageVersion.packageDef.identifier );
+			var packageDir:File = PackageFileUtils.directoryForPackage( APM.config.packagesDir, _packageData.packageVersion.packageDef.identifier );
+			var packageFile:File = PackageFileUtils.fileForPackage( APM.config.packagesDir, _packageData.packageVersion );
 			
 			var queue:ProcessQueue = new ProcessQueue();
 			
-			queue.addProcess( new DownloadPackageProcess( _installData.packageVersion ) );
-			queue.addProcess( new ExtractZipProcess( packageFile, packageDir ) );
+			if (_packageData.request.source == "file")
+			{
+				if (_packageData.request.packageFile != null && _packageData.request.packageFile.exists)
+				{
+					queue.addCallback( function():void {
+						try
+						{
+							var packagesDir:File = new File( APM.config.packagesDir );
+							if (!packagesDir.exists) packagesDir.createDirectory();
+							if (!packageDir.exists) packageDir.createDirectory();
+
+							if (_packageData.request.packageFile.nativePath != packageFile.nativePath)
+							{
+								_packageData.request.packageFile.copyTo( packageFile, true );
+							}
+							APM.io.writeResult( true, "Copying package : " + _packageData.request.packageFile.name );
+						}
+						catch (e:Error)
+						{
+							Log.e( TAG, e );
+							APM.io.writeResult( false, "Failed to copy package : " + _packageData.request.packageFile.name + " :: " + e.message );
+						}
+					});
+				}
+			}
+			else
+			{
+				queue.addProcess( new DownloadPackageProcess( _packageData.packageVersion ) );
+			}
+			queue.addProcess( new ExtractZipProcess( packageFile, cacheDirForPackage ) );
 			
 			queue.start( function ():void {
-							 if (_installData.query.isNew)
+							 if (_packageData.request.isNew)
 							 {
 								 Analytics.instance.install(
-										 _installData.packageVersion.packageDef.identifier,
-										 _installData.packageVersion.version.toString(),
+										 _packageData.packageVersion.packageDef.identifier,
+										 _packageData.packageVersion.version.toString(),
+										 _packageData.packageVersion.source,
 										 complete );
 							 }
 							 else
@@ -82,7 +113,7 @@ package com.apm.client.commands.packages.processes
 				
 						 },
 						 function ( error:String ):void {
-							 APM.io.writeError( "ERROR", "Failed to install package : " + _installData.packageVersion.packageDef.toString() );
+							 APM.io.writeError( "ERROR", "Failed to install package : " + _packageData.packageVersion.packageDef.toString() );
 							 failure( error );
 						 } );
 			
@@ -91,7 +122,7 @@ package com.apm.client.commands.packages.processes
 		
 		override protected function complete( data:Object=null ):void
 		{
-			APM.io.writeLine( "Installed package : " + _installData.packageVersion.packageDef.toString() );
+			APM.io.writeLine( "Installed package : " + _packageData.packageVersion.packageDef.toString() );
 			super.complete();
 		}
 		

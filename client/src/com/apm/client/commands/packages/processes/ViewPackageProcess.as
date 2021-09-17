@@ -14,6 +14,7 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APM;
+	import com.apm.client.repositories.PackageResolver;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.remote.repository.RepositoryAPI;
@@ -33,7 +34,7 @@ package com.apm.client.commands.packages.processes
 		//
 		
 		private var _packageIdentifier:String;
-		private var _repositoryAPI:RepositoryAPI;
+		private var _packageResolver:PackageResolver;
 		
 		
 		////////////////////////////////////////////////////////
@@ -44,7 +45,7 @@ package com.apm.client.commands.packages.processes
 		{
 			super();
 			_packageIdentifier = packageIdentifier;
-			_repositoryAPI = new RepositoryAPI();
+			_packageResolver = new PackageResolver();
 		}
 		
 		
@@ -52,7 +53,7 @@ package com.apm.client.commands.packages.processes
 		{
 			super.start( completeCallback, failureCallback );
 			APM.io.showSpinner( "Finding package : " + _packageIdentifier );
-			_repositoryAPI.getPackage( _packageIdentifier, function ( success:Boolean, packageDefinition:PackageDefinition ):void {
+			_packageResolver.getPackage( _packageIdentifier, function ( success:Boolean, packageDefinition:PackageDefinition ):void {
 				APM.io.stopSpinner( success, "No package found matching : " + _packageIdentifier, success );
 				if (success)
 				{

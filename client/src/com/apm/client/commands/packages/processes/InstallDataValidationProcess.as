@@ -55,8 +55,8 @@ package com.apm.client.commands.packages.processes
 			super.start( completeCallback, failureCallback );
 			// Once here we should have all the data for the required packages
 			// We now verify the install, checking for conflicts and resolving if possible
-			var resolver:InstallDataValidator = new InstallDataValidator();
-			if (resolver.verifyInstall( _installData )) // fails if a conflicting package was found
+			var validator:InstallDataValidator = new InstallDataValidator();
+			if (validator.verifyInstall( _installData )) // fails if a conflicting package was found
 			{
 				// dependencies could be resolved - proceed to installation
 				_queue.clear();
@@ -90,7 +90,7 @@ package com.apm.client.commands.packages.processes
 						APM.io.writeError( "CONFLICT",
 											 (i == confictGroup.versions.length - 1 ? "└── " : "├── ") +
 													 confictGroup.versions[ i ].packageVersion.toString() +
-													 " required by: " + confictGroup.versions[ i ].query.requiringPackage.packageDef.toString()
+													 " required by: " + confictGroup.versions[ i ].request.requiringPackage.packageDef.toString()
 						);
 					}
 				}

@@ -153,6 +153,7 @@ package com.apm.client.commands.packages.processes
 				Analytics.instance.download(
 						_package.packageDef.identifier,
 						_package.version.toString(),
+						_package.source,
 						complete );
 			}
 			else
