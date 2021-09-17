@@ -18,13 +18,14 @@ package com.apm.remote.repository
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.remote.lib.APIRequestQueue;
 	
+	import flash.events.EventDispatcher;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestHeader;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
 	
 	
-	public class RepositoryAPI
+	public class RepositoryAPI extends EventDispatcher implements Repository
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
@@ -37,34 +38,49 @@ package com.apm.remote.repository
 		//  VARIABLES
 		//
 		
-		private var _requestQueue:APIRequestQueue;
+		private var _name:String;
+		/**
+		 * The name (source name) of this repository
+		 */
+		public function get name():String  { return _name; }
+		public function set name( value:String ):void { _name = value; }
 		
-//		private var _endpoint:String = "http://localhost:3000";
-		private var _endpoint:String = "https://repository.airsdk.dev";
+		
+		private var _endpoint:String;
+		/**
+		 * The url endpoint
+		 */
+		public function get endpoint():String { return _endpoint; }
+		public function set endpoint( endpoint:String ):void { this._endpoint = endpoint; }
+		
 		
 		// Auth token for publish actions
 		private var _token:String;
 		
 		
+		private var _requestQueue:APIRequestQueue;
+
+		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function RepositoryAPI()
+		public function RepositoryAPI( endpoint:String )
 		{
 			super();
 			_requestQueue = new APIRequestQueue();
+			_endpoint = endpoint;
 		}
 		
 		
-		public function setEndpoint( endpoint:String ):RepositoryAPI
+		public function setName( name:String ):Repository
 		{
-			this._endpoint = endpoint;
+			_name = name;
 			return this;
 		}
 		
 		
-		public function setToken( token:String ):RepositoryAPI
+		public function setToken( token:String ):Repository
 		{
 			this._token = token;
 			return this;
@@ -94,7 +110,7 @@ package com.apm.remote.repository
 		{
 			var vars:URLVariables = new URLVariables();
 			vars[ "q" ] = query;
-//			vars[ "t" ] = query;
+//			vars[ "t" ] = request;
 			
 			var req:URLRequest = new URLRequest();
 			req.method = URLRequestMethod.GET;

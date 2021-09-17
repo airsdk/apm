@@ -41,6 +41,7 @@ package com.apm.data.packages
 		
 		public var identifier:String;
 		public var version:SemVer;
+		public var source:String;
 		
 		private var _singleLineOutput:Boolean = false;
 		
@@ -56,7 +57,9 @@ package com.apm.data.packages
 		
 		public function toString():String
 		{
-			return (identifier == null ? "none" : identifier) + "@" + (version == null ? "unknown" : version.toString());
+			return (identifier == null ? "none" : identifier)
+					+ "@" + (version == null ? "unknown" : version.toString())
+					+ (source == null ? "" : " ["+source+"]");
 		}
 		
 		
@@ -68,10 +71,12 @@ package com.apm.data.packages
 			}
 			else
 			{
-				return {
+				var o:Object = {
 					id:      identifier,
 					version: version.toString()
 				};
+				if (source != null) o.source = source;
+				return o;
 			}
 		}
 		
@@ -100,6 +105,7 @@ package com.apm.data.packages
 				{
 					if (data.hasOwnProperty( "id" )) this.identifier = data[ "id" ];
 					if (data.hasOwnProperty( "version" )) this.version = SemVer.fromString( data[ "version" ] );
+					if (data.hasOwnProperty( "source" )) this.source = data[ "source" ];
 				}
 			}
 			return this;
