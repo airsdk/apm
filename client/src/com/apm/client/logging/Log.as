@@ -26,8 +26,11 @@ package com.apm.client.logging
 		
 		
 		public static const LEVEL_NORMAL:int = 0;
-		public static const LEVEL_VERBOSE:int = 1;
-		public static const LEVEL_DEBUG:int = 2;
+		public static const LEVEL_WARN:int = 1;
+		public static const LEVEL_INFO:int = 2;
+		public static const LEVEL_DEBUG:int = 3;
+		public static const LEVEL_VERBOSE:int = 4;
+		
 		
 		
 		////////////////////////////////////////////////////////
@@ -99,7 +102,7 @@ package com.apm.client.logging
 		public static function setLogLevel( level:int ):void
 		{
 			_logLevel = level;
-			d( TAG, "setLogLevel( " + logLevelDescription( level ) + " ) " )
+			v( TAG, "setLogLevel( " + logLevelDescription( level ) + " ) " )
 		}
 		
 		
@@ -114,6 +117,12 @@ package com.apm.client.logging
 			{
 				case LEVEL_NORMAL:
 					return "normal";
+				
+				case LEVEL_WARN:
+					return "warn";
+				
+				case LEVEL_INFO:
+					return "info";
 				
 				case LEVEL_DEBUG:
 					return "debug";
@@ -134,7 +143,49 @@ package com.apm.client.logging
 		public static function l( tag:String, message:String ):void
 		{
 			APM.io.writeLine( tag + "::" + message );
-//			trace( tag + "::" + message );
+		}
+		
+		
+		/**
+		 * Warn level logging
+		 * @param tag
+		 * @param message
+		 */
+		public static function w( tag:String, message:String ):void
+		{
+			if (_logLevel >= LEVEL_WARN)
+			{
+				APM.io.writeLine( tag + "::" + message );
+			}
+		}
+		
+		
+		/**
+		 * Info level logging
+		 * @param tag
+		 * @param message
+		 */
+		public static function i( tag:String, message:String ):void
+		{
+			if (_logLevel >= LEVEL_INFO)
+			{
+				APM.io.writeLine( "I::" + tag + "::" + message );
+			}
+		}
+		
+		
+		
+		/**
+		 * Debug level logging
+		 * @param tag
+		 * @param message
+		 */
+		public static function d( tag:String, message:String ):void
+		{
+			if (_logLevel >= LEVEL_DEBUG)
+			{
+				APM.io.writeLine( "D::" + tag + "::" + message );
+			}
 		}
 		
 		
@@ -147,22 +198,7 @@ package com.apm.client.logging
 		{
 			if (_logLevel >= LEVEL_VERBOSE)
 			{
-				l( tag, message );
-			}
-		}
-		
-		
-		/**
-		 * Debug level logging
-		 * @param tag
-		 * @param message
-		 */
-		public static function d( tag:String, message:String ):void
-		{
-			if (_logLevel >= LEVEL_DEBUG)
-			{
-//				trace( tag + "::" + message );
-				APM.io.writeLine( "D::" + tag + "::" + message );
+				APM.io.writeLine( "V::" + tag + "::" + message );
 			}
 		}
 		
@@ -174,11 +210,10 @@ package com.apm.client.logging
 		 */
 		public static function e( tag:String, error:Error ):void
 		{
-			// TODO
-			d( tag, error.message );
+			APM.io.writeLine( "E::" + tag + "::" + error.message );
 			if (_logLevel >= LEVEL_DEBUG)
 			{
-				d( tag, error.getStackTrace() );
+				APM.io.writeLine( "E::" + tag + "::" + error.getStackTrace() );
 			}
 		}
 		
