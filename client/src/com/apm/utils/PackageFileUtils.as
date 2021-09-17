@@ -15,6 +15,7 @@
  */
 package com.apm.utils
 {
+	import com.apm.SemVer;
 	import com.apm.data.packages.PackageVersion;
 	
 	import flash.filesystem.File;
@@ -67,6 +68,7 @@ package com.apm.utils
 		}
 		
 		
+		
 		public static function fileForPackage( packagesDir:String, packageVersion:PackageVersion ):File
 		{
 			return PackageFileUtils.directoryForPackage( packagesDir, packageVersion.packageDef.identifier )
@@ -86,6 +88,24 @@ package com.apm.utils
 		public static function cacheDirName():String
 		{
 			return "contents";
+		}
+		
+		
+		
+		
+		public static function fileForPackageFromIdentifierVersion( packagesDir:String, identifier:String, version:SemVer ):File
+		{
+			return PackageFileUtils.directoryForPackage( packagesDir, identifier )
+					.resolvePath(
+							PackageFileUtils.filenameForPackageFromIdentifierVersion( identifier, version )
+					);
+		}
+		
+		
+		public static function filenameForPackageFromIdentifierVersion( identifier:String, version:SemVer ):String
+		{
+			var filename:String = identifier + "_" + version.toString() + "." + AIRPACKAGEEXTENSION;
+			return filename;
 		}
 		
 	}
