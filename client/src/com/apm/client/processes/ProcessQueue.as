@@ -111,7 +111,7 @@ package com.apm.client.processes
 		
 		private function checkAndStartNextProcess():void
 		{
-			Log.d( TAG, "checkAndStartNextProcess(): " + _queue.length );
+			Log.v( TAG, "checkAndStartNextProcess(): " + _queue.length );
 			if (_queue.length == 0)
 			{
 				// Reached end of queue
@@ -149,7 +149,7 @@ package com.apm.client.processes
 		
 		private function process_eventHandler( event:ProcessEvent ):void
 		{
-			Log.d( TAG, "process_eventHandler( " + event.type + " )" );
+			Log.v( TAG, "process_eventHandler( " + event.type + " )" );
 			_currentProcess.removeEventListener( ProcessEvent.COMPLETE, process_eventHandler );
 			_currentProcess.removeEventListener( ProcessEvent.FAILED, process_eventHandler );
 			
