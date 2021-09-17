@@ -40,6 +40,7 @@ package com.apm.client.config
 		
 		private static const TAG:String = "RunConfig";
 		
+		public static const DEFAULT_REPOSITORY_URL:String = "https://repository.airsdk.dev";
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
@@ -210,6 +211,17 @@ package com.apm.client.config
 			
 			throw new Error( "Failed to find '" + javaBinPath + "' in JAVA_HOME=" + javaHome
 									 + ". Point JAVA_HOME to your java installation." );
+		}
+		
+		
+		public function getDefaultRemoteRepositoryEndpoint():String
+		{
+			if (env["APM_REPOSITORY"])
+			{
+				Log.d( TAG, "Using custom apm repository: " + env["APM_REPOSITORY"] );
+				return env["APM_REPOSITORY"];
+			}
+			return DEFAULT_REPOSITORY_URL;
 		}
 		
 		

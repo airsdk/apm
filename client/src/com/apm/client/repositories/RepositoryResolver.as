@@ -28,8 +28,6 @@ package com.apm.client.repositories
 		
 		private static const TAG:String = "RepositoryResolver";
 		
-		public static const DEFAULT_REPOSITORY_URL:String = "https://repository.airsdk.dev";
-		
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
@@ -72,7 +70,7 @@ package com.apm.client.repositories
 					}
 				}
 			}
-			return new RepositoryAPI( DEFAULT_REPOSITORY_URL );
+			return new RepositoryAPI( APM.config.getDefaultRemoteRepositoryEndpoint() );
 		}
 		
 	}
