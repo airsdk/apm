@@ -113,7 +113,10 @@ package com.apm.client.io
 		{
 			_lastOutputNonUI = true;
 			System.output( s );
-//			trace( s );
+			CONFIG::DEBUG
+			{
+				trace( s );
+			}
 		}
 		
 		
