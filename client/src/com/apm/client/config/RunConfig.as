@@ -15,6 +15,7 @@ package com.apm.client.config
 {
 	import com.apm.client.config.processes.CheckNetworkProcess;
 	import com.apm.client.config.processes.LoadMacOSEnvironmentVariablesProcess;
+	import com.apm.client.config.processes.LoadMacOSJavaHomeProcess;
 	import com.apm.client.config.processes.LoadProjectDefinitionProcess;
 	import com.apm.client.config.processes.LoadUserSettingsProcess;
 	import com.apm.client.config.processes.LoadWindowsEnvironmentVariablesProcess;
@@ -98,6 +99,7 @@ package com.apm.client.config
 			if (isMacOS)
 			{
 				_loadQueue.addProcess( new LoadMacOSEnvironmentVariablesProcess( this ) );
+				_loadQueue.addProcess( new LoadMacOSJavaHomeProcess( this ) );
 			}
 			if (isWindows)
 			{
@@ -141,7 +143,7 @@ package com.apm.client.config
 		/**
 		 * Attempts to find a java executable in the system.
 		 *
-		 * @return	A <code>File</code> reference to the java executable.
+		 * @return  A <code>File</code> reference to java executable
 		 */
 		public function getJava():File
 		{
@@ -182,11 +184,11 @@ package com.apm.client.config
 				else if (isMacOS)
 				{
 					javaBinPath = "bin/java";
-					if (javaHome == null)
-					{
-						// Try default java install
-						javaHome = "/usr";
-					}
+//					if (javaHome == null)
+//					{
+//						// Try default java install - this will likely fail
+//						javaHome = "/usr";
+//					}
 				}
 				else
 				{
