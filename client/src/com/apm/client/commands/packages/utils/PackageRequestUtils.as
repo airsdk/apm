@@ -83,7 +83,7 @@ package com.apm.client.commands.packages.utils
 //								Log.d( TAG, "generateURLRequestForPackage(): release details: " + JSON.stringify(releases)  );
 								for each (var release:Object in releases)
 								{
-									if (release.name == version)
+									if (release.tag_name == version)
 									{
 										Log.d( TAG, "generateURLRequestForPackage(): release : " + JSON.stringify(release)  );
 										// found release
