@@ -49,22 +49,25 @@ package com.apm.client.repositories
 		{
 			if (source != null)
 			{
-				for each (var repository:RepositoryDefinition in APM.config.projectDefinition.repositories)
+				if (APM.config.projectDefinition)
 				{
-					if (repository.name == source)
+					for each (var repository:RepositoryDefinition in APM.config.projectDefinition.repositories)
 					{
-						switch (repository.type)
+						if (repository.name == source)
 						{
-							case RepositoryDefinition.TYPE_LOCAL:
+							switch (repository.type)
 							{
-								return new LocalRepository( repository.location )
-										.setName( repository.name );
-							}
-	
-							case RepositoryDefinition.TYPE_REMOTE:
-							{
-								return new RepositoryAPI( repository.location )
-										.setName( repository.name );
+								case RepositoryDefinition.TYPE_LOCAL:
+								{
+									return new LocalRepository( repository.location )
+											.setName( repository.name );
+								}
+								
+								case RepositoryDefinition.TYPE_REMOTE:
+								{
+									return new RepositoryAPI( repository.location )
+											.setName( repository.name );
+								}
 							}
 						}
 					}
@@ -74,4 +77,5 @@ package com.apm.client.repositories
 		}
 		
 	}
+	
 }
