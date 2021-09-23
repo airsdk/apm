@@ -74,17 +74,19 @@ package com.apm.client.repositories
 		{
 			// TODO:: Implement source
 			var searchQueue:ProcessQueue = new ProcessQueue();
-			var repo:Repository;
-			for each (var repository:RepositoryDefinition in APM.config.projectDefinition.repositories)
+			if (APM.config.projectDefinition)
 			{
-				searchQueue.addProcess(
-						new RepositoryGetPackageVersionProcess(
-								this,
-								RepositoryResolver.repositoryForSource( repository.name ),
-								identifier,
-								version
-						)
-				);
+				for each (var repository:RepositoryDefinition in APM.config.projectDefinition.repositories)
+				{
+					searchQueue.addProcess(
+							new RepositoryGetPackageVersionProcess(
+									this,
+									RepositoryResolver.repositoryForSource( repository.name ),
+									identifier,
+									version
+							)
+					);
+				}
 			}
 			
 			// Add one for the common server
