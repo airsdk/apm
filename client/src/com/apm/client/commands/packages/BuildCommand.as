@@ -91,7 +91,7 @@ package com.apm.client.commands.packages
 		
 		public function get description():String
 		{
-			return "create a package template for a new package in the repository";
+			return "build a package directory into an airpackage";
 		}
 		
 		
