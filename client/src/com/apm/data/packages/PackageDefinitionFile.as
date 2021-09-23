@@ -14,7 +14,6 @@
 package com.apm.data.packages
 {
 	import com.apm.SemVer;
-	import com.apm.data.packages.PackageLicense;
 	import com.apm.utils.JSONUtils;
 	
 	import flash.filesystem.File;
@@ -50,6 +49,7 @@ package com.apm.data.packages
 		
 		private var _packageDef:PackageDefinition;
 		private var _packageVersion:PackageVersion;
+		private var _rawVersion:String = "";
 		private var _packageDependencies:Vector.<PackageDependency>;
 		
 		
@@ -65,10 +65,9 @@ package com.apm.data.packages
 		public function get dependencies():Vector.<PackageDependency> { return _packageDependencies; }
 		
 		
-		public var readme : String = "";
+		public var readme:String = "";
 		
-		public var changelog : String = "";
-		
+		public var changelog:String = "";
 		
 		
 		////////////////////////////////////////////////////////
@@ -105,6 +104,7 @@ package com.apm.data.packages
 			if (data.hasOwnProperty( "type" )) _packageDef.type = data[ "type" ];
 			
 			if (data.hasOwnProperty( "version" )) _packageVersion.version = SemVer.fromString( data[ "version" ] );
+			if (data.hasOwnProperty( "version" )) _rawVersion = data[ "version" ];
 			if (data.hasOwnProperty( "sourceUrl" )) _packageVersion.sourceUrl = data[ "sourceUrl" ];
 			if (data.hasOwnProperty( "publishedAt" )) _packageVersion.publishedAt = data[ "publishedAt" ];
 			
@@ -156,7 +156,7 @@ package com.apm.data.packages
 		}
 		
 		
-		public function toObject( forceObjectOutput:Boolean=false, outputChecksum:Boolean=false ):Object
+		public function toObject( forceObjectOutput:Boolean = false, outputChecksum:Boolean = false ):Object
 		{
 			var data:Object = {};
 			
@@ -167,7 +167,10 @@ package com.apm.data.packages
 			data[ "description" ] = _packageDef.description;
 			data[ "type" ] = _packageDef.type;
 			
-			data[ "version" ] = _packageVersion.version.toString();
+			if (_packageVersion.version == null)
+				data[ "version" ] = _rawVersion;
+			else
+				data[ "version" ] = _packageVersion.version.toString();
 			data[ "sourceUrl" ] = _packageVersion.sourceUrl;
 			data[ "publishedAt" ] = _packageVersion.publishedAt;
 			
@@ -194,12 +197,12 @@ package com.apm.data.packages
 			
 			if (outputChecksum)
 			{
-				data["checksum"] = _packageVersion.checksum;
+				data[ "checksum" ] = _packageVersion.checksum;
 			}
 			
 			if (_packageDef.license)
 			{
-				data["license"] = _packageDef.license.toObject();
+				data[ "license" ] = _packageDef.license.toObject();
 			}
 			data[ "purchaseUrl" ] = _packageDef.purchaseUrl;
 			
