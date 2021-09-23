@@ -15,7 +15,7 @@ package com.apm.client.commands.project.processes
 {
 	import com.apm.client.APM;
 	import com.apm.client.processes.ProcessBase;
-	import com.apm.utils.FileUtils;
+	import com.apm.utils.Template;
 	import com.apple.plist.Plist;
 	import com.apple.plist.PlistUtils;
 	
@@ -64,14 +64,8 @@ package com.apm.client.commands.project.processes
 			{
 				// Insert configuration parameters into merge plist
 				// Note: currentPlist should already have parameters
-				var mergeContent:String = FileUtils.readFileContentAsString( _mergePlist );
-				for (var name:String in APM.config.projectDefinition.configuration)
-				{
-					var regex:RegExp = new RegExp( "\\$\\{" + name + "\\}", "g" );
-					var value:String = APM.config.projectDefinition.getConfigurationParam( name );
-					
-					mergeContent = mergeContent.replace( regex, value );
-				}
+				var mergeContent:String =
+					Template.compileFile( _mergePlist, APM.config.projectDefinition.configuration );
 				
 				// Load and merge plists
 				var merge:Plist = new Plist( mergeContent );

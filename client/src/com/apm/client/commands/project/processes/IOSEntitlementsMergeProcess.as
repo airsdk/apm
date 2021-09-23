@@ -19,6 +19,7 @@ package com.apm.client.commands.project.processes
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.project.ApplicationDescriptor;
 	import com.apm.utils.FileUtils;
+	import com.apm.utils.Template;
 	import com.apple.plist.Plist;
 	
 	import flash.filesystem.File;
@@ -63,17 +64,8 @@ package com.apm.client.commands.project.processes
 			if (entitlementsProjectFile.exists)
 			{
 				APM.io.writeLine( "Merging with supplied info additions: config/ios/Entitlements.xml" );
-				
-				// Read content and inject any config parameters
-				var entitlementsProjectContent:String = FileUtils.readFileContentAsString( entitlementsProjectFile );
-				for (var name:String in APM.config.projectDefinition.configuration)
-				{
-					var regex:RegExp = new RegExp( "\\$\\{" + name + "\\}", "g" );
-					var value:String = APM.config.projectDefinition.getConfigurationParam( name );
-					
-					entitlementsProjectContent = entitlementsProjectContent.replace( regex, value );
-				}
-				FileUtils.writeStringAsFileContent( entitlementsFile, entitlementsProjectContent );
+				Template.compileFileToFile( entitlementsProjectFile, entitlementsFile,
+					APM.config.projectDefinition.configuration );
 			}
 			else
 			{
