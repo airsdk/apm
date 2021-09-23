@@ -19,6 +19,7 @@ package com.apm.client.config
 	import com.apm.client.config.processes.LoadProjectDefinitionProcess;
 	import com.apm.client.config.processes.LoadUserSettingsProcess;
 	import com.apm.client.config.processes.LoadWindowsEnvironmentVariablesProcess;
+	import com.apm.client.config.processes.LoadWindowsJavaHomeProcess;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.project.ProjectDefinition;
@@ -105,6 +106,7 @@ package com.apm.client.config
 			if (isWindows)
 			{
 				_loadQueue.addProcess( new LoadWindowsEnvironmentVariablesProcess( this ) );
+				_loadQueue.addProcess( new LoadWindowsJavaHomeProcess( this ) );
 			}
 			
 			// General
@@ -155,41 +157,10 @@ package com.apm.client.config
 				if (isWindows)
 				{
 					javaBinPath = "bin\\java.exe";
-					if (javaHome == null)
-					{
-						// Try to locate a java install
-						// Normally have a directory "Java/jdkx.x.x_x"
-						//  - so iterate over subdirectories checking for the java exe
-						
-						var javaDirectoryCandidates:Array = [
-							new File( "C:\\Program Files\\Java" ),
-							new File( "C:\\Program Files (x86)\\Java" )
-						];
-						
-						for each (var candidate:File in javaDirectoryCandidates)
-						{
-							if (candidate.exists && candidate.getDirectoryListing().length > 0)
-							{
-								for each (var javaCandidate:File in candidate.getDirectoryListing())
-								{
-									if (javaCandidate.resolvePath( javaBinPath ).exists)
-									{
-										javaHome = javaCandidate.nativePath;
-										break;
-									}
-								}
-							}
-						}
-					}
 				}
 				else if (isMacOS)
 				{
 					javaBinPath = "bin/java";
-//					if (javaHome == null)
-//					{
-//						// Try default java install - this will likely fail
-//						javaHome = "/usr";
-//					}
 				}
 				else
 				{
@@ -223,6 +194,7 @@ package com.apm.client.config
 			}
 			return DEFAULT_REPOSITORY_URL;
 		}
+		
 		
 		
 		//
