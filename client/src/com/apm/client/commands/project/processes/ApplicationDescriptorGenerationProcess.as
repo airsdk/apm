@@ -76,16 +76,20 @@ package com.apm.client.commands.project.processes
 				
 				if (configDescriptor.exists)
 				{
+					Log.d( TAG, "Loading config/application-descriptor.xml" );
 					_appDescriptor.load( configDescriptor );
 				}
 				else if (specifiedDescriptor.exists)
 				{
+					Log.d( TAG, "Loading " + _outputPath );
 					_appDescriptor.load( specifiedDescriptor );
 				}
 				
 				// Check if the loaded descriptor is valid, otherwise use the template
 				if (!_appDescriptor.isValid())
 				{
+					Log.d( TAG, "Invalid application descriptor, using the template" );
+					Log.l( TAG, _appDescriptor.validate() );
 					_appDescriptor.loadString( ApplicationDescriptor.APPLICATION_DESCRIPTOR_TEMPLATE );
 				}
 				

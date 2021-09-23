@@ -182,22 +182,27 @@ package com.apm.data.project
 		//
 		// LOADING / SAVING
 		//
-		
-		public function isValid():Boolean
+
+		public function validate():String
 		{
 			try
 			{
 				// TODO:: Some better validation on the descriptor
-				if (_xml == null) return false;
-				if (_xml.toXMLString().length == 0) return false;
-				if (String(_xml.name()).indexOf( "application" ) < 0) return false;
-				if (_xml.id == undefined) return false;
-				return true;
+				if (_xml == null) return "XML can't be parsed (null)";
+				if (_xml.toXMLString().length == 0) return "XML is empty or invalid";
+				if (String(_xml.name()).indexOf( "application" ) < 0) return "root tag <application> not found";
+				if (_xml.id == undefined) return "<id> tag not found";
+				return null;
 			}
 			catch (e:Error)
 			{
+				return e.message;
 			}
-			return false;
+		}
+		
+		public function isValid():Boolean
+		{
+			return validate() == null;
 		}
 		
 		
