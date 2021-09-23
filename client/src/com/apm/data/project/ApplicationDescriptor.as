@@ -227,7 +227,7 @@ package com.apm.data.project
 			try
 			{
 				// Remove any existing namespace, to ensure we have the correct AIR SDK namespace
-				var nsRegEx:RegExp = new RegExp(" xmlns(?:.*?)?=\".*?\"", "gim");
+				var nsRegEx:RegExp = new RegExp("[ \\n\\t]xmlns(?:.*?)?=\".*?\"", "gim");
 				_xml = new XML( content.replace( nsRegEx, "" ) );
 				_xml.setNamespace( new Namespace( _airSDKVersion.getNamespace() ) );
 			}
