@@ -155,9 +155,10 @@ package com.apm.client.config
 				var regexp:RegExp = /[A-Z][A-Z]+[a-z]/g;
 				regexp.lastIndex = 1;
 				var result:Object = regexp.exec(envName);
+				var match:String = null;
 				while (result != null) {
 					// result string is set to lowercase so it wont match the regexp anymore
-					var match:String = result[0].toLowerCase();
+					match = result[0].toLowerCase();
 					envName =
 						envName.slice(0, result.index) + 
 						'_' + match.slice(0, match.length - 2) + '_' + match.slice(-1) +
@@ -169,7 +170,7 @@ package com.apm.client.config
 				regexp = /[a-z][A-Z][a-z]/g;
 				result = regexp.exec(envName);
 				while (result != null) {
-					var match:String = result[0];
+					match = result[0];
 					envName =
 						envName.slice(0, result.index) + 
 						match.charAt(0) + '_' + match.slice(1).toLowerCase() +
