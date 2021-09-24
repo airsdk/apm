@@ -22,4 +22,4 @@ See the [wiki](https://github.com/airsdk/apm/wiki) for details.
 
 ## Get involved
 
-Have a look at the contributing guidelines to see how you can contribute to apm.
+Have a look at the [contributing guidelines](https://github.com/airsdk/apm/blob/efb0b6ab357448dcf3e6cb27b684be6e1ac6dac7/.github/CONTRIBUTING.md) to see how you can contribute to apm.
