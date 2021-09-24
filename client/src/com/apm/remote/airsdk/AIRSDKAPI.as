@@ -37,7 +37,6 @@ package com.apm.remote.airsdk
 		public static const API_ENDPOINT:String = "https://dcdu3ujoji.execute-api.us-east-1.amazonaws.com/production";
 		
 		
-		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
@@ -45,7 +44,11 @@ package com.apm.remote.airsdk
 		private var _requestQueue:APIRequestQueue;
 		
 		private var _endpoint:String = API_ENDPOINT;
-		
+		/**
+		 *
+		 */
+		public function get endpoint():String { return _endpoint; }
+		public function set endpoint( endpoint:String ):void { this._endpoint = endpoint; }
 		
 		
 		////////////////////////////////////////////////////////
@@ -56,13 +59,6 @@ package com.apm.remote.airsdk
 		{
 			super();
 			_requestQueue = new APIRequestQueue();
-		}
-		
-		
-		public function setEndpoint( endpoint:String ):AIRSDKAPI
-		{
-			this._endpoint = endpoint;
-			return this;
 		}
 		
 		
@@ -153,7 +149,7 @@ package com.apm.remote.airsdk
 									{
 										callback( true, build, "" );
 									}
-									
+
 //									else
 //									{
 //										if (callback != null)

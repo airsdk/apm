@@ -15,7 +15,9 @@ package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APM;
 	import com.apm.client.processes.ProcessBase;
+	import com.apm.client.repositories.RepositoryResolver;
 	import com.apm.data.packages.PackageDefinitionFile;
+	import com.apm.remote.repository.Repository;
 	import com.apm.remote.repository.RepositoryAPI;
 	
 	
@@ -36,7 +38,7 @@ package com.apm.client.commands.packages.processes
 		//
 		
 		private var _packageDefinition:PackageDefinitionFile;
-		private var _repositoryAPI:RepositoryAPI;
+		private var _repositoryAPI:Repository;
 		
 		
 		////////////////////////////////////////////////////////
@@ -46,8 +48,6 @@ package com.apm.client.commands.packages.processes
 		public function PackagePublishProcess( packageDefinition:PackageDefinitionFile )
 		{
 			_packageDefinition = packageDefinition;
-			
-			_repositoryAPI = new RepositoryAPI();
 		}
 		
 		
@@ -61,7 +61,7 @@ package com.apm.client.commands.packages.processes
 			
 			APM.io.showSpinner( "Publish package" );
 			
-			_repositoryAPI
+			RepositoryResolver.repositoryForSource()
 					.setToken( APM.config.user.publisherToken )
 					.publish( _packageDefinition, function ( success:Boolean, data:* ):void {
 						APM.io.stopSpinner( success, "Package published" + (success ? "" : " ERROR: " + data) );

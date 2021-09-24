@@ -15,9 +15,11 @@ package com.apm.client.config
 {
 	import com.apm.client.config.processes.CheckNetworkProcess;
 	import com.apm.client.config.processes.LoadMacOSEnvironmentVariablesProcess;
+	import com.apm.client.config.processes.LoadMacOSJavaHomeProcess;
 	import com.apm.client.config.processes.LoadProjectDefinitionProcess;
 	import com.apm.client.config.processes.LoadUserSettingsProcess;
 	import com.apm.client.config.processes.LoadWindowsEnvironmentVariablesProcess;
+	import com.apm.client.config.processes.LoadWindowsJavaHomeProcess;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.project.ProjectDefinition;
@@ -39,6 +41,7 @@ package com.apm.client.config
 		
 		private static const TAG:String = "RunConfig";
 		
+		public static const DEFAULT_REPOSITORY_URL:String = "https://repository.airsdk.dev";
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
@@ -98,10 +101,12 @@ package com.apm.client.config
 			if (isMacOS)
 			{
 				_loadQueue.addProcess( new LoadMacOSEnvironmentVariablesProcess( this ) );
+				_loadQueue.addProcess( new LoadMacOSJavaHomeProcess( this ) );
 			}
 			if (isWindows)
 			{
 				_loadQueue.addProcess( new LoadWindowsEnvironmentVariablesProcess( this ) );
+				_loadQueue.addProcess( new LoadWindowsJavaHomeProcess( this ) );
 			}
 			
 			// General
@@ -141,7 +146,7 @@ package com.apm.client.config
 		/**
 		 * Attempts to find a java executable in the system.
 		 *
-		 * @return	A <code>File</code> reference to the java executable.
+		 * @return  A <code>File</code> reference to java executable
 		 */
 		public function getJava():File
 		{
@@ -152,41 +157,10 @@ package com.apm.client.config
 				if (isWindows)
 				{
 					javaBinPath = "bin\\java.exe";
-					if (javaHome == null)
-					{
-						// Try to locate a java install
-						// Normally have a directory "Java/jdkx.x.x_x"
-						//  - so iterate over subdirectories checking for the java exe
-						
-						var javaDirectoryCandidates:Array = [
-							new File( "C:\\Program Files\\Java" ),
-							new File( "C:\\Program Files (x86)\\Java" )
-						];
-						
-						for each (var candidate:File in javaDirectoryCandidates)
-						{
-							if (candidate.exists && candidate.getDirectoryListing().length > 0)
-							{
-								for each (var javaCandidate:File in candidate.getDirectoryListing())
-								{
-									if (javaCandidate.resolvePath( javaBinPath ).exists)
-									{
-										javaHome = javaCandidate.nativePath;
-										break;
-									}
-								}
-							}
-						}
-					}
 				}
 				else if (isMacOS)
 				{
 					javaBinPath = "bin/java";
-					if (javaHome == null)
-					{
-						// Try default java install
-						javaHome = "/usr";
-					}
 				}
 				else
 				{
@@ -209,6 +183,18 @@ package com.apm.client.config
 			throw new Error( "Failed to find '" + javaBinPath + "' in JAVA_HOME=" + javaHome
 									 + ". Point JAVA_HOME to your java installation." );
 		}
+		
+		
+		public function getDefaultRemoteRepositoryEndpoint():String
+		{
+			if (env["APM_REPOSITORY"])
+			{
+				Log.d( TAG, "Using custom apm repository: " + env["APM_REPOSITORY"] );
+				return env["APM_REPOSITORY"];
+			}
+			return DEFAULT_REPOSITORY_URL;
+		}
+		
 		
 		
 		//

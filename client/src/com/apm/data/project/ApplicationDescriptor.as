@@ -13,6 +13,7 @@
  */
 package com.apm.data.project
 {
+	import com.apm.client.logging.Log;
 	import com.apm.remote.airsdk.AIRSDKVersion;
 	
 	import flash.filesystem.File;
@@ -83,6 +84,7 @@ package com.apm.data.project
 		}
 		
 		
+	
 		
 		public function updateFromProjectDefinition( project:ProjectDefinition ):void
 		{
@@ -181,6 +183,24 @@ package com.apm.data.project
 		// LOADING / SAVING
 		//
 		
+		public function isValid():Boolean
+		{
+			try
+			{
+				// TODO:: Some better validation on the descriptor
+				if (_xml == null) return false;
+				if (_xml.toXMLString().length == 0) return false;
+				if (String(_xml.name()).indexOf( "application" ) < 0) return false;
+				if (_xml.id == undefined) return false;
+				return true;
+			}
+			catch (e:Error)
+			{
+			}
+			return false;
+		}
+		
+		
 		public function load( file:File ):void
 		{
 			if (file == null || !file.exists)
@@ -193,13 +213,27 @@ package com.apm.data.project
 				var appDescriptorContent:String = fs.readUTFBytes( fs.bytesAvailable );
 				fs.close();
 				
+				loadString( appDescriptorContent );
+			}
+			catch (e:Error)
+			{
+				Log.e( TAG, e );
+			}
+		}
+		
+		
+		public function loadString( content:String ):void
+		{
+			try
+			{
 				// Remove any existing namespace, to ensure we have the correct AIR SDK namespace
 				var nsRegEx:RegExp = new RegExp(" xmlns(?:.*?)?=\".*?\"", "gim");
-				_xml = new XML( appDescriptorContent.replace( nsRegEx, "" ) );
+				_xml = new XML( content.replace( nsRegEx, "" ) );
 				_xml.setNamespace( new Namespace( _airSDKVersion.getNamespace() ) );
 			}
 			catch (e:Error)
 			{
+				Log.e( TAG, e );
 			}
 		}
 		

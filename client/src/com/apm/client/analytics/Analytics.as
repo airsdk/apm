@@ -13,6 +13,7 @@
  */
 package com.apm.client.analytics
 {
+	import com.apm.client.repositories.RepositoryResolver;
 	import com.apm.remote.repository.RepositoryAPI;
 	
 	
@@ -51,8 +52,6 @@ package com.apm.client.analytics
 		//  VARIABLES
 		//
 		
-		private var _repositoryAPI:RepositoryAPI;
-		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
@@ -62,7 +61,6 @@ package com.apm.client.analytics
 		{
 			if (_shouldCreateInstance)
 			{
-				_repositoryAPI = new RepositoryAPI();
 			}
 			else
 			{
@@ -71,21 +69,45 @@ package com.apm.client.analytics
 		}
 		
 		
-		public function install( identifier:String, version:String, callback:Function = null ):void
+		public function install( identifier:String, version:String, source:String, callback:Function = null ):void
 		{
-			_repositoryAPI.logEvent( "install", identifier, version, callback );
+			if (source == "file")
+			{
+				callback();
+			}
+			else
+			{
+				RepositoryResolver.repositoryForSource( source )
+						.logEvent( "install", identifier, version, callback );
+			}
 		}
 		
 		
-		public function download( identifier:String, version:String, callback:Function = null ):void
+		public function download( identifier:String, version:String, source:String, callback:Function = null ):void
 		{
-			_repositoryAPI.logEvent( "download", identifier, version, callback );
+			if (source == "file")
+			{
+				callback();
+			}
+			else
+			{
+				RepositoryResolver.repositoryForSource( source )
+						.logEvent( "download", identifier, version, callback );
+			}
 		}
 		
 		
-		public function uninstall( identifier:String, version:String, callback:Function = null ):void
+		public function uninstall( identifier:String, version:String, source:String, callback:Function = null ):void
 		{
-			_repositoryAPI.logEvent( "uninstall", identifier, version, callback );
+			if (source == "file")
+			{
+				callback();
+			}
+			else
+			{
+				RepositoryResolver.repositoryForSource( source )
+						.logEvent( "uninstall", identifier, version, callback );
+			}
 		}
 		
 		

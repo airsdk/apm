@@ -41,6 +41,7 @@ package com.apm.data.packages
 		
 		public var identifier:String;
 		public var version:SemVer;
+		public var source:String;
 		
 		private var _singleLineOutput:Boolean = false;
 		
@@ -54,9 +55,32 @@ package com.apm.data.packages
 		}
 		
 		
+		public function setIdentifier( identifier:String ):PackageDependency
+		{
+			this.identifier = identifier;
+			return this;
+		}
+		
+		
+		public function setVersion( version:SemVer ):PackageDependency
+		{
+			this.version = version;
+			return this;
+		}
+		
+		
+		public function setSource( source:String ):PackageDependency
+		{
+			this.source = source;
+			return this;
+		}
+		
+		
 		public function toString():String
 		{
-			return (identifier == null ? "none" : identifier) + "@" + (version == null ? "unknown" : version.toString());
+			return (identifier == null ? "none" : identifier)
+					+ "@" + (version == null ? "unknown" : version.toString())
+					+ (source == null ? "" : " ["+source+"]");
 		}
 		
 		
@@ -68,10 +92,12 @@ package com.apm.data.packages
 			}
 			else
 			{
-				return {
+				var o:Object = {
 					id:      identifier,
 					version: version.toString()
 				};
+				if (source != null) o.source = source;
+				return o;
 			}
 		}
 		
@@ -84,11 +110,17 @@ package com.apm.data.packages
 				{
 					var line:String = String(data);
 					// single line format com.package.example:1.0.0
+					// single line format com.package.example@1.0.0
 					this._singleLineOutput = true;
 					if (line.indexOf(":") > 0)
 					{
 						this.identifier = line.substring( 0, line.indexOf(":") );
 						this.version = SemVer.fromString( line.substring( line.indexOf(":") + 1 ) );
+					}
+					else if (line.indexOf("@") > 0)
+					{
+						this.identifier = line.substring( 0, line.indexOf("@") );
+						this.version = SemVer.fromString( line.substring( line.indexOf("@") + 1 ) );
 					}
 					else
 					{
@@ -100,6 +132,7 @@ package com.apm.data.packages
 				{
 					if (data.hasOwnProperty( "id" )) this.identifier = data[ "id" ];
 					if (data.hasOwnProperty( "version" )) this.version = SemVer.fromString( data[ "version" ] );
+					if (data.hasOwnProperty( "source" )) this.source = data[ "source" ];
 				}
 			}
 			return this;

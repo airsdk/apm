@@ -14,27 +14,32 @@
 package com.apm.data.packages
 {
 	
-	public class Repository
+	public class RepositoryDefinition
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "Repository";
+		private static const TAG:String = "RepositoryDefinition";
+		
+		public static const TYPE_REMOTE:String = "remote";
+		public static const TYPE_LOCAL:String = "local";
 		
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
 		
-		public var url:String;
+		public var type:String = TYPE_REMOTE;
+		public var name:String = "";
+		public var location:String = "";
 		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function Repository()
+		public function RepositoryDefinition()
 		{
 		}
 		
@@ -42,17 +47,21 @@ package com.apm.data.packages
 		public function toObject():Object
 		{
 			return {
-				url:         url,
-				credentials: {}
+				type: type,
+				name: name,
+				location: location
 			};
 		}
 		
 		
-		public static function fromObject( data:Object ):Repository
+		public static function fromObject( data:Object ):RepositoryDefinition
 		{
-			var rep:Repository = new Repository();
+			var rep:RepositoryDefinition = new RepositoryDefinition();
 			
-			rep.url = data.url;
+			if (data.hasOwnProperty("type")) rep.type = data.type;
+			if (data.hasOwnProperty("name")) rep.name = data.name;
+			if (data.hasOwnProperty("location")) rep.location = data.location;
+			if (data.hasOwnProperty("url")) rep.location = data.location;
 			
 			// TODO::
 			

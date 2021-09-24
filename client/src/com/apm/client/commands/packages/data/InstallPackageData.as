@@ -33,7 +33,7 @@ package com.apm.client.commands.packages.data
 		//
 		
 		public var packageVersion:PackageVersion;
-		public var query:InstallQueryRequest;
+		public var request:InstallRequest;
 		
 		
 		////////////////////////////////////////////////////////
@@ -42,10 +42,10 @@ package com.apm.client.commands.packages.data
 		
 		public function InstallPackageData(
 				packageVersion:PackageVersion,
-				query:InstallQueryRequest )
+				request:InstallRequest )
 		{
 			this.packageVersion = packageVersion;
-			this.query = query;
+			this.request = request;
 		}
 		
 		
@@ -59,4 +59,5 @@ package com.apm.client.commands.packages.data
 		}
 		
 	}
+	
 }

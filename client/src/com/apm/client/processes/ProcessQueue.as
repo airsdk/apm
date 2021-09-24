@@ -17,6 +17,7 @@ package com.apm.client.processes
 	import com.apm.client.processes.events.ProcessEvent;
 	
 	import flash.events.EventDispatcher;
+	import flash.utils.getQualifiedClassName;
 	
 	
 	public class ProcessQueue extends EventDispatcher
@@ -110,7 +111,7 @@ package com.apm.client.processes
 		
 		private function checkAndStartNextProcess():void
 		{
-			Log.d( TAG, "checkAndStartNextProcess(): " + _queue.length );
+			Log.v( TAG, "checkAndStartNextProcess(): " + _queue.length );
 			if (_queue.length == 0)
 			{
 				// Reached end of queue
@@ -137,7 +138,7 @@ package com.apm.client.processes
 			}
 			catch (e:Error)
 			{
-				Log.d( TAG, "UNHANLDED PROCESS ERROR" );
+				Log.d( TAG, "UNHANDLED PROCESS ERROR IN " + getQualifiedClassName(_currentProcess) );
 				Log.e( TAG, e );
 				
 				process_eventHandler( new ProcessEvent( ProcessEvent.FAILED, e.message ) );
@@ -148,7 +149,7 @@ package com.apm.client.processes
 		
 		private function process_eventHandler( event:ProcessEvent ):void
 		{
-			Log.d( TAG, "process_eventHandler( " + event.type + " )" );
+			Log.v( TAG, "process_eventHandler( " + event.type + " )" );
 			_currentProcess.removeEventListener( ProcessEvent.COMPLETE, process_eventHandler );
 			_currentProcess.removeEventListener( ProcessEvent.FAILED, process_eventHandler );
 			

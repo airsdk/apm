@@ -14,7 +14,7 @@
 package com.apm.client.commands.packages.utils
 {
 	import com.apm.SemVer;
-	import com.apm.client.commands.packages.data.InstallQueryRequest;
+	import com.apm.client.commands.packages.data.InstallRequest;
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.project.ProjectDefinition;
 	import com.apm.data.packages.PackageIdentifier;
@@ -48,7 +48,7 @@ package com.apm.client.commands.packages.utils
 		}
 		
 		
-		public static function checkPackageAlreadyInstalled( project:ProjectDefinition, request:InstallQueryRequest ):int
+		public static function checkPackageAlreadyInstalled( project:ProjectDefinition, request:InstallRequest ):int
 		{
 			// Check package not already installed
 			for (var i:int = 0; i < project.dependencies.length; i++)
@@ -74,7 +74,7 @@ package com.apm.client.commands.packages.utils
 		}
 		
 		
-		public static function getInstalledPackageDependency( project:ProjectDefinition, request:InstallQueryRequest ):PackageDependency
+		public static function getInstalledPackageDependency( project:ProjectDefinition, request:InstallRequest ):PackageDependency
 		{
 			for (var i:int = 0; i < project.dependencies.length; i++)
 			{

@@ -83,7 +83,7 @@ package com.apm.client.commands.packages.utils
 //								Log.d( TAG, "generateURLRequestForPackage(): release details: " + JSON.stringify(releases)  );
 								for each (var release:Object in releases)
 								{
-									if (release.name == version)
+									if (release.tag_name == version)
 									{
 										Log.d( TAG, "generateURLRequestForPackage(): release : " + JSON.stringify(release)  );
 										// found release
@@ -129,12 +129,15 @@ package com.apm.client.commands.packages.utils
 			var headers:Array = [];
 			headers.push( new URLRequestHeader( "User-Agent", "apm v" + new SemVer( Consts.VERSION ).toString() ) );
 			
-			if (url.indexOf( "github.com" ) >= 0 && githubToken.length > 0)
+			if (url.indexOf( "https://api.github.com/" ) == 0 && githubToken.length > 0)
 			{
 				headers.push( new URLRequestHeader( "Accept", "application/octet-stream" ) );
 	
 				if (githubToken != null && githubToken.length > 0)
+				{
+					Log.d( TAG, "generateURLRequest(): Attaching github auth token." );
 					headers.push( new URLRequestHeader( "Authorization", "token " + githubToken ) );
+				}
 			}
 			
 			var req:URLRequest = new URLRequest( url );

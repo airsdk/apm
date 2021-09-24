@@ -99,18 +99,18 @@ package com.apm.client.commands.packages.processes
 		{
 			if (_destination.exists)
 			{
-				verifyFile( _package.checksum, function ( fileValid:Boolean ):void {
-					checkExistingFileComplete( downloadIfCheckFails, fileValid );
+				verifyFile( _package.checksum, function ( fileValid:Boolean, reason:String ):void {
+					checkExistingFileComplete( downloadIfCheckFails, fileValid, reason );
 				} );
 			}
 			else
 			{
-				checkExistingFileComplete( downloadIfCheckFails, false );
+				checkExistingFileComplete( downloadIfCheckFails, false, "file does not exist" );
 			}
 		}
 		
 		
-		private function checkExistingFileComplete( downloadIfCheckFails:Boolean, fileValid:Boolean ):void
+		private function checkExistingFileComplete( downloadIfCheckFails:Boolean, fileValid:Boolean, reason:String ):void
 		{
 			if (fileValid)
 			{
@@ -125,8 +125,8 @@ package com.apm.client.commands.packages.processes
 				}
 				else
 				{
-					APM.io.writeLine( "Downloaded file failed checks - retry install again later!" );
-					return failure( "Downloaded file failed checks" );
+					APM.io.writeLine( "Downloaded file failed checks - retry install again later! #1" );
+					return failure( "Downloaded file failed checks: " + reason );
 				}
 			}
 		}
@@ -140,12 +140,12 @@ package com.apm.client.commands.packages.processes
 			}
 			else
 			{
-				checkDownloadFileComplete( false );
+				checkDownloadFileComplete( false, "destination does not exist" );
 			}
 		}
 		
 		
-		private function checkDownloadFileComplete( fileValid:Boolean ):void
+		private function checkDownloadFileComplete( fileValid:Boolean, reason:String ):void
 		{
 			if (fileValid)
 			{
@@ -153,12 +153,13 @@ package com.apm.client.commands.packages.processes
 				Analytics.instance.download(
 						_package.packageDef.identifier,
 						_package.version.toString(),
+						_package.source,
 						complete );
 			}
 			else
 			{
-				APM.io.completeProgressBar( false, "Downloaded file failed checks - retry install again later!" );
-				failure( "Downloaded file failed checks" );
+				APM.io.completeProgressBar( false, "Downloaded file failed checks - retry install again later! " + reason );
+				failure( "Downloaded file failed checks: " + reason );
 			}
 		}
 		
@@ -168,7 +169,7 @@ package com.apm.client.commands.packages.processes
 			// No checksum provided so don't perform check
 			if (checksum == null || checksum.length == 0)
 			{
-				callback( true );
+				callback( true, "checksum not provided" );
 			}
 			else
 			{
@@ -176,8 +177,12 @@ package com.apm.client.commands.packages.processes
 				{
 					Checksum.sha256Checksum( _destination, function( calculatedSum:String ):void
 					{
-						callback( calculatedSum == checksum );
+						callback( calculatedSum == checksum, "checksum does not match" );
 					});
+				}
+				else
+				{
+					callback( false, "destination does not exists" );
 				}
 			}
 		}

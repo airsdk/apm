@@ -16,7 +16,7 @@ package com.apm.data.project
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.packages.PackageIdentifier;
 	import com.apm.data.packages.PackageVersion;
-	import com.apm.data.packages.Repository;
+	import com.apm.data.packages.RepositoryDefinition;
 	import com.apm.utils.JSONUtils;
 	
 	import flash.filesystem.File;
@@ -47,7 +47,7 @@ package com.apm.data.project
 		
 		private var _sourceFile:File;
 		
-		private var _repositories:Vector.<Repository>;
+		private var _repositories:Vector.<RepositoryDefinition>;
 		private var _dependencies:Vector.<PackageDependency>;
 		private var _configuration:Object;
 		private var _deployOptions:Object;
@@ -61,7 +61,7 @@ package com.apm.data.project
 		{
 			_data = {};
 			
-			_repositories = new Vector.<Repository>();
+			_repositories = new Vector.<RepositoryDefinition>();
 			_dependencies = new Vector.<PackageDependency>();
 			_configuration = {};
 			_deployOptions = {};
@@ -74,10 +74,10 @@ package com.apm.data.project
 			
 			if (_data.hasOwnProperty( "repositories" ))
 			{
-				_repositories = new Vector.<Repository>();
+				_repositories = new Vector.<RepositoryDefinition>();
 				for each (var rep:Object in _data.repositories)
 				{
-					_repositories.push( Repository.fromObject( rep ) );
+					_repositories.push( RepositoryDefinition.fromObject( rep ) );
 				}
 			}
 			
@@ -125,7 +125,7 @@ package com.apm.data.project
 			data[ "versionLabel" ] = versionLabel;
 			
 			var repos:Array = [];
-			for each (var repo:Repository in _repositories)
+			for each (var repo:RepositoryDefinition in _repositories)
 			{
 				repos.push( repo.toObject() );
 			}
@@ -181,7 +181,7 @@ package com.apm.data.project
 		public function set versionLabel( value:String ):void { _data[ "versionLabel" ] = value; }
 		
 		
-		public function get repositories():Vector.<Repository> { return _repositories; }
+		public function get repositories():Vector.<RepositoryDefinition> { return _repositories; }
 		
 		
 		public function get dependencies():Vector.<PackageDependency>
@@ -243,18 +243,18 @@ package com.apm.data.project
 		 */
 		public function addPackageDependency( packageVersion:PackageVersion ):ProjectDefinition
 		{
-			if (!hasDependency( packageVersion.packageDef.identifier ))
+			if (hasDependency( packageVersion.packageDef.identifier ))
 			{
-				var dep:PackageDependency = new PackageDependency();
-				dep.identifier = packageVersion.packageDef.identifier;
-				dep.version = packageVersion.version;
-				
-				dependencies.push( dep );
+				removePackageDependency( packageVersion.packageDef.identifier );
 			}
-			else
-			{
-				// TODO:: Handle duplicates / version clash
-			}
+			
+			var dep:PackageDependency = new PackageDependency();
+			dep.identifier = packageVersion.packageDef.identifier;
+			dep.version = packageVersion.version;
+			dep.source = packageVersion.source;
+			
+			dependencies.push( dep );
+
 			return this;
 		}
 		

@@ -11,7 +11,9 @@
           </entries>
           <sdk name="current" />
         </dependencies>
-        <compiler-options />
+        <compiler-options>
+          <option name="additionalOptions" value="-compiler.define+=CONFIG::DEBUG,true" />
+        </compiler-options>
         <packaging-air-desktop use-generated-descriptor="false" custom-descriptor-path="$MODULE_DIR$/src/apm.xml" package-file-name="apm" />
         <packaging-android />
         <packaging-ios />

@@ -179,7 +179,7 @@ package com.apm.utils
 					}
 					catch (e:Error)
 					{
-						Log.d( TAG, e.message );
+						Log.e( TAG, e );
 					}
 				}
 			}
@@ -204,6 +204,30 @@ package com.apm.utils
 			fileStream.close();
 		}
 		
+		
+		/**
+		 * Determines the File reference specified by path by checking it as an
+		 * absolute path and then a relative path to the working directory.
+		 *
+		 * @param path
+		 *
+		 * @return
+		 */
+		public static function getSourceForPath( path:String ):File
+		{
+			try
+			{
+				var absolute:File = new File( path );
+				if (absolute.exists)
+				{
+					return absolute;
+				}
+			}
+			catch (e:Error)
+			{
+			}
+			return new File( APM.config.workingDir + File.separator + path );
+		}
 		
 	}
 	

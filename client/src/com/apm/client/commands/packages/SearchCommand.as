@@ -16,6 +16,7 @@ package com.apm.client.commands.packages
 	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
 	import com.apm.client.events.CommandEvent;
+	import com.apm.client.repositories.PackageResolver;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.remote.repository.RepositoryAPI;
 	
@@ -39,7 +40,7 @@ package com.apm.client.commands.packages
 		//  VARIABLES
 		//
 		
-		private var _repositoryAPI:RepositoryAPI;
+		private var _packageResolver:PackageResolver;
 		private var _parameters:Array;
 		
 		
@@ -50,7 +51,7 @@ package com.apm.client.commands.packages
 		public function SearchCommand()
 		{
 			super();
-			_repositoryAPI = new RepositoryAPI();
+			_packageResolver = new PackageResolver();
 		}
 		
 		
@@ -112,7 +113,7 @@ package com.apm.client.commands.packages
 			var query:String = _parameters.join( " " );
 			APM.io.showSpinner( "Searching packages for : " + query );
 			
-			_repositoryAPI.search( query, function ( success:Boolean, packages:Vector.<PackageDefinition> ):void {
+			_packageResolver.search( query, function ( success:Boolean, packages:Vector.<PackageDefinition> ):void {
 				APM.io.stopSpinner( success, "Search complete" );
 				
 				if (success)

@@ -39,6 +39,7 @@ package com.apm.data.packages
 		public var parameters:Vector.<PackageParameter> = new Vector.<PackageParameter>();
 		public var dependencies:Vector.<PackageVersion> = new Vector.<PackageVersion>();
 		
+		public var source:String = null;
 		
 		
 		////////////////////////////////////////////////////////
@@ -73,6 +74,7 @@ package com.apm.data.packages
 			if (data != null)
 			{
 				if (data.hasOwnProperty( "version" )) this.version = SemVer.fromString( data[ "version" ] );
+				if (data.hasOwnProperty( "source" )) this.source = data[ "source" ];
 				if (data.hasOwnProperty( "sourceUrl" )) this.sourceUrl = data[ "sourceUrl" ];
 				if (data.hasOwnProperty( "checksum" )) this.checksum = data[ "checksum" ];
 				if (data.hasOwnProperty( "publishedAt" )) this.publishedAt = data[ "publishedAt" ];
@@ -103,6 +105,7 @@ package com.apm.data.packages
 		{
 			var data:Object = {};
 			data.version = version.toString();
+			if (source != null) data.source = source;
 			data.sourceUrl = sourceUrl;
 			data.checksum = checksum;
 			data.publishedAt = publishedAt;
