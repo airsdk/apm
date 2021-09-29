@@ -74,7 +74,7 @@ package com.apm.client.commands.project.processes
 			// TODO
 			
 			
-			var projectFile:File = new File( APM.config.workingDir + File.separator + ProjectDefinition.DEFAULT_FILENAME );
+			var projectFile:File = new File( APM.config.workingDirectory + File.separator + ProjectDefinition.DEFAULT_FILENAME );
 			project.save( projectFile );
 			
 			complete();

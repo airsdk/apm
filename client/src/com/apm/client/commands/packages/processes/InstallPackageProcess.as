@@ -60,9 +60,9 @@ package com.apm.client.commands.packages.processes
 			super.start( completeCallback, failureCallback );
 			APM.io.writeLine( "Installing package : " + _packageData.packageVersion.packageDef.toString() );
 			
-			var cacheDirForPackage:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDir, _packageData.packageVersion.packageDef.identifier );
-			var packageDir:File = PackageFileUtils.directoryForPackage( APM.config.packagesDir, _packageData.packageVersion.packageDef.identifier );
-			var packageFile:File = PackageFileUtils.fileForPackage( APM.config.packagesDir, _packageData.packageVersion );
+			var cacheDirForPackage:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDirectory, _packageData.packageVersion.packageDef.identifier );
+			var packageDir:File = PackageFileUtils.directoryForPackage( APM.config.packagesDirectory, _packageData.packageVersion.packageDef.identifier );
+			var packageFile:File = PackageFileUtils.fileForPackage( APM.config.packagesDirectory, _packageData.packageVersion );
 			
 			var queue:ProcessQueue = new ProcessQueue();
 			
@@ -73,7 +73,7 @@ package com.apm.client.commands.packages.processes
 					queue.addCallback( function():void {
 						try
 						{
-							var packagesDir:File = new File( APM.config.packagesDir );
+							var packagesDir:File = new File( APM.config.packagesDirectory );
 							if (!packagesDir.exists) packagesDir.createDirectory();
 							if (!packageDir.exists) packageDir.createDirectory();
 

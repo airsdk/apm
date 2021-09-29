@@ -24,6 +24,8 @@ package com.apm.client.config
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.project.ProjectDefinition;
 	import com.apm.data.user.UserSettings;
+	import com.apm.utils.DeployFileUtils;
+	import com.apm.utils.PackageCacheUtils;
 	
 	import flash.filesystem.File;
 	import flash.system.Capabilities;
@@ -50,27 +52,27 @@ package com.apm.client.config
 		private var _loadQueue:ProcessQueue;
 		
 		
-		// The current working directory
-		public var workingDir:String = File.workingDirectory.nativePath;
-		
-		// The application directory containing apm etc
-		public var appDir:String = File.applicationDirectory.nativePath;
-		
-		
-		// The directory for package storage (apm_packages)
-		public function get packagesDir():String { return workingDir + File.separator + "apm_packages"; }
-		
-		
-		// The current project definition file
+		/**
+		 * The current project definition file
+		 */
 		public var projectDefinition:ProjectDefinition = null;
 		
-		// Loaded environment variables
+		
+		/**
+		 * Loaded environment variables
+		 */
 		public var env:Object = {};
 		
-		// Settings loaded from the users' home directory
+		
+		/**
+		 * Settings loaded from the users' home directory
+		 */
 		public var user:UserSettings;
 		
-		// Whether there is an active internet connection
+		
+		/**
+		 * Whether there is an active internet connection
+		 */
 		public var hasNetwork:Boolean = false;
 		
 		
@@ -84,12 +86,29 @@ package com.apm.client.config
 		}
 		
 		
+		private var _workingDirectory:String = File.workingDirectory.nativePath;
+		/**
+		 * The current working directory
+		 */
+		public function get workingDirectory():String { return _workingDirectory; }
+		public function set workingDirectory( value:String):void { _workingDirectory = value; }
+		
+		
+		private var _appDirectory:String = File.applicationDirectory.nativePath;
+		/**
+		 * The application directory containing apm etc
+		 */
+		public function get appDirectory():String { return _appDirectory; }
+		public function set appDirectory( value:String):void { _appDirectory = value; }
+		
+		
+		
 		/**
 		 * This function loads any configuration / environment files and settings
 		 * and is called before any commands are executed.
 		 *
-		 * @param callback
-		 * @param checkNetwork If true a check will be performed for an active network connection
+		 * @param callback		Function to call on completion
+		 * @param checkNetwork 	If <code>true</code> a check will be performed for an active network connection
 		 */
 		public function loadEnvironment( callback:Function, checkNetwork:Boolean = false ):void
 		{
@@ -116,32 +135,63 @@ package com.apm.client.config
 			if (checkNetwork) _loadQueue.addProcess( new CheckNetworkProcess( this ) );
 			
 			_loadQueue.start(
-					function ():void {
+					function ():void
+					{
 						if (callback != null)
+						{
 							callback( true );
+						}
 					},
-					function ( error:String ):void {
+					function ( error:String ):void
+					{
 						if (callback != null)
+						{
 							callback( false, error );
-					} );
+						}
+					}
+			);
 		}
 		
 		
-		public function getHomeDirectory():String
+		/**
+		 * The directory for package storage (defaults to: apm_packages)
+		 */
+		public function get packagesDirectory():String
+		{
+			var deployPackageCacheDir:File = DeployFileUtils.getDeployLocation(
+					this,
+					PackageCacheUtils.PACKAGE_CACHE_DIR
+			);
+			if (deployPackageCacheDir != null)
+			{
+				return deployPackageCacheDir.nativePath;
+			}
+			return workingDirectory + File.separator + PackageCacheUtils.PACKAGE_CACHE_DIR;
+		}
+		
+		
+		/**
+		 * The path to the user's "home" directory
+		 */
+		public function get homeDirectory():String
 		{
 			if (isMacOS)
 			{
 				if (env.hasOwnProperty( "HOME" ))
+				{
 					return env.HOME;
+				}
 				else
+				{
 					return "~";
+				}
 			}
 			else
 			{
 				return File.userDirectory.nativePath;
 			}
 		}
-
+		
 		
 		/**
 		 * Attempts to find a java executable in the system.
@@ -181,20 +231,19 @@ package com.apm.client.config
 			}
 			
 			throw new Error( "Failed to find '" + javaBinPath + "' in JAVA_HOME=" + javaHome
-									 + ". Point JAVA_HOME to your java installation." );
+							 + ". Point JAVA_HOME to your java installation." );
 		}
 		
 		
 		public function getDefaultRemoteRepositoryEndpoint():String
 		{
-			if (env["APM_REPOSITORY"])
+			if (env[ "APM_REPOSITORY" ])
 			{
-				Log.d( TAG, "Using custom apm repository: " + env["APM_REPOSITORY"] );
-				return env["APM_REPOSITORY"];
+				Log.d( TAG, "Using custom apm repository: " + env[ "APM_REPOSITORY" ] );
+				return env[ "APM_REPOSITORY" ];
 			}
 			return DEFAULT_REPOSITORY_URL;
 		}
-		
 		
 		
 		//

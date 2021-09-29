@@ -60,7 +60,7 @@ package com.apm.client.processes.upgrade
 				{
 					var processArgs:Vector.<String> = new Vector.<String>();
 					processArgs.push( "+x" );
-					processArgs.push( APM.config.appDir + "/apm" );
+					processArgs.push( APM.config.appDirectory + "/apm" );
 					
 					var processStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
 					processStartupInfo.executable = new File( "/bin/chmod" );

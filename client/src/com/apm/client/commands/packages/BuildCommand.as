@@ -114,7 +114,7 @@ package com.apm.client.commands.packages
 			
 			APM.io.writeLine( "Building package" );
 			
-			var packageDir:File = new File( APM.config.workingDir + File.separator + path );
+			var packageDir:File = new File( APM.config.workingDirectory + File.separator + path );
 			
 			_queue.addProcess( new PackageContentVerifyProcess( packageDir ));
 			_queue.addProcess( new PackageContentCreateProcess( packageDir ));

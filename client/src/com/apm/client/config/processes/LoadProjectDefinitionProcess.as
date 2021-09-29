@@ -58,7 +58,7 @@ package com.apm.client.config.processes
 			Log.d( TAG, "start()" );
 			try
 			{
-				var f:File = new File( _config.workingDir + File.separator + ProjectDefinition.DEFAULT_FILENAME );
+				var f:File = new File( _config.workingDirectory + File.separator + ProjectDefinition.DEFAULT_FILENAME );
 				if (f.exists)
 				{
 					Log.d( TAG, "found project file - loading ..." );

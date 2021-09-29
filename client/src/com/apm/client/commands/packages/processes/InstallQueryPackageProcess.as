@@ -89,7 +89,7 @@ package com.apm.client.commands.packages.processes
 				// Here we are assuming there is a package installed already matching the identifier / version
 				// This should only be reached from an "apm install" or "apm update"
 				var packageFile:File = PackageFileUtils.fileForPackageFromIdentifierVersion(
-						APM.config.packagesDir,
+						APM.config.packagesDirectory,
 						_request.packageIdentifier,
 						_request.semVer );
 				

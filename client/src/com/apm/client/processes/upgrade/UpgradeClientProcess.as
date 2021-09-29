@@ -119,14 +119,14 @@ package com.apm.client.processes.upgrade
 			if (!FileUtils.tmpDirectory.exists) FileUtils.tmpDirectory.createDirectory();
 			
 			_destination = FileUtils.tmpDirectory.resolvePath( filename );
-			var appDir:File = new File( APM.config.appDir );
+			var appDir:File = new File( APM.config.appDirectory );
 			
 			Log.d( TAG, "Downloading to: " + _destination.nativePath );
 			Log.d( TAG, "Extracting to: " + appDir.nativePath );
 			
 			_installQueue = new ProcessQueue();
 			_installQueue.addProcess( new UpgradeClientDownloadProcess( url, _destination ) );
-			_installQueue.addProcess( new ExtractZipProcess( _destination, new File( APM.config.appDir ), false ) );
+			_installQueue.addProcess( new ExtractZipProcess( _destination, new File( APM.config.appDirectory ), false ) );
 			_installQueue.addProcess( new UpgradeClientFinaliseProcess() );
 			_installQueue.start( function ():void {
 									 APM.io.stopSpinner( true, "Install complete" );

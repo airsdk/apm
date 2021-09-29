@@ -86,7 +86,7 @@ package com.apm.client.commands.packages.processes
 			// Start uninstallation
 			APM.io.writeLine( "Uninstall package : " + _packageIdentifier );
 			
-			var uninstallingPackageDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDir, _packageIdentifier );
+			var uninstallingPackageDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDirectory, _packageIdentifier );
 			var f:File = uninstallingPackageDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 			var uninstallingPackageDefinition:PackageDefinitionFile = new PackageDefinitionFile().load( f );
 			

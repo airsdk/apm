@@ -143,13 +143,13 @@ package com.apm.client
 					{
 						case "-workingdir":
 						{
-							_config.workingDir = arguments[ ++i ];
+							_config.workingDirectory = arguments[ ++i ];
 							break;
 						}
 						
 						case "-appdir":
 						{
-							_config.appDir = arguments[ ++i ];
+							_config.appDirectory = arguments[ ++i ];
 							break;
 						}
 						
@@ -231,7 +231,7 @@ package com.apm.client
 				// Working directory check
 				try
 				{
-					new File( _config.workingDir );
+					new File( _config.workingDirectory );
 				}
 				catch (e:Error)
 				{

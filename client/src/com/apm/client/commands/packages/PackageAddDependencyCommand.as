@@ -122,7 +122,7 @@ package com.apm.client.commands.packages
 			
 			APM.io.writeLine( "Adding package dependency: " + identifier );
 			
-			var packageDir:File = new File( APM.config.workingDir + File.separator + path );
+			var packageDir:File = new File( APM.config.workingDirectory + File.separator + path );
 			var packageFile:File =  packageDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 			if (!packageFile.exists)
 			{

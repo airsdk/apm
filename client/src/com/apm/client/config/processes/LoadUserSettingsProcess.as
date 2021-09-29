@@ -56,7 +56,7 @@ package com.apm.client.config.processes
 			Log.d( TAG, "start()" );
 			try
 			{
-				var f:File = new File( _config.getHomeDirectory() + File.separator + UserSettings.DEFAULT_FILENAME );
+				var f:File = new File( _config.homeDirectory + File.separator + UserSettings.DEFAULT_FILENAME );
 				_config.user.load( f );
 			}
 			catch (e:Error)

@@ -64,10 +64,10 @@ package com.apm.client.commands.packages.processes
 			super();
 			_package = packageVersion;
 			
-			var packagesDir:File = new File( APM.config.packagesDir );
+			var packagesDir:File = new File( APM.config.packagesDirectory );
 			if (!packagesDir.exists) packagesDir.createDirectory();
 			
-			var packageDir:File = PackageFileUtils.directoryForPackage( APM.config.packagesDir, packageVersion.packageDef.identifier );
+			var packageDir:File = PackageFileUtils.directoryForPackage( APM.config.packagesDirectory, packageVersion.packageDef.identifier );
 			if (!packageDir.exists) packageDir.createDirectory();
 			
 			_destination = packageDir.resolvePath(

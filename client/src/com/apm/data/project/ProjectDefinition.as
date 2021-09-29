@@ -223,12 +223,21 @@ package com.apm.data.project
 		}
 		
 		
+		/**
+		 * User configurable deployment options, specifying the location of files
+		 * deployed by the apm tool, including ane directory, swc directory etc.
+		 */
 		public function get deployOptions():Object
 		{
 			return _deployOptions;
 		}
 		
 		
+		/**
+		 * Removes all current dependencies in the project definition
+		 *
+		 * @return <code>ProjectDefinition</code> instance for chaining calls
+		 */
 		public function clearPackageDependencies():ProjectDefinition
 		{
 			_dependencies = new Vector.<PackageDependency>();
@@ -240,6 +249,8 @@ package com.apm.data.project
 		 * Adds a package as a project dependency
 		 *
 		 * @param packageVersion
+		 *
+		 * @return <code>ProjectDefinition</code> instance for chaining calls
 		 */
 		public function addPackageDependency( packageVersion:PackageVersion ):ProjectDefinition
 		{
@@ -261,7 +272,9 @@ package com.apm.data.project
 		
 		/**
 		 * Returns true if the project already contains a dependency on the specified package
+		 *
 		 * @param identifier
+		 *
 		 * @return
 		 */
 		public function hasDependency( identifier:String ):Boolean
@@ -270,6 +283,13 @@ package com.apm.data.project
 		}
 		
 		
+		/**
+		 * Finds a package dependency matching the specified identifier
+		 *
+		 * @param identifier
+		 *
+		 * @return The <code>PackageDependency</code> or <code>null</code> if not found.
+		 */
 		public function getPackageDependency( identifier:String ):PackageDependency
 		{
 			for each (var dep:PackageDependency in _dependencies)
@@ -281,6 +301,13 @@ package com.apm.data.project
 		}
 		
 		
+		/**
+		 * Removes a package dependency matching the specified identifier
+		 *
+		 * @param identifier
+		 *
+		 * @return <code>ProjectDefinition</code> instance for chaining calls
+		 */
 		public function removePackageDependency( identifier:String ):ProjectDefinition
 		{
 			for (var i:int = _dependencies.length - 1; i >= 0; --i)

@@ -59,7 +59,7 @@ package com.apm.client.commands.project.processes
 			var entitlementsFile:File = FileUtils.tmpDirectory.resolvePath( "Entitlements.xml" );
 			
 			// Check if there's a file in the config dir or create an empty info additions file for merging
-			var entitlementsProjectFile:File = new File( APM.config.workingDir ).resolvePath( "config/ios/Entitlements.xml" );
+			var entitlementsProjectFile:File = new File( APM.config.workingDirectory ).resolvePath( "config/ios/Entitlements.xml" );
 			if (entitlementsProjectFile.exists)
 			{
 				APM.io.writeLine( "Merging with supplied info additions: config/ios/Entitlements.xml" );
@@ -112,7 +112,7 @@ package com.apm.client.commands.project.processes
 		{
 			var infoAdditions:Array = FileUtils.getFilesByName(
 					"Entitlements.xml",
-					new File( APM.config.packagesDir )
+					new File( APM.config.packagesDirectory )
 			);
 			return infoAdditions;
 		}

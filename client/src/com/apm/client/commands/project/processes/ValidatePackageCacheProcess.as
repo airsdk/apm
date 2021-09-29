@@ -62,7 +62,7 @@ package com.apm.client.commands.project.processes
 				return;
 			}
 			
-			var packagesDir:File = new File( APM.config.packagesDir );
+			var packagesDir:File = new File( APM.config.packagesDirectory );
 			for (var i:int = 0; i < project.dependencies.length; i++)
 			{
 				if (!PackageCacheUtils.isPackageInstalled(

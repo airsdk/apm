@@ -61,7 +61,7 @@ package com.apm.client.commands.packages.processes
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			var directory:File = new File( APM.config.workingDir + File.separator + _path );
+			var directory:File = new File( APM.config.workingDirectory + File.separator + _path );
 			if (!directory.exists) directory.createDirectory();
 			
 			

@@ -51,6 +51,7 @@ package com.apm.utils
 			DEPLOY_OPTIONS[ PackageFileUtils.AIRPACKAGE_SWC_DIR ] = "swcDir";
 			DEPLOY_OPTIONS[ PackageFileUtils.AIRPACKAGE_SRC_DIR ] = "srcDir";
 			DEPLOY_OPTIONS[ PackageFileUtils.AIRPACKAGE_ASSETS ] = "assetsDir";
+			DEPLOY_OPTIONS[ PackageCacheUtils.PACKAGE_CACHE_DIR ] = "packageCacheDir";
 		}
 		
 		
@@ -61,18 +62,19 @@ package com.apm.utils
 			DEFAULT_DIRS[ PackageFileUtils.AIRPACKAGE_SWC_DIR ] = "libs";
 			DEFAULT_DIRS[ PackageFileUtils.AIRPACKAGE_SRC_DIR ] = "libs_src";
 			DEFAULT_DIRS[ PackageFileUtils.AIRPACKAGE_ASSETS ] = "assets";
+			DEFAULT_DIRS[ PackageCacheUtils.PACKAGE_CACHE_DIR ] = PackageCacheUtils.PACKAGE_CACHE_DIR;
 		}
 		
 		
 		public static function getDeployLocation( config:RunConfig, dirName:String ):File
 		{
 			var deployDirForType:File;
-			var working:File = new File( config.workingDir );
+			var working:File = new File( config.workingDirectory );
 			var option:String = DEPLOY_OPTIONS.hasOwnProperty( dirName ) ? DEPLOY_OPTIONS[ dirName ] : dirName;
-			if (config.projectDefinition.deployOptions.hasOwnProperty( option ))
+			if (config.projectDefinition != null && config.projectDefinition.deployOptions.hasOwnProperty( option ))
 			{
 				var deployPathForType:String = config.projectDefinition.deployOptions[ option ];
-				deployDirForType = working.resolvePath( deployPathForType );
+				deployDirForType = FileUtils.getSourceForPath( deployPathForType );
 			}
 			else
 			{
@@ -82,6 +84,7 @@ package com.apm.utils
 					case PackageFileUtils.AIRPACKAGE_SWC_DIR:
 					case PackageFileUtils.AIRPACKAGE_SRC_DIR:
 					case PackageFileUtils.AIRPACKAGE_ASSETS:
+					case PackageCacheUtils.PACKAGE_CACHE_DIR:
 						deployDirForType = working.resolvePath( DEFAULT_DIRS[ dirName ] );
 						break;
 					
