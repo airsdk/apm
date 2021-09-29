@@ -19,6 +19,7 @@ package com.apm.client.commands.project.processes
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.project.ApplicationDescriptor;
 	import com.apm.utils.FileUtils;
+	import com.apm.utils.Template;
 	import com.apple.plist.Plist;
 	
 	import flash.filesystem.File;
@@ -63,17 +64,7 @@ package com.apm.client.commands.project.processes
 			if (infoAdditionsProjectFile.exists)
 			{
 				APM.io.writeLine( "Merging with supplied info additions: config/ios/InfoAdditions.xml" );
-				
-				// Read content and inject any config parameters
-				var infoAdditionsProjectContent:String = FileUtils.readFileContentAsString( infoAdditionsProjectFile );
-				for (var name:String in APM.config.projectDefinition.configuration)
-				{
-					var regex:RegExp = new RegExp( "\\$\\{" + name + "\\}", "g" );
-					var value:String = APM.config.projectDefinition.getConfigurationParam( name );
-					
-					infoAdditionsProjectContent = infoAdditionsProjectContent.replace( regex, value );
-				}
-				FileUtils.writeStringAsFileContent( infoAdditionsFile, infoAdditionsProjectContent );
+				Template.compileFileToFile( infoAdditionsProjectFile, infoAdditionsFile, APM.config.projectDefinition.configuration );
 			}
 			else
 			{
