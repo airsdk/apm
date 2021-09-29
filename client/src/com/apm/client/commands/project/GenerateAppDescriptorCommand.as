@@ -19,6 +19,7 @@ package com.apm.client.commands.project
 	import com.apm.client.commands.project.processes.ApplicationDescriptorGenerationProcess;
 	import com.apm.client.commands.project.processes.IOSAdditionsMergeProcess;
 	import com.apm.client.commands.project.processes.IOSEntitlementsMergeProcess;
+	import com.apm.client.commands.project.processes.ValidatePackageCacheProcess;
 	import com.apm.client.events.CommandEvent;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessQueue;
@@ -122,6 +123,7 @@ package com.apm.client.commands.project
 				outputPath = _parameters[ 0 ];
 			}
 			
+			_queue.addProcess( new ValidatePackageCacheProcess() );
 			_queue.addProcess( new AndroidManifestMergeProcess( appDescriptor ) );
 			_queue.addProcess( new IOSAdditionsMergeProcess( appDescriptor ) );
 			_queue.addProcess( new IOSEntitlementsMergeProcess( appDescriptor ) );
