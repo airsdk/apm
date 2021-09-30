@@ -73,6 +73,9 @@ package com.apm.client.commands.project.processes
 					
 					infoAdditionsProjectContent = infoAdditionsProjectContent.replace( regex, value );
 				}
+				
+				infoAdditionsProjectContent = infoAdditionsProjectContent.replace( /\$\{applicationId\}/g, APM.config.projectDefinition.applicationId );
+				
 				FileUtils.writeStringAsFileContent( infoAdditionsFile, infoAdditionsProjectContent );
 			}
 			else

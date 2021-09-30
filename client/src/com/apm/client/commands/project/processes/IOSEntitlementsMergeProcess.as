@@ -73,6 +73,9 @@ package com.apm.client.commands.project.processes
 					
 					entitlementsProjectContent = entitlementsProjectContent.replace( regex, value );
 				}
+
+				entitlementsProjectContent = entitlementsProjectContent.replace( /\$\{applicationId\}/g, APM.config.projectDefinition.applicationId );
+				
 				FileUtils.writeStringAsFileContent( entitlementsFile, entitlementsProjectContent );
 			}
 			else

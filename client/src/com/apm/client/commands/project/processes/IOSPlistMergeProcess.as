@@ -73,6 +73,8 @@ package com.apm.client.commands.project.processes
 					mergeContent = mergeContent.replace( regex, value );
 				}
 				
+				mergeContent = mergeContent.replace( /\$\{applicationId\}/g, APM.config.projectDefinition.applicationId );
+				
 				// Load and merge plists
 				var merge:Plist = new Plist( mergeContent );
 				var current:Plist = new Plist().load( _currentPlist );
