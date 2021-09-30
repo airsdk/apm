@@ -157,7 +157,8 @@ package com.apm.client
 						case "-version":
 						{
 							// PRINT VERSION
-							io.writeLine( new SemVer( Consts.VERSION ).toString() );
+							var version:SemVer = SemVer.fromString( Consts.VERSION );
+							io.writeLine( version == null ? Consts.VERSION : version.toString() );
 							return exit( CODE_OK );
 						}
 						

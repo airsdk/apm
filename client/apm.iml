@@ -12,7 +12,7 @@
           <sdk name="current" />
         </dependencies>
         <compiler-options>
-          <option name="additionalOptions" value="-compiler.define+=CONFIG::DEBUG,true" />
+          <option name="additionalOptions" value="-compiler.define+=CONFIG::DEBUG,true -compiler.define+=CONFIG::VERSION,'dev'" />
         </compiler-options>
         <packaging-air-desktop use-generated-descriptor="false" custom-descriptor-path="$MODULE_DIR$/src/apm.xml" package-file-name="apm" />
         <packaging-android />

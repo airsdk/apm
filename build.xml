@@ -36,27 +36,12 @@
 
     <target name="version">
 		<antcall target="version_increment" />
-		<antcall target="version_write" />
 	</target>
 
     <target name="version_increment" >
 		<propertyfile file="version.config">
 			<entry key="version_build" type="int" operation="+" value="1" />
 		</propertyfile>
-	</target>
-    
-	<target name="version_write" >
-		<property file="version.config" />
-		<var name="version" value="${version_major}.${version_minor}.${version_build}${version_preview}" />
-
-		<copy file="${codetmpl}/Consts.as" tofile="${apm.clientdir}/src/com/apm/client/Consts.as" overwrite="true" >
-			<filterchain>
-				<tokenfilter>
-					<replacestring from="@VERSION@" to="${version}"/>
-					<replacestring from="@PACKAGE@" to="com.apm.client"/>
-				</tokenfilter>
-			</filterchain>
-		</copy>
 	</target>
 
 
@@ -69,8 +54,10 @@
 
     <!-- BUILD -->
 
-    <target name="build" depends="version_write">
-		<echo message="Building apm..."/>
+    <target name="build" >
+		<property file="version.config" />
+		<var name="version" value="${version_major}.${version_minor}.${version_build}${version_preview}" />
+		<echo message="Building apm... ${version}"/>
 		<mxmlc 
             output="${apm.builddir}/apm.swf" 
             file="${apm.clientdir}/src/APMConsoleApp.as"
@@ -78,6 +65,7 @@
             maxmemory="1024m">
         	<load-config filename="${air.sdk}/frameworks/air-config.xml" />
 			<compiler.define name="CONFIG::DEBUG" value="false" />
+			<compiler.define name="CONFIG::VERSION" value="'${version}'" />
 			<source-path path-element="${apm.clientdir}/src" />
             <library-path dir="${apm.clientdir}/libs" append="true">
                 <include name="*.swc" />
