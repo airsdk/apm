@@ -92,7 +92,7 @@ package com.apm.data.project
 			{
 				_xml.id = project.applicationId;
 				_xml.name = project.applicationName;
-				if (project.applicationFilename != null)
+				if (project.applicationFilename != null && project.applicationFilename.length > 0)
 				{
 					_xml.filename = project.applicationFilename;
 				}
@@ -101,7 +101,7 @@ package com.apm.data.project
 					_xml.filename = project.applicationName.replace(/ /g, "");
 				}
 				_xml.versionNumber = project.version;
-				if (project.versionLabel != null)
+				if (project.versionLabel != null && project.versionLabel.length > 0)
 				{
 					_xml.versionLabel = project.versionLabel;
 				}
