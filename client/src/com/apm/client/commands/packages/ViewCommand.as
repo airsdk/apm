@@ -93,7 +93,11 @@ package com.apm.client.commands.packages
 		{
 			return description + "\n" +
 				   "\n" +
-				   "apm view <foo>    view information of a package called <foo> in the repository\n";
+				   "apm view <foo>           view information of a package called <foo> in the repository\n" +
+				   "\n" +
+				   "options: \n" +
+				   "  --include-prerelease   includes pre-release package versions in the search"
+					;
 		}
 		
 		
