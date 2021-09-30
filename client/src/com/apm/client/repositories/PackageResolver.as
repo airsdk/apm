@@ -20,8 +20,8 @@ package com.apm.client.repositories
 	import com.apm.client.repositories.processes.RepositoryGetPackageVersionProcess;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.RepositoryDefinition;
-	import com.apm.remote.repository.Repository;
 	import com.apm.remote.repository.RepositoryAPI;
+	import com.apm.remote.repository.RepositoryQueryOptions;
 	
 	
 	/**
@@ -42,8 +42,32 @@ package com.apm.client.repositories
 		//
 		
 		private var _repositoryAPI:RepositoryAPI;
+		private var _repositoryQueryOptions:RepositoryQueryOptions;
+		
 		
 		public var resolvedPackage:PackageDefinition;
+		
+		
+		////////////////////////////////////////////////////////
+		//	SIMPLE SINGLETON REFERENCE
+		//
+		
+		private static var _instance:PackageResolver;
+		
+		public static function get instance():PackageResolver
+		{
+			createInstance();
+			return _instance;
+		}
+		
+		
+		private static function createInstance():void
+		{
+			if (_instance == null)
+			{
+				_instance = new PackageResolver();
+			}
+		}
 		
 		
 		////////////////////////////////////////////////////////
@@ -54,24 +78,37 @@ package com.apm.client.repositories
 		{
 		}
 		
-		public function search( query:String, callback:Function = null ):void
+		
+		public function setDefaultQueryOptions( options:RepositoryQueryOptions ):void
 		{
-			// TODO:: Add/implement source
-			RepositoryResolver.repositoryForSource()
-					.search( query, callback );
+			_repositoryQueryOptions = options;
 		}
 		
 		
-		public function getPackage( identifier:String, callback:Function = null ):void
+		public function search( query:String, options:RepositoryQueryOptions = null, callback:Function = null ):void
 		{
+			if (options == null) options = _repositoryQueryOptions;
+			
 			// TODO:: Add/implement source
 			RepositoryResolver.repositoryForSource()
-					.getPackage( identifier, callback );
+							  .search( query, options, callback );
 		}
 		
 		
-		public function getPackageVersion( identifier:String, version:SemVer, source:String, callback:Function = null ):void
+		public function getPackage( identifier:String, options:RepositoryQueryOptions = null, callback:Function = null ):void
 		{
+			if (options == null) options = _repositoryQueryOptions;
+			
+			// TODO:: Add/implement source
+			RepositoryResolver.repositoryForSource()
+							  .getPackage( identifier, options, callback );
+		}
+		
+		
+		public function getPackageVersion( identifier:String, version:SemVer, source:String, options:RepositoryQueryOptions = null, callback:Function = null ):void
+		{
+			if (options == null) options = _repositoryQueryOptions;
+			
 			// TODO:: Implement source
 			var searchQueue:ProcessQueue = new ProcessQueue();
 			if (APM.config.projectDefinition)
@@ -83,7 +120,8 @@ package com.apm.client.repositories
 									this,
 									RepositoryResolver.repositoryForSource( repository.name ),
 									identifier,
-									version
+									version,
+									options
 							)
 					);
 				}
@@ -95,15 +133,18 @@ package com.apm.client.repositories
 							this,
 							RepositoryResolver.repositoryForSource(),
 							identifier,
-							version
+							version,
+							options
 					)
 			);
 			
 			searchQueue.start(
-					function ():void {
+					function ():void
+					{
 						callback( resolvedPackage != null, resolvedPackage );
 					},
-					function ( error:String ):void {
+					function ( error:String ):void
+					{
 						Log.d( TAG, "ERROR:" + error );
 						callback( false, null );
 					}

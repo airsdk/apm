@@ -71,8 +71,9 @@ package com.apm.client.commands.project.processes
 			try
 			{
 				APM.io.showSpinner( "Locating package for extensionID " + _extensionID );
-				new PackageResolver().getPackageVersion(
+				PackageResolver.instance.getPackageVersion(
 						_extensionID,
+						null,
 						null,
 						null,
 						function ( success:Boolean, packageDef:PackageDefinition ):void

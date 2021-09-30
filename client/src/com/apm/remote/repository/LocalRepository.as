@@ -79,19 +79,19 @@ package com.apm.remote.repository
 		
 		
 		
-		public function search( query:String, callback:Function = null ):void
+		public function search( query:String, options:RepositoryQueryOptions = null, callback:Function = null ):void
 		{
 			callback( false, null );
 		}
 		
 		
-		public function getPackage( identifier:String, callback:Function = null ):void
+		public function getPackage( identifier:String, options:RepositoryQueryOptions = null, callback:Function = null ):void
 		{
 			callback( false, null );
 		}
 		
 		
-		public function getPackageVersion( identifier:String, version:SemVer, callback:Function = null ):void
+		public function getPackageVersion( identifier:String, version:SemVer, options:RepositoryQueryOptions = null, callback:Function = null ):void
 		{
 			Log.d( TAG, "local search for: " + identifier + " [" + (version == null ? "latest" : version.toString()) + "]" );
 //			try

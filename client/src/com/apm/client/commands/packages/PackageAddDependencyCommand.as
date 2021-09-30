@@ -15,10 +15,6 @@ package com.apm.client.commands.packages
 {
 	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
-	import com.apm.client.commands.packages.processes.PackageContentCreateProcess;
-	import com.apm.client.commands.packages.processes.PackageContentVerifyProcess;
-	import com.apm.client.commands.packages.processes.PackageDependenciesVerifyProcess;
-	import com.apm.client.commands.packages.processes.ViewPackageProcess;
 	import com.apm.client.events.CommandEvent;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessQueue;
@@ -28,7 +24,6 @@ package com.apm.client.commands.packages
 	import com.apm.data.packages.PackageDependency;
 	
 	import flash.events.EventDispatcher;
-	
 	import flash.filesystem.File;
 	
 	
@@ -42,7 +37,6 @@ package com.apm.client.commands.packages
 		private static const TAG:String = "PackageAddDependencyCommand";
 		
 		public static const NAME:String = "package/add";
-		
 		
 		
 		////////////////////////////////////////////////////////
@@ -103,8 +97,8 @@ package com.apm.client.commands.packages
 		public function get usage():String
 		{
 			return description + "\n" +
-					"\n" +
-					"apm package add <package_identifier>    add a package dependency (there must be a package.json in the working dir)\n";
+				   "\n" +
+				   "apm package add <package_identifier>    add a package dependency (there must be a package.json in the working dir)\n";
 		}
 		
 		
@@ -113,28 +107,31 @@ package com.apm.client.commands.packages
 			if (_parameters == null || _parameters.length == 0)
 			{
 				APM.io.writeLine( "no search params provided" );
-				dispatchEvent( new CommandEvent( CommandEvent.PRINT_USAGE, NAME ));
-				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+				dispatchEvent( new CommandEvent( CommandEvent.PRINT_USAGE, NAME ) );
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
 				return;
 			}
 			var path:String = "";
-			var identifier:String = _parameters[0];
+			var identifier:String = _parameters[ 0 ];
 			
 			APM.io.writeLine( "Adding package dependency: " + identifier );
 			
 			var packageDir:File = new File( APM.config.workingDirectory + File.separator + path );
-			var packageFile:File =  packageDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
+			var packageFile:File = packageDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 			if (!packageFile.exists)
 			{
 				APM.io.writeLine( "no package definition file found" );
-				dispatchEvent( new CommandEvent( CommandEvent.PRINT_USAGE, NAME ));
-				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+				dispatchEvent( new CommandEvent( CommandEvent.PRINT_USAGE, NAME ) );
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
 				return;
 			}
-
+			
 			APM.io.showSpinner( "Locating package " + identifier );
-			RepositoryResolver.repositoryForSource()
-					.getPackageVersion( identifier, null, function ( success:Boolean, packageDef:PackageDefinition ):void
+			RepositoryResolver.repositoryForSource().getPackageVersion(
+					identifier,
+					null,
+					null,
+					function ( success:Boolean, packageDef:PackageDefinition ):void
 					{
 						try
 						{

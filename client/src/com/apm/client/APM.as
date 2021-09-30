@@ -41,6 +41,8 @@ package com.apm.client
 	import com.apm.client.io.IO_MacOS;
 	import com.apm.client.io.IO_Windows;
 	import com.apm.client.logging.Log;
+	import com.apm.client.repositories.PackageResolver;
+	import com.apm.remote.repository.RepositoryQueryOptions;
 	import com.apm.utils.FileUtils;
 	
 	import flash.desktop.NativeApplication;
@@ -200,7 +202,11 @@ package com.apm.client
 								_command = new CommandClass();
 								if (i < arguments.length - 1)
 								{
-									_command.setParameters( arguments.slice( i + 1 ) );
+									var parameters:Array = arguments.slice( i + 1 );
+									PackageResolver.instance.setDefaultQueryOptions(
+											RepositoryQueryOptions.fromParameters( parameters )
+									);
+									_command.setParameters( parameters );
 								}
 								i = arguments.length;
 								break;

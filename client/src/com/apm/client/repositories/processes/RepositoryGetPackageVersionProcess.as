@@ -15,11 +15,12 @@ package com.apm.client.repositories.processes
 {
 	import com.apm.SemVer;
 	import com.apm.client.logging.Log;
-	import com.apm.client.repositories.PackageResolver;
 	import com.apm.client.processes.ProcessBase;
+	import com.apm.client.repositories.PackageResolver;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageVersion;
 	import com.apm.remote.repository.Repository;
+	import com.apm.remote.repository.RepositoryQueryOptions;
 	
 	
 	public class RepositoryGetPackageVersionProcess extends ProcessBase
@@ -39,18 +40,20 @@ package com.apm.client.repositories.processes
 		private var _repository:Repository;
 		private var _identifier:String;
 		private var _version:SemVer;
+		private var _options:RepositoryQueryOptions;
 		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function RepositoryGetPackageVersionProcess( resolver:PackageResolver, repo:Repository, identifier:String, version:SemVer )
+		public function RepositoryGetPackageVersionProcess( resolver:PackageResolver, repo:Repository, identifier:String, version:SemVer, options:RepositoryQueryOptions )
 		{
 			_resolver = resolver;
 			_repository = repo;
 			_identifier = identifier;
 			_version = version;
+			_options = options;
 		}
 		
 		
@@ -59,21 +62,26 @@ package com.apm.client.repositories.processes
 			super.start( completeCallback, failureCallback );
 			try
 			{
-				_repository.getPackageVersion( _identifier, _version, function( success:Boolean, packageDefinition:PackageDefinition ):void
-				{
-					if (success)
-					{
-						if (_repository.name != null)
+				_repository.getPackageVersion(
+						_identifier,
+						_version,
+						_options,
+						function ( success:Boolean, packageDefinition:PackageDefinition ):void
 						{
-							for each (var v:PackageVersion in packageDefinition.versions)
+							if (success)
 							{
-								v.source = _repository.name;
+								if (_repository.name != null)
+								{
+									for each (var v:PackageVersion in packageDefinition.versions)
+									{
+										v.source = _repository.name;
+									}
+								}
+								_resolver.resolvedPackage = packageDefinition;
 							}
+							complete();
 						}
-						_resolver.resolvedPackage = packageDefinition;
-					}
-					complete();
-				});
+				);
 			}
 			catch (e:Error)
 			{

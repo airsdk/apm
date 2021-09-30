@@ -108,6 +108,8 @@ package com.apm.data.packages
 			if (data.hasOwnProperty( "sourceUrl" )) _packageVersion.sourceUrl = data[ "sourceUrl" ];
 			if (data.hasOwnProperty( "publishedAt" )) _packageVersion.publishedAt = data[ "publishedAt" ];
 			
+			if (data.hasOwnProperty( "status" )) _packageVersion.status = data[ "status" ];
+			
 			if (data.hasOwnProperty( "parameters" ))
 			{
 				for each (var param:Object in data.parameters)
@@ -168,11 +170,16 @@ package com.apm.data.packages
 			data[ "type" ] = _packageDef.type;
 			
 			if (_packageVersion.version == null)
+			{
 				data[ "version" ] = _rawVersion;
+			}
 			else
+			{
 				data[ "version" ] = _packageVersion.version.toString();
+			}
 			data[ "sourceUrl" ] = _packageVersion.sourceUrl;
 			data[ "publishedAt" ] = _packageVersion.publishedAt;
+			data[ "status" ] = _packageVersion.status;
 			
 			var deps:Array = [];
 			for each (var dep:PackageDependency in _packageDependencies)
