@@ -35,7 +35,7 @@ package com.apm.data.packages
 		public var checksum:String = "";
 		public var version:SemVer = null;
 		public var publishedAt:String = "";
-		public var status:String = "";
+		public var status:String = "release";
 		
 		public var parameters:Vector.<PackageParameter> = new Vector.<PackageParameter>();
 		public var dependencies:Vector.<PackageVersion> = new Vector.<PackageVersion>();

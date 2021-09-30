@@ -106,7 +106,7 @@ package com.apm.data.packages
 			if (data.hasOwnProperty( "version" )) _packageVersion.version = SemVer.fromString( data[ "version" ] );
 			if (data.hasOwnProperty( "version" )) _rawVersion = data[ "version" ];
 			if (data.hasOwnProperty( "sourceUrl" )) _packageVersion.sourceUrl = data[ "sourceUrl" ];
-			if (data.hasOwnProperty( "publishedAt" )) _packageVersion.publishedAt = data[ "publishedAt" ];
+			if (data.hasOwnProperty( "publishedAt" )) _packageDef.publishedAt = _packageVersion.publishedAt = data[ "publishedAt" ];
 			
 			if (data.hasOwnProperty( "status" )) _packageVersion.status = data[ "status" ];
 			

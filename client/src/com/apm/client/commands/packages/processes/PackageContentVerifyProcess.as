@@ -95,7 +95,9 @@ package com.apm.client.commands.packages.processes
 				APM.io.writeLine( "- description: " + f.packageDef.description );
 				APM.io.writeLine( "- type:        " + f.packageDef.type );
 				APM.io.writeLine( "- tags:        " + f.packageDef.tags.join( "," ) );
-				APM.io.writeLine( "- version:     " + (f.version == null ? "null" : f.version.toString()) );
+				APM.io.writeLine( "- version:     " + f.version.toString() );
+				APM.io.writeLine( "- status:      " + f.version.status );
+				APM.io.writeLine( "- publishedAt: " + f.version.publishedAt );
 				APM.io.writeLine( "- sourceUrl:   " + f.version.sourceUrl );
 				
 				
