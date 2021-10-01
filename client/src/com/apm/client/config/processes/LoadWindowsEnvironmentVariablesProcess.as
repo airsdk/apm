@@ -63,16 +63,16 @@ package com.apm.client.config.processes
 			{
 				var processStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
 				processStartupInfo.executable = new File( "C:\\Windows\\System32\\cmd.exe" );
-
+				
 				var processArgs:Vector.<String> = new Vector.<String>();
 				processArgs.push( "/c" );
 				processArgs.push( "set" );
-
+				
 				processStartupInfo.arguments = processArgs;
 				
 				if (!processStartupInfo.executable.exists)
 				{
-					// TODO:: Error?
+					Log.d( TAG, "ERROR: cmd.exe not available - cannot get environment" );
 					complete();
 				}
 				
@@ -95,8 +95,16 @@ package com.apm.client.config.processes
 		
 		private function onOutputData( event:ProgressEvent ):void
 		{
-			var data:String = _process.standardOutput.readUTFBytes( _process.standardOutput.bytesAvailable );
-			processEnvironmentVariables( data );
+			try
+			{
+				var data:String = _process.standardOutput.readUTFBytes( _process.standardOutput.bytesAvailable );
+				processEnvironmentVariables( data );
+			}
+			catch (e:Error)
+			{
+				Log.d( TAG, "ERROR: " + e.message );
+				Log.e( TAG, e );
+			}
 		}
 		
 		

@@ -71,21 +71,34 @@ package com.apm.client.commands.project.processes
 				//
 				//	LOAD TEMPLATE
 				
-				var configDescriptor:File = new File( APM.config.workingDir ).resolvePath( "config/application-descriptor.xml" );
-				var specifiedDescriptor:File = new File( APM.config.workingDir ).resolvePath( _outputPath );
+				var configDescriptorPath:String = "config/application-descriptor.xml";
+				
+				var configDescriptor:File = new File( APM.config.workingDirectory ).resolvePath( configDescriptorPath );
+				var specifiedDescriptor:File = new File( APM.config.workingDirectory ).resolvePath( _outputPath );
 				
 				if (configDescriptor.exists)
 				{
+					Log.d( TAG, "Loading " + configDescriptorPath );
 					_appDescriptor.load( configDescriptor );
+					if (!_appDescriptor.isValid())
+					{
+						Log.l( TAG, _appDescriptor.validate() );
+					}
 				}
 				else if (specifiedDescriptor.exists)
 				{
+					Log.d( TAG, "Loading " + _outputPath );
 					_appDescriptor.load( specifiedDescriptor );
+					if (!_appDescriptor.isValid())
+					{
+						Log.l( TAG, _appDescriptor.validate() );
+					}
 				}
 				
 				// Check if the loaded descriptor is valid, otherwise use the template
 				if (!_appDescriptor.isValid())
 				{
+					Log.d( TAG, "Loading application descriptor template" );
 					_appDescriptor.loadString( ApplicationDescriptor.APPLICATION_DESCRIPTOR_TEMPLATE );
 				}
 				

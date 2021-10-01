@@ -91,7 +91,7 @@ package com.apm.client.commands.packages
 		
 		public function get description():String
 		{
-			return "create a package template for a new package in the repository";
+			return "build a package directory into an airpackage";
 		}
 		
 		
@@ -114,9 +114,9 @@ package com.apm.client.commands.packages
 			
 			APM.io.writeLine( "Building package" );
 			
-			var packageDir:File = new File( APM.config.workingDir + File.separator + path );
+			var packageDir:File = new File( APM.config.workingDirectory + File.separator + path );
 			
-			_queue.addProcess( new PackageContentVerifyProcess( packageDir ));
+			_queue.addProcess( new PackageContentVerifyProcess( packageDir, false ));
 			_queue.addProcess( new PackageContentCreateProcess( packageDir ));
 			
 			_queue.start(

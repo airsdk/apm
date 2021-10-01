@@ -61,26 +61,33 @@ package com.apm
 		public function SemVer( version:String )
 		{
 			var results:Array = FORMAT.exec( version );
-			for (var i:int = 0; i < results.length; i++)
+			if (results != null)
 			{
-				switch (i)
+				for (var i:int = 0; i < results.length; i++)
 				{
-					case 1:
-						_major = results[ i ];
-						break;
-					case 2:
-						_minor = results[ i ];
-						break;
-					case 4:
-						if (results[ i ] != undefined) _patch = results[ i ];
-						break;
-					case 6:
-						if (results[ i ] != undefined) _preview = results[ i ];
-						break;
-					case 8:
-						if (results[ i ] != undefined) _previewNum = results[ i ];
-						break;
+					switch (i)
+					{
+						case 1:
+							_major = results[ i ];
+							break;
+						case 2:
+							_minor = results[ i ];
+							break;
+						case 4:
+							if (results[ i ] != undefined) _patch = results[ i ];
+							break;
+						case 6:
+							if (results[ i ] != undefined) _preview = results[ i ];
+							break;
+						case 8:
+							if (results[ i ] != undefined) _previewNum = results[ i ];
+							break;
+					}
 				}
+			}
+			else
+			{
+				throw new Error( "Invalid version - fails SemVer format" );
 			}
 		}
 		

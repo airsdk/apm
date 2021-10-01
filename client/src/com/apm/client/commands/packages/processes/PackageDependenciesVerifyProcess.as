@@ -14,8 +14,8 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APM;
-	import com.apm.client.repositories.PackageResolver;
 	import com.apm.client.processes.ProcessBase;
+	import com.apm.client.repositories.PackageResolver;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.packages.PackageDependency;
@@ -40,7 +40,6 @@ package com.apm.client.commands.packages.processes
 		//
 		
 		private var _dependency:PackageDependency;
-		private var _packageResolver:PackageResolver;
 		
 		
 		////////////////////////////////////////////////////////
@@ -50,7 +49,6 @@ package com.apm.client.commands.packages.processes
 		public function PackageDependenciesVerifyProcess( dependency:PackageDependency )
 		{
 			_dependency = dependency;
-			_packageResolver = new PackageResolver();
 		}
 		
 		
@@ -63,11 +61,13 @@ package com.apm.client.commands.packages.processes
 			{
 				failure( "INVALID DEPENDENCY [" + _dependency.toString() + "] - check your dependencies in the " + PackageDefinitionFile.DEFAULT_FILENAME );
 			}
-			_packageResolver.getPackageVersion(
+			PackageResolver.instance.getPackageVersion(
 					_dependency.identifier,
 					_dependency.version,
 					_dependency.source,
-					function ( success:Boolean, packageDef:PackageDefinition ):void {
+					null,
+					function ( success:Boolean, packageDef:PackageDefinition ):void
+					{
 						if (success && packageDef != null && packageDef.versions.length > 0)
 						{
 							APM.io.stopSpinner( true, "VERIFIED: " + _dependency.toString() );

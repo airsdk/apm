@@ -18,7 +18,6 @@ package com.apm.client.commands.packages
 	import com.apm.client.events.CommandEvent;
 	import com.apm.client.repositories.PackageResolver;
 	import com.apm.data.packages.PackageDefinition;
-	import com.apm.remote.repository.RepositoryAPI;
 	
 	import flash.events.EventDispatcher;
 	
@@ -40,7 +39,6 @@ package com.apm.client.commands.packages
 		//  VARIABLES
 		//
 		
-		private var _packageResolver:PackageResolver;
 		private var _parameters:Array;
 		
 		
@@ -51,7 +49,6 @@ package com.apm.client.commands.packages
 		public function SearchCommand()
 		{
 			super();
-			_packageResolver = new PackageResolver();
 		}
 		
 		
@@ -91,12 +88,15 @@ package com.apm.client.commands.packages
 		}
 		
 		
-		
 		public function get usage():String
 		{
 			return description + "\n" +
-					"\n" +
-					"apm search <foo>    search for a package containing <foo> in the repository\n";
+				   "\n" +
+				   "apm search <foo>         search for a package containing <foo> in the repository\n" +
+				   "\n" +
+				   "options: \n" +
+				   "  --include-prerelease   includes pre-release package versions in the search"
+			;
 		}
 		
 		
@@ -105,42 +105,48 @@ package com.apm.client.commands.packages
 			if (_parameters == null || _parameters.length == 0)
 			{
 				APM.io.writeLine( "no search params provided" );
-				dispatchEvent( new CommandEvent( CommandEvent.PRINT_USAGE, NAME ));
-				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+				dispatchEvent( new CommandEvent( CommandEvent.PRINT_USAGE, NAME ) );
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
 				return;
 			}
 			
 			var query:String = _parameters.join( " " );
+			
 			APM.io.showSpinner( "Searching packages for : " + query );
 			
-			_packageResolver.search( query, function ( success:Boolean, packages:Vector.<PackageDefinition> ):void {
-				APM.io.stopSpinner( success, "Search complete" );
-				
-				if (success)
-				{
-					APM.io.writeLine( "found [" + packages.length + "] matching package(s) for search '" + query + "'" )
-					if (packages.length > 0)
+			PackageResolver.instance.search(
+					query,
+					null,
+					function ( success:Boolean, packages:Vector.<PackageDefinition> ):void
 					{
-						for (var i:int = 0; i < packages.length; i++)
+						APM.io.stopSpinner( success, "Search complete" );
+						
+						if (success)
 						{
-							APM.io.writeLine(
-									(i == packages.length - 1 ? "└──" : "├──") +
-									packages[ i ].toDescriptiveString()
-							);
+							APM.io.writeLine( "found [" + packages.length + "] matching package(s) for search '" + query + "'" )
+							if (packages.length > 0)
+							{
+								for (var i:int = 0; i < packages.length; i++)
+								{
+									APM.io.writeLine(
+											(i == packages.length - 1 ? "└──" : "├──") +
+											packages[ i ].toDescriptiveString()
+									);
+								}
+							}
+							else
+							{
+								APM.io.writeLine( "└── no matching packages found" );
+							}
+							dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ) );
+						}
+						else
+						{
+							APM.io.writeLine( "error connecting to repository server" );
+							dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
 						}
 					}
-					else
-					{
-						APM.io.writeLine( "└── no matching packages found" );
-					}
-					dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
-				}
-				else
-				{
-					APM.io.writeLine( "error connecting to repository server" );
-					dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
-				}
-			} );
+			);
 		}
 		
 	}

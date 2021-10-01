@@ -66,15 +66,16 @@ package com.apm.client.commands.project.processes
 			//
 			//	Walk through any questions
 			
-			project.applicationId = APM.io.question( "Application Identifier", "com.my.app" )
-			project.applicationName = APM.io.question( "Application Name", "My Application" )
-			project.version = APM.io.question( "Application Version", "1.0.0" )
+			project.applicationId = APM.io.question( "Application Identifier", "com.my.app" );
+			project.applicationName = APM.io.question( "Application Name", "My Application" );
+			project.version = APM.io.question( "Application Version", "1.0.0" );
 			
+			project.applicationFilename = project.applicationName.replace( /\ /g, "" );
+			project.versionLabel = "";
 			
-			// TODO
+			// TODO:: Add whatever else we need here
 			
-			
-			var projectFile:File = new File( APM.config.workingDir + File.separator + ProjectDefinition.DEFAULT_FILENAME );
+			var projectFile:File = new File( APM.config.workingDirectory + File.separator + ProjectDefinition.DEFAULT_FILENAME );
 			project.save( projectFile );
 			
 			complete();

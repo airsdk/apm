@@ -99,7 +99,14 @@ package com.apm.client.commands.general
 		
 		public function execute():void
 		{
-			APM.io.writeLine( "apm: v" + new SemVer( Consts.VERSION ).toString() );
+			try
+			{
+				var version:SemVer = SemVer.fromString( Consts.VERSION );
+				APM.io.writeLine( "apm: v" + (version == null ? Consts.VERSION : version.toString()) );
+			}
+			catch (e:Error)
+			{
+			}
 			dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
 		}
 		

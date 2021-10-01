@@ -26,6 +26,7 @@ package com.apm.client
 	import com.apm.client.commands.packages.CreateCommand;
 	import com.apm.client.commands.packages.InstallCommand;
 	import com.apm.client.commands.packages.ListCommand;
+	import com.apm.client.commands.packages.PackageAddDependencyCommand;
 	import com.apm.client.commands.packages.PublishCommand;
 	import com.apm.client.commands.packages.SearchCommand;
 	import com.apm.client.commands.packages.UninstallCommand;
@@ -40,6 +41,8 @@ package com.apm.client
 	import com.apm.client.io.IO_MacOS;
 	import com.apm.client.io.IO_Windows;
 	import com.apm.client.logging.Log;
+	import com.apm.client.repositories.PackageResolver;
+	import com.apm.remote.repository.RepositoryQueryOptions;
 	import com.apm.utils.FileUtils;
 	
 	import flash.desktop.NativeApplication;
@@ -114,6 +117,7 @@ package com.apm.client
 			addCommand( CreateCommand.NAME, CreateCommand );
 			addCommand( BuildCommand.NAME, BuildCommand );
 			addCommand( PublishCommand.NAME, PublishCommand );
+			addCommand( PackageAddDependencyCommand.NAME, PackageAddDependencyCommand );
 			
 			// air sdk commands
 			addCommand( AIRSDKListCommand.NAME, AIRSDKListCommand );
@@ -141,13 +145,13 @@ package com.apm.client
 					{
 						case "-workingdir":
 						{
-							_config.workingDir = arguments[ ++i ];
+							_config.workingDirectory = arguments[ ++i ];
 							break;
 						}
 						
 						case "-appdir":
 						{
-							_config.appDir = arguments[ ++i ];
+							_config.appDirectory = arguments[ ++i ];
 							break;
 						}
 						
@@ -155,7 +159,8 @@ package com.apm.client
 						case "-version":
 						{
 							// PRINT VERSION
-							io.writeLine( new SemVer( Consts.VERSION ).toString() );
+							var version:SemVer = SemVer.fromString( Consts.VERSION );
+							io.writeLine( version == null ? Consts.VERSION : version.toString() );
 							return exit( CODE_OK );
 						}
 						
@@ -197,7 +202,11 @@ package com.apm.client
 								_command = new CommandClass();
 								if (i < arguments.length - 1)
 								{
-									_command.setParameters( arguments.slice( i + 1 ) );
+									var parameters:Array = arguments.slice( i + 1 );
+									PackageResolver.instance.setDefaultQueryOptions(
+											RepositoryQueryOptions.fromParameters( parameters )
+									);
+									_command.setParameters( parameters );
 								}
 								i = arguments.length;
 								break;
@@ -229,7 +238,7 @@ package com.apm.client
 				// Working directory check
 				try
 				{
-					new File( _config.workingDir );
+					new File( _config.workingDirectory );
 				}
 				catch (e:Error)
 				{

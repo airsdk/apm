@@ -48,7 +48,6 @@ package com.apm.client.commands.packages.processes
 		private var _packageFile:File;
 		private var _installData:InstallData;
 		private var _failIfInstalled:Boolean;
-		private var _packageResolver:PackageResolver;
 		
 		
 		////////////////////////////////////////////////////////
@@ -64,7 +63,6 @@ package com.apm.client.commands.packages.processes
 			_packageFile = packageFile;
 			_installData = data;
 			_failIfInstalled = failIfInstalled;
-			_packageResolver = new PackageResolver();
 		}
 		
 		

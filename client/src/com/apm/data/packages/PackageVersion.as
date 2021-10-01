@@ -35,6 +35,7 @@ package com.apm.data.packages
 		public var checksum:String = "";
 		public var version:SemVer = null;
 		public var publishedAt:String = "";
+		public var status:String = "release";
 		
 		public var parameters:Vector.<PackageParameter> = new Vector.<PackageParameter>();
 		public var dependencies:Vector.<PackageVersion> = new Vector.<PackageVersion>();
@@ -65,7 +66,15 @@ package com.apm.data.packages
 		
 		public function toDescriptiveString():String
 		{
-			return version.toString() + " : " + publishedAt;
+			return version.toString()
+				   + " : " + publishedAt
+				   + (isReleaseVersion() ? "" : " [" + status + "]");
+		}
+
+		
+		public function isReleaseVersion():Boolean
+		{
+			return (status == "release" || status == "" || status == null);
 		}
 		
 		
@@ -78,6 +87,7 @@ package com.apm.data.packages
 				if (data.hasOwnProperty( "sourceUrl" )) this.sourceUrl = data[ "sourceUrl" ];
 				if (data.hasOwnProperty( "checksum" )) this.checksum = data[ "checksum" ];
 				if (data.hasOwnProperty( "publishedAt" )) this.publishedAt = data[ "publishedAt" ];
+				if (data.hasOwnProperty( "status" )) this.status = data[ "status" ];
 				if (data.hasOwnProperty( "dependencies" ))
 				{
 					for each (var depObject:Object in data.dependencies)
@@ -101,7 +111,7 @@ package com.apm.data.packages
 		}
 		
 		
-		public function toObject( forceObjectOutput:Boolean=false ):Object
+		public function toObject( forceObjectOutput:Boolean = false ):Object
 		{
 			var data:Object = {};
 			data.version = version.toString();
@@ -109,6 +119,7 @@ package com.apm.data.packages
 			data.sourceUrl = sourceUrl;
 			data.checksum = checksum;
 			data.publishedAt = publishedAt;
+			data.status = status;
 			
 			var dependenciesObject:Array = [];
 			for each (var d:PackageVersion in dependencies)
