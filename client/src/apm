@@ -48,6 +48,16 @@ print "\nactive release: " + data["active_release"]
       echo "usage: apm airsdk install <version>"
       exit 1
     fi
+    if [ "x$AIRSDK_ACCEPT_LICENSE" != "xyes" ]; then
+      echo "You need to accept the AIR SDK license agreement:"
+      echo "https://airsdk.harman.com/assets/pdfs/HARMAN%20AIR%20SDK%20License%20Agreement.pdf"
+      echo
+      echo "Set the environment variable AIRSDK_ACCEPT_LICENSE=yes if you do so."
+      echo
+      echo "Example:"
+      echo "AIRSDK_ACCEPT_LICENSE=yes apm airsdk install latest"
+      echo
+    fi
     # retrieve the download URL
     AIR_MAC_URL=$(curl -s "$AIRSDK_API_URL/releases/$AIRSDK_VERSION/urls" | python -c '
 import sys,json
