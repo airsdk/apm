@@ -114,7 +114,8 @@ package com.apm.client.commands.project
 			Log.d( TAG, "execute(): " + (_parameters.length > 0 ? _parameters[ 0 ] : "...") + "\n" );
 			
 			// TODO:: Get AIR SDK version for app descriptor
-			var airSDKVersion:AIRSDKVersion = new AIRSDKVersion( "33.1.1.556" );
+			var airSDKVersion:AIRSDKVersion = null; //new AIRSDKVersion( "33.1.0.0" );
+			
 			var appDescriptor:ApplicationDescriptor = new ApplicationDescriptor( airSDKVersion );
 			
 			var outputPath:String = defaultOutputPath();
