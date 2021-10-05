@@ -102,6 +102,14 @@ package com.apm.client.config
 		public function set appDirectory( value:String):void { _appDirectory = value; }
 		
 		
+		private var _airDirectory:String = null;
+		/**
+		 * The AIR SDK directory containing adl
+		 */
+		public function get airDirectory():String { return _airDirectory; }
+		public function set airDirectory( value:String):void { _airDirectory = value; }
+		
+		
 		
 		/**
 		 * This function loads any configuration / environment files and settings

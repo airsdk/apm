@@ -20,7 +20,6 @@ package com.apm.client
 	import com.apm.client.commands.airsdk.AIRSDKViewCommand;
 	import com.apm.client.commands.general.ConfigCommand;
 	import com.apm.client.commands.general.HelpCommand;
-	import com.apm.client.commands.general.UpgradeCommand;
 	import com.apm.client.commands.general.VersionCommand;
 	import com.apm.client.commands.packages.BuildCommand;
 	import com.apm.client.commands.packages.CreateCommand;
@@ -48,6 +47,10 @@ package com.apm.client
 	import flash.desktop.NativeApplication;
 	import flash.events.EventDispatcher;
 	import flash.filesystem.File;
+	
+	import mx.utils.StringUtil;
+	
+	import org.as3commons.lang.StringUtils;
 	
 	
 	public class APM extends EventDispatcher
@@ -78,8 +81,14 @@ package com.apm.client
 		{
 			if (_io == null)
 			{
-				if (_config.isWindows) _io = new IO_Windows();
-				else _io = new IO_MacOS();
+				if (_config.isWindows)
+				{
+					_io = new IO_Windows();
+				}
+				else
+				{
+					_io = new IO_MacOS();
+				}
 			}
 			return _io;
 		}
@@ -145,13 +154,22 @@ package com.apm.client
 					{
 						case "-workingdir":
 						{
-							_config.workingDirectory = arguments[ ++i ];
+							_config.workingDirectory = StringUtils.trim( arguments[ ++i ] );
+							Log.d( TAG, "-workingdir " + _config.workingDirectory );
 							break;
 						}
 						
 						case "-appdir":
 						{
-							_config.appDirectory = arguments[ ++i ];
+							_config.appDirectory = StringUtils.trim( arguments[ ++i ] );
+							Log.d( TAG, "-appdir " + _config.appDirectory );
+							break;
+						}
+						
+						case "-airdir":
+						{
+							_config.airDirectory = StringUtils.trim( arguments[ ++i ] );
+							Log.d( TAG, "-airdir " + _config.airDirectory );
 							break;
 						}
 						
@@ -172,17 +190,33 @@ package com.apm.client
 							{
 								case "v":
 								case "verbose":
+								{
 									Log.setLogLevel( Log.LEVEL_VERBOSE );
 									break;
-								
+								}
 								case "d":
 								case "debug":
+								{
 									Log.setLogLevel( Log.LEVEL_DEBUG );
 									break;
-								
+								}
+								case "i":
+								case "info":
+								{
+									Log.setLogLevel( Log.LEVEL_INFO );
+									break;
+								}
+								case "w":
+								case "warn":
+								{
+									Log.setLogLevel( Log.LEVEL_WARN );
+									break;
+								}
 								default:
+								{
 									Log.setLogLevel( Log.LEVEL_NORMAL );
 									break;
+								}
 							}
 							break;
 						}
@@ -245,41 +279,42 @@ package com.apm.client
 					io.writeError( "ENV", "working directory not set correctly - check you haven't modified the start script" );
 					return exit( CODE_ERROR );
 				}
-				
-				
+
+
 //				io.showSpinner( "loading environment ... " );
-				_config.loadEnvironment( function ( success:Boolean, error:String = null ):void {
+				_config.loadEnvironment( function ( success:Boolean, error:String = null ):void
+										 {
 //					io.stopSpinner( success,"loaded environment", true );
-					if (success)
-					{
-						processEnvironment();
-						if (_command.requiresProject)
-						{
-							if (config.projectDefinition == null)
-							{
-								io.writeError( "project.apm", "No project file found, run 'apm init' first" );
-								return exit( CODE_ERROR );
-							}
-						}
+											 if (success)
+											 {
+												 processEnvironment();
+												 if (_command.requiresProject)
+												 {
+													 if (config.projectDefinition == null)
+													 {
+														 io.writeError( "project.apm", "No project file found, run 'apm init' first" );
+														 return exit( CODE_ERROR );
+													 }
+												 }
 						
-						if (_command.requiresNetwork && !_config.hasNetwork)
-						{
-							io.writeError( "NETWORK", "No active internet connection found" );
-							return exit( CODE_ERROR );
-						}
+												 if (_command.requiresNetwork && !_config.hasNetwork)
+												 {
+													 io.writeError( "NETWORK", "No active internet connection found" );
+													 return exit( CODE_ERROR );
+												 }
 						
-						_command.addEventListener( CommandEvent.COMPLETE, command_completeHandler );
-						_command.addEventListener( CommandEvent.PRINT_USAGE, command_usageHandler );
+												 _command.addEventListener( CommandEvent.COMPLETE, command_completeHandler );
+												 _command.addEventListener( CommandEvent.PRINT_USAGE, command_usageHandler );
 						
-						_command.execute();
-					}
-					else
-					{
-						io.writeError( "ENV", "failed to load environment: " + error );
-						io.writeError( "ENV", "exiting..." );
-						return exit( CODE_ERROR );
-					}
-				}, _command.requiresNetwork );
+												 _command.execute();
+											 }
+											 else
+											 {
+												 io.writeError( "ENV", "failed to load environment: " + error );
+												 io.writeError( "ENV", "exiting..." );
+												 return exit( CODE_ERROR );
+											 }
+										 }, _command.requiresNetwork );
 			}
 			catch (e:Error)
 			{
@@ -348,6 +383,7 @@ package com.apm.client
 			exit( event.data );
 		}
 		
+		
 		private function command_usageHandler( event:CommandEvent ):void
 		{
 			usage( event.data );
@@ -383,7 +419,10 @@ package com.apm.client
 			{
 				command = new _apmCommandMap[ commandName ]();
 				var commandUsage:String = "apm " + commandName.replace( "/", " " ) + " ";
-				while (commandUsage.length < 20) commandUsage += " ";
+				while (commandUsage.length < 20)
+				{
+					commandUsage += " ";
+				}
 				commandUsage += command.description;
 				io.writeLine( commandUsage );
 			}
