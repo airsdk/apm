@@ -11,7 +11,7 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		28/8/21
  */
-package com.apm.remote.airsdk
+package airsdk
 {
 	import com.apm.utils.FileUtils;
 	
