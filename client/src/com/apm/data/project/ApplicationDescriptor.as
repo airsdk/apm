@@ -14,7 +14,7 @@
 package com.apm.data.project
 {
 	import com.apm.client.logging.Log;
-	import com.apm.remote.airsdk.AIRSDKVersion;
+	import airsdk.AIRSDKVersion;
 	
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
@@ -88,10 +88,10 @@ package com.apm.data.project
 			XML.ignoreWhitespace = true;
 			XML.ignoreComments = false;
 			
-			_airSDKVersion = airSDKVersion; //(airSDKVersion == null ? new AIRSDKVersion( "33.1.1.556" ) : airSDKVersion);
+			_airSDKVersion = airSDKVersion;
 			if (_airSDKVersion != null)
 			{
-				_airNS = new Namespace( "", "http://ns.adobe.com/air/application/" + _airSDKVersion.major + "." + _airSDKVersion.minor );
+				_airNS = new Namespace( "", _airSDKVersion.getNamespace() );
 			}
 
 			_langNS = new Namespace( "xml", XML_NAMESPACE );
