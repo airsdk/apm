@@ -64,10 +64,10 @@ package com.apm.client.commands.packages.processes
 			super();
 			_package = packageVersion;
 			
-			var packagesDir:File = new File( APM.config.packagesDir );
+			var packagesDir:File = new File( APM.config.packagesDirectory );
 			if (!packagesDir.exists) packagesDir.createDirectory();
 			
-			var packageDir:File = PackageFileUtils.directoryForPackage( APM.config.packagesDir, packageVersion.packageDef.identifier );
+			var packageDir:File = PackageFileUtils.directoryForPackage( APM.config.packagesDirectory, packageVersion.packageDef.identifier );
 			if (!packageDir.exists) packageDir.createDirectory();
 			
 			_destination = packageDir.resolvePath(
@@ -166,25 +166,26 @@ package com.apm.client.commands.packages.processes
 		
 		private function verifyFile( checksum:String, callback:Function ):void
 		{
-			// No checksum provided so don't perform check
-			if (checksum == null || checksum.length == 0)
-			{
-				callback( true, "checksum not provided" );
-			}
-			else
-			{
-				if (_destination.exists)
-				{
-					Checksum.sha256Checksum( _destination, function( calculatedSum:String ):void
-					{
-						callback( calculatedSum == checksum, "checksum does not match" );
-					});
-				}
-				else
-				{
-					callback( false, "destination does not exists" );
-				}
-			}
+			callback( true, "" );
+//			// No checksum provided so don't perform check
+//			if (checksum == null || checksum.length == 0)
+//			{
+//				callback( true, "checksum not provided" );
+//			}
+//			else
+//			{
+//				if (_destination.exists)
+//				{
+//					Checksum.sha256Checksum( _destination, function( calculatedSum:String ):void
+//					{
+//						callback( calculatedSum == checksum, "checksum does not match" );
+//					});
+//				}
+//				else
+//				{
+//					callback( false, "destination does not exists" );
+//				}
+//			}
 		}
 		
 		

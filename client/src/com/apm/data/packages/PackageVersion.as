@@ -14,6 +14,7 @@
 package com.apm.data.packages
 {
 	import com.apm.SemVer;
+	import com.apm.SemVerRange;
 	
 	
 	public class PackageVersion
@@ -35,9 +36,10 @@ package com.apm.data.packages
 		public var checksum:String = "";
 		public var version:SemVer = null;
 		public var publishedAt:String = "";
+		public var status:String = "release";
 		
 		public var parameters:Vector.<PackageParameter> = new Vector.<PackageParameter>();
-		public var dependencies:Vector.<PackageVersion> = new Vector.<PackageVersion>();
+		public var dependencies:Vector.<PackageDependency> = new Vector.<PackageDependency>();
 		
 		public var source:String = null;
 		
@@ -65,7 +67,15 @@ package com.apm.data.packages
 		
 		public function toDescriptiveString():String
 		{
-			return version.toString() + " : " + publishedAt;
+			return version.toString()
+				   + " : " + publishedAt
+				   + (isReleaseVersion() ? "" : " [" + status + "]");
+		}
+
+		
+		public function isReleaseVersion():Boolean
+		{
+			return (status == "release" || status == "" || status == null);
 		}
 		
 		
@@ -73,16 +83,17 @@ package com.apm.data.packages
 		{
 			if (data != null)
 			{
-				if (data.hasOwnProperty( "version" )) this.version = SemVer.fromString( data[ "version" ] );
+				if (data.hasOwnProperty( "version" )) this.version = SemVerRange.fromString( data[ "version" ] );
 				if (data.hasOwnProperty( "source" )) this.source = data[ "source" ];
 				if (data.hasOwnProperty( "sourceUrl" )) this.sourceUrl = data[ "sourceUrl" ];
 				if (data.hasOwnProperty( "checksum" )) this.checksum = data[ "checksum" ];
 				if (data.hasOwnProperty( "publishedAt" )) this.publishedAt = data[ "publishedAt" ];
+				if (data.hasOwnProperty( "status" )) this.status = data[ "status" ];
 				if (data.hasOwnProperty( "dependencies" ))
 				{
 					for each (var depObject:Object in data.dependencies)
 					{
-						dependencies.push( new PackageVersion().fromObject( depObject ) );
+						dependencies.push( new PackageDependency().fromObject( depObject ) );
 					}
 				}
 				if (data.hasOwnProperty( "parameters" ))
@@ -101,7 +112,7 @@ package com.apm.data.packages
 		}
 		
 		
-		public function toObject( forceObjectOutput:Boolean=false ):Object
+		public function toObject( forceObjectOutput:Boolean = false ):Object
 		{
 			var data:Object = {};
 			data.version = version.toString();
@@ -109,9 +120,10 @@ package com.apm.data.packages
 			data.sourceUrl = sourceUrl;
 			data.checksum = checksum;
 			data.publishedAt = publishedAt;
+			data.status = status;
 			
 			var dependenciesObject:Array = [];
-			for each (var d:PackageVersion in dependencies)
+			for each (var d:PackageDependency in dependencies)
 			{
 				dependenciesObject.push( d.toObject( forceObjectOutput ) );
 			}

@@ -1,6 +1,6 @@
 # Building APM
 
-Before attempting to modify the code, have a look at the contributing guidelines.
+Before attempting to modify the code, have a look at the [contributing guidelines](https://github.com/airsdk/apm/blob/efb0b6ab357448dcf3e6cb27b684be6e1ac6dac7/.github/CONTRIBUTING.md).
 
 APM is built using the AIR SDK. See the documentation at [airsdk.dev](https://airsdk.dev) to setup the AIR SDK on your machine.
 

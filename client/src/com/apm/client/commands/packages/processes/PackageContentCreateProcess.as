@@ -124,7 +124,7 @@ package com.apm.client.commands.packages.processes
 
 			
 			var packageFileName:String = packDefFile.packageDef.identifier + "_" + packDefFile.version.version.toString() + "." + PackageFileUtils.AIRPACKAGEEXTENSION;
-			var packageFilePath:String = APM.config.workingDir + File.separator + packageFileName;
+			var packageFilePath:String = APM.config.workingDirectory + File.separator + packageFileName;
 			var packageFile:File = new File( packageFilePath );
 			
 			var outStream:FileStream = new FileStream();

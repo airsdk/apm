@@ -14,6 +14,7 @@
 package com.apm.remote.repository
 {
 	import com.apm.SemVer;
+	import com.apm.SemVerRange;
 	import com.apm.client.logging.Log;
 	import com.apm.data.packages.PackageDefinitionFile;
 	
@@ -79,19 +80,19 @@ package com.apm.remote.repository
 		
 		
 		
-		public function search( query:String, callback:Function = null ):void
+		public function search( query:String, options:RepositoryQueryOptions = null, callback:Function = null ):void
 		{
 			callback( false, null );
 		}
 		
 		
-		public function getPackage( identifier:String, callback:Function = null ):void
+		public function getPackage( identifier:String, options:RepositoryQueryOptions = null, callback:Function = null ):void
 		{
 			callback( false, null );
 		}
 		
 		
-		public function getPackageVersion( identifier:String, version:SemVer, callback:Function = null ):void
+		public function getPackageVersion( identifier:String, version:SemVerRange, options:RepositoryQueryOptions = null, callback:Function = null ):void
 		{
 			Log.d( TAG, "local search for: " + identifier + " [" + (version == null ? "latest" : version.toString()) + "]" );
 //			try

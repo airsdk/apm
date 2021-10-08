@@ -13,8 +13,8 @@ Please note we have a code of conduct, please follow it in all your interactions
 There are many ways to contribute and not all of them involve coding.
 
 - [Reporting bugs](#reporting-bugs)
-- [Suggesting features]()
-- [Contributing code]()
+- [Suggesting features](#suggesting-features)
+- [Contributing code](#contributing-code)
 
 ## Reporting bugs
 
@@ -65,7 +65,7 @@ Create a fork of the repository, and create a branch from the `develop` branch. 
 
 ### Local development
 
-The apm tool can be developed locally. You can even run a [local apm repository](https://github.com/airsdk/apm-repository/) if you wish. To setup your development environment see the guide on [building]().
+The apm tool can be developed locally. You can even run a [local apm repository](https://github.com/airsdk/apm-repository/) if you wish. To setup your development environment see the guide on [building](https://github.com/airsdk/apm/blob/master/BUILDING.md).
 
 ### Pull Requests
 
@@ -84,6 +84,6 @@ Please ensure you follow these conventions in any code submissions and the follo
 - Use tab indentation;
 - Use [Allman style](https://en.wikipedia.org/wiki/Indentation_style#Allman_style) braces;
 
-#### Acknowledgements
+## Acknowledgements
 
 Parts of this contributing guide were adapted from the [Contributing to Atom](https://github.com/atom/atom/blob/master/CONTRIBUTING.md) documentation.

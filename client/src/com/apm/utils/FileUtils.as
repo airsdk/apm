@@ -71,7 +71,7 @@ package com.apm.utils
 		public static function get tmpDirectory():File
 		{
 			if (_tmpDirName == null) _tmpDirName = ".tmp" + String( int( Math.random() * 1000000 ) );
-			var tmpDir:File = new File( APM.config.workingDir ).resolvePath( _tmpDirName );
+			var tmpDir:File = new File( APM.config.workingDirectory ).resolvePath( _tmpDirName );
 //			if (!tmpDir.exists) tmpDir.createDirectory();
 			return tmpDir;
 		}
@@ -226,7 +226,7 @@ package com.apm.utils
 			catch (e:Error)
 			{
 			}
-			return new File( APM.config.workingDir + File.separator + path );
+			return new File( APM.config.workingDirectory + File.separator + path );
 		}
 		
 	}

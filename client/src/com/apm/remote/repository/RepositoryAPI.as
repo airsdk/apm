@@ -14,6 +14,7 @@
 package com.apm.remote.repository
 {
 	import com.apm.SemVer;
+	import com.apm.SemVerRange;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.remote.lib.APIRequestQueue;
@@ -106,11 +107,13 @@ package com.apm.remote.repository
 		}
 		
 		
-		public function search( query:String, callback:Function = null ):void
+		public function search( query:String, options:RepositoryQueryOptions = null, callback:Function = null ):void
 		{
 			var vars:URLVariables = new URLVariables();
 			vars[ "q" ] = query;
 //			vars[ "t" ] = request;
+			
+			if (options != null) options.apply( vars );
 			
 			var req:URLRequest = new URLRequest();
 			req.method = URLRequestMethod.GET;
@@ -144,11 +147,16 @@ package com.apm.remote.repository
 		}
 		
 		
-		public function getPackage( identifier:String, callback:Function = null ):void
+		public function getPackage( identifier:String, options:RepositoryQueryOptions = null, callback:Function = null ):void
 		{
+			var vars:URLVariables = new URLVariables();
+			
+			if (options != null) options.apply( vars );
+			
 			var req:URLRequest = new URLRequest();
 			req.method = URLRequestMethod.GET;
 			req.url = _endpoint + "/api/packages/" + identifier;
+			req.data = vars;
 			
 			_requestQueue.add( req, "getpackage", function ( success:Boolean, data:* ):void {
 				
@@ -174,11 +182,16 @@ package com.apm.remote.repository
 		}
 		
 		
-		public function getPackageVersion( identifier:String, version:SemVer, callback:Function = null ):void
+		public function getPackageVersion( identifier:String, version:SemVerRange, options:RepositoryQueryOptions = null, callback:Function = null ):void
 		{
+			var vars:URLVariables = new URLVariables();
+			
+			if (options != null) options.apply( vars );
+			
 			var req:URLRequest = new URLRequest();
 			req.method = URLRequestMethod.GET;
 			req.url = _endpoint + "/api/packages/" + identifier + "/" + (version == null ? "latest" : version.toString());
+			req.data = vars;
 			
 			_requestQueue.add( req, "getpackageversion", function ( success:Boolean, data:* ):void {
 				

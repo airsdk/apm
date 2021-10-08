@@ -13,9 +13,6 @@
  */
 package com.apm.data.packages
 {
-	import com.apm.data.packages.PackageIdentifier;
-	
-	
 	public class PackageDefinition
 	{
 		////////////////////////////////////////////////////////
@@ -24,9 +21,9 @@ package com.apm.data.packages
 		
 		private static const TAG:String = "PackageDefinition";
 		
-		public static const TYPE_ANE : String = "ane";
-		public static const TYPE_SWC : String = "swc";
-		public static const TYPE_SRC : String = "src";
+		public static const TYPE_ANE:String = "ane";
+		public static const TYPE_SWC:String = "swc";
+		public static const TYPE_SRC:String = "src";
 		
 		
 		////////////////////////////////////////////////////////
@@ -74,8 +71,8 @@ package com.apm.data.packages
 		public function toDescriptiveString():String
 		{
 			return identifier +
-					"@" + (versions.length > 0 ? versions[ 0 ].toString() : "x.x.x") +
-					"   " + description;
+				   "@" + (versions.length > 0 ? versions[ 0 ].toString() : "x.x.x") +
+				   "   " + description;
 		}
 		
 		
@@ -96,7 +93,9 @@ package com.apm.data.packages
 					{
 						var version:PackageVersion = new PackageVersion().fromObject( versionObject );
 						if (version.packageDef == null)
+						{
 							version.packageDef = this;
+						}
 						versions.push( version );
 					}
 				}
@@ -126,6 +125,7 @@ package com.apm.data.packages
 			data.docUrl = docUrl;
 			data.type = type;
 			data.publishedAt = publishedAt;
+			
 			var versionObjects:Array = [];
 			for each (var v:PackageVersion in versions)
 			{

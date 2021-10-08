@@ -13,7 +13,6 @@
  */
 package com.apm.client.commands.packages
 {
-	import com.apm.SemVer;
 	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.packages.data.InstallData;
@@ -105,11 +104,15 @@ package com.apm.client.commands.packages
 		public function get usage():String
 		{
 			return description + "\n" +
-					"\n" +
-					"apm install                          install all the dependencies in your project\n" +
-					"apm install <foo>                    install the <foo> dependency to your project\n" +
-					"apm install <foo> <version>          install a specific <version> of the <foo> dependency to your project\n" +
-					"apm install <path/local.airpackage>  install a local airpackage at the specified path";
+				   "\n" +
+				   "apm install                          install all the dependencies in your project\n" +
+				   "apm install <foo>                    install the <foo> dependency to your project\n" +
+				   "apm install <foo> <version>          install a specific <version> of the <foo> dependency to your project\n" +
+				   "apm install <path/local.airpackage>  install a local airpackage at the specified path\n" +
+				   "\n" +
+				   "options: \n" +
+				   "  --include-prerelease               includes pre-release package versions in the search"
+					;
 		}
 		
 		
@@ -134,7 +137,7 @@ package com.apm.client.commands.packages
 				
 				// Check if ends in "airpackage"
 				if (packageIdentifierOrPath.indexOf( PackageFileUtils.AIRPACKAGEEXTENSION ) ==
-						packageIdentifierOrPath.length - PackageFileUtils.AIRPACKAGEEXTENSION.length)
+					packageIdentifierOrPath.length - PackageFileUtils.AIRPACKAGEEXTENSION.length)
 				{
 					// Install from a local air package file
 					var localPackageFile:File = FileUtils.getSourceForPath( packageIdentifierOrPath );
@@ -165,10 +168,10 @@ package com.apm.client.commands.packages
 							true
 					);
 					
-					if (SemVer.fromString( request.version ) == null && version != "latest")
+					if (request.semVer == null && request.version != "latest")
 					{
 						// Invalid version passed
-						APM.io.writeLine( "Invalid version code : " + version );
+						APM.io.writeLine( "Invalid version code : " + request.version );
 						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
 						return;
 					}
@@ -225,20 +228,25 @@ package com.apm.client.commands.packages
 			}
 			
 			_queue.start(
-					function ():void {
-						
+					function ():void
+					{
 						_queue.addProcess( new InstallDataValidationProcess( _installData ) );
 						_queue.start(
-								function ():void {
+								function ():void
+								{
 									dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ) );
 								},
-								function ( error:String ):void {
+								function ( error:String ):void
+								{
 									dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
-								} );
+								}
+						);
 					},
-					function ( error:String ):void {
+					function ( error:String ):void
+					{
 						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
-					} );
+					}
+			);
 		}
 		
 	}

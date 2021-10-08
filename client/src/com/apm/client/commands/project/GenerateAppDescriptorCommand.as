@@ -19,14 +19,17 @@ package com.apm.client.commands.project
 	import com.apm.client.commands.project.processes.ApplicationDescriptorGenerationProcess;
 	import com.apm.client.commands.project.processes.IOSAdditionsMergeProcess;
 	import com.apm.client.commands.project.processes.IOSEntitlementsMergeProcess;
+	import com.apm.client.commands.project.processes.ValidatePackageCacheProcess;
 	import com.apm.client.events.CommandEvent;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.project.ApplicationDescriptor;
 	import com.apm.data.project.ProjectDefinition;
-	import com.apm.remote.airsdk.AIRSDKVersion;
+	import airsdk.AIRSDKVersion;
+	import airsdk.AIRSDKVersion;
 	
 	import flash.events.EventDispatcher;
+	import flash.filesystem.File;
 	
 	
 	public class GenerateAppDescriptorCommand extends EventDispatcher implements Command
@@ -112,8 +115,25 @@ package com.apm.client.commands.project
 		{
 			Log.d( TAG, "execute(): " + (_parameters.length > 0 ? _parameters[ 0 ] : "...") + "\n" );
 			
-			// TODO:: Get AIR SDK version for app descriptor
-			var airSDKVersion:AIRSDKVersion = new AIRSDKVersion( "33.1.1.556" );
+			// Get AIR SDK version for app descriptor
+			var airSDKVersion:AIRSDKVersion = null;
+			if (APM.config.airDirectory != null)
+			{
+				var airDir:File = new File( APM.config.airDirectory );
+				if (airDir.exists)
+				{
+					airSDKVersion = AIRSDKVersion.fromAIRSDKDescription(
+							airDir.resolvePath( "air-sdk-description.xml" )
+					);
+				}
+				else
+				{
+					Log.d( TAG, "AIR DIR doesn't exist: " + APM.config.airDirectory );
+				}
+			}
+
+			Log.d( TAG, "AIR SDK Version: " + (airSDKVersion == null ? "null" : airSDKVersion.toString()) );
+			
 			var appDescriptor:ApplicationDescriptor = new ApplicationDescriptor( airSDKVersion );
 			
 			var outputPath:String = defaultOutputPath();
@@ -122,6 +142,7 @@ package com.apm.client.commands.project
 				outputPath = _parameters[ 0 ];
 			}
 			
+			_queue.addProcess( new ValidatePackageCacheProcess() );
 			_queue.addProcess( new AndroidManifestMergeProcess( appDescriptor ) );
 			_queue.addProcess( new IOSAdditionsMergeProcess( appDescriptor ) );
 			_queue.addProcess( new IOSEntitlementsMergeProcess( appDescriptor ) );
@@ -153,4 +174,5 @@ package com.apm.client.commands.project
 		
 		
 	}
+	
 }

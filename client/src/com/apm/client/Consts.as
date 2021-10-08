@@ -2,6 +2,6 @@ package com.apm.client
 {
 	public final class Consts
 	{
-		public static const VERSION : String = "0.0.7-beta"; 
+		public static const VERSION : String = CONFIG::VERSION;
 	}
 }

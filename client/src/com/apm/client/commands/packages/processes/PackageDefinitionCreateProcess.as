@@ -15,6 +15,7 @@ package com.apm.client.commands.packages.processes
 {
 	import com.adobe.formatters.DateFormatter;
 	import com.apm.SemVer;
+	import com.apm.SemVerRange;
 	import com.apm.client.APM;
 	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.processes.ProcessBase;
@@ -61,7 +62,7 @@ package com.apm.client.commands.packages.processes
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			var directory:File = new File( APM.config.workingDir + File.separator + _path );
+			var directory:File = new File( APM.config.workingDirectory + File.separator + _path );
 			if (!directory.exists) directory.createDirectory();
 			
 			

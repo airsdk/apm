@@ -104,7 +104,7 @@ package com.apm.client.commands.packages
 				return;
 			}
 			
-			APM.io.writeLine( project.applicationName + "@" + project.version + " " + APM.config.workingDir + "" );
+			APM.io.writeLine( project.applicationName + "@" + project.version + " " + APM.config.workingDirectory + "" );
 			if (project.dependencies.length == 0)
 			{
 				APM.io.writeLine( "└── (empty)" );

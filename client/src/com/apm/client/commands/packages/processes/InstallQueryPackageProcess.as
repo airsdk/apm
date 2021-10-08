@@ -14,17 +14,17 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.SemVer;
+	import com.apm.SemVerRange;
 	import com.apm.client.APM;
 	import com.apm.client.commands.packages.data.InstallData;
 	import com.apm.client.commands.packages.data.InstallRequest;
 	import com.apm.client.commands.packages.utils.ProjectDefinitionValidator;
 	import com.apm.client.logging.Log;
-	import com.apm.client.repositories.PackageResolver;
 	import com.apm.client.processes.ProcessBase;
+	import com.apm.client.repositories.PackageResolver;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.packages.PackageVersion;
-	import com.apm.remote.repository.RepositoryAPI;
 	import com.apm.utils.PackageFileUtils;
 	
 	import flash.filesystem.File;
@@ -50,8 +50,6 @@ package com.apm.client.commands.packages.processes
 		private var _request:InstallRequest;
 		private var _failIfInstalled:Boolean;
 		
-		private var _packageResolver:PackageResolver;
-		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
@@ -60,14 +58,12 @@ package com.apm.client.commands.packages.processes
 		public function InstallQueryPackageProcess(
 				data:InstallData,
 				request:InstallRequest,
-				failIfInstalled:Boolean=true )
+				failIfInstalled:Boolean = true )
 		{
 			super();
 			_installData = data;
 			_request = request;
 			_failIfInstalled = failIfInstalled;
-			
-			_packageResolver = new PackageResolver();
 		}
 		
 		
@@ -81,7 +77,7 @@ package com.apm.client.commands.packages.processes
 			}
 			
 			Log.d( TAG, "start(): " + _request.description() );
-
+			
 			if (_request.source == "file")
 			{
 				// Handle file source
@@ -89,9 +85,10 @@ package com.apm.client.commands.packages.processes
 				// Here we are assuming there is a package installed already matching the identifier / version
 				// This should only be reached from an "apm install" or "apm update"
 				var packageFile:File = PackageFileUtils.fileForPackageFromIdentifierVersion(
-						APM.config.packagesDir,
+						APM.config.packagesDirectory,
 						_request.packageIdentifier,
-						_request.semVer );
+						_request.semVer
+				);
 				
 				if (packageFile.exists)
 				{
@@ -107,21 +104,24 @@ package com.apm.client.commands.packages.processes
 			else
 			{
 				APM.io.showSpinner( "Finding package : " + _request.description() );
-				_packageResolver.getPackageVersion(
+				PackageResolver.instance.getPackageVersion(
 						_request.packageIdentifier,
-						SemVer.fromString( _request.version ),
+						SemVerRange.fromString( _request.version ),
 						_request.source,
-						function ( success:Boolean, packageDefinition:PackageDefinition ):void {
+						null,
+						function ( success:Boolean, packageDefinition:PackageDefinition ):void
+						{
 							var foundVersion:Boolean = success && packageDefinition.versions.length > 0;
 							APM.io.stopSpinner( foundVersion,
-												"No package found matching : " + _request.description(),
-												foundVersion );
+												foundVersion ? "Found package: " + packageDefinition.toString() :
+														"No package found matching : " + _request.description()
+							);
 							try
 							{
 								if (foundVersion)
 								{
 									var packageVersionForInstall:PackageVersion = packageDefinition.versions[ 0 ];
-									APM.io.writeLine( packageDefinition.toString() );
+//									APM.io.writeLine( packageDefinition.toString() );
 									
 									// Update the request (in case this was a latest version request)
 									if (_request.version == "latest")
@@ -132,12 +132,19 @@ package com.apm.client.commands.packages.processes
 										switch (ProjectDefinitionValidator.checkPackageAlreadyInstalled( APM.config.projectDefinition, _request ))
 										{
 											case ProjectDefinitionValidator.ALREADY_INSTALLED:
+												var existingDependency:PackageDependency = ProjectDefinitionValidator.getInstalledPackageDependency( APM.config.projectDefinition, _request );
 												if (_failIfInstalled)
 												{
-													var existingDependency:PackageDependency = ProjectDefinitionValidator.getInstalledPackageDependency( APM.config.projectDefinition, _request );
-													
 													APM.io.writeLine( "Already installed: " + existingDependency.toString() + " >= " + _request.version );
 													failure();
+												}
+												else if (existingDependency.version.greaterThan( _request.semVer ))
+												{
+													Log.d( TAG, "Newer version already installed - potentially a prerelease" );
+													_request.version = existingDependency.version.toString();
+													processQueue.addProcessToStart( new InstallQueryPackageProcess( _installData, _request, _failIfInstalled ));
+													complete();
+													return;
 												}
 												break;
 											
@@ -154,16 +161,17 @@ package com.apm.client.commands.packages.processes
 									_installData.addPackage( packageVersionForInstall, _request );
 									
 									// Queue dependencies for install
-									for each (var dep:PackageVersion in packageVersionForInstall.dependencies)
+									for each (var dep:PackageDependency in packageVersionForInstall.dependencies)
 									{
 										_queue.addProcess(
 												new InstallQueryPackageProcess(
 														_installData,
 														new InstallRequest(
-																dep.packageDef.identifier,
+																dep.identifier,
 																dep.version.toString(),
 																dep.source,
-																packageVersionForInstall )
+																packageVersionForInstall
+														)
 												) );
 									}
 									
@@ -180,7 +188,8 @@ package com.apm.client.commands.packages.processes
 								Log.e( TAG, e );
 							}
 							complete();
-						} );
+						}
+				);
 			}
 			
 		}

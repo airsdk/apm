@@ -61,9 +61,9 @@ package com.apm.data.packages
 		
 		
 		/**
-		 * Removes the "variant" identifier from a package and returns the package identifier
+		 * Removes the "variant" from a package identifier and returns the identifier
 		 *
-		 * @param identifier
+		 * @param identifier The complete package identifier
 		 *
 		 * @return The package identifier with no variant
 		 */
@@ -75,10 +75,40 @@ package com.apm.data.packages
 			}
 			return identifier;
 		}
-	
 		
 		
+		/**
+		 * Returns the "variant" from the package identifier
+		 *
+		 * @param identifier	The complete package identifier
+		 *
+		 * @return
+		 */
+		public static function variantFromIdentifier( identifier:String ):String
+		{
+			if (identifier.indexOf( "-" ) > 0)
+			{
+				return identifier.substring( identifier.indexOf( "-" ) + 1 );
+			}
+			return "";
+		}
+		
+		
+		/**
+		 * Checks the identifier is valid
+		 *
+		 * @param identifier	The complete package identifier
+		 *
+		 * @return
+		 */
+		public static function isValid( identifier:String ):Boolean
+		{
+			var pattern:RegExp = /^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+[0-9a-z_]$/i;
+			var result:Object = pattern.exec( identifierWithoutVariant( identifier ) );
+			return result != null;
+		}
 		
 		
 	}
+	
 }

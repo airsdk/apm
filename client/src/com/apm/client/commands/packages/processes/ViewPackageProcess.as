@@ -14,10 +14,10 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APM;
-	import com.apm.client.repositories.PackageResolver;
 	import com.apm.client.processes.ProcessBase;
+	import com.apm.client.repositories.PackageResolver;
 	import com.apm.data.packages.PackageDefinition;
-	import com.apm.remote.repository.RepositoryAPI;
+	import com.apm.data.packages.PackageVersion;
 	
 	
 	public class ViewPackageProcess extends ProcessBase
@@ -34,7 +34,6 @@ package com.apm.client.commands.packages.processes
 		//
 		
 		private var _packageIdentifier:String;
-		private var _packageResolver:PackageResolver;
 		
 		
 		////////////////////////////////////////////////////////
@@ -45,7 +44,6 @@ package com.apm.client.commands.packages.processes
 		{
 			super();
 			_packageIdentifier = packageIdentifier;
-			_packageResolver = new PackageResolver();
 		}
 		
 		
@@ -53,48 +51,54 @@ package com.apm.client.commands.packages.processes
 		{
 			super.start( completeCallback, failureCallback );
 			APM.io.showSpinner( "Finding package : " + _packageIdentifier );
-			_packageResolver.getPackage( _packageIdentifier, function ( success:Boolean, packageDefinition:PackageDefinition ):void {
-				APM.io.stopSpinner( success, "No package found matching : " + _packageIdentifier, success );
-				if (success)
-				{
-					APM.io.writeLine( packageDefinition.toDescriptiveString() );
-					
-					if (packageDefinition.license != null && packageDefinition.license.type != "none")
+			PackageResolver.instance.getPackage(
+					_packageIdentifier,
+					null,
+					function ( success:Boolean, packageDefinition:PackageDefinition ):void
 					{
-						APM.io.writeLine( "license" );
-						APM.io.writeLine( "└── " + packageDefinition.license.toDescriptiveString() );
-						if (!packageDefinition.license.isPublic)
+						APM.io.stopSpinner( success, "No package found matching : " + _packageIdentifier, success );
+						if (success)
 						{
-							APM.io.writeLine( "└── more info: " + packageDefinition.purchaseUrl );
+							APM.io.writeLine( packageDefinition.toDescriptiveString() );
+							
+							if (packageDefinition.license != null && packageDefinition.license.type != "none")
+							{
+								APM.io.writeLine( "license" );
+								APM.io.writeLine( "└── " + packageDefinition.license.toDescriptiveString() );
+								if (!packageDefinition.license.isPublic)
+								{
+									APM.io.writeLine( "└── more info: " + packageDefinition.purchaseUrl );
+								}
+							}
+							
+							var tagsLine:String = "";
+							for each (var tag:String in packageDefinition.tags)
+							{
+								tagsLine += tag + " ";
+							}
+							APM.io.writeLine( "tags" );
+							APM.io.writeLine( "└── [ " + tagsLine + " ]" );
+							
+							if (packageDefinition.versions.length == 0)
+							{
+								APM.io.writeLine( "└── (empty)" );
+							}
+							else
+							{
+								APM.io.writeLine( "versions" );
+								for (var i:int = 0; i < packageDefinition.versions.length; i++)
+								{
+									var v:PackageVersion = packageDefinition.versions[ i ];
+									APM.io.writeLine(
+											(i == packageDefinition.versions.length - 1 ? "└──" : "├──") +
+											v.toDescriptiveString() );
+								}
+							}
+							
 						}
+						complete();
 					}
-					
-					var tagsLine:String = "";
-					for each (var tag:String in packageDefinition.tags)
-					{
-						tagsLine += tag + " ";
-					}
-					APM.io.writeLine( "tags" );
-					APM.io.writeLine( "└── [ " + tagsLine + " ]" );
-					
-					if (packageDefinition.versions.length == 0)
-					{
-						APM.io.writeLine( "└── (empty)" );
-					}
-					else
-					{
-						APM.io.writeLine( "versions" );
-						for (var i:int = 0; i < packageDefinition.versions.length; i++)
-						{
-							APM.io.writeLine(
-									(i == packageDefinition.versions.length - 1 ? "└──" : "├──") +
-									packageDefinition.versions[ i ].toDescriptiveString() );
-						}
-					}
-					
-				}
-				complete();
-			} );
+			);
 			
 		}
 		

@@ -15,6 +15,7 @@ package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APM;
 	import com.apm.client.commands.packages.utils.PackageRequestUtils;
+	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.packages.PackageDependency;
@@ -99,6 +100,7 @@ package com.apm.client.commands.packages.processes
 					url,
 					APM.config.user.githubToken,
 					function ( req:URLRequest ):void {
+						Log.d( TAG, "load( " + req.url + " )" );
 						_loader.load( req );
 					} );
 		}
@@ -106,30 +108,35 @@ package com.apm.client.commands.packages.processes
 		
 		private function loader_progressHandler( event:ProgressEvent ):void
 		{
+//			Log.d( TAG, "loader_progressHandler()" );
 		}
 		
 		
 		private function loader_completeHandler( event:Event ):void
 		{
+//			Log.d( TAG, "loader_completeHandler()" );
 		}
 		
 		
 		private function loader_errorHandler( event:IOErrorEvent ):void
 		{
+			Log.d( TAG, "loader_errorHandler( " + event.text + " )" );
 		}
 		
 		
 		private function loader_statusHandler( event:HTTPStatusEvent ):void
 		{
+			Log.d( TAG, "loader_statusHandler(): " + event.status );
 			_loader.close();
 			
 			if (event.status == 200) _callback( true, "" );
-			else _callback( false, "source url returned " + event.status );
+			else _callback( false, "source url returned status: " + event.status );
 		}
 		
 		
 		private function loader_securityErrorHandler( event:SecurityErrorEvent ):void
 		{
+			Log.d( TAG, "loader_errorHandler( " + event.text + " )" );
 			_callback( false, event.text );
 		}
 		

@@ -157,11 +157,11 @@ package com.apm.client.commands.airsdk
 						APM.io.writeLine( "\nStarting AIR SDK Installation" );
 						
 						
-						var airsdkZipFile:File = new File( APM.config.workingDir + File.separator + "AIRSDK_" + build.version + ".zip" );
+						var airsdkZipFile:File = new File( APM.config.workingDirectory + File.separator + "AIRSDK_" + build.version + ".zip" );
 						
 						if (airsdkDirName == null) airsdkDirName = "AIRSDK_" + build.version;
 						
-						var installDir:File = new File( APM.config.workingDir + File.separator + airsdkDirName );
+						var installDir:File = new File( APM.config.workingDirectory + File.separator + airsdkDirName );
 						
 						_loadQueue.addProcess( new DownloadAIRSDKProcess( build, airsdkZipFile ) );
 						_loadQueue.addProcess( new ExtractZipProcess( airsdkZipFile, installDir ) );

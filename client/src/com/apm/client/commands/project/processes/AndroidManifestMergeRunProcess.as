@@ -17,6 +17,7 @@ package com.apm.client.commands.project.processes
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.project.ApplicationDescriptor;
+	import airsdk.lib.ADTConfig;
 	import com.apm.utils.FileUtils;
 	
 	import flash.desktop.NativeProcess;
@@ -78,7 +79,7 @@ package com.apm.client.commands.project.processes
 				return;
 			}
 			
-			var mainManifest:File = new File( APM.config.workingDir ).resolvePath( "config/android/AndroidManifest.xml" );
+			var mainManifest:File = new File( APM.config.workingDirectory ).resolvePath( "config/android/AndroidManifest.xml" );
 			if (mainManifest.exists)
 			{
 				APM.io.writeLine( "Merging with supplied main manifest: config/android/AndroidManifest.xml" );
@@ -164,7 +165,7 @@ package com.apm.client.commands.project.processes
 		{
 			var manifests:Array = FileUtils.getFilesByName(
 					"AndroidManifest.xml",
-					new File( APM.config.packagesDir )
+					new File( APM.config.packagesDirectory )
 			);
 			return manifests;
 		}
@@ -256,7 +257,9 @@ package com.apm.client.commands.project.processes
 				var component:String = components[ i ];
 				component = component.replace( /-/g, "_" ); // replace hyphens with underscore
 				if (component.match( /^\d/ ))
-					component = "A" + component; // prefix numeric component with "A"
+				{
+					component = "A" + component;
+				} // prefix numeric component with "A"
 				components[ i ] = component;
 			}
 			
@@ -274,10 +277,30 @@ package com.apm.client.commands.project.processes
 			var noAndroidFlair:String = APM.config.env[ "AIR_NOANDROIDFLAIR" ];
 			if (noAndroidFlair != null && noAndroidFlair == "true")
 			{
+				Log.d( TAG, "Remove AIR prefix: environment: AIR_NOANDROIDFLAIR = true" );
 				return true;
 			}
 			
-			// TODO :: Check adt.cfg as well
+			// Check adt.cfg as well
+			if (APM.config.airDirectory != null)
+			{
+				var airDir:File = new File( APM.config.airDirectory );
+				if (airDir.exists)
+				{
+					var config:ADTConfig = ADTConfig.load( airDir.resolvePath( "lib/adt.cfg" ) );
+					if (config != null)
+					{
+						if (config.properties.hasOwnProperty( "AddAirToAppID" ))
+						{
+							if (config.properties[ "AddAirToAppID" ] == "false")
+							{
+								Log.d( TAG, "Remove AIR prefix: AIRSDK/lib/adt.cfg: AddAirToAppID = false" );
+								return true;
+							}
+						}
+					}
+				}
+			}
 			
 			return false;
 		}

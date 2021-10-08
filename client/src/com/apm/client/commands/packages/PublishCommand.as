@@ -121,7 +121,7 @@ package com.apm.client.commands.packages
 			}
 			APM.io.writeLine( "Publishing package: " + path );
 			
-			var tmpDir:File = new File( APM.config.workingDir + File.separator + ".apm__tmp" );
+			var tmpDir:File = new File( APM.config.workingDirectory + File.separator + ".apm__tmp" );
 			if (tmpDir.exists)
 			{
 				cleanup( tmpDir );

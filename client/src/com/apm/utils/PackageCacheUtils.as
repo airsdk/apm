@@ -36,6 +36,9 @@ package com.apm.utils
 		private static const TAG:String = "PackageCacheUtils";
 		
 		
+		public static const PACKAGE_CACHE_DIR:String = "apm_packages";
+		
+		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
@@ -60,7 +63,7 @@ package com.apm.utils
 		 */
 		public static function isPackageInstalled( packageIdentifier:String, version:SemVer=null ):Boolean
 		{
-			var uninstallingPackageDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDir, packageIdentifier );
+			var uninstallingPackageDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDirectory, packageIdentifier );
 			var f:File = uninstallingPackageDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 			if (!f.exists)
 			{
@@ -122,7 +125,7 @@ package com.apm.utils
 		public static function getCachedPackages():Vector.<PackageDefinitionFile>
 		{
 			var cachedPackages:Vector.<PackageDefinitionFile> = new Vector.<PackageDefinitionFile>();
-			var packagesDir:File = new File( APM.config.packagesDir );
+			var packagesDir:File = new File( APM.config.packagesDirectory );
 			if (packagesDir.exists)
 			{
 				for each (var packageDir:File in packagesDir.getDirectoryListing())
