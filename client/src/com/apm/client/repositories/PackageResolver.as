@@ -14,6 +14,7 @@
 package com.apm.client.repositories
 {
 	import com.apm.SemVer;
+	import com.apm.SemVerRange;
 	import com.apm.client.APM;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessQueue;
@@ -45,7 +46,6 @@ package com.apm.client.repositories
 		private var _repositoryQueryOptions:RepositoryQueryOptions;
 		
 		
-		public var resolvedPackage:PackageDefinition;
 		
 		
 		////////////////////////////////////////////////////////
@@ -105,9 +105,11 @@ package com.apm.client.repositories
 		}
 		
 		
-		public function getPackageVersion( identifier:String, version:SemVer, source:String, options:RepositoryQueryOptions = null, callback:Function = null ):void
+		public function getPackageVersion( identifier:String, version:SemVerRange, source:String, options:RepositoryQueryOptions = null, callback:Function = null ):void
 		{
 			if (options == null) options = _repositoryQueryOptions;
+			
+			var result:PackageResolverResult = new PackageResolverResult();
 			
 			// TODO:: Implement source
 			var searchQueue:ProcessQueue = new ProcessQueue();
@@ -117,7 +119,7 @@ package com.apm.client.repositories
 				{
 					searchQueue.addProcess(
 							new RepositoryGetPackageVersionProcess(
-									this,
+									result,
 									RepositoryResolver.repositoryForSource( repository.name ),
 									identifier,
 									version,
@@ -130,7 +132,7 @@ package com.apm.client.repositories
 			// Add one for the common server
 			searchQueue.addProcess(
 					new RepositoryGetPackageVersionProcess(
-							this,
+							result,
 							RepositoryResolver.repositoryForSource(),
 							identifier,
 							version,
@@ -141,7 +143,7 @@ package com.apm.client.repositories
 			searchQueue.start(
 					function ():void
 					{
-						callback( resolvedPackage != null, resolvedPackage );
+						callback( result.resolvedPackage != null, result.resolvedPackage );
 					},
 					function ( error:String ):void
 					{
