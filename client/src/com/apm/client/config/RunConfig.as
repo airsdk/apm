@@ -45,6 +45,7 @@ package com.apm.client.config
 		
 		public static const DEFAULT_REPOSITORY_URL:String = "https://repository.airsdk.dev";
 		
+		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//

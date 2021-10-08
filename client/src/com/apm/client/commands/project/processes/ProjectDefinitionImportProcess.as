@@ -17,6 +17,7 @@ package com.apm.client.commands.project.processes
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.ProcessQueue;
+	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.packages.PackageVersion;
 	import com.apm.data.project.ApplicationDescriptor;
 	import com.apm.data.project.ProjectDefinition;
@@ -157,9 +158,9 @@ package com.apm.client.commands.project.processes
 			// Check all other packages to see if packageVersionToCheck is a dependency
 			for each (var packageVersion:PackageVersion in packageList)
 			{
-				for each (var dependency:PackageVersion in packageVersion.dependencies)
+				for each (var dependency:PackageDependency in packageVersion.dependencies)
 				{
-					if (dependency.packageDef.equals( packageVersionToCheck.packageDef ))
+					if (dependency.identifier == packageVersionToCheck.packageDef.identifier)
 					{
 						// TODO:: Probably shouldn't skip all dependencies?
 						//  eg firebase components depend on core firebase which probably should be added?

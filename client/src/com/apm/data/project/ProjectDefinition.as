@@ -13,6 +13,7 @@
  */
 package com.apm.data.project
 {
+	import com.apm.SemVerRange;
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.packages.PackageIdentifier;
 	import com.apm.data.packages.PackageVersion;
@@ -261,7 +262,7 @@ package com.apm.data.project
 			
 			var dep:PackageDependency = new PackageDependency();
 			dep.identifier = packageVersion.packageDef.identifier;
-			dep.version = packageVersion.version;
+			dep.version = SemVerRange.fromString( packageVersion.version.toString() );
 			dep.source = packageVersion.source;
 			
 			dependencies.push( dep );

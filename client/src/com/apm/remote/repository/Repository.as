@@ -14,6 +14,7 @@
 package com.apm.remote.repository
 {
 	import com.apm.SemVer;
+	import com.apm.SemVerRange;
 	import com.apm.data.packages.PackageDefinitionFile;
 	
 	import flash.events.IEventDispatcher;
@@ -37,7 +38,7 @@ package com.apm.remote.repository
 		function getPackage( identifier:String, options:RepositoryQueryOptions = null, callback:Function = null ):void;
 		
 		
-		function getPackageVersion( identifier:String, version:SemVer, options:RepositoryQueryOptions = null, callback:Function = null ):void;
+		function getPackageVersion( identifier:String, version:SemVerRange, options:RepositoryQueryOptions = null, callback:Function = null ):void;
 		
 		
 		function logEvent( event:String, identifier:String, version:String, callback:Function = null ):void;
