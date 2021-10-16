@@ -103,7 +103,7 @@ package com.apm.data.packages
 		 */
 		public static function isValid( identifier:String ):Boolean
 		{
-			var pattern:RegExp = /^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+[0-9a-z_]$/i;
+			var pattern:RegExp = /^([A-Za-z]{1}[A-Za-z\d_]*\.)*[A-Za-z][A-Za-z\d_]*$/i;
 			var result:Object = pattern.exec( identifierWithoutVariant( identifier ) );
 			return result != null;
 		}
