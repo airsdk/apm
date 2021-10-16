@@ -37,7 +37,7 @@ package com.apm.client.commands.packages.processes
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "PackageDefinitionCreateProcess";
+		private static const TAG:String = "PackageContentVerifyProcess";
 		
 		
 		////////////////////////////////////////////////////////
@@ -70,7 +70,7 @@ package com.apm.client.commands.packages.processes
 			super.start( completeCallback, failureCallback );
 			try
 			{
-				if (!_packageDir.exists || !_packageDir.isDirectory)
+				if (_packageDir == null || !_packageDir.exists || !_packageDir.isDirectory)
 				{
 					return fail( _packageDir.name, "Specified package directory does not exist" );
 				}
