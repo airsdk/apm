@@ -200,7 +200,7 @@ package com.apm.client.io
 		private var _successChar:String = "\u2713";
 		private var _failedChar:String = "\u2717";
 		private var _spinnerIndex:int = 0;
-		private var _spinnerMessage:String;
+		private var _spinnerMessage:String = "";
 		
 		
 		private function spinner_render( initial:Boolean = false ):void
