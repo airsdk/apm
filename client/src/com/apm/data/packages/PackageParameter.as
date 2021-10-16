@@ -94,8 +94,9 @@ package com.apm.data.packages
 				else
 				{
 					if (data.hasOwnProperty( "name" )) this.name = data[ "name" ];
-					if (data.hasOwnProperty( "required" )) this.required = data[ "required" ];
+					if (data.hasOwnProperty( "required" )) this.required = (String(data[ "required" ]) == "true" || int(data["required"]) == 1);
 					if (data.hasOwnProperty( "defaultValue" )) this.defaultValue = data[ "defaultValue" ];
+					if (data.hasOwnProperty( "default" )) this.defaultValue = data[ "default" ];
 				}
 			}
 			return this;
