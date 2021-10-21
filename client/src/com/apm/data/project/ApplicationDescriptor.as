@@ -76,6 +76,8 @@ package com.apm.data.project
 		
 		
 		private var _airNS:Namespace;
+		public function get namespace():Namespace { return _airNS; }
+		
 		private var _langNS:Namespace;
 		
 		private var _airSDKVersion:AIRSDKVersion;
@@ -273,6 +275,7 @@ package com.apm.data.project
 		{
 			if (file == null || !file.exists)
 			{
+				Log.d( TAG, "ERROR: " + (file == null ? "null" : file.name) + " doesn't exist" );
 				return;
 			}
 			
@@ -296,6 +299,7 @@ package com.apm.data.project
 		{
 			try
 			{
+				Log.v( TAG, "loadString(): " + content );
 				// If supplied an AIR Version, make sure namespace matches
 				if (_airNS != null)
 				{
@@ -312,6 +316,8 @@ package com.apm.data.project
 				{
 					_airNS = _xml.namespace( "" );
 				}
+				
+				Log.d( TAG, "namespace= " + _airNS.toString() );
 				
 				// Add the language namespace to correctly handle xml:lang translations
 				_xml.addNamespace( _langNS );

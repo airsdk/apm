@@ -89,6 +89,8 @@ package com.apm.client.commands.project.processes
 				//
 				//	Create project properties from descriptor
 				
+				default xml namespace = appDescriptor.namespace;
+				
 				var project:ProjectDefinition = new ProjectDefinition();
 				
 				project.applicationId = appDescriptor.xml.id.toString();
@@ -115,6 +117,7 @@ package com.apm.client.commands.project.processes
 							APM.io.writeLine( "Processing identified packages" );
 							for each (var packageVersion:PackageVersion in packageList)
 							{
+								Log.d( TAG, packageVersion.toDescriptiveString() );
 								if (shouldAddPackageToProject( packageVersion, packageList ))
 								{
 									APM.io.writeResult( true, "ADDING   : Package: " + packageVersion.packageDef.toString() );
