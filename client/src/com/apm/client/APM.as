@@ -173,6 +173,7 @@ package com.apm.client
 							break;
 						}
 						
+						case "-c":
 						case "-color":
 						case "-colour":
 						{
@@ -417,16 +418,21 @@ package com.apm.client
 				}
 			}
 			
-			io.writeLine( "apm <command>" );
+			io.writeLine( "apm <options> <command>" );
 			io.writeLine( "" );
-			io.writeLine( "Usage:" );
+			io.writeLine( "Options:" );
+			io.writeLine( "" );
+			io.writeLine( "-colour never|auto                    set the colour output to never or auto (default)" );
+			io.writeLine( "-loglevel verbose|debug|info|warn     enable additional logging outputs" );
+			io.writeLine( "" );
+			io.writeLine( "Commands:" );
 			io.writeLine( "" );
 			
 			for each (var commandName:String in _apmCommandOrder)
 			{
 				command = new _apmCommandMap[ commandName ]();
 				var commandUsage:String = "apm " + commandName.replace( "/", " " ) + " ";
-				while (commandUsage.length < 20)
+				while (commandUsage.length < 30)
 				{
 					commandUsage += " ";
 				}
