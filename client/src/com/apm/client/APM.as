@@ -173,6 +173,13 @@ package com.apm.client
 							break;
 						}
 						
+						case "-color":
+						case "-colour":
+						{
+							io.colourMode = StringUtils.trim( arguments[ ++i ] );
+							break;
+						}
+						
 						case "-v":
 						case "-version":
 						{

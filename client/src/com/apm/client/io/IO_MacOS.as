@@ -47,6 +47,7 @@ package com.apm.client.io
 		//
 		
 		private var _colourSupported:Boolean = false;
+		private var _colourMode:String = "auto";
 		private var _terminalControlSupported:Boolean = false;
 		
 		// This check stops the rendering UI from deleting the last line
@@ -86,9 +87,28 @@ package com.apm.client.io
 		}
 		
 		
+		public function set colourMode( value:String ):void
+		{
+			switch (value)
+			{
+				case "never":
+				case "auto":
+				case "always":
+					_colourMode = value;
+					break;
+			}
+		}
+		
+		
+		private function shouldRenderColour():Boolean
+		{
+			return _colourSupported && _colourMode != "never";
+		}
+		
+		
 		public function writeLine( s:String, colour:String = null ):void
 		{
-			if (_colourSupported && colour != null)
+			if (shouldRenderColour() && colour != null)
 			{
 				out( COLOUR( colour ) + s + COLOUR( IOColour.NONE ) + "\n" );
 			}
@@ -101,7 +121,7 @@ package com.apm.client.io
 		
 		public function writeValue( key:String, value:String ):void
 		{
-			if (_colourSupported)
+			if (shouldRenderColour())
 			{
 				out( COLOUR( IOColour.LIGHT_GREEN ) + key + COLOUR( IOColour.NONE )
 					 + "=" + value + "\n" );
@@ -121,7 +141,7 @@ package com.apm.client.io
 		
 		public function writeError( tag:String, message:String ):void
 		{
-			if (_colourSupported)
+			if (shouldRenderColour())
 			{
 				out( COLOUR( IOColour.LIGHT_RED ) + tag + COLOUR( IOColour.NONE ) + " :: " + message + "\n" );
 			}
@@ -250,7 +270,7 @@ package com.apm.client.io
 				}
 				output += ESCSEQ( "[1A" ) + ESCSEQ( "[K" );
 			}
-			if (_colourSupported)
+			if (shouldRenderColour())
 			{
 				output += COLOUR( IOColour.LIGHT_RED ) + _spinnerSequence[ _spinnerIndex++ ] + COLOUR( IOColour.NONE ) + " " + _spinnerMessage + "\n";
 			}
