@@ -39,6 +39,9 @@ package com.apm.client.io
 		private function ESCSEQ( sequence:String ):String { return terminalControlSupported ? ESC + sequence : ""; }
 		
 		
+		private function COLOUR( colour:String ):String { return ESCSEQ( "[" + colour + "m" ); }
+		
+		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
@@ -83,9 +86,30 @@ package com.apm.client.io
 		}
 		
 		
-		public function writeLine( s:String ):void
+		public function writeLine( s:String, colour:String = null ):void
 		{
-			out( s + "\n" );
+			if (_colourSupported && colour != null)
+			{
+				out( COLOUR( colour ) + s + COLOUR( IOColour.NONE ) + "\n" );
+			}
+			else
+			{
+				out( s + "\n" );
+			}
+		}
+		
+		
+		public function writeValue( key:String, value:String ):void
+		{
+			if (_colourSupported)
+			{
+				out( COLOUR( IOColour.LIGHT_GREEN ) + key + COLOUR( IOColour.NONE )
+					 + "=" + value + "\n" );
+			}
+			else
+			{
+				out( key + "=" + value + "\n" );
+			}
 		}
 		
 		
@@ -99,7 +123,7 @@ package com.apm.client.io
 		{
 			if (_colourSupported)
 			{
-				out( ESCSEQ( "[1;31m" ) + tag + ESCSEQ( "[0;37m" ) + " :: " + message + "\n" );
+				out( COLOUR( IOColour.LIGHT_RED ) + tag + COLOUR( IOColour.NONE ) + " :: " + message + "\n" );
 			}
 			else
 			{
@@ -128,13 +152,19 @@ package com.apm.client.io
 		public function question( question:String, defaultResponse:String = null ):String
 		{
 			if (defaultResponse != null)
+			{
 				out( question + " [" + defaultResponse + "]: " );
+			}
 			else
+			{
 				out( question + ": " );
+			}
 			
 			var resp:String = input();
 			if (resp.length == 0 && defaultResponse != null)
+			{
 				resp = defaultResponse;
+			}
 			return resp;
 		}
 		
@@ -184,11 +214,16 @@ package com.apm.client.io
 			else
 			{
 				if (!_lastOutputNonUI)
+				{
 					System.output( ESCSEQ( "[1A" ) + ESCSEQ( "[K" ) );
+				}
 				System.output( (success ? _successChar : _failedChar) + " " + message );
 				
 				var whitespace:String = "";
-				for (var i:int = 0; i < _spinnerMessage.length - message.length; i++) whitespace += " ";
+				for (var i:int = 0; i < _spinnerMessage.length - message.length; i++)
+				{
+					whitespace += " ";
+				}
 				System.output( whitespace + "\n" );
 			}
 		}
@@ -210,12 +245,14 @@ package com.apm.client.io
 			if (!initial && !_lastOutputNonUI)
 			{
 				if (!_terminalControlSupported)
+				{
 					return;
+				}
 				output += ESCSEQ( "[1A" ) + ESCSEQ( "[K" );
 			}
 			if (_colourSupported)
 			{
-				output += ESCSEQ( "[1;31m" ) + _spinnerSequence[ _spinnerIndex++ ] + ESCSEQ( "[0;37m" ) + " " + _spinnerMessage + "\n";
+				output += COLOUR( IOColour.LIGHT_RED ) + _spinnerSequence[ _spinnerIndex++ ] + COLOUR( IOColour.NONE ) + " " + _spinnerMessage + "\n";
 			}
 			else
 			{
@@ -242,7 +279,9 @@ package com.apm.client.io
 		{
 			var percent:int = int( Math.floor( progress * 100 ) );
 			if (!_lastOutputNonUI)
+			{
 				System.output( ESCSEQ( "[1A" ) + ESCSEQ( "[K" ) );
+			}
 			System.output( percent + "% " + message + "\n" );
 			_lastOutputNonUI = false;
 		}
@@ -251,7 +290,9 @@ package com.apm.client.io
 		public function completeProgressBar( success:Boolean, message:String = "" ):void
 		{
 			if (!_lastOutputNonUI)
+			{
 				System.output( ESCSEQ( "[1A" ) + ESCSEQ( "[K" ) );
+			}
 			System.output( (success ? _successChar : _failedChar) + " " + message + "\n" );
 			_lastOutputNonUI = false;
 		}

@@ -37,7 +37,10 @@ package com.apm.client.io
 		function set colourSupported( value:Boolean ):void;
 		
 		
-		function writeLine( s:String ):void;
+		function writeLine( s:String, colour:String = null ):void;
+		
+		
+		function writeValue( key:String, value:String ):void;
 		
 		
 		function writeResult( success:Boolean, message:String ):void;
