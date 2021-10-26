@@ -33,8 +33,6 @@ package com.apm.data.project
 		public var required:Boolean = false;
 		public var value:String = "";
 		
-		public var descriptions:Array = [];
-		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
@@ -51,7 +49,6 @@ package com.apm.data.project
 			data["name"] = name;
 			data["required"] = required ? "true" : "false";
 			data["value"] = value;
-			data["descriptions"] = descriptions;
 			return data;
 		}
 		
@@ -71,7 +68,6 @@ package com.apm.data.project
 				if (data.hasOwnProperty("name")) param.name = data.name;
 				if (data.hasOwnProperty("value")) param.value = data.value;
 				if (data.hasOwnProperty("required")) param.required = data.required == "true";
-				if (data.hasOwnProperty("descriptions")) param.descriptions = data.descriptions;
 			}
 			
 			return param;
@@ -86,13 +82,6 @@ package com.apm.data.project
 		{
 			var s:String =  name + "\n" +
 							"\t value=" + value + "\n";
-//					+ "\t description=\"";
-//			for each (var description:String in descriptions)
-//			{
-//				s += description +"\n";
-//			}
-//
-//			s += "\"\n" ;
 			return s;
 		}
 		

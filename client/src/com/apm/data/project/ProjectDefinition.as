@@ -285,10 +285,6 @@ package com.apm.data.project
 				param.name = packageParam.name;
 				param.required = packageParam.required;
 				param.value = packageParam.defaultValue;
-				if (packageParam.description != null)
-				{
-					param.descriptions.push( packageParam.description );
-				}
 				
 				_configuration.push( param );
 				_configuration.sort( Array.CASEINSENSITIVE );
@@ -300,18 +296,6 @@ package com.apm.data.project
 				if (!param.isValid())
 				{
 					param.value = packageParam.defaultValue;
-				}
-				var descriptionExists:Boolean = false;
-				for each (var desc:String in param.descriptions)
-				{
-					if (desc == packageParam.description)
-					{
-						descriptionExists = true;
-					}
-				}
-				if (!descriptionExists)
-				{
-					param.descriptions.push( packageParam.description );
 				}
 			}
 			
