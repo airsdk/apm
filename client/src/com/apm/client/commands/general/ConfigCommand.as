@@ -131,10 +131,10 @@ package com.apm.client.commands.general
 						{
 							if (_parameters.length >= 2)
 							{
-								var param:String = _parameters[ 1 ];
-								var value:String = APM.config.user.getParamValue( param );
+								var get_param:String = _parameters[ 1 ];
+								var get_value:String = APM.config.user.getParamValue( get_param );
 								
-								APM.io.writeValue( param, (value == null ? "null" : value) );
+								APM.io.writeValue( get_param, (get_value == null ? "null" : get_value) );
 								
 								dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ) );
 								return;
