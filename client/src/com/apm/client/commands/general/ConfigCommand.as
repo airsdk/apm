@@ -17,11 +17,8 @@ package com.apm.client.commands.general
 	import com.apm.client.commands.Command;
 	import com.apm.client.events.CommandEvent;
 	import com.apm.client.logging.Log;
-	import com.apm.data.user.UserSettings;
 	
 	import flash.events.EventDispatcher;
-	
-	import flash.filesystem.File;
 	
 	
 	public class ConfigCommand extends EventDispatcher implements Command
@@ -96,52 +93,37 @@ package com.apm.client.commands.general
 			return description + "\n" +
 					"\n" +
 					"apm config set <param> <value>    Sets a <param> user configuration parameter to the specified <value> \n" +
-					"apm config get <param>            Prints the user configuration parameter value for the <param> parameter \n";
+					"apm config get <param>            Prints the user configuration parameter value for the <param> parameter \n" +
+					"apm config                        Prints all user configuration parameters \n";
 		}
 		
 		
 		public function execute():void
 		{
-			Log.d( TAG, "execute(): " + (_parameters.length > 0 ? _parameters[ 0 ] : "...") + "\n" );
+			Log.d( TAG, "execute(): [" + (_parameters.length > 0 ? _parameters.join( " " ) : " ") + "]\n" );
 			try
 			{
-				for (var i:int = 0; i < _parameters.length; i++)
+				if (_parameters.length > 0)
 				{
-					var arg:String = _parameters[ i ];
-					switch (arg)
+					var subCommand:String = _parameters[ 0 ];
+					switch (subCommand)
 					{
 						case "set":
 						{
 							if (_parameters.length < 3)
 							{
-								dispatchEvent( new CommandEvent( CommandEvent.PRINT_USAGE, name ));
-								dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+								dispatchEvent( new CommandEvent( CommandEvent.PRINT_USAGE, name ) );
+								dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
 								return;
 							}
 							
-							var set_param:String = _parameters[ ++i ];
-							var set_value:String = _parameters.slice( ++i ).join( " " );
+							var set_param:String = _parameters[ 1 ];
+							var set_value:String = _parameters.slice( 2 ).join( " " );
 							
-							switch (set_param)
-							{
-								case "publisher_token":
-								{
-									APM.config.user.publisherToken = set_value;
-									break;
-								}
-								case "github_token":
-								{
-									APM.config.user.githubToken = set_value;
-									break;
-								}
-								case "disable_terminal_control_sequences":
-								{
-									APM.config.user.disableTerminalControlSequences = (set_value == "true" || set_value == "1");
-									break;
-								}
-							}
+							APM.config.user.setParamValue( set_param, set_value );
 							APM.config.user.save();
-							dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
+							
+							dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ) );
 							return;
 						}
 						
@@ -149,53 +131,44 @@ package com.apm.client.commands.general
 						{
 							if (_parameters.length >= 2)
 							{
-								var param:String = _parameters[ ++i ];
-								var value:String = "unknown";
+								var param:String = _parameters[ 1 ];
+								var value:String = APM.config.user.getParamValue( param );
 								
-								switch (param)
-								{
-									case "publisher_token":
-									{
-										value = APM.config.user.publisherToken;
-										break;
-									}
-									case "github_token":
-									{
-										value = APM.config.user.githubToken;
-										break;
-									}
-									case "disable_terminal_control_sequences":
-									{
-										value = APM.config.user.disableTerminalControlSequences ? "true" : "false";
-										break;
-									}
-								}
+								APM.io.writeValue( param, (value == null ? "null" : value) );
 								
-								APM.io.writeLine( param + "=" + (value == null ? "null" : value) );
-								dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
-								return;
-							}
-							else
-							{
-								dispatchEvent( new CommandEvent( CommandEvent.PRINT_USAGE, name ));
-								dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+								dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ) );
 								return;
 							}
 							break;
 						}
+						
+						default:
+						{
+							dispatchEvent( new CommandEvent( CommandEvent.PRINT_USAGE, name ) );
+							dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
+							return;
+						}
 					}
 				}
-				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ));
+				
+				// Print all configuration
+				for each (var param:String in APM.config.user.getParamNames())
+				{
+					var value:String = APM.config.user.getParamValue( param );
+					if (value != null)
+					{
+						APM.io.writeValue( param, value );
+					}
+				}
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ) );
 			}
 			catch (e:Error)
 			{
 				APM.io.error( e );
-				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ));
+				dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
 			}
 		}
 		
-		
 	}
-	
 	
 }

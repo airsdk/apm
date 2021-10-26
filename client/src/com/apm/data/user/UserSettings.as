@@ -35,7 +35,7 @@ package com.apm.data.user
 		
 		private static const TAG:String = "UserSettings";
 		
-		public static const DEFAULT_FILENAME : String = ".apm_config";
+		public static const DEFAULT_FILENAME:String = ".apm_config";
 		
 		
 		////////////////////////////////////////////////////////
@@ -99,6 +99,56 @@ package com.apm.data.user
 		}
 		
 		
+		public function getParamNames():Array
+		{
+			return ["publisher_token", "github_token", "disable_terminal_control_sequences"];
+		}
+		
+		
+		public function getParamValue( name:String ):String
+		{
+			switch (name)
+			{
+				case "publisher_token":
+				{
+					return publisherToken;
+				}
+				case "github_token":
+				{
+					return githubToken;
+				}
+				case "disable_terminal_control_sequences":
+				{
+					return disableTerminalControlSequences ? "true" : "false";
+				}
+			}
+			return null;
+		}
+		
+		
+		public function setParamValue( name:String, value:String ):void
+		{
+			switch (name)
+			{
+				case "publisher_token":
+				{
+					publisherToken = value;
+					break;
+				}
+				case "github_token":
+				{
+					githubToken = value;
+					break;
+				}
+				case "disable_terminal_control_sequences":
+				{
+					disableTerminalControlSequences = (value == "true" || value == "1");
+					break;
+				}
+			}
+		}
+		
+		
 		public function parse( content:String ):void
 		{
 			try
@@ -142,7 +192,7 @@ package com.apm.data.user
 			
 			if (_disableTerminalControlSequences)
 			{
-				data["disable_terminal_control_sequences"] = _disableTerminalControlSequences;
+				data[ "disable_terminal_control_sequences" ] = _disableTerminalControlSequences;
 			}
 			return data;
 		}
