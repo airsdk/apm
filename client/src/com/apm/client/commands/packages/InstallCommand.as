@@ -238,6 +238,7 @@ package com.apm.client.commands.packages
 								},
 								function ( error:String ):void
 								{
+									APM.io.writeError( name, error );
 									dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
 								}
 						);
