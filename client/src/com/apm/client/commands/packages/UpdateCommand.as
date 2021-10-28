@@ -44,6 +44,14 @@ package com.apm.client.commands.packages
 		//  VARIABLES
 		//
 		
+		private var _parameters:Array;
+		private var _queue:ProcessQueue;
+		private var _installData:InstallData;
+		
+		
+		////////////////////////////////////////////////////////
+		//  FUNCTIONALITY
+		//
 		
 		public function UpdateCommand()
 		{
@@ -51,16 +59,6 @@ package com.apm.client.commands.packages
 			_installData = new InstallData();
 			_queue = new ProcessQueue();
 		}
-		
-		
-		private var _parameters:Array;
-		private var _queue:ProcessQueue;
-		
-		
-		////////////////////////////////////////////////////////
-		//  FUNCTIONALITY
-		//
-		private var _installData:InstallData;
 		
 		
 		public function get name():String
@@ -98,7 +96,7 @@ package com.apm.client.commands.packages
 		{
 			return description + "\n" +
 					"\n" +
-					"apm update apm           check for a new release of the apm client and update if available\n"+
+					"apm update apm           check for a new release of the apm client and update if available\n" +
 					"apm update               update all dependencies in your project\n" +
 					"apm update <foo>         update the <foo> dependency in your project\n";
 		}
@@ -112,7 +110,6 @@ package com.apm.client.commands.packages
 		
 		public function execute():void
 		{
-			
 			var packageIdentifier:String = null;
 			if (_parameters != null && _parameters.length > 0)
 			{
@@ -124,10 +121,12 @@ package com.apm.client.commands.packages
 				// Unique condition to update client
 				_queue.addProcess( new UpgradeClientProcess() );
 				_queue.start(
-						function ():void {
+						function ():void
+						{
 							dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ) );
 						},
-						function ( message:String ):void {
+						function ( message:String ):void
+						{
 							dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
 						}
 				);
@@ -148,8 +147,7 @@ package com.apm.client.commands.packages
 					// Install from list in project file
 					for (var i:int = 0; i < project.dependencies.length; i++)
 					{
-						if ((packageIdentifier == null
-								|| packageIdentifier == project.dependencies[ i ].identifier)
+						if ((packageIdentifier == null || packageIdentifier == project.dependencies[ i ].identifier)
 								&& project.dependencies[ i ].source != "file")
 						{
 							updateRequired = true;
@@ -190,17 +188,21 @@ package com.apm.client.commands.packages
 				}
 				
 				_queue.start(
-						function ():void {
+						function ():void
+						{
 							_queue.addProcess( new InstallDataValidationProcess( _installData ) );
 							_queue.start(
-									function ():void {
+									function ():void
+									{
 										dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ) );
 									},
-									function ( message:String ):void {
+									function ( message:String ):void
+									{
 										dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
 									} );
 						},
-						function ( error:String ):void {
+						function ( error:String ):void
+						{
 							dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
 						} );
 			}
