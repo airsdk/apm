@@ -15,7 +15,6 @@ package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APM;
 	import com.apm.client.analytics.Analytics;
-	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.commands.packages.utils.PackageRequestUtils;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
@@ -99,9 +98,11 @@ package com.apm.client.commands.packages.processes
 		{
 			if (_destination.exists)
 			{
-				verifyFile( _package.checksum, function ( fileValid:Boolean, reason:String ):void {
-					checkExistingFileComplete( downloadIfCheckFails, fileValid, reason );
-				} );
+				verifyFile( _package.checksum,
+							function ( fileValid:Boolean, reason:String ):void
+							{
+								checkExistingFileComplete( downloadIfCheckFails, fileValid, reason );
+							} );
 			}
 			else
 			{
@@ -166,26 +167,25 @@ package com.apm.client.commands.packages.processes
 		
 		private function verifyFile( checksum:String, callback:Function ):void
 		{
-			callback( true, "" );
-//			// No checksum provided so don't perform check
-//			if (checksum == null || checksum.length == 0)
-//			{
-//				callback( true, "checksum not provided" );
-//			}
-//			else
-//			{
-//				if (_destination.exists)
-//				{
-//					Checksum.sha256Checksum( _destination, function( calculatedSum:String ):void
-//					{
-//						callback( calculatedSum == checksum, "checksum does not match" );
-//					});
-//				}
-//				else
-//				{
-//					callback( false, "destination does not exists" );
-//				}
-//			}
+			// No checksum provided so don't perform check
+			if (checksum == null || checksum.length == 0)
+			{
+				callback( true, "checksum not provided" );
+			}
+			else
+			{
+				if (_destination.exists)
+				{
+					Checksum.sha256Checksum( _destination, function ( calculatedSum:String ):void
+					{
+						callback( calculatedSum == checksum, "checksum does not match" );
+					} );
+				}
+				else
+				{
+					callback( false, "destination does not exists" );
+				}
+			}
 		}
 		
 		
@@ -215,7 +215,8 @@ package com.apm.client.commands.packages.processes
 			PackageRequestUtils.generateURLRequestForPackage(
 					_package.sourceUrl,
 					APM.config.user.githubToken,
-					function ( req:URLRequest ):void {
+					function ( req:URLRequest ):void
+					{
 						_loader.load( req );
 					} );
 		}
@@ -237,7 +238,8 @@ package com.apm.client.commands.packages.processes
 			var data:ByteArray = event.target.data;
 			
 			var fileStream:FileStream = new FileStream();
-			fileStream.addEventListener( Event.CLOSE, function ( event:Event ):void {
+			fileStream.addEventListener( Event.CLOSE, function ( event:Event ):void
+			{
 				event.currentTarget.removeEventListener( event.type, arguments.callee );
 				checkDownloadedFile();
 			} );

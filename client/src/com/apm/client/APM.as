@@ -25,6 +25,7 @@ package com.apm.client
 	import com.apm.client.commands.packages.CreateCommand;
 	import com.apm.client.commands.packages.InstallCommand;
 	import com.apm.client.commands.packages.ListCommand;
+	import com.apm.client.commands.packages.OutdatedCommand;
 	import com.apm.client.commands.packages.PackageAddDependencyCommand;
 	import com.apm.client.commands.packages.PublishCommand;
 	import com.apm.client.commands.packages.SearchCommand;
@@ -121,6 +122,7 @@ package com.apm.client
 			addCommand( InstallCommand.NAME, InstallCommand );
 			addCommand( UninstallCommand.NAME, UninstallCommand );
 			addCommand( UpdateCommand.NAME, UpdateCommand );
+			addCommand( OutdatedCommand.NAME, OutdatedCommand );
 			
 			// package creation commands
 			addCommand( CreateCommand.NAME, CreateCommand );
@@ -170,6 +172,14 @@ package com.apm.client
 						{
 							_config.airDirectory = StringUtils.trim( arguments[ ++i ] );
 							Log.d( TAG, "-airdir " + _config.airDirectory );
+							break;
+						}
+						
+						case "-c":
+						case "-color":
+						case "-colour":
+						{
+							io.colourMode = StringUtils.trim( arguments[ ++i ] );
 							break;
 						}
 						
@@ -410,16 +420,21 @@ package com.apm.client
 				}
 			}
 			
-			io.writeLine( "apm <command>" );
+			io.writeLine( "apm <options> <command>" );
 			io.writeLine( "" );
-			io.writeLine( "Usage:" );
+			io.writeLine( "Options:" );
+			io.writeLine( "" );
+			io.writeLine( "-colour never|auto                    set the colour output to never or auto (default)" );
+			io.writeLine( "-loglevel verbose|debug|info|warn     enable additional logging outputs" );
+			io.writeLine( "" );
+			io.writeLine( "Commands:" );
 			io.writeLine( "" );
 			
 			for each (var commandName:String in _apmCommandOrder)
 			{
 				command = new _apmCommandMap[ commandName ]();
 				var commandUsage:String = "apm " + commandName.replace( "/", " " ) + " ";
-				while (commandUsage.length < 20)
+				while (commandUsage.length < 30)
 				{
 					commandUsage += " ";
 				}

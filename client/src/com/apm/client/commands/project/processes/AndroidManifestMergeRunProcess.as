@@ -18,6 +18,8 @@ package com.apm.client.commands.project.processes
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.project.ApplicationDescriptor;
 	import airsdk.lib.ADTConfig;
+	
+	import com.apm.data.project.ProjectParameter;
 	import com.apm.utils.FileUtils;
 	
 	import flash.desktop.NativeProcess;
@@ -124,11 +126,10 @@ package com.apm.client.commands.project.processes
 				processArgs.push( "--remove-tools-declarations" );
 				
 				// Parameters
-				for (var paramName:String in APM.config.projectDefinition.configuration)
+				for each (var param:ProjectParameter in APM.config.projectDefinition.configuration)
 				{
-					var paramValue:String = APM.config.projectDefinition.configuration[ paramName ];
 					processArgs.push( "--placeholder" );
-					processArgs.push( paramName + "=" + paramValue );
+					processArgs.push( param.name + "=" + param.value );
 				}
 				
 				Log.d( TAG, "Retrieving path to java installation..." );

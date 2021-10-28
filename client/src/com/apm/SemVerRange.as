@@ -58,6 +58,19 @@ package com.apm
 		}
 		
 		
+		/**
+		 * Returns true if this instance represents a range of potential versions.
+		 * <br/>
+		 * This is true if the version contains an "x"
+		 *
+		 * @return
+		 */
+		public function isRange():Boolean
+		{
+			return _major == "x" || _minor == "x" || _patch == "x";
+		}
+		
+		
 		override public function toString():String
 		{
 			return _major + "." + _minor + "." + _patch +
