@@ -25,6 +25,7 @@ package com.apm.client
 	import com.apm.client.commands.packages.CreateCommand;
 	import com.apm.client.commands.packages.InstallCommand;
 	import com.apm.client.commands.packages.ListCommand;
+	import com.apm.client.commands.packages.OutdatedCommand;
 	import com.apm.client.commands.packages.PackageAddDependencyCommand;
 	import com.apm.client.commands.packages.PublishCommand;
 	import com.apm.client.commands.packages.SearchCommand;
@@ -121,6 +122,7 @@ package com.apm.client
 			addCommand( InstallCommand.NAME, InstallCommand );
 			addCommand( UninstallCommand.NAME, UninstallCommand );
 			addCommand( UpdateCommand.NAME, UpdateCommand );
+			addCommand( OutdatedCommand.NAME, OutdatedCommand );
 			
 			// package creation commands
 			addCommand( CreateCommand.NAME, CreateCommand );
