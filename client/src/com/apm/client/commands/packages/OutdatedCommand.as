@@ -173,7 +173,8 @@ package com.apm.client.commands.packages
 						APM.io.writeLine(
 								padTo( "identifier", maxIdentifierLength + 3 ) +
 								padTo( "installed", 15 ) +
-								padTo( "available", 15 )
+								padTo( "available", 15 ),
+								IOColour.LIGHT_BLUE
 						);
 						
 						for each (var packageData:InstallPackageData in _queryData.packagesToInstall)
@@ -184,7 +185,7 @@ package com.apm.client.commands.packages
 									padTo( packageData.request.packageIdentifier, maxIdentifierLength + 3 ) +
 									padTo( cachedPackage == null ? "null" : cachedPackage.version.toString(), 15 ) +
 									packageData.packageVersion.toString(),
-									(updateAvailable ? IOColour.LIGHT_BLUE : null)
+									(updateAvailable ? IOColour.GREEN : null)
 							);
 						}
 						

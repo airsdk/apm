@@ -13,21 +13,16 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.SemVer;
 	import com.apm.SemVerRange;
 	import com.apm.client.APM;
 	import com.apm.client.commands.packages.data.InstallData;
 	import com.apm.client.commands.packages.data.InstallRequest;
-	import com.apm.client.commands.packages.utils.ProjectDefinitionValidator;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.repositories.PackageResolver;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.packages.PackageVersion;
-	import com.apm.utils.PackageFileUtils;
-	
-	import flash.filesystem.File;
 	
 	
 	/**
@@ -93,11 +88,11 @@ package com.apm.client.commands.packages.processes
 						null,
 						function ( success:Boolean, packageDefinition:PackageDefinition ):void
 						{
+							Log.d( TAG, "getPackageVersion(): success=" + success + " package:" + packageDefinition.toString() );
 							var foundVersion:Boolean = success && packageDefinition.versions.length > 0;
-							APM.io.stopSpinner( foundVersion,
-												foundVersion ? "Found package: " + packageDefinition.toString() :
-														"No package found matching : " + _request.description()
-							);
+							var message:String = foundVersion ? "Found package: " + packageDefinition.toString() :
+									"No package found matching : " + _request.description();
+							APM.io.stopSpinner( foundVersion, message, foundVersion );
 							try
 							{
 								if (foundVersion)
