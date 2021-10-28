@@ -35,7 +35,8 @@ package com.apm.client.commands.packages
 	
 	
 	/**
-	 *
+	 * This command will check the registry to see if any updates are available
+	 * for the packages that are currently installed.
 	 */
 	public class OutdatedCommand extends EventDispatcher implements Command
 	{
@@ -165,10 +166,8 @@ package com.apm.client.commands.packages
 					{
 						var validator:InstallDataValidator = new InstallDataValidator();
 						validator.verifyInstall( _queryData );
-
-						var maxIdentifierLength:int = 0;
-						for each (var packageData:InstallPackageData in _queryData.packagesToInstall)
-							if (packageData.request.packageIdentifier.length > maxIdentifierLength) maxIdentifierLength = packageData.request.packageIdentifier.length;
+						
+						var maxIdentifierLength:int = findMaxIdentifierLength( _queryData.packagesToInstall );
 						
 						APM.io.writeLine(
 								padTo( "identifier", maxIdentifierLength + 3 ) +
@@ -196,6 +195,20 @@ package com.apm.client.commands.packages
 						APM.io.writeError( name, error );
 						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
 					} );
+		}
+		
+		
+		private function findMaxIdentifierLength( packages:Vector.<InstallPackageData> ):int
+		{
+			var maxIdentifierLength:int = 0;
+			for each (var packageData:InstallPackageData in packages)
+			{
+				if (packageData.request.packageIdentifier.length > maxIdentifierLength)
+				{
+					maxIdentifierLength = packageData.request.packageIdentifier.length;
+				}
+			}
+			return maxIdentifierLength;
 		}
 		
 		
