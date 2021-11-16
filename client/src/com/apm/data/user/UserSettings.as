@@ -240,7 +240,7 @@ package com.apm.data.user
 			
 			if (f == null || !f.exists)
 			{
-				throw new Error( "File doesn't exist" );
+				throw new Error( "User settings file doesn't exist" );
 			}
 			
 			var fs:FileStream = new FileStream();
