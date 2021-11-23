@@ -111,6 +111,14 @@ package com.apm.client.config
 		public function set airDirectory( value:String):void { _airDirectory = value; }
 		
 		
+		private var _uname:String = null;
+		/**
+		 * The unix name of the current terminal
+		 */
+		public function get uname():String { return _uname; }
+		public function set uname( value:String):void { _uname = value; }
+		
+		
 		
 		/**
 		 * This function loads any configuration / environment files and settings
@@ -133,19 +141,25 @@ package com.apm.client.config
 			}
 			if (isWindows)
 			{
+				Log.v( TAG, "Adding LoadWindowsEnvironmentVariablesProcess" );
 				_loadQueue.addProcess( new LoadWindowsEnvironmentVariablesProcess( this ) );
+				Log.v( TAG, "Adding LoadWindowsJavaHomeProcess" );
 				_loadQueue.addProcess( new LoadWindowsJavaHomeProcess( this ) );
 			}
 			
 			// General
+			Log.v( TAG, "Adding LoadProjectDefinitionProcess" );
 			_loadQueue.addProcess( new LoadProjectDefinitionProcess( this ) );
+			Log.v( TAG, "Adding LoadUserSettingsProcess" );
 			_loadQueue.addProcess( new LoadUserSettingsProcess( this ) );
 //			_loadQueue.addProcess( new DebugDelayProcess( 3000 ) );
 			if (checkNetwork) _loadQueue.addProcess( new CheckNetworkProcess( this ) );
 			
+			Log.v( TAG, "load queue start" );
 			_loadQueue.start(
 					function ():void
 					{
+						Log.v( TAG, "load queue complete" );
 						if (callback != null)
 						{
 							callback( true );
@@ -153,6 +167,7 @@ package com.apm.client.config
 					},
 					function ( error:String ):void
 					{
+						Log.v( TAG, "load error" );
 						if (callback != null)
 						{
 							callback( false, error );

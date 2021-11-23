@@ -175,6 +175,13 @@ package com.apm.client
 							break;
 						}
 						
+						case "-uname":
+						{
+							_config.uname = StringUtils.trim( arguments[ ++i ] );
+							Log.d( TAG, "-uname " + _config.uname );
+							break;
+						}
+						
 						case "-c":
 						case "-color":
 						case "-colour":
@@ -337,7 +344,7 @@ package com.apm.client
 		
 		private function processEnvironment():void
 		{
-			if (_config.isMacOS)
+			if (_config.isMacOS || _config.uname != "windows")
 			{
 				if (_config.env.hasOwnProperty( "TERM" ))
 				{
