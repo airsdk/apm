@@ -325,13 +325,13 @@ package com.apm.data.project
 		
 		
 		/**
-		 * Adds a package as a project dependency
+		 * Adds a package version as a project dependency
 		 *
 		 * @param packageVersion
 		 *
 		 * @return <code>ProjectDefinition</code> instance for chaining calls
 		 */
-		public function addPackageDependency( packageVersion:PackageVersion ):ProjectDefinition
+		public function addPackageVersionDependency( packageVersion:PackageVersion ):ProjectDefinition
 		{
 			if (hasDependency( packageVersion.packageDef.identifier ))
 			{
@@ -344,6 +344,26 @@ package com.apm.data.project
 			dep.source = packageVersion.source;
 			
 			dependencies.push( dep );
+			
+			return this;
+		}
+		
+		
+		/**
+		 * Adds a package dependency as a project dependency
+		 *
+		 * @param dependency
+		 *
+		 * @return <code>ProjectDefinition</code> instance for chaining calls
+		 */
+		public function addPackageDependency( dependency:PackageDependency ):ProjectDefinition
+		{
+			if (hasDependency( dependency.identifier ))
+			{
+				removePackageDependency( dependency.identifier );
+			}
+			
+			dependencies.push( dependency );
 			
 			return this;
 		}

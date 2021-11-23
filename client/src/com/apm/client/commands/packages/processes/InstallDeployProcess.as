@@ -14,8 +14,8 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APM;
-	import com.apm.client.commands.packages.data.InstallData;
-	import com.apm.client.commands.packages.data.InstallPackageData;
+	import com.apm.data.install.InstallData;
+	import com.apm.data.install.InstallPackageData;
 	import com.apm.utils.DeployFileUtils;
 	import com.apm.utils.FileUtils;
 	import com.apm.utils.PackageFileUtils;
@@ -61,13 +61,13 @@ package com.apm.client.commands.packages.processes
 			super.start( completeCallback, failureCallback );
 			for each (var p:InstallPackageData in _installData.packagesToInstall)
 			{
-				APM.io.showSpinner( "Deploying package: " + p.packageVersion.packageDef.toString() );
+				APM.io.showSpinner( "Deploying package: " + p.packageVersion.toStringWithIdentifier() );
 				var packageDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDirectory, p.packageVersion.packageDef.identifier );
 				for each (var ref:File in packageDir.getDirectoryListing())
 				{
 					if (ref.isDirectory)
 					{
-						APM.io.updateSpinner( "Deploying package: " + p.packageVersion.packageDef.toString() + " " + ref.name );
+						APM.io.updateSpinner( "Deploying package: " + p.packageVersion.toStringWithIdentifier() + " " + ref.name );
 						var deployLocation:File = DeployFileUtils.getDeployLocation( APM.config, ref.name );
 						if (deployLocation != null)
 						{
@@ -75,7 +75,7 @@ package com.apm.client.commands.packages.processes
 						}
 					}
 				}
-				APM.io.stopSpinner( true, "Deployed: " + p.packageVersion.packageDef.toString() );
+				APM.io.stopSpinner( true, "Deployed: " + p.packageVersion.toStringWithIdentifier() );
 			}
 			complete();
 		}

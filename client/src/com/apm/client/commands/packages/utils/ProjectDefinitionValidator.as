@@ -14,7 +14,7 @@
 package com.apm.client.commands.packages.utils
 {
 	import com.apm.SemVer;
-	import com.apm.client.commands.packages.data.InstallRequest;
+	import com.apm.data.install.InstallRequest;
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.project.ProjectDefinition;
 	import com.apm.data.packages.PackageIdentifier;

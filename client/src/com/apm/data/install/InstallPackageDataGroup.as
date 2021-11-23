@@ -11,7 +11,7 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		18/6/21
  */
-package com.apm.client.commands.packages.data
+package com.apm.data.install
 {
 	/**
 	 *

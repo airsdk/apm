@@ -11,9 +11,8 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		18/6/21
  */
-package com.apm.client.commands.packages.data
+package com.apm.data.install
 {
-	import com.apm.SemVer;
 	import com.apm.SemVerRange;
 	import com.apm.data.packages.PackageVersion;
 	
@@ -122,7 +121,35 @@ package com.apm.client.commands.packages.data
 		
 		public function description():String
 		{
-			return packageIdentifier + "@" + (version == null ? "latest" : version) + (source == null ? "" : " source:"+source);
+			return packageIdentifier + "@" + (version == null ? "latest" : version) + (source == null ? "" : " source:" + source);
+		}
+		
+		
+		public function fromObject( data:Object ):InstallRequest
+		{
+			if (data != null)
+			{
+				if (data.hasOwnProperty( "packageIdentifier" )) this.packageIdentifier = data.packageIdentifier;
+				if (data.hasOwnProperty( "version" )) this.version = data.version;
+				if (data.hasOwnProperty( "source" )) this.source = data.source;
+				if (data.hasOwnProperty( "requiringPackage" )) this.requiringPackage = new PackageVersion().fromObject( data.requiringPackage );
+			}
+			return this;
+		}
+		
+		
+		public function toObject():Object
+		{
+			var data:Object = {
+				packageIdentifier: packageIdentifier,
+				version:           version,
+				source:            source
+			};
+			if (requiringPackage != null)
+			{
+				data.requiringPackage = requiringPackage.toObject( false, true );
+			}
+			return data;
 		}
 		
 		

@@ -103,7 +103,14 @@ package com.apm.data.packages
 				{
 					for each (var tag:Object in data.tags)
 					{
-						tags.push( tag.name );
+						if (tag is String)
+						{
+							tags.push( tag );
+						}
+						else if (tag.hasOwnProperty("name"))
+						{
+							tags.push( tag.name );
+						}
 					}
 				}
 				
@@ -115,7 +122,7 @@ package com.apm.data.packages
 		}
 		
 		
-		public function toObject( forceObjectOutput:Boolean = false ):Object
+		public function toObject( forceObjectOutput:Boolean = false, addVersions:Boolean = true ):Object
 		{
 			var data:Object = {};
 			data.identifier = identifier;
@@ -126,12 +133,15 @@ package com.apm.data.packages
 			data.type = type;
 			data.publishedAt = publishedAt;
 			
-			var versionObjects:Array = [];
-			for each (var v:PackageVersion in versions)
+			if (addVersions)
 			{
-				versionObjects.push( v.toObject( forceObjectOutput ) );
+				var versionObjects:Array = [];
+				for each (var v:PackageVersion in versions)
+				{
+					versionObjects.push( v.toObject( forceObjectOutput ) );
+				}
+				data.versions = versionObjects;
 			}
-			data.versions = versionObjects;
 			
 			if (tags.length > 0)
 			{

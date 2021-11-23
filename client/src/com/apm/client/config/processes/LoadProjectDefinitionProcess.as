@@ -15,13 +15,10 @@ package com.apm.client.config.processes
 {
 	import com.apm.client.config.RunConfig;
 	import com.apm.client.logging.Log;
-	import com.apm.client.processes.Process;
 	import com.apm.client.processes.ProcessBase;
-	import com.apm.client.processes.ProcessQueue;
-	import com.apm.client.processes.events.ProcessEvent;
 	import com.apm.data.project.ProjectDefinition;
+	import com.apm.data.project.ProjectLock;
 	
-	import flash.events.EventDispatcher;
 	import flash.filesystem.File;
 	
 	
@@ -58,13 +55,22 @@ package com.apm.client.config.processes
 			Log.d( TAG, "start()" );
 			try
 			{
-				var f:File = new File( _config.workingDirectory + File.separator + ProjectDefinition.DEFAULT_FILENAME );
-				if (f.exists)
+				var projectFile:File = new File( _config.workingDirectory + File.separator + ProjectDefinition.DEFAULT_FILENAME );
+				if (projectFile.exists)
 				{
 					Log.d( TAG, "found project file - loading ..." );
-					_config.projectDefinition = new ProjectDefinition();
-					_config.projectDefinition.load( f );
+					_config.projectDefinition = new ProjectDefinition()
+							.load( projectFile );
 				}
+				
+				var lockFile:File = new File( _config.workingDirectory + File.separator + ProjectLock.DEFAULT_FILENAME );
+				if (lockFile.exists)
+				{
+					Log.d( TAG, "found project lock file - loading ..." );
+					_config.projectLock = new ProjectLock()
+							.load( lockFile );
+				}
+				
 				complete();
 			}
 			catch (e:Error)

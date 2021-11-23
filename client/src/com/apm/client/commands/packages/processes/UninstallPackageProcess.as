@@ -15,15 +15,12 @@ package com.apm.client.commands.packages.processes
 {
 	import com.apm.SemVer;
 	import com.apm.client.APM;
-	import com.apm.utils.PackageCacheUtils;
-	import com.apm.utils.PackageFileUtils;
-	import com.apm.utils.PackageFileUtils;
-	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.packages.PackageDependency;
-	import com.apm.data.packages.PackageIdentifier;
+	import com.apm.utils.PackageCacheUtils;
+	import com.apm.utils.PackageFileUtils;
 	
 	import flash.filesystem.File;
 	
@@ -54,7 +51,7 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function UninstallPackageProcess( uninstallingPackageIdentifier:String, packageIdentifier:String, version:SemVer=null, skipChecks:Boolean = false )
+		public function UninstallPackageProcess( uninstallingPackageIdentifier:String, packageIdentifier:String, version:SemVer = null, skipChecks:Boolean = false )
 		{
 			super();
 			_uninstallingPackageIdentifier = uninstallingPackageIdentifier;
@@ -109,19 +106,30 @@ package com.apm.client.commands.packages.processes
 			
 			queue.addProcess( new UninstallFilesForPackageProcess( uninstallingPackageDefinition ) );
 			
-			queue.start( function ():void {
-							 APM.config.projectDefinition.removePackageDependency( _packageIdentifier ).save();
-							 complete();
-						 },
-						 function ( error:String ):void {
-							 APM.io.writeError( _packageIdentifier, error );
-							 failure( error );
-						 } );
+			queue.start(
+					function ():void
+					{
+						APM.config.projectDefinition
+								.removePackageDependency( _packageIdentifier )
+								.save();
+						
+						if (APM.config.projectLock != null)
+						{
+							APM.config.projectLock
+									.removePackageDependency( _packageIdentifier )
+									.save();
+						}
+						
+						complete();
+					},
+					function ( error:String ):void
+					{
+						APM.io.writeError( _packageIdentifier, error );
+						failure( error );
+					}
+			);
 			
 		}
-		
-		
-		
 		
 		
 	}

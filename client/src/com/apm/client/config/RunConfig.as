@@ -23,6 +23,7 @@ package com.apm.client.config
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.project.ProjectDefinition;
+	import com.apm.data.project.ProjectLock;
 	import com.apm.data.user.UserSettings;
 	import com.apm.utils.DeployFileUtils;
 	import com.apm.utils.PackageCacheUtils;
@@ -57,6 +58,12 @@ package com.apm.client.config
 		 * The current project definition file
 		 */
 		public var projectDefinition:ProjectDefinition = null;
+		
+		
+		/**
+		 * The current project lock file
+		 */
+		public var projectLock:ProjectLock = null;
 		
 		
 		/**

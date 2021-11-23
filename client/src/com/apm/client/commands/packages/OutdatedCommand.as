@@ -17,15 +17,15 @@ package com.apm.client.commands.packages
 {
 	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
-	import com.apm.client.commands.packages.data.InstallData;
-	import com.apm.client.commands.packages.data.InstallPackageData;
-	import com.apm.client.commands.packages.data.InstallRequest;
 	import com.apm.client.commands.packages.processes.QueryPackageProcess;
 	import com.apm.client.commands.packages.utils.InstallDataValidator;
 	import com.apm.client.commands.project.processes.ValidatePackageCacheProcess;
 	import com.apm.client.events.CommandEvent;
 	import com.apm.client.io.IOColour;
 	import com.apm.client.processes.ProcessQueue;
+	import com.apm.data.install.InstallData;
+	import com.apm.data.install.InstallPackageData;
+	import com.apm.data.install.InstallRequest;
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.project.ProjectDefinition;
