@@ -45,6 +45,7 @@ package com.apm.client.config
 		
 		public static const DEFAULT_REPOSITORY_URL:String = "https://repository.airsdk.dev";
 		
+		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
@@ -100,6 +101,14 @@ package com.apm.client.config
 		 */
 		public function get appDirectory():String { return _appDirectory; }
 		public function set appDirectory( value:String):void { _appDirectory = value; }
+		
+		
+		private var _airDirectory:String = null;
+		/**
+		 * The AIR SDK directory containing adl
+		 */
+		public function get airDirectory():String { return _airDirectory; }
+		public function set airDirectory( value:String):void { _airDirectory = value; }
 		
 		
 		

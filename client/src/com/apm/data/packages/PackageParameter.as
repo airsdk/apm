@@ -29,6 +29,7 @@ package com.apm.data.packages
 		public var name:String;
 		public var required:Boolean = false;
 		public var defaultValue:String = "";
+		public var description:String = null;
 		
 		private var _singleLineOutput:Boolean = false;
 		
@@ -61,11 +62,16 @@ package com.apm.data.packages
 			}
 			else
 			{
-				return {
+				var data:Object = {
 					name:     name,
 					required: required,
 					defaultValue: defaultValue
 				};
+				if (description != null)
+				{
+					data.description = description;
+				}
+				return data;
 			}
 		}
 		
@@ -94,8 +100,10 @@ package com.apm.data.packages
 				else
 				{
 					if (data.hasOwnProperty( "name" )) this.name = data[ "name" ];
-					if (data.hasOwnProperty( "required" )) this.required = data[ "required" ];
+					if (data.hasOwnProperty( "required" )) this.required = (String(data[ "required" ]) == "true" || int(data["required"]) == 1);
 					if (data.hasOwnProperty( "defaultValue" )) this.defaultValue = data[ "defaultValue" ];
+					if (data.hasOwnProperty( "default" )) this.defaultValue = data[ "default" ];
+					if (data.hasOwnProperty( "description" )) this.description = data[ "description" ];
 				}
 			}
 			return this;

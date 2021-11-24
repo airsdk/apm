@@ -13,8 +13,9 @@
  */
 package com.apm.data.project
 {
+	import airsdk.AIRSDKVersion;
+	
 	import com.apm.client.logging.Log;
-	import com.apm.remote.airsdk.AIRSDKVersion;
 	
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
@@ -29,9 +30,10 @@ package com.apm.data.project
 		
 		private static const TAG:String = "ApplicationDescriptor";
 		
-		public static const XML_NAMESPACE:String = "http://www.w3.org/XML/1998/namespace";
+		public static const LANG_NAMESPACE:String = "http://www.w3.org/XML/1998/namespace";
+		public static const ANDROID_NAMESPACE:String = "http://schemas.android.com/apk/res/android";
 		
-		public static const APPLICATION_DESCRIPTOR_TEMPLATE:XML = <application xmlns="http://ns.adobe.com/air/application/31.0">
+		public static const APPLICATION_DESCRIPTOR_TEMPLATE:XML = <application xmlns="http://ns.adobe.com/air/application/33.1">
 			<id/>
 			<versionNumber>0.0.0</versionNumber>
 			<filename>Main</filename>
@@ -74,6 +76,8 @@ package com.apm.data.project
 		
 		
 		private var _airNS:Namespace;
+		public function get namespace():Namespace { return _airNS; }
+		
 		private var _langNS:Namespace;
 		
 		private var _airSDKVersion:AIRSDKVersion;
@@ -88,13 +92,13 @@ package com.apm.data.project
 			XML.ignoreWhitespace = true;
 			XML.ignoreComments = false;
 			
-			_airSDKVersion = airSDKVersion; //(airSDKVersion == null ? new AIRSDKVersion( "33.1.1.556" ) : airSDKVersion);
+			_airSDKVersion = airSDKVersion;
 			if (_airSDKVersion != null)
 			{
-				_airNS = new Namespace( "", "http://ns.adobe.com/air/application/" + _airSDKVersion.major + "." + _airSDKVersion.minor );
+				_airNS = new Namespace( "", _airSDKVersion.getNamespace() );
 			}
-
-			_langNS = new Namespace( "xml", XML_NAMESPACE );
+			
+			_langNS = new Namespace( "xml", LANG_NAMESPACE );
 		}
 		
 		
@@ -115,38 +119,34 @@ package com.apm.data.project
 				if (isPropertyValueValid( project.applicationFilename )) _xml.filename = project.applicationFilename;
 				if (isPropertyValueValid( project.version )) _xml.versionNumber = project.version;
 				if (isPropertyValueValid( project.versionLabel )) _xml.versionLabel = project.versionLabel;
-
-
-//				if (project.applicationName != null && project.applicationName.length > 0)
-//				{
-//					_xml.name = project.applicationName;
-//				}
-//				if (project.applicationFilename != null && project.applicationFilename.length > 0)
-//				{
-//					_xml.filename = project.applicationFilename;
-//				}
-//				else
-//				{
-//					_xml.filename = project.applicationName.replace(/ /g, "");
-//				}
-//				_xml.versionNumber = project.version;
-//				if (project.versionLabel != null && project.versionLabel.length > 0)
-//				{
-//					_xml.versionLabel = project.versionLabel;
-//				}
+				
 			}
 		}
 		
+		
+		//
+		//	ANDROID
+		//
 		
 		public function updateAndroidAdditions():void
 		{
 			if (androidManifest != null && androidManifest.length > 0 && _xml != null)
 			{
+				//
+				// We slightly modify the android manifest generated to make it suitable for the air manifest additions
+				//
+				// - strip the manifest tag to remove unsupported attributes/namespaces
+				//     (means we have to treat it as a string otherwise entries will get broken)
+				// - generate a simple manifest tag
+				// - manually add any other custom namespaces (mainly for amazon)
+				// - write the contents from the merge
+				//
+				
 				var manifest:XML = new XML( androidManifest );
 				var manifestAdditionsContent:String = stripManifestTag( manifest );
 				var manifestAdditions:XML = new XML(
 						"<manifestAdditions><![CDATA[" +
-						"<manifest android:installLocation=\"auto\" >\n" +
+						"<manifest android:installLocation=\"auto\" " + namespacesString( manifest.namespaceDeclarations() ) + ">\n" +
 						manifestAdditionsContent + "\n" +
 						"</manifest>\n" +
 						"]]></manifestAdditions>"
@@ -174,6 +174,24 @@ package com.apm.data.project
 		}
 		
 		
+		private function namespacesString( namespaces:Array ):String
+		{
+			var manifestNamespaces:String = "";
+			for each (var ns:Namespace in namespaces)
+			{
+				if (ns.uri != ANDROID_NAMESPACE)
+				{
+					manifestNamespaces += " xmlns:" + ns.prefix + "=\"" + ns.uri + "\" ";
+				}
+			}
+			return manifestNamespaces;
+		}
+		
+		
+		//
+		//	iOS
+		//
+		
 		public function updateIOSAdditions():void
 		{
 			default xml namespace = _airNS;
@@ -190,6 +208,10 @@ package com.apm.data.project
 			}
 		}
 		
+		
+		//
+		//	EXTENSIONS
+		//
 		
 		public function addExtension( extensionID:String ):void
 		{
@@ -213,7 +235,7 @@ package com.apm.data.project
 		
 		
 		//
-		// LOADING / SAVING
+		// 	VALIDATION
 		//
 		
 		public function validate():String
@@ -245,10 +267,15 @@ package com.apm.data.project
 		}
 		
 		
+		//
+		// 	LOADING / SAVING
+		//
+		
 		public function load( file:File ):void
 		{
 			if (file == null || !file.exists)
 			{
+				Log.d( TAG, "ERROR: " + (file == null ? "null" : file.name) + " doesn't exist" );
 				return;
 			}
 			
@@ -272,26 +299,29 @@ package com.apm.data.project
 		{
 			try
 			{
+				Log.v( TAG, "loadString(): " + content );
 				// If supplied an AIR Version, make sure namespace matches
 				if (_airNS != null)
 				{
 					content = content.replace(
 							/http:\/\/ns\.adobe\.com\/air\/application\/([0-9]*)\.([0-9]*)/,
-								_airNS.toString()
+							_airNS.toString()
 					);
 				}
 				
 				_xml = new XML( content );
 				
 				// Ensure we have the correct AIR namespace
-				if (_xml.namespace("") != undefined)
+				if (_xml.namespace( "" ) != undefined)
 				{
-					_airNS = _xml.namespace("");
+					_airNS = _xml.namespace( "" );
 				}
+				
+				Log.d( TAG, "namespace= " + _airNS.toString() );
 				
 				// Add the language namespace to correctly handle xml:lang translations
 				_xml.addNamespace( _langNS );
-
+				
 			}
 			catch (e:Error)
 			{
@@ -308,8 +338,8 @@ package com.apm.data.project
 				
 				// Strip out language namespace which AIR doesn't need
 				var xmlContent:String = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n" +
-							_xml.toXMLString()
-								.replace( "xmlns:xml=\"http://www.w3.org/XML/1998/namespace\"", "" )
+										_xml.toXMLString()
+											.replace( "xmlns:xml=\"http://www.w3.org/XML/1998/namespace\"", "" )
 				;
 				
 				var fs:FileStream = new FileStream();

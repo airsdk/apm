@@ -14,9 +14,11 @@
 package com.apm.client.repositories.processes
 {
 	import com.apm.SemVer;
+	import com.apm.SemVerRange;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.repositories.PackageResolver;
+	import com.apm.client.repositories.PackageResolverResult;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageVersion;
 	import com.apm.remote.repository.Repository;
@@ -36,10 +38,10 @@ package com.apm.client.repositories.processes
 		//  VARIABLES
 		//
 		
-		private var _resolver:PackageResolver;
+		private var _result:PackageResolverResult;
 		private var _repository:Repository;
 		private var _identifier:String;
-		private var _version:SemVer;
+		private var _version:SemVerRange;
 		private var _options:RepositoryQueryOptions;
 		
 		
@@ -47,9 +49,9 @@ package com.apm.client.repositories.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function RepositoryGetPackageVersionProcess( resolver:PackageResolver, repo:Repository, identifier:String, version:SemVer, options:RepositoryQueryOptions )
+		public function RepositoryGetPackageVersionProcess( result:PackageResolverResult, repo:Repository, identifier:String, version:SemVerRange, options:RepositoryQueryOptions )
 		{
-			_resolver = resolver;
+			_result = result;
 			_repository = repo;
 			_identifier = identifier;
 			_version = version;
@@ -77,7 +79,7 @@ package com.apm.client.repositories.processes
 										v.source = _repository.name;
 									}
 								}
-								_resolver.resolvedPackage = packageDefinition;
+								_result.resolvedPackage = packageDefinition;
 							}
 							complete();
 						}

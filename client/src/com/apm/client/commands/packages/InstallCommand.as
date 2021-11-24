@@ -13,7 +13,6 @@
  */
 package com.apm.client.commands.packages
 {
-	import com.apm.SemVer;
 	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.packages.data.InstallData;
@@ -113,7 +112,7 @@ package com.apm.client.commands.packages
 				   "\n" +
 				   "options: \n" +
 				   "  --include-prerelease               includes pre-release package versions in the search"
-			;
+					;
 		}
 		
 		
@@ -169,10 +168,10 @@ package com.apm.client.commands.packages
 							true
 					);
 					
-					if (SemVer.fromString( request.version ) == null && version != "latest")
+					if (request.semVer == null && request.version != "latest")
 					{
 						// Invalid version passed
-						APM.io.writeLine( "Invalid version code : " + version );
+						APM.io.writeLine( "Invalid version code : " + request.version );
 						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
 						return;
 					}
@@ -231,7 +230,6 @@ package com.apm.client.commands.packages
 			_queue.start(
 					function ():void
 					{
-						
 						_queue.addProcess( new InstallDataValidationProcess( _installData ) );
 						_queue.start(
 								function ():void
@@ -240,6 +238,7 @@ package com.apm.client.commands.packages
 								},
 								function ( error:String ):void
 								{
+									APM.io.writeError( name, error );
 									dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
 								}
 						);

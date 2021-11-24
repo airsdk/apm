@@ -17,10 +17,10 @@ package com.apm.client.commands.packages.processes
 	import com.apm.client.analytics.Analytics;
 	import com.apm.client.commands.packages.data.InstallPackageData;
 	import com.apm.client.logging.Log;
-	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.client.processes.generic.ExtractZipProcess;
+	import com.apm.utils.PackageFileUtils;
 	
 	import flash.filesystem.File;
 	
@@ -70,25 +70,27 @@ package com.apm.client.commands.packages.processes
 			{
 				if (_packageData.request.packageFile != null && _packageData.request.packageFile.exists)
 				{
-					queue.addCallback( function():void {
-						try
-						{
-							var packagesDir:File = new File( APM.config.packagesDirectory );
-							if (!packagesDir.exists) packagesDir.createDirectory();
-							if (!packageDir.exists) packageDir.createDirectory();
-
-							if (_packageData.request.packageFile.nativePath != packageFile.nativePath)
+					queue.addCallback(
+							function ():void
 							{
-								_packageData.request.packageFile.copyTo( packageFile, true );
-							}
-							APM.io.writeResult( true, "Copying package : " + _packageData.request.packageFile.name );
-						}
-						catch (e:Error)
-						{
-							Log.e( TAG, e );
-							APM.io.writeResult( false, "Failed to copy package : " + _packageData.request.packageFile.name + " :: " + e.message );
-						}
-					});
+								try
+								{
+									var packagesDir:File = new File( APM.config.packagesDirectory );
+									if (!packagesDir.exists) packagesDir.createDirectory();
+									if (!packageDir.exists) packageDir.createDirectory();
+									
+									if (_packageData.request.packageFile.nativePath != packageFile.nativePath)
+									{
+										_packageData.request.packageFile.copyTo( packageFile, true );
+									}
+									APM.io.writeResult( true, "Copying package : " + _packageData.request.packageFile.name );
+								}
+								catch (e:Error)
+								{
+									Log.e( TAG, e );
+									APM.io.writeResult( false, "Failed to copy package : " + _packageData.request.packageFile.name + " :: " + e.message );
+								}
+							} );
 				}
 			}
 			else
@@ -97,30 +99,33 @@ package com.apm.client.commands.packages.processes
 			}
 			queue.addProcess( new ExtractZipProcess( packageFile, cacheDirForPackage ) );
 			
-			queue.start( function ():void {
-							 if (_packageData.request.isNew)
-							 {
-								 Analytics.instance.install(
-										 _packageData.packageVersion.packageDef.identifier,
-										 _packageData.packageVersion.version.toString(),
-										 _packageData.packageVersion.source,
-										 complete );
-							 }
-							 else
-							 {
-								 complete();
-							 }
-				
-						 },
-						 function ( error:String ):void {
-							 APM.io.writeError( "ERROR", "Failed to install package : " + _packageData.packageVersion.packageDef.toString() );
-							 failure( error );
-						 } );
+			queue.start(
+					function ():void
+					{
+						if (_packageData.request.isNew)
+						{
+							Analytics.instance.install(
+									_packageData.packageVersion.packageDef.identifier,
+									_packageData.packageVersion.version.toString(),
+									_packageData.packageVersion.source,
+									complete );
+						}
+						else
+						{
+							complete();
+						}
+						
+					},
+					function ( error:String ):void
+					{
+						APM.io.writeError( "ERROR", "Failed to install package : " + _packageData.packageVersion.packageDef.toString() );
+						failure( error );
+					} );
 			
 		}
 		
 		
-		override protected function complete( data:Object=null ):void
+		override protected function complete( data:Object = null ):void
 		{
 			APM.io.writeLine( "Installed package : " + _packageData.packageVersion.packageDef.toString() );
 			super.complete();

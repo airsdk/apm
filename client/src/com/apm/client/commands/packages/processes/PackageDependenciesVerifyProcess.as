@@ -14,6 +14,7 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APM;
+	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.repositories.PackageResolver;
 	import com.apm.data.packages.PackageDefinition;
@@ -61,6 +62,7 @@ package com.apm.client.commands.packages.processes
 			{
 				failure( "INVALID DEPENDENCY [" + _dependency.toString() + "] - check your dependencies in the " + PackageDefinitionFile.DEFAULT_FILENAME );
 			}
+			
 			PackageResolver.instance.getPackageVersion(
 					_dependency.identifier,
 					_dependency.version,
@@ -68,6 +70,12 @@ package com.apm.client.commands.packages.processes
 					null,
 					function ( success:Boolean, packageDef:PackageDefinition ):void
 					{
+						Log.d( TAG, "success: " + success );
+						if (success)
+						{
+							Log.d( TAG, "package: " + packageDef.toDescriptiveString() );
+						}
+
 						if (success && packageDef != null && packageDef.versions.length > 0)
 						{
 							APM.io.stopSpinner( true, "VERIFIED: " + _dependency.toString() );

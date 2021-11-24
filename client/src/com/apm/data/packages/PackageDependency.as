@@ -14,6 +14,7 @@
 package com.apm.data.packages
 {
 	import com.apm.SemVer;
+	import com.apm.SemVerRange;
 	
 	
 	/**
@@ -40,7 +41,7 @@ package com.apm.data.packages
 		//
 		
 		public var identifier:String;
-		public var version:SemVer;
+		public var version:SemVerRange;
 		public var source:String;
 		
 		private var _singleLineOutput:Boolean = false;
@@ -62,7 +63,7 @@ package com.apm.data.packages
 		}
 		
 		
-		public function setVersion( version:SemVer ):PackageDependency
+		public function setVersion( version:SemVerRange ):PackageDependency
 		{
 			this.version = version;
 			return this;
@@ -115,12 +116,12 @@ package com.apm.data.packages
 					if (line.indexOf(":") > 0)
 					{
 						this.identifier = line.substring( 0, line.indexOf(":") );
-						this.version = SemVer.fromString( line.substring( line.indexOf(":") + 1 ) );
+						this.version = SemVerRange.fromString( line.substring( line.indexOf(":") + 1 ) );
 					}
 					else if (line.indexOf("@") > 0)
 					{
 						this.identifier = line.substring( 0, line.indexOf("@") );
-						this.version = SemVer.fromString( line.substring( line.indexOf("@") + 1 ) );
+						this.version = SemVerRange.fromString( line.substring( line.indexOf("@") + 1 ) );
 					}
 					else
 					{
@@ -131,8 +132,9 @@ package com.apm.data.packages
 				else
 				{
 					if (data.hasOwnProperty( "id" )) this.identifier = data[ "id" ];
-					if (data.hasOwnProperty( "version" )) this.version = SemVer.fromString( data[ "version" ] );
+					if (data.hasOwnProperty( "version" )) this.version = SemVerRange.fromString( data[ "version" ] );
 					if (data.hasOwnProperty( "source" )) this.source = data[ "source" ];
+					if (data.hasOwnProperty( "package" )) this.identifier = data["package"].identifier;
 				}
 			}
 			return this;

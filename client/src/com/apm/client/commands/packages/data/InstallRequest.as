@@ -14,6 +14,7 @@
 package com.apm.client.commands.packages.data
 {
 	import com.apm.SemVer;
+	import com.apm.SemVerRange;
 	import com.apm.data.packages.PackageVersion;
 	
 	import flash.filesystem.File;
@@ -51,10 +52,10 @@ package com.apm.client.commands.packages.data
 		
 		
 		/**
-		 *	The <code>version</code> string as a SemVer
+		 *	The <code>version</code> string as a SemVerRange
 		 */
-		public function get semVer():SemVer
-		{ return SemVer.fromString( version ); }
+		public function get semVer():SemVerRange
+		{ return SemVerRange.fromString( version ); }
 		
 		
 		/**
