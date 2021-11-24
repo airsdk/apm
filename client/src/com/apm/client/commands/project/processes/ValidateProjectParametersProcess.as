@@ -60,7 +60,7 @@ package com.apm.client.commands.project.processes
 				return;
 			}
 			
-			for each (var param:ProjectParameter in APM.config.projectDefinition.configuration)
+			for each (var param:ProjectParameter in APM.config.projectDefinition.getConfiguration( APM.config.buildType ))
 			{
 				if (!param.isValid())
 				{

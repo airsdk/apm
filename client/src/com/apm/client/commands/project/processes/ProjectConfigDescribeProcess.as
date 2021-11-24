@@ -63,7 +63,7 @@ package com.apm.client.commands.project.processes
 			if (_paramName == null)
 			{
 				// print all config
-				for each (var p:ProjectParameter in APM.config.projectDefinition.configuration)
+				for each (var p:ProjectParameter in APM.config.projectDefinition.getConfiguration( APM.config.buildType ))
 				{
 					_queue.addProcess( new ProjectConfigDescribeProcess( p.name ) );
 				}
@@ -72,7 +72,7 @@ package com.apm.client.commands.project.processes
 			}
 			
 			
-			var param:ProjectParameter = project.getConfigurationParam( _paramName );
+			var param:ProjectParameter = project.getConfigurationParam( _paramName, APM.config.buildType );
 			if (param == null)
 			{
 				APM.io.writeError( "parameter", "not found" );

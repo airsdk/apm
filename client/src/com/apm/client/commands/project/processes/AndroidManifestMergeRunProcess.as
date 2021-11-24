@@ -126,7 +126,7 @@ package com.apm.client.commands.project.processes
 				processArgs.push( "--remove-tools-declarations" );
 				
 				// Parameters
-				for each (var param:ProjectParameter in APM.config.projectDefinition.configuration)
+				for each (var param:ProjectParameter in APM.config.projectDefinition.getConfiguration( APM.config.buildType ))
 				{
 					processArgs.push( "--placeholder" );
 					processArgs.push( param.name + "=" + param.value );

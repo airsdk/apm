@@ -58,7 +58,7 @@ package com.apm.client.commands.project.processes
 				return;
 			}
 			
-			project.setConfigurationParamValue( _paramName, _paramValue );
+			project.setConfigurationParamValue( _paramName, _paramValue, APM.config.buildType );
 			project.save();
 			
 			complete();

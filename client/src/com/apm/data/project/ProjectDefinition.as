@@ -52,6 +52,7 @@ package com.apm.data.project
 		private var _repositories:Vector.<RepositoryDefinition>;
 		private var _dependencies:Vector.<PackageDependency>;
 		private var _configuration:Vector.<ProjectParameter>;
+		private var _buildTypes:Vector.<ProjectBuildType>;
 		private var _deployOptions:Object;
 		
 		
@@ -66,6 +67,7 @@ package com.apm.data.project
 			_repositories = new <RepositoryDefinition>[];
 			_dependencies = new <PackageDependency>[];
 			_configuration = new <ProjectParameter>[];
+			_buildTypes = new <ProjectBuildType>[];
 			_deployOptions = {};
 		}
 		
@@ -98,10 +100,22 @@ package com.apm.data.project
 				for (var key:String in _data.configuration)
 				{
 					_configuration.push(
-							ProjectParameter.fromObject( key, _data.configuration[key] )
+							ProjectParameter.fromObject( key, _data.configuration[ key ] )
 					);
 				}
 				_configuration.sort( Array.CASEINSENSITIVE );
+			}
+			
+			if (_data.hasOwnProperty( "buildTypes" ))
+			{
+				_buildTypes = new <ProjectBuildType>[];
+				for (var buildType:String in _data.buildTypes)
+				{
+					var variant:ProjectBuildType = new ProjectBuildType( buildType )
+							.fromObject( _data.buildTypes[buildType] );
+					
+					_buildTypes.push( variant );
+				}
 			}
 			
 			if (_data.hasOwnProperty( "deployOptions" ))
@@ -116,7 +130,7 @@ package com.apm.data.project
 			var data:Object = toObject();
 			
 			// Ensures the output JSON format is in a familiar order
-			var keyOrder:Array = ["identifier", "name", "filename", "version", "versionLabel", "dependencies", "configuration", "repositories"];
+			var keyOrder:Array = ["identifier", "name", "filename", "version", "versionLabel", "dependencies", "configuration", "buildTypes", "repositories"];
 			JSONUtils.addMissingKeys( data, keyOrder );
 			
 			return JSON.stringify( data, keyOrder, 4 ) + "\n";
@@ -150,9 +164,19 @@ package com.apm.data.project
 			var configObject:Object = {};
 			for each (var param:ProjectParameter in _configuration)
 			{
-				configObject[param.name] = param.toObject();
+				configObject[ param.name ] = param.toObject();
 			}
 			data[ "configuration" ] = configObject;
+			
+			if (_buildTypes.length > 0)
+			{
+				var buildTypesObject:Object = {};
+				for each (var variant:ProjectBuildType in _buildTypes)
+				{
+					buildTypesObject[ variant.name ] = variant.toObject();
+				}
+				data[ "buildTypes" ] = buildTypesObject;
+			}
 			
 			data[ "deployOptions" ] = _deployOptions;
 			
@@ -209,17 +233,57 @@ package com.apm.data.project
 		}
 		
 		
-		public function get configuration():Vector.<ProjectParameter> { return _configuration; }
+		//
+		//	CONFIGURATION PARAMETERS
+		//
+		
+//		public function get configuration():Vector.<ProjectParameter> { return _configuration; }
+		
+		/**
+		 * Retrieves the configuration parameters for the specified build type
+		 *
+		 * @param buildType The name of the build type to apply. If null or not found, the default configuration will be used.
+		 *
+		 * @return
+		 */
+		public function getConfiguration( buildType:String ):Vector.<ProjectParameter>
+		{
+			if (buildType != null)
+			{
+				var projectBuildType:ProjectBuildType = getBuildType( buildType );
+				if (projectBuildType != null)
+				{
+					var buildConfiguration:Vector.<ProjectParameter> = new Vector.<ProjectParameter>();
+					for each (var defaultParam:ProjectParameter in _configuration)
+					{
+						var buildParam:ProjectParameter = projectBuildType.getConfigurationParam( defaultParam.name );
+						if (buildParam != null)
+						{
+							buildConfiguration.push( buildParam );
+						}
+						else
+						{
+							buildConfiguration.push( defaultParam );
+						}
+					}
+					return buildConfiguration;
+				}
+			}
+			return _configuration;
+		}
 		
 		
 		/**
 		 * Retrieves the specified configuration parameter value
+		 *
 		 * @param paramName	The name of the parameter
+		 * @param buildType The build type of interest (default returned if not found in configuration)
+		 *
 		 * @return	The value for the parameter or null if the parameter name could not be found
 		 */
-		public function getConfigurationParamValue( paramName:String ):String
+		public function getConfigurationParamValue( paramName:String, buildType:String ):String
 		{
-			var param:ProjectParameter = getConfigurationParam( paramName );
+			var param:ProjectParameter = getConfigurationParam( paramName, buildType );
 			if (param != null)
 			{
 				return param.value;
@@ -230,14 +294,17 @@ package com.apm.data.project
 		
 		/**
 		 * Retrieves the specified configuration parameter
+		 *
 		 * @param paramName	The name of the parameter
+		 * @param buildType The build type of interest (default returned if not found in configuration)
+		 *
 		 * @return	The parameter instance or null if the parameter name could not be found
 		 */
-		public function getConfigurationParam( paramName:String ):ProjectParameter
+		public function getConfigurationParam( paramName:String, buildType:String ):ProjectParameter
 		{
 			if (_configuration != null)
 			{
-				for each (var param:ProjectParameter in _configuration)
+				for each (var param:ProjectParameter in getConfiguration( buildType ))
 				{
 					if (param.name == paramName) return param;
 				}
@@ -251,33 +318,52 @@ package com.apm.data.project
 		 *
 		 * @param key		The name of the parameter
 		 * @param value		The value for the parameter
+		 * @param buildType The build type of interest (default returned if not found in configuration)
 		 */
-		public function setConfigurationParamValue( key:String, value:String ):void
+		public function setConfigurationParamValue( key:String, value:String, buildType:String ):void
 		{
-			if (_configuration == null) _configuration = new <ProjectParameter>[];
-			var param:ProjectParameter = getConfigurationParam( key );
-			if (param == null)
+			if (buildType != null && buildType != "null" && buildType.length > 0)
 			{
-				param = new ProjectParameter();
-				param.name = key;
-				param.value = value;
-				_configuration.push( param );
-				_configuration.sort( Array.CASEINSENSITIVE );
+				var projectBuildType:ProjectBuildType = getBuildType( buildType );
+				if (projectBuildType == null)
+				{
+					projectBuildType = new ProjectBuildType( buildType );
+					projectBuildType.setConfigurationParamValue( key, value );
+					_buildTypes.push( projectBuildType );
+				}
+				else
+				{
+					projectBuildType.setConfigurationParamValue( key, value );
+				}
 			}
 			else
 			{
-				param.value = value;
+				if (_configuration == null) _configuration = new <ProjectParameter>[];
+				var param:ProjectParameter = getConfigurationParam( key, null );
+				if (param == null)
+				{
+					param = new ProjectParameter();
+					param.name = key;
+					param.value = value;
+					_configuration.push( param );
+					_configuration.sort( Array.CASEINSENSITIVE );
+				}
+				else
+				{
+					param.value = value;
+				}
 			}
 		}
 		
 		
 		/**
-		 * Adds the package parameter to the project configuration
+		 * Adds the package parameter to the default project configuration
+		 *
 		 * @param packageParam
 		 */
 		public function addPackageParameter( packageParam:PackageParameter ):void
 		{
-			var param:ProjectParameter = getConfigurationParam( packageParam.name );
+			var param:ProjectParameter = getConfigurationParam( packageParam.name, null );
 			if (param == null)
 			{
 				// New parameter
@@ -301,6 +387,27 @@ package com.apm.data.project
 			
 		}
 		
+		
+		//
+		//	BUILD TYPES
+		//
+		
+		public function getBuildType( name:String ):ProjectBuildType
+		{
+			for each (var buildType:ProjectBuildType in _buildTypes)
+			{
+				if (buildType.name == name)
+				{
+					return buildType;
+				}
+			}
+			return null;
+		}
+		
+		
+		//
+		//	DEPLOYMENT OPTIONS
+		//
 		
 		/**
 		 * User configurable deployment options, specifying the location of files

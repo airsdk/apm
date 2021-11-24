@@ -43,13 +43,20 @@ package com.apm.data.project
 		}
 		
 		
-		public function toObject():Object
+		public function toObject( singleLine:Boolean=false ):Object
 		{
-			var data:Object = {};
-			data["name"] = name;
-			data["required"] = required ? "true" : "false";
-			data["value"] = value;
-			return data;
+			if (singleLine)
+			{
+				return value;
+			}
+			else
+			{
+				var data:Object = {};
+				data["name"] = name;
+				data["required"] = required ? "true" : "false";
+				data["value"] = value;
+				return data;
+			}
 		}
 		
 		
@@ -60,7 +67,7 @@ package com.apm.data.project
 			
 			if (data is String)
 			{
-				// Handle legacy "name":"value" entries
+				// Handle single line "name":"value" entries
 				param.value = data as String;
 			}
 			else

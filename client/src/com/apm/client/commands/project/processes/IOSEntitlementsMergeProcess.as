@@ -67,7 +67,7 @@ package com.apm.client.commands.project.processes
 				
 				// Read content and inject any config parameters
 				var entitlementsProjectContent:String = FileUtils.readFileContentAsString( entitlementsProjectFile );
-				for each (var param:ProjectParameter in APM.config.projectDefinition.configuration)
+				for each (var param:ProjectParameter in APM.config.projectDefinition.getConfiguration( APM.config.buildType ))
 				{
 					var regex:RegExp = new RegExp( "\\$\\{" + param.name + "\\}", "g" );
 					entitlementsProjectContent = entitlementsProjectContent.replace( regex, param.value );

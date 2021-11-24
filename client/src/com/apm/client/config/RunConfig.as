@@ -85,6 +85,12 @@ package com.apm.client.config
 		public var hasNetwork:Boolean = false;
 		
 		
+		/**
+		 * Specify an alternate build type for this process
+		 */
+		public var buildType:String = null;
+		
+		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//

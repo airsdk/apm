@@ -60,14 +60,14 @@ package com.apm.client.commands.project.processes
 			if (_paramName == null)
 			{
 				// print all config
-				for each (param in APM.config.projectDefinition.configuration)
+				for each (param in APM.config.projectDefinition.getConfiguration( APM.config.buildType ))
 				{
 					APM.io.writeValue( param.name, param.value );
 				}
 			}
 			else
 			{
-				param = project.getConfigurationParam( _paramName );
+				param = project.getConfigurationParam( _paramName, APM.config.buildType );
 				if (param == null)
 				{
 					APM.io.writeError( "parameter", "not found" );

@@ -238,6 +238,14 @@ package com.apm.client
 							break;
 						}
 						
+						case "-b":
+						case "-build":
+						{
+							_config.buildType = StringUtils.trim( arguments[ ++i ] );
+							Log.d( TAG, "-build " + _config.buildType );
+							break;
+						}
+						
 						default:
 						{
 							// Check for command
