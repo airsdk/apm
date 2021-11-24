@@ -162,6 +162,66 @@ package com.apm.client.config
 		}
 		
 		
+		public function loadProjectDefinition( f:File ):void
+		{
+			Log.d( TAG, "loading project configuration..." );
+			projectDefinition = new ProjectDefinition();
+			projectDefinition.load( f );
+
+			// override the project configuration with environment variables.
+			// a configuration which as this form "helloAIRDev" will be read from env.HELLO_AIR_DEV
+			for (var name:String in projectDefinition.configuration)
+			{
+				var envName:String = getEnvNameForConfig( name );
+//				Log.d( TAG, "Configuration " + name + " can be set with environment " + envName );
+				if ( env.hasOwnProperty( envName ) )
+				{
+					// replace if set
+					Log.l( TAG, "Replacing configuration " + name + " with environment " + envName + "=" + env[envName] );
+					projectDefinition.setConfigurationParamValue( name, env[envName] );
+				}
+			}
+//			Log.d( TAG, "Project definition: " + JSON.stringify(projectDefinition) );
+			
+			// we'll compute here the environment name that relates to the given configuration variable
+			function getEnvNameForConfig( name:String ):String
+			{
+				var envName:String = name;
+				
+				// handle special cases like "AIRValue" and "SomeAIRValue"
+				var regexp:RegExp = /[A-Z][A-Z]+[a-z]/g;
+				regexp.lastIndex = 1;
+				var result:Object = regexp.exec(envName);
+				var match:String = null;
+				while (result != null) {
+					// result string is set to lowercase so it wont match the regexp anymore
+					match = result[0].toLowerCase();
+					envName =
+						envName.slice(0, result.index) + 
+						'_' + match.slice(0, match.length - 2) + '_' + match.slice(-1) +
+						envName.slice(result.index + match.length);
+					result = regexp.exec(envName);
+				}
+				
+				// standalone words like "helloWorld" replaced with "hello_world"
+				regexp = /[a-z][A-Z][a-z]/g;
+				result = regexp.exec(envName);
+				while (result != null) {
+					match = result[0];
+					envName =
+						envName.slice(0, result.index) + 
+						match.charAt(0) + '_' + match.slice(1).toLowerCase() +
+						envName.slice(result.index + match.length);
+					result = regexp.exec(envName);
+				}
+				
+				// environment variables are traditionally in uppercase.
+				envName = envName.toUpperCase();
+				return envName;
+			}
+		}
+		
+		
 		/**
 		 * The directory for package storage (defaults to: apm_packages)
 		 */

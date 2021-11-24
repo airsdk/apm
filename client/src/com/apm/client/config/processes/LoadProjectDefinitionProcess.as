@@ -62,8 +62,7 @@ package com.apm.client.config.processes
 				if (f.exists)
 				{
 					Log.d( TAG, "found project file - loading ..." );
-					_config.projectDefinition = new ProjectDefinition();
-					_config.projectDefinition.load( f );
+					_config.loadProjectDefinition( f );
 				}
 				complete();
 			}
