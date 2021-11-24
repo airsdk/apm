@@ -1,12 +1,102 @@
 #!/bin/bash
+set -e
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-# if AIR_HOME environment variable is set, look for "adl" in AIR_HOME/bin directory
-if [ -z "${ADL_DIR}" ] && [ ! -z "${AIR_HOME}" ]; then
-  ADL_DIR="${AIR_HOME}/bin/"
+# if AIR_DIR environment variable is set, look for "adl" in AIR_DIR/bin directory
+if [ -z "${ADL_DIR}" ] && [ ! -z "${AIR_DIR}" ]; then
+  ADL_DIR="${AIR_DIR}/bin/"
 fi
 
-AIR_DIR="$(dirname "$(dirname "$(which "${ADL_DIR}adl")")")"
+if [ -z "${AIR_DIR}" ]; then
+  AIR_DIR="$(dirname "$(dirname "$(which "${ADL_DIR}adl")")")"
+fi
+
+#
+# If the AIR SDK is not found, "apm airsdk ..." commands are implemented with bash.
+#
+# This way, apm can be used to install an AIRSDK in a clean system.
+# The only dependencies are "curl", "unzip" and "python", which are present by default on macOS.
+if ! (${ADL_DIR}adl -help 2>&1 | grep usage > /dev/null)
+then
+
+  # Download URLs from harman
+  AIRSDK_API_URL=https://dcdu3ujoji.execute-api.us-east-1.amazonaws.com/production
+  AIRSDK_DOWNLOAD_URL=https://airsdk.harman.com
+
+  #
+  # apm airsdk list
+  #
+  if [ "_$*_" = "_airsdk list_" ]
+  then
+    curl -s "$AIRSDK_API_URL/releases" | python -c '
+import sys,json;
+data = json.load(sys.stdin)
+data["releases"].sort(key=lambda val:val["released_date"])
+def formatRelease(r):
+  return " - " + r["name"] + "[" + r["released_date"][0:10] + "]"
+print "\n".join(map(formatRelease, data["releases"]))
+print "\nactive release: " + data["active_release"]
+    '
+    exit 0
+  #
+  # apm airsdk install <version>
+  #
+  elif [ "_$1" = "_airsdk" ] && [ "_$2" = "_install" ]
+  then
+    AIRSDK_VERSION="$3"
+    if [ -z "$AIRSDK_VERSION" ]; then
+      echo "You need to provide an AIR SDK version"
+      echo
+      echo "usage: apm airsdk install <version>"
+      exit 1
+    fi
+    if [ "x$AIRSDK_ACCEPT_LICENSE" != "xyes" ]; then
+      echo "You need to accept the AIR SDK license agreement:"
+      echo "https://airsdk.harman.com/assets/pdfs/HARMAN%20AIR%20SDK%20License%20Agreement.pdf"
+      echo
+      echo "Set the environment variable AIRSDK_ACCEPT_LICENSE=yes if you do so."
+      echo
+      echo "Example:"
+      echo "AIRSDK_ACCEPT_LICENSE=yes apm airsdk install latest"
+      echo
+    fi
+    # retrieve the download URL
+    AIR_MAC_URL=$(curl -s "$AIRSDK_API_URL/releases/$AIRSDK_VERSION/urls" | python -c '
+import sys,json
+data = json.load(sys.stdin)
+print data["AIR_Mac"]
+    ')
+    # for "latest", figure out the full version number from the download URL
+    if [ "$AIRSDK_VERSION" = latest ]; then
+      AIRSDK_VERSION="$(echo $AIR_MAC_URL | cut -d/ -f4)"
+    fi
+    if [ -e AIRSDK_${AIRSDK_VERSION} ]; then
+      echo "AIRSDK_${AIRSDK_VERSION} is already installed"
+      exit 0
+    fi
+    # download
+    curl -o AIRSDK_MacOS.temp.zip "${AIRSDK_DOWNLOAD_URL}${AIR_MAC_URL}?license=accepted"
+    # unzip
+    mkdir -p "AIRSDK_${AIRSDK_VERSION}"
+    unzip AIRSDK_MacOS.temp.zip -d "AIRSDK_${AIRSDK_VERSION}"
+    # cleanup
+    rm -f AIRSDK_MacOS.temp.zip
+    exit 0
+
+  #
+  # other commands require the AIRSDK
+  #
+  else
+    echo
+    echo 'ERROR: AIR SDK not found.'
+    echo
+    echo 'Set the path to your AIR SDK installation with the AIR_DIR environment variable.'
+    echo 'You can install the SDK with "apm airsdk install latest"'
+    echo
+    exit 1
+  fi
+fi
 
 "${ADL_DIR}"adl -profile extendedDesktop -cmd "${SCRIPT_DIR}/apm.xml" -- \
     -workingdir "$( pwd )" \
