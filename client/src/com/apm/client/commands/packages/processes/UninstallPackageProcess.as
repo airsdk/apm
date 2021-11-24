@@ -44,20 +44,22 @@ package com.apm.client.commands.packages.processes
 		private var _uninstallingPackageIdentifier:String;
 		private var _packageIdentifier:String;
 		private var _version:SemVer;
-		private var _skipChecks:Boolean;
+		private var _failIfNotInstalled:Boolean;
+		private var _checkIfRequiredDependency:Boolean;
 		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function UninstallPackageProcess( uninstallingPackageIdentifier:String, packageIdentifier:String, version:SemVer = null, skipChecks:Boolean = false )
+		public function UninstallPackageProcess( uninstallingPackageIdentifier:String, packageIdentifier:String, version:SemVer = null, failIfNotInstalled:Boolean = true, checkIfRequiredDependency:Boolean = true )
 		{
 			super();
 			_uninstallingPackageIdentifier = uninstallingPackageIdentifier;
 			_packageIdentifier = packageIdentifier;
 			_version = version;
-			_skipChecks = skipChecks;
+			_failIfNotInstalled = failIfNotInstalled;
+			_checkIfRequiredDependency = checkIfRequiredDependency;
 		}
 		
 		
@@ -68,15 +70,15 @@ package com.apm.client.commands.packages.processes
 			// Check the specified package is installed
 			if (!PackageCacheUtils.isPackageInstalled( _packageIdentifier, _version ))
 			{
-				if (_skipChecks)
-				{
-					return complete();
-				}
-				else
+				if (_failIfNotInstalled)
 				{
 					APM.io.writeError( _packageIdentifier, "Package not found" );
 					APM.config.projectDefinition.removePackageDependency( _packageIdentifier ).save();
 					return failure( "Package " + _packageIdentifier + " not found" );
+				}
+				else
+				{
+					return complete();
 				}
 			}
 			
@@ -88,7 +90,7 @@ package com.apm.client.commands.packages.processes
 			var uninstallingPackageDefinition:PackageDefinitionFile = new PackageDefinitionFile().load( f );
 			
 			// need to determine if this package is required by another package currently installed
-			if (!_skipChecks && PackageCacheUtils.isPackageRequiredDependency( _uninstallingPackageIdentifier, _packageIdentifier ))
+			if (_checkIfRequiredDependency && PackageCacheUtils.isPackageRequiredDependency( _uninstallingPackageIdentifier, _packageIdentifier ))
 			{
 				APM.io.writeError( _packageIdentifier, "Required by another package - skipping uninstall" );
 				return complete();
@@ -98,7 +100,7 @@ package com.apm.client.commands.packages.processes
 			for each (var dependency:PackageDependency in uninstallingPackageDefinition.dependencies)
 			{
 				processQueue.addProcessToStart(
-						new UninstallPackageProcess( _uninstallingPackageIdentifier, dependency.identifier )
+						new UninstallPackageProcess( _uninstallingPackageIdentifier, dependency.identifier, null, false, _checkIfRequiredDependency )
 				);
 			}
 			

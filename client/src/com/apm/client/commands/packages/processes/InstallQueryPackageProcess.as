@@ -149,7 +149,8 @@ package com.apm.client.commands.packages.processes
 												break;
 											
 											case ProjectDefinitionValidator.HIGHER_VERSION_REQUESTED:
-												processQueue.addProcessToStart( new UninstallPackageProcess( packageDefinition.identifier, packageDefinition.identifier ) );
+													// TODO
+												processQueue.addProcessToStart( new UninstallPackageProcess( packageDefinition.identifier, packageDefinition.identifier, null, false ) );
 												break;
 											
 											case ProjectDefinitionValidator.UNKNOWN_LATEST_REQUESTED:
@@ -163,6 +164,7 @@ package com.apm.client.commands.packages.processes
 									// Queue dependencies for install
 									for each (var dep:PackageDependency in packageVersionForInstall.dependencies)
 									{
+										Log.d( TAG, "Adding dependency: " + dep.toString() );
 										_queue.addProcess(
 												new InstallQueryPackageProcess(
 														_installData,

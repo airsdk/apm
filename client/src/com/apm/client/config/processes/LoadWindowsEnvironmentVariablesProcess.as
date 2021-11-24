@@ -17,6 +17,7 @@ package com.apm.client.config.processes
 	import com.apm.client.config.RunConfig;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
+	import com.apm.utils.WindowsShellPaths;
 	
 	import flash.desktop.NativeProcess;
 	import flash.desktop.NativeProcessStartupInfo;
@@ -60,30 +61,13 @@ package com.apm.client.config.processes
 		}
 		
 		
-		public static function getCmdInterpreter():File
-		{
-			try
-			{
-				var cmd:File = new File( "C:\\WINDOWS\\System32\\cmd.exe" );
-//				var cmd:File = new File( "%ComSpec%" );
-				if (cmd.exists)
-					return cmd;
-			}
-			catch (e:Error)
-			{
-				Log.e( TAG, e );
-			}
-			return null;
-		}
-		
-		
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
 			Log.d( TAG, "start()" );
 			if (NativeProcess.isSupported)
 			{
-				var cmd:File = getCmdInterpreter();
+				var cmd:File = WindowsShellPaths.getCmdInterpreter( _config ? _config.env : null );
 				if (cmd == null || !cmd.exists)
 				{
 					APM.io.writeError( "cmd.exe", "cmd.exe not available - cannot get environment - proceeding with defaults" );

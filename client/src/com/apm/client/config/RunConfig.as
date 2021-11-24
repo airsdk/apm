@@ -20,6 +20,7 @@ package com.apm.client.config
 	import com.apm.client.config.processes.LoadUserSettingsProcess;
 	import com.apm.client.config.processes.LoadWindowsEnvironmentVariablesProcess;
 	import com.apm.client.config.processes.LoadWindowsJavaHomeProcess;
+	import com.apm.client.config.processes.LoadWindowsPowershellVersionProcess;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.project.ProjectDefinition;
@@ -148,16 +149,13 @@ package com.apm.client.config
 			}
 			if (isWindows)
 			{
-				Log.v( TAG, "Adding LoadWindowsEnvironmentVariablesProcess" );
 				_loadQueue.addProcess( new LoadWindowsEnvironmentVariablesProcess( this ) );
-				Log.v( TAG, "Adding LoadWindowsJavaHomeProcess" );
+				_loadQueue.addProcess( new LoadWindowsPowershellVersionProcess( this ) );
 				_loadQueue.addProcess( new LoadWindowsJavaHomeProcess( this ) );
 			}
 			
 			// General
-			Log.v( TAG, "Adding LoadProjectDefinitionProcess" );
 			_loadQueue.addProcess( new LoadProjectDefinitionProcess( this ) );
-			Log.v( TAG, "Adding LoadUserSettingsProcess" );
 			_loadQueue.addProcess( new LoadUserSettingsProcess( this ) );
 //			_loadQueue.addProcess( new DebugDelayProcess( 3000 ) );
 			if (checkNetwork) _loadQueue.addProcess( new CheckNetworkProcess( this ) );
