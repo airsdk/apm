@@ -14,6 +14,7 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.SemVer;
+	import com.apm.SemVerRange;
 	import com.apm.client.APM;
 	import com.apm.client.commands.packages.data.InstallData;
 	import com.apm.client.commands.packages.data.InstallRequest;
@@ -105,7 +106,7 @@ package com.apm.client.commands.packages.processes
 				APM.io.showSpinner( "Finding package : " + _request.description() );
 				PackageResolver.instance.getPackageVersion(
 						_request.packageIdentifier,
-						SemVer.fromString( _request.version ),
+						SemVerRange.fromString( _request.version ),
 						_request.source,
 						null,
 						function ( success:Boolean, packageDefinition:PackageDefinition ):void
@@ -160,13 +161,13 @@ package com.apm.client.commands.packages.processes
 									_installData.addPackage( packageVersionForInstall, _request );
 									
 									// Queue dependencies for install
-									for each (var dep:PackageVersion in packageVersionForInstall.dependencies)
+									for each (var dep:PackageDependency in packageVersionForInstall.dependencies)
 									{
 										_queue.addProcess(
 												new InstallQueryPackageProcess(
 														_installData,
 														new InstallRequest(
-																dep.packageDef.identifier,
+																dep.identifier,
 																dep.version.toString(),
 																dep.source,
 																packageVersionForInstall

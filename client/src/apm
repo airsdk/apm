@@ -1,10 +1,15 @@
 #!/bin/bash
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-#$SCRIPT_DIR/apm.app/Contents/MacOS/apm -workingdir "`pwd`" $@
 
 # if AIR_HOME environment variable is set, look for "adl" in AIR_HOME/bin directory
-if [ -z "$ADL_DIR" ] && [ ! -z "$AIR_HOME" ]; then
-  ADL_DIR="$AIR_HOME/bin/"
+if [ -z "${ADL_DIR}" ] && [ ! -z "${AIR_HOME}" ]; then
+  ADL_DIR="${AIR_HOME}/bin/"
 fi
 
-${ADL_DIR}adl -profile extendedDesktop -cmd "$SCRIPT_DIR/apm.xml" -- -workingdir "$( pwd )" -appdir "$SCRIPT_DIR" "$@"
+AIR_DIR="$(dirname "$(dirname "$(which "${ADL_DIR}adl")")")"
+
+"${ADL_DIR}"adl -profile extendedDesktop -cmd "${SCRIPT_DIR}/apm.xml" -- \
+    -workingdir "$( pwd )" \
+    -appdir "${SCRIPT_DIR}" \
+    -airdir "${AIR_DIR}" \
+    "$@"

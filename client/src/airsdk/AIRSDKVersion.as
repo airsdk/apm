@@ -11,8 +11,12 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		28/8/21
  */
-package com.apm.remote.airsdk
+package airsdk
 {
+	import com.apm.utils.FileUtils;
+	
+	import flash.filesystem.File;
+	
 	
 	/**
 	 * Specialised SemVer style version handler for the AIR SDK with 4 version numbers (XX.Y.Z.BBB)
@@ -57,23 +61,30 @@ package com.apm.remote.airsdk
 		public function AIRSDKVersion( version:String )
 		{
 			var results:Array = FORMAT.exec( version );
-			for (var i:int = 0; i < results.length; i++)
+			if (results != null)
 			{
-				switch (i)
+				for (var i:int = 0; i < results.length; i++)
 				{
-					case 1:
-						_major = results[ i ];
-						break;
-					case 2:
-						_minor = results[ i ];
-						break;
-					case 3:
-						if (results[ i ] != undefined) _patch = results[ i ];
-						break;
-					case 4:
-						if (results[ i ] != undefined) _build = results[ i ];
-						break;
+					switch (i)
+					{
+						case 1:
+							_major = results[ i ];
+							break;
+						case 2:
+							_minor = results[ i ];
+							break;
+						case 3:
+							if (results[ i ] != undefined) _patch = results[ i ];
+							break;
+						case 4:
+							if (results[ i ] != undefined) _build = results[ i ];
+							break;
+					}
 				}
+			}
+			else
+			{
+				throw new Error( "Invalid AIR SDK version format" )
 			}
 		}
 		
@@ -83,7 +94,9 @@ package com.apm.remote.airsdk
 			try
 			{
 				if (version != null)
+				{
 					return new AIRSDKVersion( version );
+				}
 			}
 			catch (e:Error)
 			{
@@ -101,6 +114,27 @@ package com.apm.remote.airsdk
 		public function getNamespace():String
 		{
 			return "http://ns.adobe.com/air/application/" + _major + "." + _minor;
+		}
+		
+		
+		public static function fromAIRSDKDescription( file:File ):AIRSDKVersion
+		{
+			try
+			{
+				if (file.exists)
+				{
+					var airSDKDescriptionString:String = FileUtils.readFileContentAsString( file );
+					var airSDKDescription:XML = new XML( airSDKDescriptionString );
+					var versionString:String = airSDKDescription.version.text() + "." + airSDKDescription.build.text();
+					var version:AIRSDKVersion = new AIRSDKVersion( versionString );
+					return version;
+				}
+			}
+			catch (e:Error)
+			{
+				trace( e );
+			}
+			return null;
 		}
 		
 		

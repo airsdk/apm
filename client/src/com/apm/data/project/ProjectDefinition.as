@@ -13,8 +13,10 @@
  */
 package com.apm.data.project
 {
+	import com.apm.SemVerRange;
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.packages.PackageIdentifier;
+	import com.apm.data.packages.PackageParameter;
 	import com.apm.data.packages.PackageVersion;
 	import com.apm.data.packages.RepositoryDefinition;
 	import com.apm.utils.JSONUtils;
@@ -49,7 +51,7 @@ package com.apm.data.project
 		
 		private var _repositories:Vector.<RepositoryDefinition>;
 		private var _dependencies:Vector.<PackageDependency>;
-		private var _configuration:Object;
+		private var _configuration:Vector.<ProjectParameter>;
 		private var _deployOptions:Object;
 		
 		
@@ -61,9 +63,9 @@ package com.apm.data.project
 		{
 			_data = {};
 			
-			_repositories = new Vector.<RepositoryDefinition>();
-			_dependencies = new Vector.<PackageDependency>();
-			_configuration = {};
+			_repositories = new <RepositoryDefinition>[];
+			_dependencies = new <PackageDependency>[];
+			_configuration = new <ProjectParameter>[];
 			_deployOptions = {};
 		}
 		
@@ -92,7 +94,14 @@ package com.apm.data.project
 			
 			if (_data.hasOwnProperty( "configuration" ))
 			{
-				_configuration = _data.configuration;
+				_configuration = new Vector.<ProjectParameter>();
+				for (var key:String in _data.configuration)
+				{
+					_configuration.push(
+							ProjectParameter.fromObject( key, _data.configuration[key] )
+					);
+				}
+				_configuration.sort( Array.CASEINSENSITIVE );
 			}
 			
 			if (_data.hasOwnProperty( "deployOptions" ))
@@ -138,7 +147,13 @@ package com.apm.data.project
 			}
 			data[ "dependencies" ] = deps;
 			
-			data[ "configuration" ] = _configuration;
+			var configObject:Object = {};
+			for each (var param:ProjectParameter in _configuration)
+			{
+				configObject[param.name] = param.toObject();
+			}
+			data[ "configuration" ] = configObject;
+			
 			data[ "deployOptions" ] = _deployOptions;
 			
 			_data = data;
@@ -187,24 +202,45 @@ package com.apm.data.project
 		public function get dependencies():Vector.<PackageDependency>
 		{
 			if (_dependencies == null)
+			{
 				_dependencies = new Vector.<PackageDependency>();
+			}
 			return _dependencies;
 		}
 		
 		
-		public function get configuration():Object { return _configuration; }
+		public function get configuration():Vector.<ProjectParameter> { return _configuration; }
+		
+		
+		/**
+		 * Retrieves the specified configuration parameter value
+		 * @param paramName	The name of the parameter
+		 * @return	The value for the parameter or null if the parameter name could not be found
+		 */
+		public function getConfigurationParamValue( paramName:String ):String
+		{
+			var param:ProjectParameter = getConfigurationParam( paramName );
+			if (param != null)
+			{
+				return param.value;
+			}
+			return null;
+		}
 		
 		
 		/**
 		 * Retrieves the specified configuration parameter
-		 * @param key	The name of the parameter
-		 * @return	The value for the parameter or null if the parameter name could not be found
+		 * @param paramName	The name of the parameter
+		 * @return	The parameter instance or null if the parameter name could not be found
 		 */
-		public function getConfigurationParam( key:String ):String
+		public function getConfigurationParam( paramName:String ):ProjectParameter
 		{
-			if (_configuration.hasOwnProperty( key ))
+			if (_configuration != null)
 			{
-				return _configuration[ key ];
+				for each (var param:ProjectParameter in _configuration)
+				{
+					if (param.name == paramName) return param;
+				}
 			}
 			return null;
 		}
@@ -216,10 +252,53 @@ package com.apm.data.project
 		 * @param key		The name of the parameter
 		 * @param value		The value for the parameter
 		 */
-		public function setConfigurationParam( key:String, value:String ):void
+		public function setConfigurationParamValue( key:String, value:String ):void
 		{
-			if (_configuration == null) _configuration = {};
-			_configuration[ key ] = value;
+			if (_configuration == null) _configuration = new <ProjectParameter>[];
+			var param:ProjectParameter = getConfigurationParam( key );
+			if (param == null)
+			{
+				param = new ProjectParameter();
+				param.name = key;
+				param.value = value;
+				_configuration.push( param );
+				_configuration.sort( Array.CASEINSENSITIVE );
+			}
+			else
+			{
+				param.value = value;
+			}
+		}
+		
+		
+		/**
+		 * Adds the package parameter to the project configuration
+		 * @param packageParam
+		 */
+		public function addPackageParameter( packageParam:PackageParameter ):void
+		{
+			var param:ProjectParameter = getConfigurationParam( packageParam.name );
+			if (param == null)
+			{
+				// New parameter
+				param = new ProjectParameter();
+				param.name = packageParam.name;
+				param.required = packageParam.required;
+				param.value = packageParam.defaultValue;
+				
+				_configuration.push( param );
+				_configuration.sort( Array.CASEINSENSITIVE );
+			}
+			else
+			{
+				// Update existing parameter
+				param.required = param.required || packageParam.required;
+				if (!param.isValid())
+				{
+					param.value = packageParam.defaultValue;
+				}
+			}
+			
 		}
 		
 		
@@ -261,11 +340,11 @@ package com.apm.data.project
 			
 			var dep:PackageDependency = new PackageDependency();
 			dep.identifier = packageVersion.packageDef.identifier;
-			dep.version = packageVersion.version;
+			dep.version = SemVerRange.fromString( packageVersion.version.toString() );
 			dep.source = packageVersion.source;
 			
 			dependencies.push( dep );
-
+			
 			return this;
 		}
 		
@@ -295,7 +374,9 @@ package com.apm.data.project
 			for each (var dep:PackageDependency in _dependencies)
 			{
 				if (PackageIdentifier.isEquivalent( dep.identifier, identifier ))
+				{
 					return dep;
+				}
 			}
 			return null;
 		}

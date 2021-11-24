@@ -14,6 +14,7 @@
 package com.apm.remote.repository
 {
 	import com.apm.SemVer;
+	import com.apm.SemVerRange;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.remote.lib.APIRequestQueue;
@@ -181,7 +182,7 @@ package com.apm.remote.repository
 		}
 		
 		
-		public function getPackageVersion( identifier:String, version:SemVer, options:RepositoryQueryOptions = null, callback:Function = null ):void
+		public function getPackageVersion( identifier:String, version:SemVerRange, options:RepositoryQueryOptions = null, callback:Function = null ):void
 		{
 			var vars:URLVariables = new URLVariables();
 			

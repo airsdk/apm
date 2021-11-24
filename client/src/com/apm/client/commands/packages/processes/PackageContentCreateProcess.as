@@ -37,7 +37,7 @@ package com.apm.client.commands.packages.processes
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "PackageDefinitionCreateProcess";
+		private static const TAG:String = "PackageContentCreateProcess";
 		
 		
 		////////////////////////////////////////////////////////

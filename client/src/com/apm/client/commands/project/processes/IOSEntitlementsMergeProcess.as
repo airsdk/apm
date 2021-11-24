@@ -18,6 +18,7 @@ package com.apm.client.commands.project.processes
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.project.ApplicationDescriptor;
+	import com.apm.data.project.ProjectParameter;
 	import com.apm.utils.FileUtils;
 	import com.apple.plist.Plist;
 	
@@ -66,14 +67,11 @@ package com.apm.client.commands.project.processes
 				
 				// Read content and inject any config parameters
 				var entitlementsProjectContent:String = FileUtils.readFileContentAsString( entitlementsProjectFile );
-				for (var name:String in APM.config.projectDefinition.configuration)
+				for each (var param:ProjectParameter in APM.config.projectDefinition.configuration)
 				{
-					var regex:RegExp = new RegExp( "\\$\\{" + name + "\\}", "g" );
-					var value:String = APM.config.projectDefinition.getConfigurationParam( name );
-					
-					entitlementsProjectContent = entitlementsProjectContent.replace( regex, value );
+					var regex:RegExp = new RegExp( "\\$\\{" + param.name + "\\}", "g" );
+					entitlementsProjectContent = entitlementsProjectContent.replace( regex, param.value );
 				}
-
 				entitlementsProjectContent = entitlementsProjectContent.replace( /\$\{applicationId\}/g, APM.config.projectDefinition.applicationId );
 				
 				FileUtils.writeStringAsFileContent( entitlementsFile, entitlementsProjectContent );

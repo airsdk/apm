@@ -14,6 +14,7 @@
 package com.apm.data.packages
 {
 	import com.apm.SemVer;
+	import com.apm.SemVerRange;
 	
 	
 	public class PackageVersion
@@ -38,7 +39,7 @@ package com.apm.data.packages
 		public var status:String = "release";
 		
 		public var parameters:Vector.<PackageParameter> = new Vector.<PackageParameter>();
-		public var dependencies:Vector.<PackageVersion> = new Vector.<PackageVersion>();
+		public var dependencies:Vector.<PackageDependency> = new Vector.<PackageDependency>();
 		
 		public var source:String = null;
 		
@@ -82,7 +83,7 @@ package com.apm.data.packages
 		{
 			if (data != null)
 			{
-				if (data.hasOwnProperty( "version" )) this.version = SemVer.fromString( data[ "version" ] );
+				if (data.hasOwnProperty( "version" )) this.version = SemVerRange.fromString( data[ "version" ] );
 				if (data.hasOwnProperty( "source" )) this.source = data[ "source" ];
 				if (data.hasOwnProperty( "sourceUrl" )) this.sourceUrl = data[ "sourceUrl" ];
 				if (data.hasOwnProperty( "checksum" )) this.checksum = data[ "checksum" ];
@@ -92,7 +93,7 @@ package com.apm.data.packages
 				{
 					for each (var depObject:Object in data.dependencies)
 					{
-						dependencies.push( new PackageVersion().fromObject( depObject ) );
+						dependencies.push( new PackageDependency().fromObject( depObject ) );
 					}
 				}
 				if (data.hasOwnProperty( "parameters" ))
@@ -122,7 +123,7 @@ package com.apm.data.packages
 			data.status = status;
 			
 			var dependenciesObject:Array = [];
-			for each (var d:PackageVersion in dependencies)
+			for each (var d:PackageDependency in dependencies)
 			{
 				dependenciesObject.push( d.toObject( forceObjectOutput ) );
 			}

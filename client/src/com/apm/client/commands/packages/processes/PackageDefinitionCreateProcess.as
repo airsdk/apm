@@ -15,6 +15,7 @@ package com.apm.client.commands.packages.processes
 {
 	import com.adobe.formatters.DateFormatter;
 	import com.apm.SemVer;
+	import com.apm.SemVerRange;
 	import com.apm.client.APM;
 	import com.apm.utils.PackageFileUtils;
 	import com.apm.client.processes.ProcessBase;

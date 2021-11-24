@@ -19,6 +19,7 @@ package com.apm.utils
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.packages.PackageIdentifier;
+	import com.apm.data.packages.PackageIdentifier;
 	import com.apm.data.project.ProjectDefinition;
 	
 	import flash.filesystem.File;
@@ -73,6 +74,7 @@ package com.apm.utils
 			{
 				// Check version matches
 				var packageDefinition:PackageDefinitionFile = new PackageDefinitionFile().load( f );
+				// TODO:: handle version ranges in project definition file
 				if (!packageDefinition.version.version.equals( version ))
 				{
 					return false;
@@ -142,6 +144,27 @@ package com.apm.utils
 				}
 			}
 			return cachedPackages;
+		}
+		
+		
+		/**
+		 * Find the cached PackageDefinitionFile for the specified identifier
+		 *
+		 * @param identifier The package identifier to search the cache for
+		 *
+		 * @return A PackageDefinitionFile representing the cached package or null if not found
+		 */
+		public static function getCachedPackage( identifier:String ):PackageDefinitionFile
+		{
+			var cachedPackages:Vector.<PackageDefinitionFile> = getCachedPackages();
+			for each (var cachedPackage:PackageDefinitionFile in cachedPackages)
+			{
+				if (PackageIdentifier.isEquivalent( cachedPackage.packageDef.identifier, identifier ))
+				{
+					return cachedPackage;
+				}
+			}
+			return null;
 		}
 		
 		

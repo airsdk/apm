@@ -59,7 +59,7 @@ package com.apm.client.commands.packages.utils
 					{
 						return UNKNOWN_LATEST_REQUESTED; // Unknown as yet
 					}
-					else if (project.dependencies[i].version.greaterThanOrEqual( SemVer.fromString(request.version) ))
+					else if (project.dependencies[i].version.greaterThanOrEqual( request.semVer ))
 					{
 						return ALREADY_INSTALLED;
 					}

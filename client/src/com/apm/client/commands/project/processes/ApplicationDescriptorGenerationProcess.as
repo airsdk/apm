@@ -22,7 +22,7 @@ package com.apm.client.commands.project.processes
 	import com.apm.data.packages.PackageIdentifier;
 	import com.apm.data.project.ApplicationDescriptor;
 	import com.apm.data.project.ApplicationDescriptor;
-	import com.apm.remote.airsdk.AIRSDKVersion;
+	import airsdk.AIRSDKVersion;
 	import com.apm.utils.FileUtils;
 	import com.apm.utils.PackageCacheUtils;
 	

@@ -24,27 +24,27 @@ package com.apm
 
 //		public static const DEFAULT:SemVer = new SemVer( "0.0.0" );
 		
-		private var FORMAT:RegExp = /^(\d|[0-9]\d*)\.(\d|[0-9]\d*)(\.(\d|[0-9]\d*))?(-(alpha|beta|rc)(\.(\d|[1-9]\d*))?)?$/;
+		private var FORMAT:RegExp = /^([x0-9]*)(\.([0-9]*))?(\.([0-9]*))?(-(alpha|beta|rc)(\.(\d|[1-9]\d*))?)?$/;
 		
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
 		
-		private var _major:int = 0;
-		private var _minor:int = 0;
-		private var _patch:int = 0;
-		private var _preview:String = null;
-		private var _previewNum:int = 0;
+		protected var _major:String = "0";
+		protected var _minor:String = "0";
+		protected var _patch:String = "0";
+		protected var _preview:String = null;
+		protected var _previewNum:int = 0;
 		
 		
-		public function get major():int { return _major; }
+		public function get major():int { return int( _major ); }
 		
 		
-		public function get minor():int { return _minor; }
+		public function get minor():int { return int( _minor ); }
 		
 		
-		public function get patch():int { return _patch; }
+		public function get patch():int { return int( _patch ); }
 		
 		
 		public function get preview():String { return _preview; }
@@ -53,14 +53,14 @@ package com.apm
 		public function get previewNum():int { return _previewNum; }
 		
 		
-		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function SemVer( version:String )
+		public function SemVer( version:String, format:RegExp = null )
 		{
-			var results:Array = FORMAT.exec( version );
+			if (format == null) format = FORMAT;
+			var results:Array = format.exec( version );
 			if (results != null)
 			{
 				for (var i:int = 0; i < results.length; i++)
@@ -70,16 +70,16 @@ package com.apm
 						case 1:
 							_major = results[ i ];
 							break;
-						case 2:
+						case 3:
 							_minor = results[ i ];
 							break;
-						case 4:
+						case 5:
 							if (results[ i ] != undefined) _patch = results[ i ];
 							break;
-						case 6:
+						case 7:
 							if (results[ i ] != undefined) _preview = results[ i ];
 							break;
-						case 8:
+						case 9:
 							if (results[ i ] != undefined) _previewNum = results[ i ];
 							break;
 					}
@@ -97,7 +97,9 @@ package com.apm
 			try
 			{
 				if (version != null)
+				{
 					return new SemVer( version );
+				}
 			}
 			catch (e:Error)
 			{
@@ -109,10 +111,10 @@ package com.apm
 		public function toString():String
 		{
 			return _major + "." + _minor + "." + _patch +
-					(
-							(_preview == null) ? "" : ("-" + _preview +
-									(_previewNum == 0 ? "" : ("." + _previewNum)))
-					)
+				   (
+						   (_preview == null) ? "" : ("-" + _preview +
+				   (_previewNum == 0 ? "" : ("." + _previewNum)))
+				   )
 					;
 		}
 		
@@ -124,9 +126,11 @@ package com.apm
 		public function equals( v:SemVer ):Boolean
 		{
 			if (_major == v._major
-					&& _minor == v._minor
-					&& _patch == v._patch)
+				&& _minor == v._minor
+				&& _patch == v._patch)
+			{
 				return true;
+			}
 			
 			// TODO preview info
 			return false;
@@ -143,13 +147,19 @@ package com.apm
 		public function greaterThan( v:SemVer ):Boolean
 		{
 			if (equals( v )) return false;
-			if (_major > v._major) return true;
-			else if (_major == v._major)
+			if (major > v.major)
 			{
-				if (_minor > v._minor) return true;
-				else if (_minor == v._minor)
+				return true;
+			}
+			else if (major == v.major)
+			{
+				if (minor > v.minor)
 				{
-					if (_patch > v._patch) return true;
+					return true;
+				}
+				else if (minor == v.minor)
+				{
+					if (patch > v.patch) return true;
 					// TODO preview info ...
 				}
 			}

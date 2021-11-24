@@ -14,6 +14,7 @@
 package com.apm.data.packages
 {
 	import com.apm.SemVer;
+	import com.apm.SemVerRange;
 	import com.apm.utils.JSONUtils;
 	
 	import flash.filesystem.File;
