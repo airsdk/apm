@@ -135,6 +135,8 @@ package com.apm.data.project
 				//
 				// We slightly modify the android manifest generated to make it suitable for the air manifest additions
 				//
+				// - delete any unsupported application attributes
+				//     (https://airsdk.dev/docs/development/application-descriptor-files/android)
 				// - strip the manifest tag to remove unsupported attributes/namespaces
 				//     (means we have to treat it as a string otherwise entries will get broken)
 				// - generate a simple manifest tag
@@ -143,6 +145,16 @@ package com.apm.data.project
 				//
 				
 				var manifest:XML = new XML( androidManifest );
+				var androidns:Namespace = new Namespace( "android", ANDROID_NAMESPACE );
+				
+				delete manifest.application.@androidns::theme[0];
+				delete manifest.application.@androidns::name[0];
+				delete manifest.application.@androidns::label[0];
+				delete manifest.application.@androidns::windowSoftInputMode[0];
+				delete manifest.application.@androidns::configChanges[0];
+				delete manifest.application.@androidns::screenOrientation[0];
+				delete manifest.application.@androidns::launchMode[0];
+
 				var manifestAdditionsContent:String = stripManifestTag( manifest );
 				var manifestAdditions:XML = new XML(
 						"<manifestAdditions><![CDATA[" +
