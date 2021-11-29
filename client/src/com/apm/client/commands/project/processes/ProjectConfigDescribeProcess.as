@@ -17,10 +17,13 @@ package com.apm.client.commands.project.processes
 	import com.apm.client.io.IOColour;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageDefinitionFile;
+	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.packages.PackageParameter;
 	import com.apm.data.project.ProjectDefinition;
 	import com.apm.data.project.ProjectParameter;
 	import com.apm.utils.PackageCacheUtils;
+	
+	import flash.html.script.Package;
 	
 	
 	public class ProjectConfigDescribeProcess extends ProcessBase
@@ -73,11 +76,9 @@ package com.apm.client.commands.project.processes
 			
 			
 			var param:ProjectParameter = project.getConfigurationParam( _paramName, APM.config.buildType );
-			if (param == null)
-			{
-				APM.io.writeError( "parameter", "not found" );
-			}
-			else
+			var paramPackage:PackageDefinitionFile = PackageCacheUtils.getCachedPackage( _paramName );
+			
+			if (param != null)
 			{
 				var linePrefix:String = "# ";
 				var linePadding:String = "        ";
@@ -118,7 +119,17 @@ package com.apm.client.commands.project.processes
 				
 				APM.io.writeLine( description, IOColour.LIGHT_BLUE );
 				APM.io.writeValue( param.name, param.value + (param.required ? " (required)" : "") );
-				
+			}
+			else if (paramPackage != null)
+			{
+				for each (var pp:PackageParameter in paramPackage.version.parameters)
+				{
+					_queue.addProcess( new ProjectConfigDescribeProcess( pp.name ) );
+				}
+			}
+			else
+			{
+				APM.io.writeError( "parameter", _paramName + " not found" );
 			}
 			
 			complete();

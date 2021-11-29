@@ -97,10 +97,13 @@ package com.apm.client.commands.project
 		{
 			return description + "\n" +
 				   "\n" +
+				   "apm project config                        Prints all configuration parameters \n" +
 				   "apm project config set <param> <value>    Sets a <param> configuration parameter to the specified <value> \n" +
 				   "apm project config get <param>            Prints the configuration parameter value for the <param> parameter \n" +
-				   "apm project config describe <param>       Prints the description for the the <param> parameter \n" +
-				   "apm project config                        Prints all configuration parameters \n";
+				   "apm project config describe               Prints the description for all the project parameters \n" +
+				   "apm project config describe <param>       Prints the description for the <param> parameter \n" +
+				   "apm project config describe <identifier>  Prints the description for all the <identifier> package parameters \n"
+			;
 		}
 		
 		
