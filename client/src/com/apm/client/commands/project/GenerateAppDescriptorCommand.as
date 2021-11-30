@@ -13,6 +13,8 @@
  */
 package com.apm.client.commands.project
 {
+	import airsdk.AIRSDKVersion;
+	
 	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
 	import com.apm.client.commands.project.processes.AndroidManifestMergeProcess;
@@ -26,8 +28,6 @@ package com.apm.client.commands.project
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.project.ApplicationDescriptor;
 	import com.apm.data.project.ProjectDefinition;
-	import airsdk.AIRSDKVersion;
-	import airsdk.AIRSDKVersion;
 	
 	import flash.events.EventDispatcher;
 	import flash.filesystem.File;
@@ -50,6 +50,7 @@ package com.apm.client.commands.project
 		//
 		
 		private var _parameters:Array;
+		private var _options:Array;
 		private var _queue:ProcessQueue;
 		
 		
@@ -61,6 +62,7 @@ package com.apm.client.commands.project
 		{
 			super();
 			_parameters = [];
+			_options = [];
 			_queue = new ProcessQueue();
 		}
 		
@@ -68,7 +70,21 @@ package com.apm.client.commands.project
 		public function setParameters( parameters:Array ):void
 		{
 			if (parameters != null)
-				_parameters = parameters;
+			{
+				_parameters = [];
+				_options = [];
+				for each (var p:String in parameters)
+				{
+					if (p.substr( 0, 2 ) == "--")
+					{
+						_options.push( p );
+					}
+					else
+					{
+						_parameters.push( p );
+					}
+				}
+			}
 		}
 		
 		
@@ -94,8 +110,12 @@ package com.apm.client.commands.project
 		{
 			return description + "\n" +
 					"\n" +
-					"apm generate app-descriptor             generates an application descriptor for your application with all required package additions\n" +
-					"apm generate app-descriptor [out.xml]   generates an application descriptor updating the specified out.xml file\n"
+					"apm generate app-descriptor             generates an application descriptor to 'src/APPNAME-app.xml'\n" +
+					"apm generate app-descriptor [out.xml]   generates an application descriptor updating the specified out.xml file\n" +
+					"\n" +
+					"options: \n" +
+					"  --exclude-android    excludes generation of the android manifest additions\n" +
+					"  --exclude-ios        excludes generation of the iOS info additions and entitlements\n"
 					;
 		}
 		
@@ -114,7 +134,26 @@ package com.apm.client.commands.project
 		
 		public function execute():void
 		{
-			Log.d( TAG, "execute(): " + (_parameters.length > 0 ? _parameters[ 0 ] : "...") + "\n" );
+			Log.d( TAG, "execute(): " + (_parameters.length > 0 ? _parameters.join( "," ) : "...") + "\n" );
+			
+			var excludeAndroid:Boolean = false;
+			var excludeIOS:Boolean = false;
+			for each (var option:String in _options)
+			{
+				switch (option)
+				{
+					case "--exclude-android":
+					{
+						excludeAndroid = true;
+						break;
+					}
+					case "--exclude-ios":
+					{
+						excludeIOS = true;
+						break;
+					}
+				}
+			}
 			
 			// Get AIR SDK version for app descriptor
 			var airSDKVersion:AIRSDKVersion = null;
@@ -132,7 +171,7 @@ package com.apm.client.commands.project
 					Log.d( TAG, "AIR DIR doesn't exist: " + APM.config.airDirectory );
 				}
 			}
-
+			
 			Log.d( TAG, "AIR SDK Version: " + (airSDKVersion == null ? "null" : airSDKVersion.toString()) );
 			
 			var appDescriptor:ApplicationDescriptor = new ApplicationDescriptor( airSDKVersion );
@@ -145,16 +184,24 @@ package com.apm.client.commands.project
 			
 			_queue.addProcess( new ValidateProjectParametersProcess() );
 			_queue.addProcess( new ValidatePackageCacheProcess() );
-			_queue.addProcess( new AndroidManifestMergeProcess( appDescriptor ) );
-			_queue.addProcess( new IOSAdditionsMergeProcess( appDescriptor ) );
-			_queue.addProcess( new IOSEntitlementsMergeProcess( appDescriptor ) );
+			if (!excludeAndroid)
+			{
+				_queue.addProcess( new AndroidManifestMergeProcess( appDescriptor ) );
+			}
+			if (!excludeIOS)
+			{
+				_queue.addProcess( new IOSAdditionsMergeProcess( appDescriptor ) );
+				_queue.addProcess( new IOSEntitlementsMergeProcess( appDescriptor ) );
+			}
 			_queue.addProcess( new ApplicationDescriptorGenerationProcess( appDescriptor, outputPath ) );
 			
 			_queue.start(
-					function ():void {
+					function ():void
+					{
 						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ) );
 					},
-					function ( error:String ):void {
+					function ( error:String ):void
+					{
 						APM.io.writeError( NAME, error );
 						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
 					} );

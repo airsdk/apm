@@ -208,12 +208,12 @@ package com.apm.data.project
 		{
 			default xml namespace = _airNS;
 			
-			if (iosInfoAdditions != null && _xml != null)
+			if (iosInfoAdditions != null && iosInfoAdditions.length > 0 && _xml != null)
 			{
 				var infoAdditions:XML = new XML( "<InfoAdditions><![CDATA[\n" + iosInfoAdditions + "]]></InfoAdditions>" );
 				_xml.iPhone.InfoAdditions = infoAdditions;
 			}
-			if (iosEntitlements != null && _xml != null)
+			if (iosEntitlements != null && iosEntitlements.length > 0 && _xml != null)
 			{
 				var entitlements:XML = new XML( "<Entitlements><![CDATA[\n" + iosEntitlements + "]]></Entitlements>" );
 				_xml.iPhone.Entitlements = entitlements;
