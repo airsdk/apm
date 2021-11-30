@@ -88,7 +88,7 @@ package com.apm.client.commands.project
 		
 		public function get description():String
 		{
-			return "generate default advanced configuration files";
+			return "generates the default configuration files for setting advanced properties into the platform specific application descriptor section";
 		}
 		
 		
@@ -96,8 +96,8 @@ package com.apm.client.commands.project
 		{
 			return description + "\n" +
 					"\n" +
-					"apm generate config             generates a set of default configuration files for setting advanced properties into the platform specific application descriptor section\n" +
-					"apm generate config <platform>  generates default configuration files for the specified platform\n"
+					"apm generate config             generates default configuration files for all platforms\n" +
+					"apm generate config <platform>  generates default configuration files for the specified platform [android, ios]\n"
 					;
 		}
 		
