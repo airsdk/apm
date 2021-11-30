@@ -79,9 +79,9 @@ package com.apm.client.commands.project.processes
 				{
 					ProjectConfigDescribeProcess.describeParameter( param );
 					var value:String = APM.io.question( "Set", param.value );
-					if (value != null && value.length > 0)
+					if (value != null && value.length > 0 && value != param.value)
 					{
-						param.value = value;
+						project.setConfigurationParamValue( _paramName, value, APM.config.buildType );
 						project.save();
 					}
 				}
