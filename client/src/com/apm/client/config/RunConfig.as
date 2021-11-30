@@ -210,7 +210,14 @@ package com.apm.client.config
 		 */
 		public function get configDirectory():String
 		{
-			// TODO :: Add a configurable path
+			var deployConfigDir:File = DeployFileUtils.getDeployLocation(
+					this,
+					"config"
+			);
+			if (deployConfigDir != null)
+			{
+				return deployConfigDir.nativePath;
+			}
 			return workingDirectory + File.separator + "config";
 		}
 		

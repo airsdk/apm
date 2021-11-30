@@ -63,7 +63,7 @@ package com.apm.client.commands.project.processes
 			var entitlementsProjectFile:File = new File( APM.config.configDirectory ).resolvePath( "ios/Entitlements.xml" );
 			if (entitlementsProjectFile.exists)
 			{
-				APM.io.writeLine( "Merging with supplied info additions: config/ios/Entitlements.xml" );
+				APM.io.writeLine( "Merging with supplied info additions: " + entitlementsProjectFile.nativePath.substr( APM.config.workingDirectory.length + 1 ) );
 				
 				// Read content and inject any config parameters
 				var entitlementsProjectContent:String = FileUtils.readFileContentAsString( entitlementsProjectFile );

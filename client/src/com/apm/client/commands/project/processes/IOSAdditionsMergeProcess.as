@@ -63,7 +63,7 @@ package com.apm.client.commands.project.processes
 			var infoAdditionsProjectFile:File = new File( APM.config.configDirectory ).resolvePath( "ios/InfoAdditions.xml" );
 			if (infoAdditionsProjectFile.exists)
 			{
-				APM.io.writeLine( "Merging with supplied info additions: config/ios/InfoAdditions.xml" );
+				APM.io.writeLine( "Merging with supplied info additions: " + infoAdditionsProjectFile.nativePath.substr( APM.config.workingDirectory.length + 1 ) );
 				
 				// Read content and inject any config parameters
 				var infoAdditionsProjectContent:String = FileUtils.readFileContentAsString( infoAdditionsProjectFile );
