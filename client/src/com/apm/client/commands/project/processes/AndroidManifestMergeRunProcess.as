@@ -81,7 +81,7 @@ package com.apm.client.commands.project.processes
 				return;
 			}
 			
-			var mainManifest:File = new File( APM.config.workingDirectory ).resolvePath( "config/android/AndroidManifest.xml" );
+			var mainManifest:File = new File( APM.config.configDirectory ).resolvePath( "android/AndroidManifest.xml" );
 			if (mainManifest.exists)
 			{
 				APM.io.writeLine( "Merging with supplied main manifest: config/android/AndroidManifest.xml" );

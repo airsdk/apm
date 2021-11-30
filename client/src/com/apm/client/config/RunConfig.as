@@ -206,6 +206,16 @@ package com.apm.client.config
 		
 		
 		/**
+		 * The directory for apm advanced config files (defaults to: config)
+		 */
+		public function get configDirectory():String
+		{
+			// TODO :: Add a configurable path
+			return workingDirectory + File.separator + "config";
+		}
+		
+		
+		/**
 		 * The path to the user's "home" directory
 		 */
 		public function get homeDirectory():String

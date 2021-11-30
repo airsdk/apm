@@ -71,9 +71,9 @@ package com.apm.client.commands.project.processes
 				//
 				//	LOAD TEMPLATE
 				
-				var configDescriptorPath:String = "config/application-descriptor.xml";
+				var configDescriptorPath:String = "application-descriptor.xml";
 				
-				var configDescriptor:File = new File( APM.config.workingDirectory ).resolvePath( configDescriptorPath );
+				var configDescriptor:File = new File( APM.config.configDirectory ).resolvePath( configDescriptorPath );
 				var specifiedDescriptor:File = new File( APM.config.workingDirectory ).resolvePath( _outputPath );
 				
 				if (configDescriptor.exists)
