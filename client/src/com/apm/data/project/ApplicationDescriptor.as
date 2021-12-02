@@ -246,6 +246,26 @@ package com.apm.data.project
 		}
 		
 		
+		public function removeExtension( extensionIDToRemove:String ):void
+		{
+			default xml namespace = _airNS;
+			if (_xml.extensions == undefined)
+			{
+				return;
+			}
+			for (var i:int = 0; i < _xml.extensions..extensionID.length(); i++)
+			{
+				if (_xml.extensions..extensionID[i].toString() == extensionIDToRemove)
+				{
+					delete _xml.extensions..extensionID[i];
+					return;
+				}
+			}
+//			delete _xml.extensions.(elements.toString() == extensionID)[0];
+//			delete _xml.extensions.(extensionID == extensionIDToRemove)[0];
+		}
+		
+		
 		//
 		// 	VALIDATION
 		//

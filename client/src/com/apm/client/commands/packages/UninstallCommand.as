@@ -97,7 +97,9 @@ package com.apm.client.commands.packages
 		{
 			return description + "\n" +
 					"\n" +
-					"apm uninstall <foo>            uninstall the <foo> dependency to your project\n";
+					"apm uninstall <foo>            uninstall the <foo> dependency from your project\n"+
+					"apm uninstall <foo> <out.xml>  uninstall the <foo> dependency from your project and remove it from the specified application descriptor\n"
+				;
 		}
 		
 		
@@ -113,10 +115,11 @@ package com.apm.client.commands.packages
 			if (_parameters != null && _parameters.length > 0)
 			{
 				var packageIdentifier:String = _parameters[ 0 ];
+				var appDescriptorPath:String = (_parameters.length > 1 ? _parameters[ 1 ] : null);
 				_packageDependency = project.getPackageDependency( packageIdentifier );
 				if (_packageDependency != null)
 				{
-					_queue.addProcess( new UninstallPackageProcess( packageIdentifier, packageIdentifier ) );
+					_queue.addProcess( new UninstallPackageProcess( packageIdentifier, packageIdentifier, appDescriptorPath ) );
 				}
 			}
 			

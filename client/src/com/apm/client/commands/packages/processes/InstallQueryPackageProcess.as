@@ -150,7 +150,7 @@ package com.apm.client.commands.packages.processes
 											
 											case ProjectDefinitionValidator.HIGHER_VERSION_REQUESTED:
 													// TODO
-												processQueue.addProcessToStart( new UninstallPackageProcess( packageDefinition.identifier, packageDefinition.identifier, null, false ) );
+												processQueue.addProcessToStart( new UninstallPackageProcess( packageDefinition.identifier, packageDefinition.identifier, null, null, false ) );
 												break;
 											
 											case ProjectDefinitionValidator.UNKNOWN_LATEST_REQUESTED:

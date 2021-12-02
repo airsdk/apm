@@ -43,6 +43,7 @@ package com.apm.client.commands.packages.processes
 		
 		private var _uninstallingPackageIdentifier:String;
 		private var _packageIdentifier:String;
+		private var _appDescriptorPath:String;
 		private var _version:SemVer;
 		private var _failIfNotInstalled:Boolean;
 		private var _checkIfRequiredDependency:Boolean;
@@ -52,11 +53,27 @@ package com.apm.client.commands.packages.processes
 		//  FUNCTIONALITY
 		//
 		
-		public function UninstallPackageProcess( uninstallingPackageIdentifier:String, packageIdentifier:String, version:SemVer = null, failIfNotInstalled:Boolean = true, checkIfRequiredDependency:Boolean = true )
+		/**
+		 *
+		 * @param uninstallingPackageIdentifier
+		 * @param packageIdentifier
+		 * @param version
+		 * @param failIfNotInstalled
+		 * @param checkIfRequiredDependency
+		 */
+		public function UninstallPackageProcess(
+				uninstallingPackageIdentifier:String,
+				packageIdentifier:String,
+				appDescriptorPath:String,
+				version:SemVer                    = null,
+				failIfNotInstalled:Boolean        = true,
+				checkIfRequiredDependency:Boolean = true
+		)
 		{
 			super();
 			_uninstallingPackageIdentifier = uninstallingPackageIdentifier;
 			_packageIdentifier = packageIdentifier;
+			_appDescriptorPath = appDescriptorPath;
 			_version = version;
 			_failIfNotInstalled = failIfNotInstalled;
 			_checkIfRequiredDependency = checkIfRequiredDependency;
@@ -100,13 +117,23 @@ package com.apm.client.commands.packages.processes
 			for each (var dependency:PackageDependency in uninstallingPackageDefinition.dependencies)
 			{
 				processQueue.addProcessToStart(
-						new UninstallPackageProcess( _uninstallingPackageIdentifier, dependency.identifier, null, false, _checkIfRequiredDependency )
+						new UninstallPackageProcess(
+								_uninstallingPackageIdentifier,
+								dependency.identifier,
+								_appDescriptorPath,
+								null,
+								false,
+								_checkIfRequiredDependency )
 				);
 			}
 			
 			var queue:ProcessQueue = new ProcessQueue();
 			
 			queue.addProcess( new UninstallFilesForPackageProcess( uninstallingPackageDefinition ) );
+			if (_appDescriptorPath != null)
+			{
+				queue.addProcess( new UninstallPackageFromAppDescriptorProcess( uninstallingPackageDefinition, _appDescriptorPath ) );
+			}
 			
 			queue.start(
 					function ():void

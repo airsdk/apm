@@ -197,7 +197,7 @@ package com.apm.client.commands.packages
 						
 						case ProjectDefinitionValidator.HIGHER_VERSION_REQUESTED:
 							// To upgrade we first uninstall then continue with the install
-							_queue.addProcessToStart( new UninstallPackageProcess( packageIdentifierOrPath, packageIdentifierOrPath ) );
+							_queue.addProcessToStart( new UninstallPackageProcess( packageIdentifierOrPath, packageIdentifierOrPath, null ) );
 							break;
 					}
 					
