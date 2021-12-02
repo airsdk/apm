@@ -18,7 +18,9 @@ package com.apm.client.commands.packages.processes
 	import com.apm.client.APM;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
+	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageDefinitionFile;
+	import com.apm.data.packages.PackageIdentifier;
 	import com.apm.data.project.ApplicationDescriptor;
 	import com.apm.utils.FileUtils;
 	
@@ -61,6 +63,13 @@ package com.apm.client.commands.packages.processes
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
+			
+			if (_packageDefinition.packageDef.type != PackageDefinition.TYPE_ANE)
+			{
+				Log.d( TAG, "Nothing to do, not an ANE package: " + _packageDefinition.packageDef.identifier );
+				return complete();
+			}
+			
 			APM.io.showSpinner( "Updating app descriptor : " + _appDescriptorPath );
 			
 			// Get AIR SDK version for app descriptor
@@ -97,7 +106,9 @@ package com.apm.client.commands.packages.processes
 				}
 				else
 				{
-					appDescriptor.removeExtension( _packageDefinition.packageDef.identifier );
+					appDescriptor.removeExtension(
+							PackageIdentifier.identifierWithoutVariant( _packageDefinition.packageDef.identifier )
+					);
 					appDescriptor.save( specifiedDescriptor );
 					
 					APM.io.stopSpinner( true, "Updated app descriptor : " + _appDescriptorPath );
