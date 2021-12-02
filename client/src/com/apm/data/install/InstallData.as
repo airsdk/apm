@@ -13,6 +13,7 @@
  */
 package com.apm.data.install
 {
+	import com.apm.client.logging.Log;
 	import com.apm.data.install.*;
 	import com.apm.data.packages.PackageIdentifier;
 	import com.apm.data.packages.PackageVersion;
@@ -108,13 +109,22 @@ package com.apm.data.install
 		{
 			for each (var p:InstallPackageData in _packagesAll)
 			{
-				if (
-						p.request != null
-						&& PackageIdentifier.isEquivalent( p.request.packageIdentifier, query.packageIdentifier )
-						&& p.request.semVer.equals( query.semVer )
-				)
+				try
 				{
-					return true;
+					if (
+							p.request != null
+							&& PackageIdentifier.isEquivalent( p.request.packageIdentifier, query.packageIdentifier )
+							&& p.request.semVer.equals( query.semVer )
+					)
+					{
+						return true;
+					}
+				}
+				catch (e:Error)
+				{
+					Log.d( TAG, "ERROR: request: " + p.request.description() )
+					Log.d( TAG, "ERROR: query: " + query.description() )
+					Log.e( TAG, e );
 				}
 			}
 			return false;
