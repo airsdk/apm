@@ -177,6 +177,7 @@ package com.apm.client.commands.project.processes
 			var args:Array = [];
 			for each (var manifestFile:File in manifests)
 			{
+				Log.v( TAG, "Merging: " + manifestFile.nativePath );
 				args.push( manifestFile.nativePath );
 			}
 			return args.join( APM.config.isWindows ? ";" : ":" );
