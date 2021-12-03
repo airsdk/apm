@@ -246,6 +246,14 @@ package com.apm.data.project
 		}
 		
 		
+		public function removeAllExtensions():void
+		{
+			default xml namespace = _airNS;
+			
+			_xml.extensions = <extensions/>;
+		}
+		
+		
 		public function removeExtension( extensionIDToRemove:String ):void
 		{
 			default xml namespace = _airNS;

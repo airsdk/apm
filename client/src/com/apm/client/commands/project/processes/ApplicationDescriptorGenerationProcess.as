@@ -23,6 +23,8 @@ package com.apm.client.commands.project.processes
 	import com.apm.data.project.ApplicationDescriptor;
 	import com.apm.data.project.ApplicationDescriptor;
 	import airsdk.AIRSDKVersion;
+	
+	import com.apm.data.project.ProjectLock;
 	import com.apm.utils.FileUtils;
 	import com.apm.utils.PackageCacheUtils;
 	
@@ -105,6 +107,16 @@ package com.apm.client.commands.project.processes
 				_appDescriptor.updateFromProjectDefinition( APM.config.projectDefinition );
 				_appDescriptor.updateAndroidAdditions();
 				_appDescriptor.updateIOSAdditions();
+				
+				if (APM.config.projectLock != null)
+				{
+					for each (var packageIdentifier:String in APM.config.projectLock.uninstalledPackageIdentifiers)
+					{
+						_appDescriptor.removeExtension(
+								PackageIdentifier.identifierWithoutVariant( packageIdentifier )
+						);
+					}
+				}
 				
 				for each (var packageDefinition:PackageDefinitionFile in PackageCacheUtils.getCachedPackages())
 				{

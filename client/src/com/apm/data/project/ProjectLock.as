@@ -13,14 +13,8 @@
  */
 package com.apm.data.project
 {
-	import com.apm.SemVerRange;
 	import com.apm.data.install.InstallPackageData;
-	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.packages.PackageIdentifier;
-	import com.apm.data.packages.PackageParameter;
-	import com.apm.data.packages.PackageVersion;
-	import com.apm.data.packages.RepositoryDefinition;
-	import com.apm.utils.JSONUtils;
 	
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
@@ -52,6 +46,8 @@ package com.apm.data.project
 		
 		private var _dependencies:Vector.<InstallPackageData>;
 		
+		private var _uninstalledPackageIdentifiers:Array;
+		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
@@ -62,6 +58,8 @@ package com.apm.data.project
 			_data = {};
 			
 			_dependencies = new <InstallPackageData>[];
+			_uninstalledPackageIdentifiers = [];
+			
 		}
 		
 		
@@ -76,6 +74,11 @@ package com.apm.data.project
 				{
 					_dependencies.push( new InstallPackageData().fromObject( dep ) );
 				}
+			}
+			
+			if (_data.hasOwnProperty( "uninstalledPackageIdentifiers" ))
+			{
+				_uninstalledPackageIdentifiers = _data[ "uninstalledPackageIdentifiers" ];
 			}
 			
 		}
@@ -98,6 +101,8 @@ package com.apm.data.project
 				deps.push( dep.toObject() );
 			}
 			data[ "dependencies" ] = deps;
+			
+			data[ "uninstalledPackageIdentifiers" ] = _uninstalledPackageIdentifiers;
 			
 			_data = data;
 			
@@ -123,7 +128,7 @@ package com.apm.data.project
 		/**
 		 * Removes all current dependencies in the project definition
 		 *
-		 * @return <code>ProjectDefinition</code> instance for chaining calls
+		 * @return <code>ProjectLock</code> instance for chaining calls
 		 */
 		public function clearPackageDependencies():ProjectLock
 		{
@@ -137,13 +142,17 @@ package com.apm.data.project
 		 *
 		 * @param packageVersion
 		 *
-		 * @return <code>ProjectDefinition</code> instance for chaining calls
+		 * @return <code>ProjectLock</code> instance for chaining calls
 		 */
 		public function addPackageDependency( packageData:InstallPackageData ):ProjectLock
 		{
 			if (hasDependency( packageData.packageVersion.packageDef.identifier ))
 			{
-				removePackageDependency( packageData.packageVersion.packageDef.identifier );
+				removePackageDependency( packageData.packageVersion.packageDef.identifier, false );
+			}
+			else
+			{
+				removeUninstalledPackageIdentifier( packageData.packageVersion.packageDef.identifier );
 			}
 			dependencies.push( packageData );
 			return this;
@@ -186,11 +195,12 @@ package com.apm.data.project
 		/**
 		 * Removes a package dependency matching the specified identifier
 		 *
-		 * @param identifier
+		 * @param identifier		The identifier of the package
+		 * @param flagAsUninstalled If true the identifier is added to the list of uninstalled packages
 		 *
-		 * @return <code>ProjectDefinition</code> instance for chaining calls
+		 * @return <code>ProjectLock</code> instance for chaining calls
 		 */
-		public function removePackageDependency( identifier:String ):ProjectLock
+		public function removePackageDependency( identifier:String, flagAsUninstalled:Boolean = true ):ProjectLock
 		{
 			for (var i:int = _dependencies.length - 1; i >= 0; --i)
 			{
@@ -199,7 +209,42 @@ package com.apm.data.project
 					_dependencies.splice( i, 1 );
 				}
 			}
+			if (flagAsUninstalled)
+			{
+				addUninstalledPackageIdentifier( identifier );
+			}
 			return this;
+		}
+		
+		
+		//
+		//	UNINSTALLED LIST
+		//
+		
+		
+		public function get uninstalledPackageIdentifiers():Array
+		{
+			return _uninstalledPackageIdentifiers;
+		}
+		
+		
+		public function removeUninstalledPackageIdentifier( packageIdentifier:String ):void
+		{
+			for (var i:int = _uninstalledPackageIdentifiers.length - 1; i >= 0; i--)
+			{
+				if (PackageIdentifier.isEquivalent( _uninstalledPackageIdentifiers[ i ], packageIdentifier ))
+				{
+					_uninstalledPackageIdentifiers.splice( i, 1 );
+				}
+			}
+		}
+		
+		
+		public function addUninstalledPackageIdentifier( packageIdentifier:String ):void
+		{
+			// Ensure if doesn't exist already
+			removeUninstalledPackageIdentifier( packageIdentifier );
+			_uninstalledPackageIdentifiers.push( packageIdentifier );
 		}
 		
 		
