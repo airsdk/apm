@@ -15,13 +15,13 @@ package com.apm.client.commands.packages
 {
 	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
-	import com.apm.client.commands.packages.data.InstallData;
-	import com.apm.client.commands.packages.data.InstallRequest;
 	import com.apm.client.commands.packages.processes.InstallDataValidationProcess;
 	import com.apm.client.commands.packages.processes.InstallQueryPackageProcess;
 	import com.apm.client.events.CommandEvent;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.client.processes.upgrade.UpgradeClientProcess;
+	import com.apm.data.install.InstallData;
+	import com.apm.data.install.InstallRequest;
 	import com.apm.data.project.ProjectDefinition;
 	
 	import flash.events.EventDispatcher;

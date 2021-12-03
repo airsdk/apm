@@ -88,6 +88,8 @@ package com.apm
 		
 		override public function equals( v:SemVer ):Boolean
 		{
+			if (v == null) return false;
+			
 			if (major == v.major
 				&& minor == v.minor
 				&& patch == v.patch)

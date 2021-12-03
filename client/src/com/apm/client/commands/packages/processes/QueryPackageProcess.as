@@ -15,8 +15,8 @@ package com.apm.client.commands.packages.processes
 {
 	import com.apm.SemVerRange;
 	import com.apm.client.APM;
-	import com.apm.client.commands.packages.data.InstallData;
-	import com.apm.client.commands.packages.data.InstallRequest;
+	import com.apm.data.install.InstallData;
+	import com.apm.data.install.InstallRequest;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.repositories.PackageResolver;

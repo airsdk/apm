@@ -81,10 +81,10 @@ package com.apm.client.commands.project.processes
 				return;
 			}
 			
-			var mainManifest:File = new File( APM.config.workingDirectory ).resolvePath( "config/android/AndroidManifest.xml" );
+			var mainManifest:File = new File( APM.config.configDirectory ).resolvePath( "android/AndroidManifest.xml" );
 			if (mainManifest.exists)
 			{
-				APM.io.writeLine( "Merging with supplied main manifest: config/android/AndroidManifest.xml" );
+				APM.io.writeLine( "Merging with supplied main manifest: " + mainManifest.nativePath.substr( APM.config.workingDirectory.length + 1 ) );
 			}
 			else
 			{
@@ -126,7 +126,7 @@ package com.apm.client.commands.project.processes
 				processArgs.push( "--remove-tools-declarations" );
 				
 				// Parameters
-				for each (var param:ProjectParameter in APM.config.projectDefinition.configuration)
+				for each (var param:ProjectParameter in APM.config.projectDefinition.getConfiguration( APM.config.buildType ))
 				{
 					processArgs.push( "--placeholder" );
 					processArgs.push( param.name + "=" + param.value );
@@ -177,6 +177,7 @@ package com.apm.client.commands.project.processes
 			var args:Array = [];
 			for each (var manifestFile:File in manifests)
 			{
+				Log.v( TAG, "Merging: " + manifestFile.nativePath );
 				args.push( manifestFile.nativePath );
 			}
 			return args.join( APM.config.isWindows ? ";" : ":" );

@@ -97,10 +97,16 @@ package com.apm.client.commands.project
 		{
 			return description + "\n" +
 				   "\n" +
+				   "apm project config                        Prints all configuration parameters \n" +
 				   "apm project config set <param> <value>    Sets a <param> configuration parameter to the specified <value> \n" +
+				   "apm project config set <param>            Asks for input to set the value for the <param> configuration parameter \n" +
+				   "apm project config set <identifier>       Asks for input to set the values for all the <identifier> package parameters \n" +
+				   "apm project config set                    Asks for input to set the values for all the project parameters \n" +
 				   "apm project config get <param>            Prints the configuration parameter value for the <param> parameter \n" +
-				   "apm project config describe <param>       Prints the description for the the <param> parameter \n" +
-				   "apm project config                        Prints all configuration parameters \n";
+				   "apm project config describe               Prints the description for all the project parameters \n" +
+				   "apm project config describe <param>       Prints the description for the <param> parameter \n" +
+				   "apm project config describe <identifier>  Prints the description for all the <identifier> package parameters \n"
+			;
 		}
 		
 		
@@ -118,16 +124,16 @@ package com.apm.client.commands.project
 					{
 						case "set":
 						{
-							if (_parameters.length < 3)
-							{
-								dispatchEvent( new CommandEvent( CommandEvent.PRINT_USAGE, name ) );
-								dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
-								return;
-							}
+//							if (_parameters.length < 2)
+//							{
+//								dispatchEvent( new CommandEvent( CommandEvent.PRINT_USAGE, name ) );
+//								dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
+//								return;
+//							}
 							
 							queue.addProcess( new ProjectConfigSetProcess(
-									_parameters[ 1 ],
-									_parameters.slice( 2 ).join( " " )
+									_parameters.length < 2 ? null : _parameters[ 1 ],
+									_parameters.length < 3 ? null : _parameters.slice( 2 ).join( " " )
 							) );
 							
 							break;

@@ -57,7 +57,14 @@ package com.apm.client.config.processes
 			try
 			{
 				var f:File = new File( _config.homeDirectory + File.separator + UserSettings.DEFAULT_FILENAME );
-				_config.user.load( f );
+				try
+				{
+					_config.user.load( f );
+				}
+				catch (e:Error)
+				{
+					Log.d( TAG, "User settings file doesn't exist" );
+				}
 			}
 			catch (e:Error)
 			{

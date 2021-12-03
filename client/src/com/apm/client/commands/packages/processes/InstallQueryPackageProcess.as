@@ -16,8 +16,8 @@ package com.apm.client.commands.packages.processes
 	import com.apm.SemVer;
 	import com.apm.SemVerRange;
 	import com.apm.client.APM;
-	import com.apm.client.commands.packages.data.InstallData;
-	import com.apm.client.commands.packages.data.InstallRequest;
+	import com.apm.data.install.InstallData;
+	import com.apm.data.install.InstallRequest;
 	import com.apm.client.commands.packages.utils.ProjectDefinitionValidator;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
@@ -149,7 +149,8 @@ package com.apm.client.commands.packages.processes
 												break;
 											
 											case ProjectDefinitionValidator.HIGHER_VERSION_REQUESTED:
-												processQueue.addProcessToStart( new UninstallPackageProcess( packageDefinition.identifier, packageDefinition.identifier ) );
+													// TODO
+												processQueue.addProcessToStart( new UninstallPackageProcess( packageDefinition.identifier, packageDefinition.identifier, null, null, false ) );
 												break;
 											
 											case ProjectDefinitionValidator.UNKNOWN_LATEST_REQUESTED:
@@ -163,6 +164,7 @@ package com.apm.client.commands.packages.processes
 									// Queue dependencies for install
 									for each (var dep:PackageDependency in packageVersionForInstall.dependencies)
 									{
+										Log.d( TAG, "Adding dependency: " + dep.toString() );
 										_queue.addProcess(
 												new InstallQueryPackageProcess(
 														_installData,

@@ -11,12 +11,10 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		18/6/21
  */
-package com.apm.client.commands.packages.data
+package com.apm.data.install
 {
-	import com.apm.data.packages.PackageDefinition;
+	import com.apm.data.install.*;
 	import com.apm.data.packages.PackageVersion;
-	
-	import flash.html.script.Package;
 	
 	
 	public class InstallPackageData
@@ -41,8 +39,8 @@ package com.apm.client.commands.packages.data
 		//
 		
 		public function InstallPackageData(
-				packageVersion:PackageVersion,
-				request:InstallRequest )
+				packageVersion:PackageVersion=null,
+				request:InstallRequest=null )
 		{
 			this.packageVersion = packageVersion;
 			this.request = request;
@@ -56,6 +54,26 @@ package com.apm.client.commands.packages.data
 				return true;
 			}
 			return false;
+		}
+		
+		
+		public function fromObject( data:Object ):InstallPackageData
+		{
+			if (data != null)
+			{
+				if (data.hasOwnProperty("packageVersion")) this.packageVersion = new PackageVersion().fromObject( data.packageVersion );
+				if (data.hasOwnProperty("request")) this.request = new InstallRequest( null, null, null ).fromObject( data.request );
+			}
+			return this;
+		}
+		
+		
+		public function toObject():Object
+		{
+			return {
+				packageVersion: packageVersion.toObject( false, true ),
+				request: request.toObject()
+			}
 		}
 		
 	}

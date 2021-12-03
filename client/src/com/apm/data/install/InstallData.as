@@ -11,9 +11,11 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		18/6/21
  */
-package com.apm.client.commands.packages.data
+package com.apm.data.install
 {
-	import com.apm.data.packages.PackageDefinition;
+	import com.apm.client.logging.Log;
+	import com.apm.data.install.*;
+	import com.apm.data.packages.PackageIdentifier;
 	import com.apm.data.packages.PackageVersion;
 	
 	
@@ -37,13 +39,10 @@ package com.apm.client.commands.packages.data
 		 * A list of all packages to install, already installed including all dependencies.
 		 * This may include multiple references to the same package and different versions.
 		 */
-		public function get packagesAll():Vector.<InstallPackageData> { return _packagesAll; }
-		
-		
-		
-		
-		
-		
+		public function get packagesAll():Vector.<InstallPackageData>
+		{ return _packagesAll; }
+
+
 //		/**
 //		 * Packages that are already installed,
 //		 * - should have top level packages with no dependencies
@@ -57,7 +56,7 @@ package com.apm.client.commands.packages.data
 		private var _packagesToInstall:Vector.<InstallPackageData>;
 		
 		/**
-		 * Packges that are to be removed
+		 * Packages that are to be removed
 		 */
 		private var _packagesToRemove:Vector.<InstallPackageData>;
 		
@@ -67,11 +66,13 @@ package com.apm.client.commands.packages.data
 		private var _packagesConflicting:Vector.<InstallPackageDataGroup>;
 		
 		
-		
 		public function get packagesToInstall():Vector.<InstallPackageData> { return _packagesToInstall; }
-		public function get packagesToRemove():Vector.<InstallPackageData> { return _packagesToRemove; }
-		public function get packagesConflicting():Vector.<InstallPackageDataGroup> { return _packagesConflicting; }
 		
+		
+		public function get packagesToRemove():Vector.<InstallPackageData> { return _packagesToRemove; }
+		
+		
+		public function get packagesConflicting():Vector.<InstallPackageDataGroup> { return _packagesConflicting; }
 		
 		
 		////////////////////////////////////////////////////////
@@ -88,15 +89,42 @@ package com.apm.client.commands.packages.data
 		}
 		
 		
+		public function containsPackage( packageIdentifier:String ):Boolean
+		{
+			for each (var p:InstallPackageData in _packagesAll)
+			{
+				if (
+						p.request != null
+						&& PackageIdentifier.isEquivalent( p.request.packageIdentifier, packageIdentifier )
+				)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		
 		public function contains( query:InstallRequest ):Boolean
 		{
 			for each (var p:InstallPackageData in _packagesAll)
 			{
-				if (p.request != null
-						&& p.request.packageIdentifier == query.packageIdentifier
-						&& p.request.semVer.equals( query.semVer ))
+				try
 				{
-					return true;
+					if (
+							p.request != null
+							&& PackageIdentifier.isEquivalent( p.request.packageIdentifier, query.packageIdentifier )
+							&& p.request.semVer.equals( query.semVer )
+					)
+					{
+						return true;
+					}
+				}
+				catch (e:Error)
+				{
+					Log.d( TAG, "ERROR: request: " + p.request.description() )
+					Log.d( TAG, "ERROR: query: " + query.description() )
+					Log.e( TAG, e );
 				}
 			}
 			return false;

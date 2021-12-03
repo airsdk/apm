@@ -66,7 +66,7 @@ package com.apm.client.commands.project.processes
 				// Insert configuration parameters into merge plist
 				// Note: currentPlist should already have parameters
 				var mergeContent:String = FileUtils.readFileContentAsString( _mergePlist );
-				for each (var param:ProjectParameter in APM.config.projectDefinition.configuration)
+				for each (var param:ProjectParameter in APM.config.projectDefinition.getConfiguration( APM.config.buildType ))
 				{
 					var regex:RegExp = new RegExp( "\\$\\{" + param.name + "\\}", "g" );
 					mergeContent = mergeContent.replace( regex, param.value );

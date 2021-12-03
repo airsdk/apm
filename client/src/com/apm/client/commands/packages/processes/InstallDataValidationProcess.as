@@ -16,9 +16,9 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APM;
-	import com.apm.client.commands.packages.data.InstallData;
-	import com.apm.client.commands.packages.data.InstallPackageData;
-	import com.apm.client.commands.packages.data.InstallPackageDataGroup;
+	import com.apm.data.install.InstallData;
+	import com.apm.data.install.InstallPackageData;
+	import com.apm.data.install.InstallPackageDataGroup;
 	import com.apm.client.commands.packages.utils.InstallDataValidator;
 	import com.apm.client.processes.ProcessBase;
 	
@@ -64,7 +64,7 @@ package com.apm.client.commands.packages.processes
 				{
 					var identifier:String = packageToRemove.packageVersion.packageDef.identifier;
 					_queue.addProcess(
-							new UninstallPackageProcess( identifier, identifier, packageToRemove.packageVersion.version, true )
+							new UninstallPackageProcess( identifier, identifier, null, packageToRemove.packageVersion.version, false, false )
 					);
 				}
 				for each (var p:InstallPackageData in _installData.packagesToInstall)
@@ -90,7 +90,7 @@ package com.apm.client.commands.packages.processes
 						APM.io.writeError( "CONFLICT",
 											 (i == confictGroup.versions.length - 1 ? "└── " : "├── ") +
 													 confictGroup.versions[ i ].packageVersion.toString() +
-													 " required by: " + confictGroup.versions[ i ].request.requiringPackage.packageDef.toString()
+													 " required by: " + confictGroup.versions[ i ].request.requiringPackage.toStringWithIdentifier()
 						);
 					}
 				}

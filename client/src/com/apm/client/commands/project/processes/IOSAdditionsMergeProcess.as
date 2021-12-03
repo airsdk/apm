@@ -60,14 +60,14 @@ package com.apm.client.commands.project.processes
 			var infoAdditionsFile:File = FileUtils.tmpDirectory.resolvePath( "InfoAdditions.xml" );
 			
 			// Check if there's a file in the config dir or create an empty info additions file for merging
-			var infoAdditionsProjectFile:File = new File( APM.config.workingDirectory ).resolvePath( "config/ios/InfoAdditions.xml" );
+			var infoAdditionsProjectFile:File = new File( APM.config.configDirectory ).resolvePath( "ios/InfoAdditions.xml" );
 			if (infoAdditionsProjectFile.exists)
 			{
-				APM.io.writeLine( "Merging with supplied info additions: config/ios/InfoAdditions.xml" );
+				APM.io.writeLine( "Merging with supplied info additions: " + infoAdditionsProjectFile.nativePath.substr( APM.config.workingDirectory.length + 1 ) );
 				
 				// Read content and inject any config parameters
 				var infoAdditionsProjectContent:String = FileUtils.readFileContentAsString( infoAdditionsProjectFile );
-				for each (var param:ProjectParameter in APM.config.projectDefinition.configuration)
+				for each (var param:ProjectParameter in APM.config.projectDefinition.getConfiguration( APM.config.buildType ))
 				{
 					var regex:RegExp = new RegExp( "\\$\\{" + param.name + "\\}", "g" );
 					infoAdditionsProjectContent = infoAdditionsProjectContent.replace( regex, param.value );

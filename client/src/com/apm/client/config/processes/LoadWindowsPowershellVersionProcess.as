@@ -11,27 +11,32 @@
  * @author 		Michael (https://github.com/marchbold)
  * @created		28/5/21
  */
-package com.apm.client.processes.generic
+package com.apm.client.config.processes
 {
 	import com.apm.client.APM;
+	import com.apm.client.config.RunConfig;
 	import com.apm.client.logging.Log;
+	import com.apm.client.processes.ProcessBase;
 	import com.apm.utils.WindowsShellPaths;
 	
 	import flash.desktop.NativeProcess;
 	import flash.desktop.NativeProcessStartupInfo;
+	import flash.events.Event;
 	import flash.events.IOErrorEvent;
 	import flash.events.NativeProcessExitEvent;
 	import flash.events.ProgressEvent;
 	import flash.filesystem.File;
 	
+	import org.as3commons.lang.StringUtils;
 	
-	public class ExtractZipWindowsProcess extends ExtractZipAS3Process
+	
+	public class LoadWindowsPowershellVersionProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 		
-		private static const TAG:String = "ExtractZipMacOSProcess";
+		private static const TAG:String = "LoadWindowsPowershellVersionProcess";
 		
 		
 		////////////////////////////////////////////////////////
@@ -40,73 +45,54 @@ package com.apm.client.processes.generic
 		
 		private var _process:NativeProcess;
 		
-		private var _zipFileRef:File;
-		private var _deleteAfter:Boolean = false;
+		private var _environmentVariables:Object;
+		private var _config:RunConfig;
+		
+		private var _data:String;
+		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function ExtractZipWindowsProcess( zipFile:File, outputDir:File, showOutputs:Boolean = true )
+		public function LoadWindowsPowershellVersionProcess( config:RunConfig )
 		{
-			super( zipFile, outputDir, showOutputs );
+			_environmentVariables = {};
+			_config = config;
+			_data = "";
 		}
 		
 		
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
-			_completeCallback = completeCallback;
-			_failureCallback = failureCallback;
-			
-			var message:String = "extracting " + _zipFile.nativePath;
-			
+			super.start( completeCallback, failureCallback );
+			Log.d( TAG, "start()" );
 			if (NativeProcess.isSupported)
 			{
-				var powershell:File = WindowsShellPaths.getPowershell();
+				var powershell:File = WindowsShellPaths.getPowershell( _config ? _config.env : null );
 				if (powershell == null || !powershell.exists)
 				{
-					Log.d( TAG, "powershell.exe not available - fall back to as3 implementation" );
-					return super.start( completeCallback, failureCallback );
-				}
-				
-				var powerShellVersion:String = APM.config.env[ "POWERSHELL_Version" ];
-				Log.d( TAG, "powershell version: " + powerShellVersion );
-				if (powerShellVersion == null || Number( powerShellVersion.charAt( 0 ) ) < 4)
-				{
-					Log.d( TAG, "powershell version too old [" + powerShellVersion + "] - fall back to as3 implementation" );
-					return super.start( completeCallback, failureCallback );
-				}
-				
-				if (_zipFile.extension != "zip")
-				{
-					// Powershell script can't handle non-zip extension archives so we copy to a .zip tmp file and delete after
-					_zipFileRef = new File( _zipFile.nativePath + ".zip" );
-					_zipFile.copyTo( _zipFileRef );
-					_deleteAfter = true;
-				}
-				else
-				{
-					_zipFileRef = _zipFile;
+					APM.io.writeError( "powershell", "powershell.exe not available" );
+					return complete();
 				}
 				
 				var processArgs:Vector.<String> = new Vector.<String>();
 				processArgs.push( "-command" );
-				processArgs.push( "& \"Expand-Archive\" -Force "
-										  + "'" + _zipFileRef.nativePath + "'" + " "
-										  + "'" + _outputDir.nativePath + "'" );
+				processArgs.push( "Get-Host" );
 				
 				var processStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
 				processStartupInfo.executable = powershell;
 				processStartupInfo.arguments = processArgs;
 				
-				Log.d( TAG, "Starting extraction" );
-				if (_showOutputs)
-					APM.io.showSpinner( message );
-				
 				_process = new NativeProcess();
 				_process.addEventListener( NativeProcessExitEvent.EXIT, onExit );
+				
+				_process.addEventListener( Event.STANDARD_ERROR_CLOSE, onClose );
+				_process.addEventListener( Event.STANDARD_OUTPUT_CLOSE, onClose );
+				
 				_process.addEventListener( ProgressEvent.STANDARD_OUTPUT_DATA, onOutputData );
 				_process.addEventListener( ProgressEvent.STANDARD_ERROR_DATA, onErrorData );
+				
 				_process.addEventListener( IOErrorEvent.STANDARD_OUTPUT_IO_ERROR, onIOError );
 				_process.addEventListener( IOErrorEvent.STANDARD_ERROR_IO_ERROR, onIOError );
 				
@@ -114,22 +100,23 @@ package com.apm.client.processes.generic
 			}
 			else
 			{
-				super.start( completeCallback, failureCallback );
+				Log.d( TAG, "ERROR: Native process not supported - cannot get environment" );
+				complete();
 			}
 		}
 		
 		
 		private function onOutputData( event:ProgressEvent ):void
 		{
-			var data:String = _process.standardOutput.readUTFBytes( _process.standardOutput.bytesAvailable )
-					.replace( /\n/g, "" )
-					.replace( /\r/g, "" )
-					.replace( /\t/g, "" );
-			
-			if (_showOutputs)
-				APM.io.updateSpinner( "extracting : " + data );
-			
-			Log.d( TAG, "extracting : " + data );
+			try
+			{
+				_data += _process.standardOutput.readUTFBytes( _process.standardOutput.bytesAvailable );
+			}
+			catch (e:Error)
+			{
+				Log.d( TAG, "ERROR: " + e.message );
+				Log.e( TAG, e );
+			}
 		}
 		
 		
@@ -142,23 +129,49 @@ package com.apm.client.processes.generic
 		private function onExit( event:NativeProcessExitEvent ):void
 		{
 			Log.d( TAG, "Process exited with: " + event.exitCode );
-			if (_showOutputs)
-				APM.io.stopSpinner( event.exitCode == 0, "extracted" );
-			
-			if (_deleteAfter)
+			processPowershellVersion( _data );
+			for (var key:String in _environmentVariables)
 			{
-				_zipFileRef.deleteFile();
+				_config.env[ key ] = _environmentVariables[ key ];
 			}
-			
 			complete();
 		}
 		
 		
 		private function onIOError( event:IOErrorEvent ):void
 		{
-			Log.d( TAG, "IOError: " + event.toString() );
+			Log.d( TAG, "IOError: (" + event.type + ")" + event.toString() );
 		}
 		
+		
+		private function onClose( event:Event ):void
+		{
+			Log.d( TAG, "onClose: (" + event.type + ")" + event.toString() );
+		}
+		
+		
+		//
+		//
+		//
+		
+		private function processPowershellVersion( data:String ):void
+		{
+			Log.v( TAG, "processPowershellVersion(): " + data );
+			var lines:Array = data.replace( "\r", "" ).split( "\n" );
+			for each (var line:String in lines)
+			{
+				var envVar:Array = line.split( ":" );
+				if (envVar.length == 2)
+				{
+					var name:String = "POWERSHELL_"+StringUtils.trim( envVar[ 0 ] );
+					var value:String = StringUtils.trim( envVar[ 1 ].replace( /\r/g, "" ).replace( /\n/g, "" ) );
+					
+					Log.v( TAG, name + "=" + value );
+					
+					_environmentVariables[ name ] = value;
+				}
+			}
+		}
 		
 	}
 	

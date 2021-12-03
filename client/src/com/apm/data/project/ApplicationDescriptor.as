@@ -135,6 +135,8 @@ package com.apm.data.project
 				//
 				// We slightly modify the android manifest generated to make it suitable for the air manifest additions
 				//
+				// - delete any unsupported application attributes
+				//     (https://airsdk.dev/docs/development/application-descriptor-files/android)
 				// - strip the manifest tag to remove unsupported attributes/namespaces
 				//     (means we have to treat it as a string otherwise entries will get broken)
 				// - generate a simple manifest tag
@@ -143,6 +145,16 @@ package com.apm.data.project
 				//
 				
 				var manifest:XML = new XML( androidManifest );
+				var androidns:Namespace = new Namespace( "android", ANDROID_NAMESPACE );
+				
+				delete manifest.application.@androidns::theme[0];
+				delete manifest.application.@androidns::name[0];
+				delete manifest.application.@androidns::label[0];
+				delete manifest.application.@androidns::windowSoftInputMode[0];
+				delete manifest.application.@androidns::configChanges[0];
+				delete manifest.application.@androidns::screenOrientation[0];
+				delete manifest.application.@androidns::launchMode[0];
+
 				var manifestAdditionsContent:String = stripManifestTag( manifest );
 				var manifestAdditions:XML = new XML(
 						"<manifestAdditions><![CDATA[" +
@@ -196,12 +208,12 @@ package com.apm.data.project
 		{
 			default xml namespace = _airNS;
 			
-			if (iosInfoAdditions != null && _xml != null)
+			if (iosInfoAdditions != null && iosInfoAdditions.length > 0 && _xml != null)
 			{
 				var infoAdditions:XML = new XML( "<InfoAdditions><![CDATA[\n" + iosInfoAdditions + "]]></InfoAdditions>" );
 				_xml.iPhone.InfoAdditions = infoAdditions;
 			}
-			if (iosEntitlements != null && _xml != null)
+			if (iosEntitlements != null && iosEntitlements.length > 0 && _xml != null)
 			{
 				var entitlements:XML = new XML( "<Entitlements><![CDATA[\n" + iosEntitlements + "]]></Entitlements>" );
 				_xml.iPhone.Entitlements = entitlements;
@@ -231,6 +243,34 @@ package com.apm.data.project
 			{
 				_xml.extensions.appendChild( <extensionID>{extensionID}</extensionID> );
 			}
+		}
+		
+		
+		public function removeAllExtensions():void
+		{
+			default xml namespace = _airNS;
+			
+			_xml.extensions = <extensions/>;
+		}
+		
+		
+		public function removeExtension( extensionIDToRemove:String ):void
+		{
+			default xml namespace = _airNS;
+			if (_xml.extensions == undefined)
+			{
+				return;
+			}
+			for (var i:int = 0; i < _xml.extensions..extensionID.length(); i++)
+			{
+				if (_xml.extensions..extensionID[i].toString() == extensionIDToRemove)
+				{
+					delete _xml.extensions..extensionID[i];
+					return;
+				}
+			}
+//			delete _xml.extensions.(elements.toString() == extensionID)[0];
+//			delete _xml.extensions.(extensionID == extensionIDToRemove)[0];
 		}
 		
 		

@@ -60,14 +60,14 @@ package com.apm.client.commands.project.processes
 			var entitlementsFile:File = FileUtils.tmpDirectory.resolvePath( "Entitlements.xml" );
 			
 			// Check if there's a file in the config dir or create an empty info additions file for merging
-			var entitlementsProjectFile:File = new File( APM.config.workingDirectory ).resolvePath( "config/ios/Entitlements.xml" );
+			var entitlementsProjectFile:File = new File( APM.config.configDirectory ).resolvePath( "ios/Entitlements.xml" );
 			if (entitlementsProjectFile.exists)
 			{
-				APM.io.writeLine( "Merging with supplied info additions: config/ios/Entitlements.xml" );
+				APM.io.writeLine( "Merging with supplied info additions: " + entitlementsProjectFile.nativePath.substr( APM.config.workingDirectory.length + 1 ) );
 				
 				// Read content and inject any config parameters
 				var entitlementsProjectContent:String = FileUtils.readFileContentAsString( entitlementsProjectFile );
-				for each (var param:ProjectParameter in APM.config.projectDefinition.configuration)
+				for each (var param:ProjectParameter in APM.config.projectDefinition.getConfiguration( APM.config.buildType ))
 				{
 					var regex:RegExp = new RegExp( "\\$\\{" + param.name + "\\}", "g" );
 					entitlementsProjectContent = entitlementsProjectContent.replace( regex, param.value );

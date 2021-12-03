@@ -58,7 +58,8 @@ package com.apm.client.processes.generic
 		
 		override public function start( completeCallback:Function=null, failureCallback:Function=null ):void
 		{
-			super.start( complete, failure );
+			super.start( completeCallback, failureCallback );
+			
 			var message:String = "extracting " + _zipFile.nativePath;
 			
 			if (_showOutputs)

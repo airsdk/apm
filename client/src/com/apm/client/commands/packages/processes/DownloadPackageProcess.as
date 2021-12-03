@@ -78,7 +78,7 @@ package com.apm.client.commands.packages.processes
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			APM.io.showProgressBar( "Downloading package : " + _package.packageDef.toString() );
+			APM.io.showProgressBar( "Downloading package : " + _package.toStringWithIdentifier() );
 			if (_destination.exists)
 			{
 				checkExistingFile( true );
@@ -228,7 +228,7 @@ package com.apm.client.commands.packages.processes
 			{
 				APM.io.updateProgressBar(
 						event.bytesLoaded / event.bytesTotal,
-						"Downloading package : " + _package.packageDef.toString() );
+						"Downloading package : " + _package.toStringWithIdentifier() );
 			}
 		}
 		

@@ -20,9 +20,11 @@ package com.apm.client.config
 	import com.apm.client.config.processes.LoadUserSettingsProcess;
 	import com.apm.client.config.processes.LoadWindowsEnvironmentVariablesProcess;
 	import com.apm.client.config.processes.LoadWindowsJavaHomeProcess;
+	import com.apm.client.config.processes.LoadWindowsPowershellVersionProcess;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.project.ProjectDefinition;
+	import com.apm.data.project.ProjectLock;
 	import com.apm.data.user.UserSettings;
 	import com.apm.utils.DeployFileUtils;
 	import com.apm.utils.PackageCacheUtils;
@@ -60,6 +62,12 @@ package com.apm.client.config
 		
 		
 		/**
+		 * The current project lock file
+		 */
+		public var projectLock:ProjectLock = null;
+		
+		
+		/**
 		 * Loaded environment variables
 		 */
 		public var env:Object = {};
@@ -75,6 +83,12 @@ package com.apm.client.config
 		 * Whether there is an active internet connection
 		 */
 		public var hasNetwork:Boolean = false;
+		
+		
+		/**
+		 * Specify an alternate build type for this process
+		 */
+		public var buildType:String = null;
 		
 		
 		////////////////////////////////////////////////////////
@@ -111,6 +125,14 @@ package com.apm.client.config
 		public function set airDirectory( value:String):void { _airDirectory = value; }
 		
 		
+		private var _uname:String = null;
+		/**
+		 * The unix name of the current terminal
+		 */
+		public function get uname():String { return _uname; }
+		public function set uname( value:String):void { _uname = value; }
+		
+		
 		
 		/**
 		 * This function loads any configuration / environment files and settings
@@ -134,6 +156,7 @@ package com.apm.client.config
 			if (isWindows)
 			{
 				_loadQueue.addProcess( new LoadWindowsEnvironmentVariablesProcess( this ) );
+				_loadQueue.addProcess( new LoadWindowsPowershellVersionProcess( this ) );
 				_loadQueue.addProcess( new LoadWindowsJavaHomeProcess( this ) );
 			}
 			
@@ -143,9 +166,11 @@ package com.apm.client.config
 //			_loadQueue.addProcess( new DebugDelayProcess( 3000 ) );
 			if (checkNetwork) _loadQueue.addProcess( new CheckNetworkProcess( this ) );
 			
+			Log.v( TAG, "load queue start" );
 			_loadQueue.start(
 					function ():void
 					{
+						Log.v( TAG, "load queue complete" );
 						if (callback != null)
 						{
 							callback( true );
@@ -153,6 +178,7 @@ package com.apm.client.config
 					},
 					function ( error:String ):void
 					{
+						Log.v( TAG, "load error" );
 						if (callback != null)
 						{
 							callback( false, error );
@@ -176,6 +202,23 @@ package com.apm.client.config
 				return deployPackageCacheDir.nativePath;
 			}
 			return workingDirectory + File.separator + PackageCacheUtils.PACKAGE_CACHE_DIR;
+		}
+		
+		
+		/**
+		 * The directory for apm advanced config files (defaults to: config)
+		 */
+		public function get configDirectory():String
+		{
+			var deployConfigDir:File = DeployFileUtils.getDeployLocation(
+					this,
+					"config"
+			);
+			if (deployConfigDir != null)
+			{
+				return deployConfigDir.nativePath;
+			}
+			return workingDirectory + File.separator + "config";
 		}
 		
 		

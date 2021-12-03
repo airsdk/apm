@@ -13,6 +13,7 @@
  */
 package com.apm.client.commands.project.processes
 {
+	import com.apm.SemVerRange;
 	import com.apm.client.APM;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
@@ -120,12 +121,18 @@ package com.apm.client.commands.project.processes
 								Log.d( TAG, packageVersion.toDescriptiveString() );
 								if (shouldAddPackageToProject( packageVersion, packageList ))
 								{
-									APM.io.writeResult( true, "ADDING   : Package: " + packageVersion.packageDef.toString() );
-									project.addPackageDependency( packageVersion );
+									APM.io.writeResult( true, "ADDING   : Package: " + packageVersion.toStringWithIdentifier() );
+									
+									var dependency:PackageDependency = new PackageDependency();
+									dependency.identifier = packageVersion.packageDef.identifier;
+									dependency.version = SemVerRange.fromString( packageVersion.version.toString() );
+									dependency.source = packageVersion.source;
+									
+									project.addPackageDependency( dependency );
 								}
 								else
 								{
-									APM.io.writeResult( false, "SKIPPING : Dependency: " + packageVersion.packageDef.toString() );
+									APM.io.writeResult( false, "SKIPPING : Dependency: " + packageVersion.toStringWithIdentifier() );
 								}
 							}
 							

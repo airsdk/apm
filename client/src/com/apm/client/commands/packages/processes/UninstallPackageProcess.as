@@ -15,15 +15,12 @@ package com.apm.client.commands.packages.processes
 {
 	import com.apm.SemVer;
 	import com.apm.client.APM;
-	import com.apm.utils.PackageCacheUtils;
-	import com.apm.utils.PackageFileUtils;
-	import com.apm.utils.PackageFileUtils;
-	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.packages.PackageDependency;
-	import com.apm.data.packages.PackageIdentifier;
+	import com.apm.utils.PackageCacheUtils;
+	import com.apm.utils.PackageFileUtils;
 	
 	import flash.filesystem.File;
 	
@@ -46,21 +43,40 @@ package com.apm.client.commands.packages.processes
 		
 		private var _uninstallingPackageIdentifier:String;
 		private var _packageIdentifier:String;
+		private var _appDescriptorPath:String;
 		private var _version:SemVer;
-		private var _skipChecks:Boolean;
+		private var _failIfNotInstalled:Boolean;
+		private var _checkIfRequiredDependency:Boolean;
 		
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 		
-		public function UninstallPackageProcess( uninstallingPackageIdentifier:String, packageIdentifier:String, version:SemVer=null, skipChecks:Boolean = false )
+		/**
+		 *
+		 * @param uninstallingPackageIdentifier
+		 * @param packageIdentifier
+		 * @param version
+		 * @param failIfNotInstalled
+		 * @param checkIfRequiredDependency
+		 */
+		public function UninstallPackageProcess(
+				uninstallingPackageIdentifier:String,
+				packageIdentifier:String,
+				appDescriptorPath:String,
+				version:SemVer                    = null,
+				failIfNotInstalled:Boolean        = true,
+				checkIfRequiredDependency:Boolean = true
+		)
 		{
 			super();
 			_uninstallingPackageIdentifier = uninstallingPackageIdentifier;
 			_packageIdentifier = packageIdentifier;
+			_appDescriptorPath = appDescriptorPath;
 			_version = version;
-			_skipChecks = skipChecks;
+			_failIfNotInstalled = failIfNotInstalled;
+			_checkIfRequiredDependency = checkIfRequiredDependency;
 		}
 		
 		
@@ -71,15 +87,15 @@ package com.apm.client.commands.packages.processes
 			// Check the specified package is installed
 			if (!PackageCacheUtils.isPackageInstalled( _packageIdentifier, _version ))
 			{
-				if (_skipChecks)
-				{
-					return complete();
-				}
-				else
+				if (_failIfNotInstalled)
 				{
 					APM.io.writeError( _packageIdentifier, "Package not found" );
 					APM.config.projectDefinition.removePackageDependency( _packageIdentifier ).save();
 					return failure( "Package " + _packageIdentifier + " not found" );
+				}
+				else
+				{
+					return complete();
 				}
 			}
 			
@@ -91,7 +107,7 @@ package com.apm.client.commands.packages.processes
 			var uninstallingPackageDefinition:PackageDefinitionFile = new PackageDefinitionFile().load( f );
 			
 			// need to determine if this package is required by another package currently installed
-			if (!_skipChecks && PackageCacheUtils.isPackageRequiredDependency( _uninstallingPackageIdentifier, _packageIdentifier ))
+			if (_checkIfRequiredDependency && PackageCacheUtils.isPackageRequiredDependency( _uninstallingPackageIdentifier, _packageIdentifier ))
 			{
 				APM.io.writeError( _packageIdentifier, "Required by another package - skipping uninstall" );
 				return complete();
@@ -101,27 +117,48 @@ package com.apm.client.commands.packages.processes
 			for each (var dependency:PackageDependency in uninstallingPackageDefinition.dependencies)
 			{
 				processQueue.addProcessToStart(
-						new UninstallPackageProcess( _uninstallingPackageIdentifier, dependency.identifier )
+						new UninstallPackageProcess(
+								_uninstallingPackageIdentifier,
+								dependency.identifier,
+								_appDescriptorPath,
+								null,
+								false,
+								_checkIfRequiredDependency )
 				);
 			}
 			
 			var queue:ProcessQueue = new ProcessQueue();
 			
 			queue.addProcess( new UninstallFilesForPackageProcess( uninstallingPackageDefinition ) );
+			if (_appDescriptorPath != null)
+			{
+				queue.addProcess( new UninstallPackageFromAppDescriptorProcess( uninstallingPackageDefinition, _appDescriptorPath ) );
+			}
 			
-			queue.start( function ():void {
-							 APM.config.projectDefinition.removePackageDependency( _packageIdentifier ).save();
-							 complete();
-						 },
-						 function ( error:String ):void {
-							 APM.io.writeError( _packageIdentifier, error );
-							 failure( error );
-						 } );
+			queue.start(
+					function ():void
+					{
+						APM.config.projectDefinition
+								.removePackageDependency( _packageIdentifier )
+								.save();
+						
+						if (APM.config.projectLock != null)
+						{
+							APM.config.projectLock
+									.removePackageDependency( _packageIdentifier )
+									.save();
+						}
+						
+						complete();
+					},
+					function ( error:String ):void
+					{
+						APM.io.writeError( _packageIdentifier, error );
+						failure( error );
+					}
+			);
 			
 		}
-		
-		
-		
 		
 		
 	}

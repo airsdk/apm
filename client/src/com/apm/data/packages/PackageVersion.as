@@ -65,6 +65,12 @@ package com.apm.data.packages
 		}
 		
 		
+		public function toStringWithIdentifier():String
+		{
+			return (packageDef ? (packageDef.identifier == null ? "none" : packageDef.identifier) + "@" : "") + toString();
+		}
+		
+		
 		public function toDescriptiveString():String
 		{
 			return version.toString()
@@ -112,7 +118,7 @@ package com.apm.data.packages
 		}
 		
 		
-		public function toObject( forceObjectOutput:Boolean = false ):Object
+		public function toObject( forceObjectOutput:Boolean = false, addPackageDefinition:Boolean = false ):Object
 		{
 			var data:Object = {};
 			data.version = version.toString();
@@ -121,6 +127,14 @@ package com.apm.data.packages
 			data.checksum = checksum;
 			data.publishedAt = publishedAt;
 			data.status = status;
+			
+			if (addPackageDefinition)
+			{
+				if (packageDef != null)
+				{
+					data["package"] = packageDef.toObject( forceObjectOutput, false );
+				}
+			}
 			
 			var dependenciesObject:Array = [];
 			for each (var d:PackageDependency in dependencies)

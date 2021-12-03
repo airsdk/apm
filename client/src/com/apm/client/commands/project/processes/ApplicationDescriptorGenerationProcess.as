@@ -23,6 +23,8 @@ package com.apm.client.commands.project.processes
 	import com.apm.data.project.ApplicationDescriptor;
 	import com.apm.data.project.ApplicationDescriptor;
 	import airsdk.AIRSDKVersion;
+	
+	import com.apm.data.project.ProjectLock;
 	import com.apm.utils.FileUtils;
 	import com.apm.utils.PackageCacheUtils;
 	
@@ -71,10 +73,10 @@ package com.apm.client.commands.project.processes
 				//
 				//	LOAD TEMPLATE
 				
-				var configDescriptorPath:String = "config/application-descriptor.xml";
+				var configDescriptorPath:String = "application-descriptor.xml";
 				
-				var configDescriptor:File = new File( APM.config.workingDirectory ).resolvePath( configDescriptorPath );
-				var specifiedDescriptor:File = new File( APM.config.workingDirectory ).resolvePath( _outputPath );
+				var configDescriptor:File = new File( APM.config.configDirectory ).resolvePath( configDescriptorPath );
+				var specifiedDescriptor:File = FileUtils.getSourceForPath( _outputPath );
 				
 				if (configDescriptor.exists)
 				{
@@ -105,6 +107,16 @@ package com.apm.client.commands.project.processes
 				_appDescriptor.updateFromProjectDefinition( APM.config.projectDefinition );
 				_appDescriptor.updateAndroidAdditions();
 				_appDescriptor.updateIOSAdditions();
+				
+				if (APM.config.projectLock != null)
+				{
+					for each (var packageIdentifier:String in APM.config.projectLock.uninstalledPackageIdentifiers)
+					{
+						_appDescriptor.removeExtension(
+								PackageIdentifier.identifierWithoutVariant( packageIdentifier )
+						);
+					}
+				}
 				
 				for each (var packageDefinition:PackageDefinitionFile in PackageCacheUtils.getCachedPackages())
 				{

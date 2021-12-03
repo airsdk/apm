@@ -33,6 +33,7 @@ package com.apm.client
 	import com.apm.client.commands.packages.UpdateCommand;
 	import com.apm.client.commands.packages.ViewCommand;
 	import com.apm.client.commands.project.GenerateAppDescriptorCommand;
+	import com.apm.client.commands.project.GenerateConfigCommand;
 	import com.apm.client.commands.project.InitCommand;
 	import com.apm.client.commands.project.ProjectConfigCommand;
 	import com.apm.client.config.RunConfig;
@@ -48,8 +49,6 @@ package com.apm.client
 	import flash.desktop.NativeApplication;
 	import flash.events.EventDispatcher;
 	import flash.filesystem.File;
-	
-	import mx.utils.StringUtil;
 	
 	import org.as3commons.lang.StringUtils;
 	
@@ -114,6 +113,7 @@ package com.apm.client
 			addCommand( InitCommand.NAME, InitCommand );
 			addCommand( ProjectConfigCommand.NAME, ProjectConfigCommand );
 			addCommand( GenerateAppDescriptorCommand.NAME, GenerateAppDescriptorCommand );
+			addCommand( GenerateConfigCommand.NAME, GenerateConfigCommand );
 			
 			// package commands
 			addCommand( ListCommand.NAME, ListCommand );
@@ -175,6 +175,13 @@ package com.apm.client
 							break;
 						}
 						
+						case "-uname":
+						{
+							_config.uname = StringUtils.trim( arguments[ ++i ] );
+							Log.d( TAG, "-uname " + _config.uname );
+							break;
+						}
+						
 						case "-c":
 						case "-color":
 						case "-colour":
@@ -228,6 +235,14 @@ package com.apm.client
 									break;
 								}
 							}
+							break;
+						}
+						
+						case "-b":
+						case "-build":
+						{
+							_config.buildType = StringUtils.trim( arguments[ ++i ] );
+							Log.d( TAG, "-build " + _config.buildType );
 							break;
 						}
 						
@@ -337,7 +352,7 @@ package com.apm.client
 		
 		private function processEnvironment():void
 		{
-			if (_config.isMacOS)
+			if (_config.isMacOS || _config.uname != "windows")
 			{
 				if (_config.env.hasOwnProperty( "TERM" ))
 				{

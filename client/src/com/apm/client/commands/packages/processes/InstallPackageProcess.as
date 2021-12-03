@@ -15,7 +15,7 @@ package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APM;
 	import com.apm.client.analytics.Analytics;
-	import com.apm.client.commands.packages.data.InstallPackageData;
+	import com.apm.data.install.InstallPackageData;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.ProcessQueue;
@@ -58,7 +58,7 @@ package com.apm.client.commands.packages.processes
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			APM.io.writeLine( "Installing package : " + _packageData.packageVersion.packageDef.toString() );
+			APM.io.writeLine( "Installing package : " + _packageData.packageVersion.toStringWithIdentifier() );
 			
 			var cacheDirForPackage:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDirectory, _packageData.packageVersion.packageDef.identifier );
 			var packageDir:File = PackageFileUtils.directoryForPackage( APM.config.packagesDirectory, _packageData.packageVersion.packageDef.identifier );
@@ -118,7 +118,7 @@ package com.apm.client.commands.packages.processes
 					},
 					function ( error:String ):void
 					{
-						APM.io.writeError( "ERROR", "Failed to install package : " + _packageData.packageVersion.packageDef.toString() );
+						APM.io.writeError( "ERROR", "Failed to install package : " + _packageData.packageVersion.toStringWithIdentifier() );
 						failure( error );
 					} );
 			
@@ -127,7 +127,7 @@ package com.apm.client.commands.packages.processes
 		
 		override protected function complete( data:Object = null ):void
 		{
-			APM.io.writeLine( "Installed package : " + _packageData.packageVersion.packageDef.toString() );
+			APM.io.writeLine( "Installed package : " + _packageData.packageVersion.toStringWithIdentifier() );
 			super.complete();
 		}
 		
