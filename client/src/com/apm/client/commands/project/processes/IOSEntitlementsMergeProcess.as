@@ -21,6 +21,7 @@ package com.apm.client.commands.project.processes
 	import com.apm.data.project.ProjectParameter;
 	import com.apm.utils.FileUtils;
 	import com.apple.plist.Plist;
+	import com.apple.plist.entries.PlistBooleanEntry;
 	
 	import flash.filesystem.File;
 	
@@ -82,7 +83,6 @@ package com.apm.client.commands.project.processes
 			}
 			
 			
-			
 			var packageInfoAdditions:Array = findPackageEntitlements();
 			_subqueue = new ProcessQueue();
 			for each (var packageInfoAdditionsFile:File in packageInfoAdditions)
@@ -93,19 +93,31 @@ package com.apm.client.commands.project.processes
 			
 			APM.io.showSpinner( "iOS entitlements merging" );
 			
-			_subqueue.start( function ():void {
+			_subqueue.start( function ():void
+							 {
+								 // Adjustment to remove beta-reports-active when its false
+								 var entitlementsPlist:Plist = new Plist().load( entitlementsFile );
+								 var betaReportsActiveEntry:PlistBooleanEntry = entitlementsPlist.getEntry( "beta-reports-active" ) as PlistBooleanEntry;
+								 if (betaReportsActiveEntry != null)
+								 {
+									 if (!betaReportsActiveEntry.value)
+									 {
+										 entitlementsPlist.removeEntry( betaReportsActiveEntry.key );
+									 }
+								 }
 				
-								 _appDescriptor.iosEntitlements = new XML( FileUtils.readFileContentAsString( entitlementsFile ) ).dict.children().toXMLString();
+								 _appDescriptor.iosEntitlements = entitlementsPlist.toXML().dict.children().toXMLString();
 				
 								 APM.io.stopSpinner( true, "iOS entitlements merge complete" );
 								 complete();
 							 },
-							 function ( error:String ):void {
+							 function ( error:String ):void
+							 {
 								 APM.io.stopSpinner( false, "iOS entitlements merge failed: " + error );
 								 failure( error );
 							 }
 			);
-
+			
 		}
 		
 		

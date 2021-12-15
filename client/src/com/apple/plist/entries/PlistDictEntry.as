@@ -64,6 +64,18 @@ package com.apple.plist.entries
 		}
 		
 		
+		public function removeEntry( key:String ):void
+		{
+			for (var i:int = entries.length - 1; i >= 0; --i)
+			{
+				if (entries[i].key == key)
+				{
+					entries.splice( i, 1 );
+				}
+			}
+		}
+		
+		
 		public function addEntry( entry:PlistEntry ):void
 		{
 			entries.push( entry );
