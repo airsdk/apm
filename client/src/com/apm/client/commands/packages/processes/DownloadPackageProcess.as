@@ -178,6 +178,8 @@ package com.apm.client.commands.packages.processes
 				{
 					Checksum.sha256Checksum( _destination, function ( calculatedSum:String ):void
 					{
+						Log.v( TAG, "CHECKSUM: provided:   " + checksum );
+						Log.v( TAG, "CHECKSUM: calculated: " + calculatedSum );
 						callback( calculatedSum == checksum, "checksum does not match" );
 					} );
 				}
