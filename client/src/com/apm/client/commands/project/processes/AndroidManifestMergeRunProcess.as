@@ -30,6 +30,7 @@ package com.apm.client.commands.project.processes
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
+	import flash.utils.ByteArray;
 	
 	
 	public class AndroidManifestMergeRunProcess extends ProcessBase
@@ -41,11 +42,10 @@ package com.apm.client.commands.project.processes
 		private static const TAG:String = "AndroidManifestMergeRunProcess";
 		
 		
-		private static const EMPTY_ANDROID_MANIFEST:String =
-									 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-									 "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\" >\n" +
-									 "    <uses-sdk android:minSdkVersion=\"19\" android:targetSdkVersion=\"30\" />\n" +
-									 "</manifest>\n";
+		[Embed(source="data/AndroidManifestDefault.xml",mimeType="application/octet-stream")]
+		private var AndroidManifestDefault:Class;
+		
+		private var ANDROID_MANIFEST_DEFAULT:String = (new AndroidManifestDefault() as ByteArray).toString();
 		
 		
 		////////////////////////////////////////////////////////
@@ -81,26 +81,27 @@ package com.apm.client.commands.project.processes
 				return;
 			}
 			
-			var mainManifest:File = new File( APM.config.configDirectory ).resolvePath( "android/AndroidManifest.xml" );
-			if (mainManifest.exists)
+			if (!FileUtils.tmpDirectory.exists) FileUtils.tmpDirectory.createDirectory();
+			var mainManifest:File = FileUtils.tmpDirectory.resolvePath( "AndroidManifest.xml" );
+
+			var configManifest:File = new File( APM.config.configDirectory ).resolvePath( "android/AndroidManifest.xml" );
+			if (configManifest.exists)
 			{
-				APM.io.writeLine( "Merging with supplied main manifest: " + mainManifest.nativePath.substr( APM.config.workingDirectory.length + 1 ) );
+				APM.io.writeLine( "Merging with supplied main manifest: " +
+										  configManifest.nativePath.substr( APM.config.workingDirectory.length + 1 ) );
+
+				var configManifestContent:String = loadConfigManifest( configManifest );
+				FileUtils.writeStringAsFileContent( mainManifest, configManifestContent );
 			}
 			else
 			{
-				if (!FileUtils.tmpDirectory.exists) FileUtils.tmpDirectory.createDirectory();
-				mainManifest = FileUtils.tmpDirectory.resolvePath( "AndroidManifest.xml" );
-				if (!mainManifest.exists)
-				{
-					writeEmptyManifest( mainManifest );
-				}
+				FileUtils.writeStringAsFileContent( mainManifest, ANDROID_MANIFEST_DEFAULT );
 			}
 			
 			
 			if (NativeProcess.isSupported)
 			{
 				APM.io.writeLine( "Android package name: " + packageName() );
-				
 				APM.io.showSpinner( "Android manifest merging" );
 				
 				var manifests:Array = findPackageManifests();
@@ -184,13 +185,33 @@ package com.apm.client.commands.project.processes
 		}
 		
 		
-		private function writeEmptyManifest( file:File ):void
+		private function loadConfigManifest( configManifest:File ):String
 		{
-			var fs:FileStream = new FileStream();
-			fs.open( file, FileMode.WRITE );
-			fs.writeUTFBytes( EMPTY_ANDROID_MANIFEST );
-			fs.close();
+			// Load the config manifest
+			//   If the <activity> node exists for changes to the main activity,
+			//   we must insert an android:name attribute to make merge work
+			//   This will get removed from the manifest after merge
+			var configManifestContent:String = FileUtils.readFileContentAsString( configManifest );
+			configManifestContent = configManifestContent
+					.replace( "<activity>", "<activity android:name=\".AIRAppEntry\">" )
+					.replace( "<activity >", "<activity android:name=\".AIRAppEntry\">" );
+			
+			return configManifestContent;
 		}
+		
+		
+		private function processMergedManifest( mergedManifest:String ):String
+		{
+			// Replace the main activity with a simple <activity> tag for AIR to merge
+			return mergedManifest.replace(
+					"<activity android:name=\""+packageName()+".AIRAppEntry\"",
+					"<activity"
+			);
+		}
+		
+		
+		
+		
 		
 		
 		private function onOutputData( event:ProgressEvent ):void
@@ -219,8 +240,8 @@ package com.apm.client.commands.project.processes
 			
 			if (event.exitCode == 0)
 			{
-				_appDescriptor.androidManifest = _data;
-				complete( _data );
+				_appDescriptor.androidManifest = processMergedManifest( _data );
+				complete( _appDescriptor.androidManifest );
 			}
 			else
 			{
@@ -235,7 +256,7 @@ package com.apm.client.commands.project.processes
 		}
 		
 		
-		private function packageName():String
+		private static function packageName():String
 		{
 			/**
 			 * On Android, the ID is converted to the Android package name by prefixing “air.” to the AIR ID.
@@ -274,7 +295,7 @@ package com.apm.client.commands.project.processes
 		}
 		
 		
-		private function noAndroidFlair():Boolean
+		private static function noAndroidFlair():Boolean
 		{
 			var noAndroidFlair:String = APM.config.env[ "AIR_NOANDROIDFLAIR" ];
 			if (noAndroidFlair != null && noAndroidFlair == "true")
