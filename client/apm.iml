@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="Flex" version="4">
-  <component name="FlexBuildConfigurationManager" active="apm">
+  <component name="FlexBuildConfigurationManager" active="apm-cli">
     <configurations>
-      <configuration name="apm" target-platform="Desktop" pure-as="true" main-class="APMConsoleApp" output-file="apm.swf" output-folder="$MODULE_DIR$/out">
+      <configuration name="apm-cli" target-platform="Desktop" pure-as="true" main-class="APMConsoleApp" output-file="apm.swf" output-folder="$MODULE_DIR$/out">
         <dependencies target-player="32.0">
           <entries>
             <entry library-id="bbc1d467-3c84-470d-8330-75d7c327a77a">
@@ -12,9 +12,15 @@
           <sdk name="current" />
         </dependencies>
         <compiler-options>
-          <option name="additionalOptions" value="-compiler.define+=CONFIG::DEBUG,true -compiler.define+=CONFIG::VERSION,'dev'" />
+          <option name="resourceFilesMode" value="None" />
+          <option name="additionalOptions" value="-compiler.define+=CONFIG::DEBUG,true -compiler.define+=CONFIG::VERSION,'0.0.1-dev'" />
         </compiler-options>
-        <packaging-air-desktop use-generated-descriptor="false" custom-descriptor-path="$MODULE_DIR$/src/apm.xml" package-file-name="apm" />
+        <packaging-air-desktop use-generated-descriptor="false" custom-descriptor-path="$MODULE_DIR$/src/apm.xml" package-file-name="apm-cli">
+          <files-to-package>
+            <FilePathAndPathInPackage file-path="$MODULE_DIR$/src/apm.bat" path-in-package="apm.bat" />
+            <FilePathAndPathInPackage file-path="$MODULE_DIR$/src/apm.sh" path-in-package="apm.sh" />
+          </files-to-package>
+        </packaging-air-desktop>
         <packaging-android />
         <packaging-ios />
       </configuration>
@@ -25,6 +31,7 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
     </content>
     <orderEntry type="jdk" jdkName="current" jdkType="Flex SDK Type (new)" />
     <orderEntry type="sourceFolder" forTests="false" />

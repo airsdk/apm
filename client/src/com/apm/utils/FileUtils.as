@@ -79,6 +79,8 @@ package com.apm.utils
 		
 		/**
 		 * Finds all files in a directory and subdirectores with the specified name
+		 * - lists the files before the directories.
+		 *
 		 * @param filename	The file name to search for
 		 * @param directory	The base directory to search
 		 * @return	An Array of File objects
@@ -88,18 +90,23 @@ package com.apm.utils
 			var files:Array = [];
 			if (directory != null && directory.exists)
 			{
+				var subdirectories:Array = [];
 				for each (var f:File in directory.getDirectoryListing())
 				{
 					if (f.isDirectory)
 					{
-						files = files.concat(
-								getFilesByName( filename, f )
-						);
+						subdirectories.push( f );
 					}
 					else if (f.name == filename)
 					{
 						files.push( f );
 					}
+				}
+				for each (var dir:File in subdirectories)
+				{
+					files = files.concat(
+							getFilesByName( filename, f )
+					);
 				}
 			}
 			return files;
