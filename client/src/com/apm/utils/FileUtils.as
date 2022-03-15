@@ -105,7 +105,7 @@ package com.apm.utils
 				for each (var dir:File in subdirectories)
 				{
 					files = files.concat(
-							getFilesByName( filename, f )
+							getFilesByName( filename, dir )
 					);
 				}
 			}
