@@ -88,7 +88,7 @@
 
     <!-- PACKAGE -->
 
-    <target name="package" depends="build" >
+    <target name="package" depends="clean, build" >
         <property file="version.config" />
 		<var name="version" value="${version_major}.${version_minor}.${version_build}${version_preview}" />
 		<zip destfile="${apm.basedir}/apm_${version}.zip">
