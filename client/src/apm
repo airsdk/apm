@@ -25,7 +25,7 @@ fi
 
 AIR_DIR="$(dirname "$(dirname "$(which "${ADL_DIR}adl")")")"
 
-"${ADL_DIR}"adl -profile extendedDesktop -nodebug -cmd "${SCRIPT_DIR}/apm.xml" -- \
+"${ADL_DIR}"adl -profile extendedDesktop -nodebug -multi-instance -cmd "${SCRIPT_DIR}/apm.xml" -- \
     -workingdir "$( pwd )" \
     -appdir "${SCRIPT_DIR}" \
     -airdir "${AIR_DIR}" \
