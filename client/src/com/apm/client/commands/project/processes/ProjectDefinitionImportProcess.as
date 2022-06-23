@@ -24,7 +24,6 @@ package com.apm.client.commands.project.processes
 	import com.apm.data.project.ProjectDefinition;
 	
 	import flash.filesystem.File;
-	import flash.html.script.Package;
 	
 	
 	/**
@@ -91,14 +90,30 @@ package com.apm.client.commands.project.processes
 				//	Create project properties from descriptor
 				
 				default xml namespace = appDescriptor.namespace;
+				var xmlNs:Namespace = appDescriptor.xmlNamespace;
 				
 				var project:ProjectDefinition = new ProjectDefinition();
 				
 				project.applicationId = appDescriptor.xml.id.toString();
-				project.applicationName = appDescriptor.xml.name.toString();
 				project.applicationFilename = appDescriptor.xml.filename.toString();
 				project.version = appDescriptor.xml.versionNumber.toString();
 				project.versionLabel = appDescriptor.xml.versionLabel.toString();
+				
+				var nameElements:XMLList = appDescriptor.xml.name..text;
+				if (nameElements.length() > 0)
+				{
+					var names:Object = {};
+					for each (var nameItem:XML in nameElements)
+					{
+						names[nameItem.@xmlNs::lang ] = nameItem.toString();
+					}
+					project.applicationName = names;
+				}
+				else
+				{
+					project.applicationName = appDescriptor.xml.name.toString();
+				}
+				
 				
 				var subqueue:ProcessQueue = new ProcessQueue();
 				

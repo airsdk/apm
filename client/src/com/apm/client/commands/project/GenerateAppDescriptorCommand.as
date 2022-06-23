@@ -215,10 +215,15 @@ package com.apm.client.commands.project
 			{
 				return "src/" + proj.applicationFilename + "-app.xml";
 			}
-			else
+			else if (proj.applicationName is String)
 			{
 				return "src/" + proj.applicationName.replace( / /g, "" ) + "-app.xml";
 			}
+			else if (proj.applicationName.hasOwnProperty("en"))
+			{
+				return "src/" + proj.applicationName["en"].replace( / /g, "" ) + "-app.xml";
+			}
+			return "src/MyApplication-app.xml";
 		}
 		
 		
