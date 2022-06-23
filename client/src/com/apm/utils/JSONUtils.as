@@ -49,21 +49,62 @@ package com.apm.utils
 						hasKeyInOrder = true;
 						break;
 					}
-					if (data[key] is Array)
-					{
-						for each (var o:Object in data[key])
-						{
-							addMissingKeys( o, keyOrder );
-						}
-					}
-					else if (data[key] is Object)
-					{
-						addMissingKeys( data[key], keyOrder );
-					}
 				}
 				if (!hasKeyInOrder) keyOrder.push( key );
+				
+				if (data[key] is Array)
+				{
+					for each (var o:Object in data[key])
+					{
+						addMissingKeys( o, keyOrder );
+					}
+				}
+				else if (data[key] is Object)
+				{
+					addMissingKeys( data[key], keyOrder );
+				}
 			}
 			return keyOrder;
+		}
+		
+		
+		public static function getMissingKeys( data:Object, keyOrder:Array, missingKeys:Array=null ):Array
+		{
+			if (missingKeys == null) missingKeys = [];
+			for (var key:String in data)
+			{
+				var hasKey:Boolean = false;
+				for each (var keyInOrder:String in keyOrder)
+				{
+					if (keyInOrder == key)
+					{
+						hasKey = true;
+						break;
+					}
+				}
+				for each (var missingKey:String in missingKeys)
+				{
+					if (missingKey == key)
+					{
+						hasKey = true;
+						break;
+					}
+				}
+				if (!hasKey) missingKeys.push( key );
+				
+				if (data[key] is Array)
+				{
+					for each (var o:Object in data[key])
+					{
+						getMissingKeys( o, keyOrder, missingKeys );
+					}
+				}
+				else if (data[key] is Object)
+				{
+					getMissingKeys( data[key], keyOrder, missingKeys );
+				}
+			}
+			return missingKeys;
 		}
 		
 	}

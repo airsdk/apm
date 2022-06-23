@@ -76,9 +76,16 @@ package com.apm.data.project
 		
 		
 		private var _airNS:Namespace;
+		
+		
 		public function get namespace():Namespace { return _airNS; }
 		
+		
 		private var _langNS:Namespace;
+		
+		
+		public function get xmlNamespace():Namespace { return _langNS; }
+		
 		
 		private var _airSDKVersion:AIRSDKVersion;
 		
@@ -102,9 +109,14 @@ package com.apm.data.project
 		}
 		
 		
-		private function isPropertyValueValid( value:String ):Boolean
+		private function isPropertyValueValid( value:Object ):Boolean
 		{
-			return value != null && value.length > 0;
+			if (value == null) return false;
+			if (value is String)
+			{
+				return String( value ).length > 0;
+			}
+			return true;
 		}
 		
 		
@@ -115,12 +127,42 @@ package com.apm.data.project
 				default xml namespace = _airNS;
 				
 				if (isPropertyValueValid( project.applicationId )) _xml.id = project.applicationId;
-				if (isPropertyValueValid( project.applicationName )) _xml.name = project.applicationName;
+				if (isPropertyValueValid( project.applicationName ))
+				{
+					if (project.applicationName is String)
+					{
+						_xml.name = project.applicationName;
+					}
+					else
+					{
+						var name:XML = <name></name>;
+						var langs:Array = getSortedKeys( project.applicationName );
+						for each (var lang:String in langs)
+						{
+							var text:XML = <text>{project.applicationName[ lang ]}</text>;
+							text.@_langNS::lang = lang;
+							name.appendChild( text );
+						}
+						_xml.name = name;
+					}
+				}
 				if (isPropertyValueValid( project.applicationFilename )) _xml.filename = project.applicationFilename;
 				if (isPropertyValueValid( project.version )) _xml.versionNumber = project.version;
 				if (isPropertyValueValid( project.versionLabel )) _xml.versionLabel = project.versionLabel;
 				
 			}
+		}
+		
+		
+		private function getSortedKeys( data:Object ):Array
+		{
+			var keys:Array = [];
+			for (var key:String in data)
+			{
+				keys.push( key );
+			}
+			keys.sort();
+			return keys;
 		}
 		
 		
@@ -147,14 +189,14 @@ package com.apm.data.project
 				var manifest:XML = new XML( androidManifest );
 				var androidns:Namespace = new Namespace( "android", ANDROID_NAMESPACE );
 				
-				delete manifest.application.@androidns::theme[0];
-				delete manifest.application.@androidns::name[0];
-				delete manifest.application.@androidns::label[0];
-				delete manifest.application.@androidns::windowSoftInputMode[0];
-				delete manifest.application.@androidns::configChanges[0];
-				delete manifest.application.@androidns::screenOrientation[0];
-				delete manifest.application.@androidns::launchMode[0];
-
+				delete manifest.application.@androidns::theme[ 0 ];
+				delete manifest.application.@androidns::name[ 0 ];
+				delete manifest.application.@androidns::label[ 0 ];
+				delete manifest.application.@androidns::windowSoftInputMode[ 0 ];
+				delete manifest.application.@androidns::configChanges[ 0 ];
+				delete manifest.application.@androidns::screenOrientation[ 0 ];
+				delete manifest.application.@androidns::launchMode[ 0 ];
+				
 				var manifestAdditionsContent:String = stripManifestTag( manifest );
 				var manifestAdditions:XML = new XML(
 						"<manifestAdditions><![CDATA[" +
@@ -263,9 +305,9 @@ package com.apm.data.project
 			}
 			for (var i:int = 0; i < _xml.extensions..extensionID.length(); i++)
 			{
-				if (_xml.extensions..extensionID[i].toString() == extensionIDToRemove)
+				if (_xml.extensions..extensionID[ i ].toString() == extensionIDToRemove)
 				{
-					delete _xml.extensions..extensionID[i];
+					delete _xml.extensions..extensionID[ i ];
 					return;
 				}
 			}

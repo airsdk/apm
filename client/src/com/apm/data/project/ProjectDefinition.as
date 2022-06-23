@@ -112,7 +112,7 @@ package com.apm.data.project
 				for (var buildType:String in _data.buildTypes)
 				{
 					var variant:ProjectBuildType = new ProjectBuildType( buildType )
-							.fromObject( _data.buildTypes[buildType] );
+							.fromObject( _data.buildTypes[ buildType ] );
 					
 					_buildTypes.push( variant );
 				}
@@ -131,9 +131,10 @@ package com.apm.data.project
 			
 			// Ensures the output JSON format is in a familiar order
 			var keyOrder:Array = ["identifier", "name", "filename", "version", "versionLabel", "dependencies", "configuration", "buildTypes", "repositories"];
-			JSONUtils.addMissingKeys( data, keyOrder );
+			var otherKeys:Array = JSONUtils.getMissingKeys( data, keyOrder );
+			otherKeys.sort();
 			
-			return JSON.stringify( data, keyOrder, 4 ) + "\n";
+			return JSON.stringify( data, keyOrder.concat( otherKeys ), 4 ) + "\n";
 		}
 		
 		
@@ -196,10 +197,10 @@ package com.apm.data.project
 		public function set applicationId( value:String ):void { _data[ "identifier" ] = value; }
 		
 		
-		public function get applicationName():String { return _data[ "name" ]; }
+		public function get applicationName():Object { return _data[ "name" ]; }
 		
 		
-		public function set applicationName( value:String ):void { _data[ "name" ] = value; }
+		public function set applicationName( value:Object ):void { _data[ "name" ] = value; }
 		
 		
 		public function get applicationFilename():String { return _data[ "filename" ]; }
@@ -236,7 +237,7 @@ package com.apm.data.project
 		//
 		//	CONFIGURATION PARAMETERS
 		//
-		
+
 //		public function get configuration():Vector.<ProjectParameter> { return _configuration; }
 		
 		/**
