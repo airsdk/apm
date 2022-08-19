@@ -15,6 +15,7 @@ package com.apm.data.project
 {
 	import com.apm.data.install.InstallPackageData;
 	import com.apm.data.packages.PackageIdentifier;
+	import com.apm.utils.JSONUtils;
 	
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
@@ -87,7 +88,9 @@ package com.apm.data.project
 		public function stringify():String
 		{
 			var data:Object = toObject();
-			return JSON.stringify( data, null, 4 ) + "\n";
+			var keys:Array = JSONUtils.getMissingKeys( data, [] );
+			keys.sort();
+			return JSON.stringify( data, keys, 4 ) + "\n";
 		}
 		
 		
