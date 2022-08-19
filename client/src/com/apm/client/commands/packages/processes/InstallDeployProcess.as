@@ -14,18 +14,15 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APM;
+	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.install.InstallData;
 	import com.apm.data.install.InstallPackageData;
 	import com.apm.utils.DeployFileUtils;
 	import com.apm.utils.FileUtils;
 	import com.apm.utils.PackageFileUtils;
-	import com.apm.client.logging.Log;
-	import com.apm.client.processes.ProcessBase;
-	import com.apm.data.packages.PackageParameter;
-	
+
 	import flash.filesystem.File;
-	
-	
+
 	/**
 	 * This is the deploy process in the install command,
 	 * it copies the files into the appropriate place for the application.
@@ -35,34 +32,39 @@ package com.apm.client.commands.packages.processes
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
-		
+
 		private static const TAG:String = "InstallDeployProcess";
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
-		
+
 		private var _installData:InstallData;
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
-		
+
 		public function InstallDeployProcess( installData:InstallData )
 		{
 			_installData = installData;
 		}
-		
-		
+
+
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
 			for each (var p:InstallPackageData in _installData.packagesToInstall)
 			{
+				var packageDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDirectory,
+																		   p.packageVersion.packageDef.identifier );
+				if (packageDir == null || !packageDir.exists)
+				{
+					return failure( "Cache for package directory does not exist" );
+				}
 				APM.io.showSpinner( "Deploying package: " + p.packageVersion.toStringWithIdentifier() );
-				var packageDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDirectory, p.packageVersion.packageDef.identifier );
 				for each (var ref:File in packageDir.getDirectoryListing())
 				{
 					if (ref.isDirectory)
@@ -79,8 +81,8 @@ package com.apm.client.commands.packages.processes
 			}
 			complete();
 		}
-		
-		
+
+
 	}
-	
+
 }
