@@ -13,8 +13,8 @@
  */
 package com.apm.data.packages
 {
-	
-	
+
+
 	/**
 	 * Utilities for comparing package identifiers
 	 */
@@ -23,24 +23,24 @@ package com.apm.data.packages
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
-		
+
 		private static const TAG:String = "PackageIdentifier";
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
-		
+
 		public function PackageIdentifier()
 		{
 		}
-		
-		
+
+
 		/**
 		 * Checks whether 2 package identifiers are equivalent.
 		 * <br/>
@@ -55,11 +55,12 @@ package com.apm.data.packages
 		public static function isEquivalent( identifierA:String, identifierB:String ):Boolean
 		{
 			if (identifierA == null || identifierB == null) return false;
-			if (identifierA == identifierB) return true;
-			return identifierWithoutVariant( identifierA ) == identifierWithoutVariant( identifierB );
+			if (identifierA.toLowerCase() == identifierB.toLowerCase()) return true;
+			return identifierWithoutVariant( identifierA ).toLowerCase() ==
+					identifierWithoutVariant( identifierB ).toLowerCase();
 		}
-		
-		
+
+
 		/**
 		 * Removes the "variant" from a package identifier and returns the identifier
 		 *
@@ -75,8 +76,8 @@ package com.apm.data.packages
 			}
 			return identifier;
 		}
-		
-		
+
+
 		/**
 		 * Returns the "variant" from the package identifier
 		 *
@@ -92,8 +93,8 @@ package com.apm.data.packages
 			}
 			return "";
 		}
-		
-		
+
+
 		/**
 		 * Checks the identifier is valid
 		 *
@@ -104,11 +105,12 @@ package com.apm.data.packages
 		public static function isValid( identifier:String ):Boolean
 		{
 			var pattern:RegExp = /^([A-Za-z]{1}[A-Za-z\d_]*\.)*[A-Za-z][A-Za-z\d_]*$/i;
+
 			var result:Object = pattern.exec( identifierWithoutVariant( identifier ) );
 			return result != null;
 		}
-		
-		
+
+
 	}
-	
+
 }
