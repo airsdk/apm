@@ -16,40 +16,39 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APM;
+	import com.apm.client.commands.packages.utils.InstallDataValidator;
+	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.install.InstallData;
 	import com.apm.data.install.InstallPackageData;
 	import com.apm.data.install.InstallPackageDataGroup;
-	import com.apm.client.commands.packages.utils.InstallDataValidator;
-	import com.apm.client.processes.ProcessBase;
-	
-	
+
 	public class InstallDataValidationProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
-		
+
 		private static const TAG:String = "InstallValidationProcess";
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
-		
+
 		private var _installData:InstallData;
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
-		
+
 		public function InstallDataValidationProcess( installData:InstallData )
 		{
 			super();
 			_installData = installData;
 		}
-		
-		
+
+
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
@@ -64,7 +63,12 @@ package com.apm.client.commands.packages.processes
 				{
 					var identifier:String = packageToRemove.packageVersion.packageDef.identifier;
 					_queue.addProcess(
-							new UninstallPackageProcess( identifier, identifier, null, packageToRemove.packageVersion.version, false, false )
+							new UninstallPackageProcess( identifier,
+														 identifier,
+														 null,
+														 packageToRemove.packageVersion.version,
+														 false,
+														 packageToRemove.packageVersion.version == null )
 					);
 				}
 				for each (var p:InstallPackageData in _installData.packagesToInstall)
@@ -73,24 +77,25 @@ package com.apm.client.commands.packages.processes
 							new InstallPackageProcess( p )
 					);
 				}
-				
+
 				_queue.addProcess( new InstallDeployProcess( _installData ) );
 				_queue.addProcess( new InstallFinaliseProcess( _installData ) );
-				
+
 				complete();
 			}
 			else
 			{
-				APM.io.writeError( "CONFLICT", "fatal error : found [" + _installData.packagesConflicting.length + "] conflicting packages" );
+				APM.io.writeError( "CONFLICT",
+								   "fatal error : found [" + _installData.packagesConflicting.length + "] conflicting packages" );
 				for each (var confictGroup:InstallPackageDataGroup in _installData.packagesConflicting)
 				{
 					APM.io.writeError( "CONFLICT", confictGroup.packageIdentifier );
 					for (var i:int = 0; i < confictGroup.versions.length; i++)
 					{
 						APM.io.writeError( "CONFLICT",
-											 (i == confictGroup.versions.length - 1 ? "└── " : "├── ") +
-													 confictGroup.versions[ i ].packageVersion.toString() +
-													 " required by: " + confictGroup.versions[ i ].request.requiringPackage.toStringWithIdentifier()
+										   (i == confictGroup.versions.length - 1 ? "└── " : "├── ") +
+												   confictGroup.versions[i].packageVersion.toString() +
+												   " required by: " + confictGroup.versions[i].request.requiringPackage.toStringWithIdentifier()
 						);
 					}
 				}

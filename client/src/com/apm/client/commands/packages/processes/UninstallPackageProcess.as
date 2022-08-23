@@ -15,6 +15,7 @@ package com.apm.client.commands.packages.processes
 {
 	import com.apm.SemVer;
 	import com.apm.client.APM;
+	import com.apm.client.io.IOColour;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.packages.PackageDefinitionFile;
@@ -118,7 +119,8 @@ package com.apm.client.commands.packages.processes
 					_uninstallingPackageIdentifier,
 					_packageIdentifier ))
 			{
-				APM.io.writeError( _packageIdentifier, "Required by another package - skipping uninstall" );
+				APM.io.writeLine( _packageIdentifier + " required by another package - skipping uninstall",
+								  IOColour.LIGHT_GRAY );
 				return complete();
 			}
 
