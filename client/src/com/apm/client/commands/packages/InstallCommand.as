@@ -30,80 +30,79 @@ package com.apm.client.commands.packages
 	import com.apm.data.project.ProjectLock;
 	import com.apm.utils.FileUtils;
 	import com.apm.utils.PackageFileUtils;
-	
+
 	import flash.events.EventDispatcher;
 	import flash.filesystem.File;
-	
-	
+
 	public class InstallCommand extends EventDispatcher implements Command
 	{
-		
+
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
-		
+
 		private static const TAG:String = "InstallCommand";
-		
-		
+
+
 		public static const NAME:String = "install";
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
-		
+
 		private var _parameters:Array;
-		
+
 		private var _queue:ProcessQueue;
 		private var _installData:InstallData;
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
-		
+
 		public function InstallCommand()
 		{
 			super();
 		}
-		
-		
+
+
 		public function setParameters( parameters:Array ):void
 		{
 			_parameters = parameters;
 		}
-		
-		
+
+
 		public function get name():String
 		{
 			return NAME;
 		}
-		
-		
+
+
 		public function get category():String
 		{
 			return "";
 		}
-		
-		
+
+
 		public function get requiresNetwork():Boolean
 		{
 			return false;
 		}
-		
-		
+
+
 		public function get requiresProject():Boolean
 		{
 			return true;
 		}
-		
-		
+
+
 		public function get description():String
 		{
 			return "add and install a dependency to your project";
 		}
-		
-		
+
+
 		public function get usage():String
 		{
 			return description + "\n" +
@@ -117,8 +116,8 @@ package com.apm.client.commands.packages
 					"  --include-prerelease               includes pre-release package versions in the search"
 					;
 		}
-		
-		
+
+
 		public function execute():void
 		{
 			var project:ProjectDefinition = APM.config.projectDefinition;
@@ -128,17 +127,17 @@ package com.apm.client.commands.packages
 				return;
 			}
 			var lockFile:ProjectLock = APM.config.projectLock;
-			
+
 			_installData = new InstallData();
-			_queue = new ProcessQueue();
-			
+			_queue       = new ProcessQueue();
+
 			var packageIdentifierOrPath:String = null;
 			if (_parameters != null && _parameters.length > 0)
 			{
-				packageIdentifierOrPath = _parameters[ 0 ];
-				
-				var version:String = (_parameters.length > 1) ? _parameters[ 1 ] : "latest";
-				
+				packageIdentifierOrPath = _parameters[0];
+
+				var version:String = (_parameters.length > 1) ? _parameters[1] : "latest";
+
 				// Check if ends in "airpackage"
 				if (packageIdentifierOrPath.indexOf( PackageFileUtils.AIRPACKAGEEXTENSION ) ==
 						packageIdentifierOrPath.length - PackageFileUtils.AIRPACKAGEEXTENSION.length)
@@ -171,7 +170,7 @@ package com.apm.client.commands.packages
 							null,
 							true
 					);
-					
+
 					if (request.semVer == null && request.version != "latest")
 					{
 						// Invalid version passed
@@ -179,28 +178,32 @@ package com.apm.client.commands.packages
 						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
 						return;
 					}
-					
+
 					switch (ProjectDefinitionValidator.checkPackageAlreadyInstalled( project, request ))
 					{
 						case ProjectDefinitionValidator.NOT_INSTALLED:
 							// not installed
 							break;
-						
+
 						case ProjectDefinitionValidator.ALREADY_INSTALLED:
 							APM.io.writeLine( "Already installed: " + request.packageIdentifier + " >= " + request.version.toString() );
 							dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ) );
 							return;
-						
+
 						case ProjectDefinitionValidator.UNKNOWN_LATEST_REQUESTED:
-							// exists but requesting latest
+							// exists but requesting 'latest'
 							break;
-						
+
 						case ProjectDefinitionValidator.HIGHER_VERSION_REQUESTED:
 							// To upgrade we first uninstall then continue with the install
-							_queue.addProcessToStart( new UninstallPackageProcess( packageIdentifierOrPath, packageIdentifierOrPath, null ) );
+							_queue.addProcessToStart( new UninstallPackageProcess( packageIdentifierOrPath,
+																				   packageIdentifierOrPath,
+																				   null,
+																				   null,
+																				   false ) );
 							break;
 					}
-					
+
 					// Install
 					_queue.addProcess(
 							new InstallQueryPackageProcess(
@@ -209,9 +212,9 @@ package com.apm.client.commands.packages
 							)
 					);
 				}
-				
+
 			}
-			
+
 			// Add definitions stored in the current lock file
 			if (lockFile != null)
 			{
@@ -223,7 +226,7 @@ package com.apm.client.commands.packages
 					);
 				}
 			}
-			
+
 			// Add any project dependencies that haven't been processed previously
 			// (may have been manually added or not installed yet)
 			if (project.dependencies.length > 0)
@@ -246,7 +249,7 @@ package com.apm.client.commands.packages
 					}
 				}
 			}
-			
+
 			_queue.start(
 					function ():void
 					{
@@ -265,11 +268,12 @@ package com.apm.client.commands.packages
 					},
 					function ( error:String ):void
 					{
+						APM.io.writeError( name, error );
 						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
 					}
 			);
 		}
-		
+
 	}
-	
+
 }

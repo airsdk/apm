@@ -84,6 +84,11 @@ package com.apm.client.commands.packages.utils
 					}
 				}
 			}
+
+			data.packagesToInstall.sort( InstallPackageData.sortFunction );
+			data.packagesToRemove.sort( InstallPackageData.sortFunction );
+			data.packagesConflicting.sort( InstallPackageDataGroup.sortFunction );
+
 			return data.packagesConflicting.length == 0;
 		}
 		

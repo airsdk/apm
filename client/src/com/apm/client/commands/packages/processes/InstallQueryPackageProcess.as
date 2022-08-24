@@ -13,23 +13,21 @@
  */
 package com.apm.client.commands.packages.processes
 {
-	import com.apm.SemVer;
 	import com.apm.SemVerRange;
 	import com.apm.client.APM;
-	import com.apm.data.install.InstallData;
-	import com.apm.data.install.InstallRequest;
 	import com.apm.client.commands.packages.utils.ProjectDefinitionValidator;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.repositories.PackageResolver;
+	import com.apm.data.install.InstallData;
+	import com.apm.data.install.InstallRequest;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.packages.PackageVersion;
 	import com.apm.utils.PackageFileUtils;
-	
+
 	import flash.filesystem.File;
-	
-	
+
 	/**
 	 * This process is to request the package and assemble the listed dependencies
 	 */
@@ -38,35 +36,35 @@ package com.apm.client.commands.packages.processes
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
-		
+
 		private static const TAG:String = "InstallQueryPackageProcess";
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
-		
+
 		private var _installData:InstallData;
 		private var _request:InstallRequest;
 		private var _failIfInstalled:Boolean;
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
-		
+
 		public function InstallQueryPackageProcess(
 				data:InstallData,
 				request:InstallRequest,
 				failIfInstalled:Boolean = true )
 		{
 			super();
-			_installData = data;
-			_request = request;
+			_installData     = data;
+			_request         = request;
 			_failIfInstalled = failIfInstalled;
 		}
-		
-		
+
+
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
@@ -75,13 +73,13 @@ package com.apm.client.commands.packages.processes
 			{
 				return complete();
 			}
-			
+
 			Log.d( TAG, "start(): " + _request.description() );
-			
+
 			if (_request.source == "file")
 			{
 				// Handle file source
-				
+
 				// Here we are assuming there is a package installed already matching the identifier / version
 				// This should only be reached from an "apm install" or "apm update"
 				var packageFile:File = PackageFileUtils.fileForPackageFromIdentifierVersion(
@@ -89,7 +87,7 @@ package com.apm.client.commands.packages.processes
 						_request.packageIdentifier,
 						_request.semVer
 				);
-				
+
 				if (packageFile.exists)
 				{
 					_queue.addProcess( new InstallLocalPackageProcess( packageFile, _installData, false ) );
@@ -120,19 +118,22 @@ package com.apm.client.commands.packages.processes
 							{
 								if (foundVersion)
 								{
-									var packageVersionForInstall:PackageVersion = packageDefinition.versions[ 0 ];
+									var packageVersionForInstall:PackageVersion = packageDefinition.versions[0];
 //									APM.io.writeLine( packageDefinition.toString() );
-									
+
 									// Update the request (in case this was a latest version request)
 									if (_request.version == "latest")
 									{
 										_request.version = packageVersionForInstall.version.toString();
-										
+
 										// Perform a delayed "already installed" check
-										switch (ProjectDefinitionValidator.checkPackageAlreadyInstalled( APM.config.projectDefinition, _request ))
+										switch (ProjectDefinitionValidator.checkPackageAlreadyInstalled( APM.config.projectDefinition,
+																										 _request ))
 										{
 											case ProjectDefinitionValidator.ALREADY_INSTALLED:
-												var existingDependency:PackageDependency = ProjectDefinitionValidator.getInstalledPackageDependency( APM.config.projectDefinition, _request );
+												var existingDependency:PackageDependency = ProjectDefinitionValidator.getInstalledPackageDependency(
+														APM.config.projectDefinition,
+														_request );
 												if (_failIfInstalled)
 												{
 													APM.io.writeLine( "Already installed: " + existingDependency.toString() + " >= " + _request.version );
@@ -140,27 +141,32 @@ package com.apm.client.commands.packages.processes
 												}
 												else if (existingDependency.version.greaterThan( _request.semVer ))
 												{
-													Log.d( TAG, "Newer version already installed - potentially a prerelease" );
+													Log.d( TAG,
+														   "Newer version already installed - potentially a prerelease" );
 													_request.version = existingDependency.version.toString();
-													processQueue.addProcessToStart( new InstallQueryPackageProcess( _installData, _request, _failIfInstalled ));
+													processQueue.addProcessToStart( new InstallQueryPackageProcess(
+															_installData,
+															_request,
+															_failIfInstalled ) );
 													complete();
 													return;
 												}
 												break;
-											
+
 											case ProjectDefinitionValidator.HIGHER_VERSION_REQUESTED:
-													// TODO
-												processQueue.addProcessToStart( new UninstallPackageProcess( packageDefinition.identifier, packageDefinition.identifier, null, null, false ) );
+												// Flag the package to be removed before the higher version is installed
+												_installData.removePackageByIdentifier( packageDefinition.identifier );
+//												processQueue.addProcessToStart( new UninstallPackageProcess( packageDefinition.identifier, packageDefinition.identifier, null, null, false ) );
 												break;
-											
+
 											case ProjectDefinitionValidator.UNKNOWN_LATEST_REQUESTED:
 											case ProjectDefinitionValidator.NOT_INSTALLED:
 												break;
 										}
 									}
-									
+
 									_installData.addPackage( packageVersionForInstall, _request );
-									
+
 									// Queue dependencies for install
 									for each (var dep:PackageDependency in packageVersionForInstall.dependencies)
 									{
@@ -176,7 +182,7 @@ package com.apm.client.commands.packages.processes
 														)
 												) );
 									}
-									
+
 								}
 								else if (success)
 								{
@@ -193,10 +199,10 @@ package com.apm.client.commands.packages.processes
 						}
 				);
 			}
-			
+
 		}
-		
-		
+
+
 	}
-	
+
 }

@@ -20,12 +20,11 @@ package com.apm.data.project
 	import com.apm.data.packages.PackageVersion;
 	import com.apm.data.packages.RepositoryDefinition;
 	import com.apm.utils.JSONUtils;
-	
+
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
-	
-	
+
 	/**
 	 * Handles loading and saving a project definition file
 	 */
@@ -34,48 +33,48 @@ package com.apm.data.project
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
-		
+
 		private static const TAG:String = "ProjectDefinition";
-		
-		
+
+
 		public static const DEFAULT_FILENAME:String = "project.apm";
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
-		
+
 		private var _data:Object;
-		
+
 		private var _sourceFile:File;
-		
+
 		private var _repositories:Vector.<RepositoryDefinition>;
 		private var _dependencies:Vector.<PackageDependency>;
 		private var _configuration:Vector.<ProjectParameter>;
 		private var _buildTypes:Vector.<ProjectBuildType>;
 		private var _deployOptions:Object;
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
-		
+
 		public function ProjectDefinition()
 		{
 			_data = {};
-			
-			_repositories = new <RepositoryDefinition>[];
-			_dependencies = new <PackageDependency>[];
+
+			_repositories  = new <RepositoryDefinition>[];
+			_dependencies  = new <PackageDependency>[];
 			_configuration = new <ProjectParameter>[];
-			_buildTypes = new <ProjectBuildType>[];
+			_buildTypes    = new <ProjectBuildType>[];
 			_deployOptions = {};
 		}
-		
-		
+
+
 		public function parse( content:String ):void
 		{
 			_data = JSON.parse( content );
-			
+
 			if (_data.hasOwnProperty( "repositories" ))
 			{
 				_repositories = new Vector.<RepositoryDefinition>();
@@ -84,7 +83,7 @@ package com.apm.data.project
 					_repositories.push( RepositoryDefinition.fromObject( rep ) );
 				}
 			}
-			
+
 			if (_data.hasOwnProperty( "dependencies" ))
 			{
 				_dependencies = new Vector.<PackageDependency>();
@@ -93,137 +92,137 @@ package com.apm.data.project
 					_dependencies.push( new PackageDependency().fromObject( dep ) );
 				}
 			}
-			
+
 			if (_data.hasOwnProperty( "configuration" ))
 			{
 				_configuration = new Vector.<ProjectParameter>();
 				for (var key:String in _data.configuration)
 				{
 					_configuration.push(
-							ProjectParameter.fromObject( key, _data.configuration[ key ] )
+							ProjectParameter.fromObject( key, _data.configuration[key] )
 					);
 				}
 				_configuration.sort( Array.CASEINSENSITIVE );
 			}
-			
+
 			if (_data.hasOwnProperty( "buildTypes" ))
 			{
 				_buildTypes = new <ProjectBuildType>[];
 				for (var buildType:String in _data.buildTypes)
 				{
 					var variant:ProjectBuildType = new ProjectBuildType( buildType )
-							.fromObject( _data.buildTypes[ buildType ] );
-					
+							.fromObject( _data.buildTypes[buildType] );
+
 					_buildTypes.push( variant );
 				}
 			}
-			
+
 			if (_data.hasOwnProperty( "deployOptions" ))
 			{
 				_deployOptions = _data.deployOptions;
 			}
 		}
-		
-		
+
+
 		public function stringify():String
 		{
 			var data:Object = toObject();
-			
+
 			// Ensures the output JSON format is in a familiar order
-			var keyOrder:Array = ["identifier", "name", "filename", "version", "versionLabel", "dependencies", "configuration", "buildTypes", "repositories"];
+			var keyOrder:Array  = [ "identifier", "name", "filename", "version", "versionLabel", "dependencies", "configuration", "buildTypes", "repositories" ];
 			var otherKeys:Array = JSONUtils.getMissingKeys( data, keyOrder );
 			otherKeys.sort();
-			
+
 			return JSON.stringify( data, keyOrder.concat( otherKeys ), 4 ) + "\n";
 		}
-		
-		
+
+
 		public function toObject():Object
 		{
 			var data:Object = {};
-			
-			data[ "identifier" ] = applicationId;
-			data[ "name" ] = applicationName;
-			data[ "filename" ] = applicationFilename;
-			data[ "version" ] = version;
-			data[ "versionLabel" ] = versionLabel;
-			
+
+			data["identifier"]   = applicationId;
+			data["name"]         = applicationName;
+			data["filename"]     = applicationFilename;
+			data["version"]      = version;
+			data["versionLabel"] = versionLabel;
+
 			var repos:Array = [];
 			for each (var repo:RepositoryDefinition in _repositories)
 			{
 				repos.push( repo.toObject() );
 			}
-			data[ "repositories" ] = repos;
-			
+			data["repositories"] = repos;
+
 			var deps:Array = [];
 			for each (var dep:PackageDependency in _dependencies)
 			{
 				deps.push( dep.toObject() );
 			}
-			data[ "dependencies" ] = deps;
-			
+			data["dependencies"] = deps;
+
 			var configObject:Object = {};
 			for each (var param:ProjectParameter in _configuration)
 			{
-				configObject[ param.name ] = param.toObject();
+				configObject[param.name] = param.toObject();
 			}
-			data[ "configuration" ] = configObject;
-			
+			data["configuration"] = configObject;
+
 			if (_buildTypes.length > 0)
 			{
 				var buildTypesObject:Object = {};
 				for each (var variant:ProjectBuildType in _buildTypes)
 				{
-					buildTypesObject[ variant.name ] = variant.toObject();
+					buildTypesObject[variant.name] = variant.toObject();
 				}
-				data[ "buildTypes" ] = buildTypesObject;
+				data["buildTypes"] = buildTypesObject;
 			}
-			
-			data[ "deployOptions" ] = _deployOptions;
-			
+
+			data["deployOptions"] = _deployOptions;
+
 			_data = data;
-			
+
 			return data;
 		}
-		
-		
+
+
 		//
 		//	OPTIONS
 		//
-		
-		public function get applicationId():String { return _data[ "identifier" ]; }
-		
-		
-		public function set applicationId( value:String ):void { _data[ "identifier" ] = value; }
-		
-		
-		public function get applicationName():Object { return _data[ "name" ]; }
-		
-		
-		public function set applicationName( value:Object ):void { _data[ "name" ] = value; }
-		
-		
-		public function get applicationFilename():String { return _data[ "filename" ]; }
-		
-		
-		public function set applicationFilename( value:String ):void { _data[ "filename" ] = value; }
-		
-		
-		public function get version():String { return _data[ "version" ]; }
-		
-		
-		public function set version( value:String ):void { _data[ "version" ] = value; }
-		
-		
-		public function get versionLabel():String { return _data[ "versionLabel" ]; }
-		
-		
-		public function set versionLabel( value:String ):void { _data[ "versionLabel" ] = value; }
-		
-		
+
+		public function get applicationId():String { return _data["identifier"]; }
+
+
+		public function set applicationId( value:String ):void { _data["identifier"] = value; }
+
+
+		public function get applicationName():Object { return _data["name"]; }
+
+
+		public function set applicationName( value:Object ):void { _data["name"] = value; }
+
+
+		public function get applicationFilename():String { return _data["filename"]; }
+
+
+		public function set applicationFilename( value:String ):void { _data["filename"] = value; }
+
+
+		public function get version():String { return _data["version"]; }
+
+
+		public function set version( value:String ):void { _data["version"] = value; }
+
+
+		public function get versionLabel():String { return _data["versionLabel"]; }
+
+
+		public function set versionLabel( value:String ):void { _data["versionLabel"] = value; }
+
+
 		public function get repositories():Vector.<RepositoryDefinition> { return _repositories; }
-		
-		
+
+
 		public function get dependencies():Vector.<PackageDependency>
 		{
 			if (_dependencies == null)
@@ -232,14 +231,14 @@ package com.apm.data.project
 			}
 			return _dependencies;
 		}
-		
-		
+
+
 		//
 		//	CONFIGURATION PARAMETERS
 		//
 
 //		public function get configuration():Vector.<ProjectParameter> { return _configuration; }
-		
+
 		/**
 		 * Retrieves the configuration parameters for the specified build type
 		 *
@@ -272,8 +271,8 @@ package com.apm.data.project
 			}
 			return _configuration;
 		}
-		
-		
+
+
 		/**
 		 * Retrieves the specified configuration parameter value
 		 *
@@ -291,8 +290,8 @@ package com.apm.data.project
 			}
 			return null;
 		}
-		
-		
+
+
 		/**
 		 * Retrieves the specified configuration parameter
 		 *
@@ -312,8 +311,8 @@ package com.apm.data.project
 			}
 			return null;
 		}
-		
-		
+
+
 		/**
 		 * Sets a value for the configuration parameter
 		 *
@@ -343,8 +342,8 @@ package com.apm.data.project
 				var param:ProjectParameter = getConfigurationParam( key, null );
 				if (param == null)
 				{
-					param = new ProjectParameter();
-					param.name = key;
+					param       = new ProjectParameter();
+					param.name  = key;
 					param.value = value;
 					_configuration.push( param );
 					_configuration.sort( Array.CASEINSENSITIVE );
@@ -355,8 +354,8 @@ package com.apm.data.project
 				}
 			}
 		}
-		
-		
+
+
 		/**
 		 * Adds the package parameter to the default project configuration
 		 *
@@ -368,11 +367,11 @@ package com.apm.data.project
 			if (param == null)
 			{
 				// New parameter
-				param = new ProjectParameter();
-				param.name = packageParam.name;
+				param          = new ProjectParameter();
+				param.name     = packageParam.name;
 				param.required = packageParam.required;
-				param.value = packageParam.defaultValue;
-				
+				param.value    = packageParam.defaultValue;
+
 				_configuration.push( param );
 				_configuration.sort( Array.CASEINSENSITIVE );
 			}
@@ -385,14 +384,14 @@ package com.apm.data.project
 					param.value = packageParam.defaultValue;
 				}
 			}
-			
+
 		}
-		
-		
+
+
 		//
 		//	BUILD TYPES
 		//
-		
+
 		public function getBuildType( name:String ):ProjectBuildType
 		{
 			for each (var buildType:ProjectBuildType in _buildTypes)
@@ -404,12 +403,12 @@ package com.apm.data.project
 			}
 			return null;
 		}
-		
-		
+
+
 		//
 		//	DEPLOYMENT OPTIONS
 		//
-		
+
 		/**
 		 * User configurable deployment options, specifying the location of files
 		 * deployed by the apm tool, including ane directory, swc directory etc.
@@ -418,8 +417,8 @@ package com.apm.data.project
 		{
 			return _deployOptions;
 		}
-		
-		
+
+
 		/**
 		 * Removes all current dependencies in the project definition
 		 *
@@ -430,8 +429,8 @@ package com.apm.data.project
 			_dependencies = new Vector.<PackageDependency>();
 			return this;
 		}
-		
-		
+
+
 		/**
 		 * Adds a package version as a project dependency
 		 *
@@ -445,18 +444,18 @@ package com.apm.data.project
 			{
 				removePackageDependency( packageVersion.packageDef.identifier );
 			}
-			
+
 			var dep:PackageDependency = new PackageDependency();
-			dep.identifier = packageVersion.packageDef.identifier;
-			dep.version = SemVerRange.fromString( packageVersion.version.toString() );
-			dep.source = packageVersion.source;
-			
+			dep.identifier            = packageVersion.packageDef.identifier;
+			dep.version               = SemVerRange.fromString( packageVersion.version.toString() );
+			dep.source                = packageVersion.source;
+
 			dependencies.push( dep );
-			
+
 			return this;
 		}
-		
-		
+
+
 		/**
 		 * Adds a package dependency as a project dependency
 		 *
@@ -470,13 +469,13 @@ package com.apm.data.project
 			{
 				removePackageDependency( dependency.identifier );
 			}
-			
+
 			dependencies.push( dependency );
-			
+
 			return this;
 		}
-		
-		
+
+
 		/**
 		 * Returns true if the project already contains a dependency on the specified package
 		 *
@@ -488,8 +487,8 @@ package com.apm.data.project
 		{
 			return getPackageDependency( identifier ) != null;
 		}
-		
-		
+
+
 		/**
 		 * Finds a package dependency matching the specified identifier
 		 *
@@ -508,8 +507,8 @@ package com.apm.data.project
 			}
 			return null;
 		}
-		
-		
+
+
 		/**
 		 * Removes a package dependency matching the specified identifier
 		 *
@@ -521,19 +520,19 @@ package com.apm.data.project
 		{
 			for (var i:int = _dependencies.length - 1; i >= 0; --i)
 			{
-				if (PackageIdentifier.isEquivalent( _dependencies[ i ].identifier, identifier ))
+				if (PackageIdentifier.isEquivalent( _dependencies[i].identifier, identifier ))
 				{
 					_dependencies.splice( i, 1 );
 				}
 			}
 			return this;
 		}
-		
-		
+
+
 		//
 		//	IO
 		//
-		
+
 		/**
 		 * Saves this project definition into the specified file.
 		 *
@@ -545,21 +544,21 @@ package com.apm.data.project
 			{
 				f = _sourceFile;
 			}
-			
+
 			if (f == null)
 			{
 				throw new Error( "No output file specified" );
 			}
-			
+
 			var content:String = stringify();
-			
+
 			var fs:FileStream = new FileStream();
 			fs.open( f, FileMode.WRITE );
 			fs.writeUTFBytes( content );
 			fs.close();
 		}
-		
-		
+
+
 		/**
 		 * Loads the specified file as a project definition file
 		 *
@@ -573,20 +572,20 @@ package com.apm.data.project
 			{
 				throw new Error( "File doesn't exist" );
 			}
-			
+
 			_sourceFile = f;
-			
+
 			var fs:FileStream = new FileStream();
 			fs.open( f, FileMode.READ );
 			var content:String = fs.readUTFBytes( fs.bytesAvailable );
 			fs.close();
-			
+
 			parse( content );
-			
+
 			return this;
 		}
-		
-		
+
+
 	}
-	
+
 }
