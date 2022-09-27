@@ -83,7 +83,7 @@ package com.apm.client.processes.generic
 				{
 					// Powershell script can't handle non-zip extension archives so we copy to a .zip tmp file and delete after
 					_zipFileRef = new File( _zipFile.nativePath + ".zip" );
-					_zipFile.copyTo( _zipFileRef, true );
+					_zipFile.copyTo( _zipFileRef );
 					_deleteAfter = true;
 				}
 				else
