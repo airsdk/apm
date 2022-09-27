@@ -100,15 +100,7 @@ package com.apm.client.processes.generic
 		private function onOutputData( event:ProgressEvent ):void
 		{
 			var output:String = _process.standardOutput.readUTFBytes( _process.standardOutput.bytesAvailable );
-			var lines:Array = output.split( "\n" );
-			if (lines.length > 1)
-			{
-				_data = String(lines[1])
-						.replace( /\n/g, "" )
-						.replace( /\r/g, "" )
-						.replace( /\t/g, "" )
-						.replace( / /g, "" );
-			}
+			_data += output;
 		}
 		
 		
@@ -124,7 +116,8 @@ package com.apm.client.processes.generic
 //			APM.io.stopSpinner( event.exitCode == 0, " checksum calculated" );
 			if (event.exitCode == 0)
 			{
-				var checksum:String = _data;
+				var hashRegExp:RegExp = /^[A-Fa-f0-9]{64}$/m;
+				var checksum:String = hashRegExp.exec(_data);
 				complete( checksum );
 			}
 			else
