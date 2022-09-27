@@ -100,8 +100,7 @@ package com.apm.client.processes.generic
 		private function onOutputData( event:ProgressEvent ):void
 		{
 			var output:String = _process.standardOutput.readUTFBytes( _process.standardOutput.bytesAvailable );
-			var hashRegExp:RegExp = /^[A-Fa-f0-9]{64}$/m;
-			_data = hashRegExp.exec(output);
+			_data += output;
 		}
 		
 		
@@ -117,7 +116,8 @@ package com.apm.client.processes.generic
 //			APM.io.stopSpinner( event.exitCode == 0, " checksum calculated" );
 			if (event.exitCode == 0)
 			{
-				var checksum:String = _data;
+				var hashRegExp:RegExp = /^[A-Fa-f0-9]{64}$/m;
+				var checksum:String = hashRegExp.exec(_data);
 				complete( checksum );
 			}
 			else
