@@ -33,7 +33,10 @@ package com.apm.data.project
 		 * The name of this build type eg debug
 		 */
 		public var name:String;
-		
+
+
+		public var applicationId:String = null;
+
 		
 		private var _configuration:Vector.<ProjectParameter>;
 		
@@ -53,6 +56,11 @@ package com.apm.data.project
 		{
 			if (data != null)
 			{
+				if (data.hasOwnProperty("identifier"))
+				{
+					applicationId = data.identifier;
+				}
+
 				if (data.hasOwnProperty( "configuration" ))
 				{
 					_configuration = new Vector.<ProjectParameter>();
@@ -72,14 +80,19 @@ package com.apm.data.project
 		public function toObject():Object
 		{
 			var data:Object = {};
-			
+
+			if (applicationId != null)
+			{
+				data["identifier"] = applicationId;
+			}
+
 			var configObject:Object = {};
 			for each (var param:ProjectParameter in _configuration)
 			{
 				configObject[ param.name ] = param.toObject( true );
 			}
 			data[ "configuration" ] = configObject;
-			
+
 			return data;
 		}
 		
@@ -112,6 +125,12 @@ package com.apm.data.project
 		 */
 		public function setConfigurationParamValue( key:String, value:String ):void
 		{
+			if (key == "applicationId")
+			{
+				applicationId = value;
+				return;
+			}
+
 			if (_configuration == null) _configuration = new <ProjectParameter>[];
 			var param:ProjectParameter = getConfigurationParam( key );
 			if (param == null)

@@ -13,7 +13,6 @@
  */
 package com.apm.client.commands.project.processes
 {
-	import com.apm.SemVer;
 	import com.apm.client.APM;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
@@ -21,48 +20,40 @@ package com.apm.client.commands.project.processes
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.packages.PackageIdentifier;
 	import com.apm.data.project.ApplicationDescriptor;
-	import com.apm.data.project.ApplicationDescriptor;
-	import airsdk.AIRSDKVersion;
-	
-	import com.apm.data.project.ProjectLock;
 	import com.apm.utils.FileUtils;
 	import com.apm.utils.PackageCacheUtils;
-	
+
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
-	import flash.xml.XMLNode;
-	
-	
+
 	public class ApplicationDescriptorGenerationProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
-		
+
 		private static const TAG:String = "ApplicationDescriptorGenerationProcess";
-		
-		
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
-		
+
 		private var _appDescriptor:ApplicationDescriptor;
 		private var _outputPath:String;
-		
+
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
-		
+
 		public function ApplicationDescriptorGenerationProcess( appDescriptor:ApplicationDescriptor, outputPath:String )
 		{
 			_appDescriptor = appDescriptor;
-			_outputPath = outputPath;
+			_outputPath    = outputPath;
 		}
-		
-		
+
+
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
@@ -72,12 +63,12 @@ package com.apm.client.commands.project.processes
 
 				//
 				//	LOAD TEMPLATE
-				
+
 				var configDescriptorPath:String = "application-descriptor.xml";
-				
-				var configDescriptor:File = new File( APM.config.configDirectory ).resolvePath( configDescriptorPath );
+
+				var configDescriptor:File    = new File( APM.config.configDirectory ).resolvePath( configDescriptorPath );
 				var specifiedDescriptor:File = FileUtils.getSourceForPath( _outputPath );
-				
+
 				if (configDescriptor.exists)
 				{
 					Log.d( TAG, "Loading " + configDescriptorPath );
@@ -96,18 +87,18 @@ package com.apm.client.commands.project.processes
 						Log.l( TAG, _appDescriptor.validate() );
 					}
 				}
-				
+
 				// Check if the loaded descriptor is valid, otherwise use the template
 				if (!_appDescriptor.isValid())
 				{
 					Log.d( TAG, "Loading application descriptor template" );
 					_appDescriptor.loadString( ApplicationDescriptor.APPLICATION_DESCRIPTOR_TEMPLATE );
 				}
-				
-				_appDescriptor.updateFromProjectDefinition( APM.config.projectDefinition );
+
+				_appDescriptor.updateFromProjectDefinition( APM.config.projectDefinition, APM.config.buildType );
 				_appDescriptor.updateAndroidAdditions();
 				_appDescriptor.updateIOSAdditions();
-				
+
 				if (APM.config.projectLock != null)
 				{
 					for each (var packageIdentifier:String in APM.config.projectLock.uninstalledPackageIdentifiers)
@@ -117,7 +108,7 @@ package com.apm.client.commands.project.processes
 						);
 					}
 				}
-				
+
 				for each (var packageDefinition:PackageDefinitionFile in PackageCacheUtils.getCachedPackages())
 				{
 					if (packageDefinition.packageDef.type == PackageDefinition.TYPE_ANE)
@@ -127,9 +118,9 @@ package com.apm.client.commands.project.processes
 						);
 					}
 				}
-			
+
 				_appDescriptor.save( specifiedDescriptor );
-				
+
 				APM.io.stopSpinner( true, "App descriptor generated: " + specifiedDescriptor.nativePath );
 				complete();
 			}
@@ -140,8 +131,8 @@ package com.apm.client.commands.project.processes
 				failure( e.message );
 			}
 		}
-		
-		
+
+
 		private function writeApplicationTemplate( file:File ):void
 		{
 			var fs:FileStream = new FileStream();
@@ -149,8 +140,8 @@ package com.apm.client.commands.project.processes
 			fs.writeUTFBytes( ApplicationDescriptor.APPLICATION_DESCRIPTOR_TEMPLATE.toString() );
 			fs.close();
 		}
-		
-		
+
+
 	}
-	
+
 }

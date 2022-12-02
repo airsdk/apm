@@ -72,7 +72,10 @@ package com.apm.client.commands.project.processes
 					mergeContent = mergeContent.replace( regex, param.value );
 				}
 				
-				mergeContent = mergeContent.replace( /\$\{applicationId\}/g, APM.config.projectDefinition.applicationId );
+				mergeContent = mergeContent.replace(
+						/\$\{applicationId\}/g,
+						APM.config.projectDefinition.getApplicationId( APM.config.buildType )
+				);
 				
 				// Load and merge plists
 				var merge:Plist = new Plist( mergeContent );

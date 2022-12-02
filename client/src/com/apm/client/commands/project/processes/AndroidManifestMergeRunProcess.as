@@ -57,7 +57,8 @@ package com.apm.client.commands.project.processes
 		private var _process:NativeProcess;
 		
 		private var _data:String;
-		
+		private var _error:String;
+
 		
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
@@ -67,6 +68,7 @@ package com.apm.client.commands.project.processes
 		{
 			_appDescriptor = appDescriptor;
 			_data = "";
+			_error = "";
 		}
 		
 		
@@ -120,10 +122,10 @@ package com.apm.client.commands.project.processes
 				// App settings
 				processArgs.push( "--property" );
 				processArgs.push( "PACKAGE=" + packageName() );
-//				processArgs.push( "--property" );
-//				processArgs.push( "MIN_SDK_VERSION=19" );
-//				processArgs.push( "--property" );
-//				processArgs.push( "TARGET_SDK_VERSION=30" );
+				// processArgs.push( "--property" );
+				// processArgs.push( "MIN_SDK_VERSION=19" );
+				// processArgs.push( "--property" );
+				// processArgs.push( "TARGET_SDK_VERSION=31" );
 				processArgs.push( "--remove-tools-declarations" );
 				
 				// Parameters
@@ -190,11 +192,14 @@ package com.apm.client.commands.project.processes
 			// Load the config manifest
 			//   If the <activity> node exists for changes to the main activity,
 			//   we must insert an android:name attribute to make merge work
-			//   This will get removed from the manifest after merge
+			//   This will get removed from the manifest after merge for AIR to merge
 			var configManifestContent:String = FileUtils.readFileContentAsString( configManifest );
+			var activityRegex:RegExp = /<activity[\s\r\n]*>/g;
 			configManifestContent = configManifestContent
-					.replace( "<activity>", "<activity android:name=\".AIRAppEntry\">" )
-					.replace( "<activity >", "<activity android:name=\".AIRAppEntry\">" );
+					.replace( 
+						activityRegex, 
+						"<activity android:name=\".AIRAppEntry\" android:exported=\"true\">" 
+					);
 			
 			return configManifestContent;
 		}
@@ -203,8 +208,9 @@ package com.apm.client.commands.project.processes
 		private function processMergedManifest( mergedManifest:String ):String
 		{
 			// Replace the main activity with a simple <activity> tag for AIR to merge
+			var activityRegex:RegExp = /<activity[\s\t\r\n]*android:name=".*AIRAppEntry"[\s\t\r\n]*android:exported="true"/g
 			return mergedManifest.replace(
-					"<activity android:name=\""+packageName()+".AIRAppEntry\"",
+					activityRegex,
 					"<activity"
 			);
 		}
@@ -222,8 +228,9 @@ package com.apm.client.commands.project.processes
 		
 		private function onErrorData( event:ProgressEvent ):void
 		{
-			_data += _process.standardError.readUTFBytes( _process.standardError.bytesAvailable );
-			Log.d( TAG, "ERROR: " + _data );
+			_error += _process.standardError.readUTFBytes( _process.standardError.bytesAvailable );
+			Log.d( TAG, "ERROR: " + _error );
+			Log.d( TAG, "ERROR: data: " + _data );
 		}
 		
 		
@@ -245,7 +252,7 @@ package com.apm.client.commands.project.processes
 			}
 			else
 			{
-				failure( _data );
+				failure( _error );
 			}
 		}
 		
@@ -273,7 +280,7 @@ package com.apm.client.commands.project.processes
 			 * and repackage it as described in, Opt-out of AIR application analytics for Android.
 			 */
 			
-			var airApplicationId:String = APM.config.projectDefinition.applicationId;
+			var airApplicationId:String = APM.config.projectDefinition.getApplicationId( APM.config.buildType );
 			var components:Array = airApplicationId.split( "." );
 			for (var i:int = 0; i < components.length; i++)
 			{
