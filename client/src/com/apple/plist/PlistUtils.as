@@ -54,9 +54,7 @@ package com.apple.plist
 		public static function merge( plistA:Plist, plistB:Plist ):Plist
 		{
 			var out:Plist = new Plist();
-			
 			var keys:Array = uniqueJoin( plistA.keys(), plistB.keys() );
-			
 			for each (var key:String in keys)
 			{
 				var entryA:PlistEntry = plistA.getEntry( key );

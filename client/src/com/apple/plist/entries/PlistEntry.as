@@ -133,7 +133,15 @@ package com.apple.plist.entries
 						key = "";
 						break;
 					}
-					
+
+					case "null":
+					{
+						var commentEntry:PlistCommentEntry = new PlistCommentEntry();
+						commentEntry.value = node.toString();
+						entries.push( commentEntry );
+						key = "";
+						break;
+					}
 				}
 				
 			}
