@@ -51,7 +51,7 @@ package com.apm.utils
 			DEPLOY_OPTIONS[ PackageFileUtils.AIRPACKAGE_SWC_DIR ] = "swcDir";
 			DEPLOY_OPTIONS[ PackageFileUtils.AIRPACKAGE_SRC_DIR ] = "srcDir";
 			DEPLOY_OPTIONS[ PackageFileUtils.AIRPACKAGE_ASSETS ] = "assetsDir";
-			DEPLOY_OPTIONS[ PackageCacheUtils.PACKAGE_CACHE_DIR ] = "packageCacheDir";
+			DEPLOY_OPTIONS[ ProjectPackageCache.PACKAGE_CACHE_DIR ] = "packageCacheDir";
 			DEPLOY_OPTIONS[ "config" ] = "configDir";
 		}
 		
@@ -63,7 +63,7 @@ package com.apm.utils
 			DEFAULT_DIRS[ PackageFileUtils.AIRPACKAGE_SWC_DIR ] = "libs";
 			DEFAULT_DIRS[ PackageFileUtils.AIRPACKAGE_SRC_DIR ] = "libs_src";
 			DEFAULT_DIRS[ PackageFileUtils.AIRPACKAGE_ASSETS ] = "assets";
-			DEFAULT_DIRS[ PackageCacheUtils.PACKAGE_CACHE_DIR ] = PackageCacheUtils.PACKAGE_CACHE_DIR;
+			DEFAULT_DIRS[ ProjectPackageCache.PACKAGE_CACHE_DIR ] = ProjectPackageCache.PACKAGE_CACHE_DIR;
 			DEFAULT_DIRS[ "config" ] = "config";
 		}
 		
@@ -86,7 +86,7 @@ package com.apm.utils
 					case PackageFileUtils.AIRPACKAGE_SWC_DIR:
 					case PackageFileUtils.AIRPACKAGE_SRC_DIR:
 					case PackageFileUtils.AIRPACKAGE_ASSETS:
-					case PackageCacheUtils.PACKAGE_CACHE_DIR:
+					case ProjectPackageCache.PACKAGE_CACHE_DIR:
 					case "config":
 						deployDirForType = working.resolvePath( DEFAULT_DIRS[ dirName ] );
 						break;

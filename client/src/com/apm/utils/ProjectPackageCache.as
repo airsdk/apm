@@ -19,41 +19,39 @@ package com.apm.utils
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.packages.PackageIdentifier;
-	import com.apm.data.packages.PackageIdentifier;
-	import com.apm.data.project.ProjectDefinition;
-	
+
 	import flash.filesystem.File;
-	
-	
+
 	/**
-	 * Utilities for checking packages available locally in the install cache
+	 * Utilities for checking package contents that have been
+	 * extracted for use in the project
 	 */
-	public class PackageCacheUtils
+	public class ProjectPackageCache
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
-		
-		private static const TAG:String = "PackageCacheUtils";
-		
-		
+
+		private static const TAG:String = "ProjectPackageCache";
+
+
 		public static const PACKAGE_CACHE_DIR:String = "apm_packages";
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
-		
-		public function PackageCacheUtils()
+
+		public function ProjectPackageCache()
 		{
 		}
-		
-		
+
+
 		/**
 		 * Checks if the specified package is installed. Optionally specify the version if you need to
 		 * check for a specific version.
@@ -62,9 +60,9 @@ package com.apm.utils
 		 * @param version			Specific version to check. If <code>null</code> this will return true for any installed version of the package.
 		 * @return <code>true</code> if the package is installed and <code>false</code> if not.
 		 */
-		public static function isPackageInstalled( packageIdentifier:String, version:SemVer=null ):Boolean
+		public static function isPackageInstalled( packageIdentifier:String, version:SemVer = null ):Boolean
 		{
-			var uninstallingPackageDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDirectory, packageIdentifier );
+			var uninstallingPackageDir:File = PackageFileUtils.contentsDirForPackage( APM.config.packagesDirectory, packageIdentifier );
 			var f:File = uninstallingPackageDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 			if (!f.exists)
 			{
@@ -82,8 +80,8 @@ package com.apm.utils
 			}
 			return true;
 		}
-		
-		
+
+
 		/**
 		 * Iterates over the locally installed packages and checks the listed dependencies for the specified package identifier
 		 *
@@ -98,8 +96,8 @@ package com.apm.utils
 			{
 				return false;
 			}
-			
-			for each (var packageDefinition:PackageDefinitionFile in getCachedPackages())
+
+			for each (var packageDefinition:PackageDefinitionFile in getPackages())
 			{
 				Log.d( TAG, "isPackageRequiredDependency() : Checking : " + packageDefinition.packageDef.identifier );
 
@@ -107,7 +105,7 @@ package com.apm.utils
 				if (PackageIdentifier.isEquivalent( packageDefinition.packageDef.identifier, uninstallingPackageIdentifier )
 						|| PackageIdentifier.isEquivalent( packageDefinition.packageDef.identifier, packageIdentifier ))
 					continue;
-				
+
 				for each (var dep:PackageDependency in packageDefinition.dependencies)
 				{
 					Log.d( TAG, "isPackageRequiredDependency() : Checking dependency [" + packageDefinition.packageDef.identifier + "] : " + dep.identifier );
@@ -117,14 +115,14 @@ package com.apm.utils
 			}
 			return false;
 		}
-		
-		
+
+
 		/**
-		 * Returns an array of packages that are installed in the local cache.
+		 * Returns an array of packages that are extracted in the project.
 		 *
 		 * @return A <code>Vector</code> of <code>PackageDefinitionFile</code> references for each package installed
 		 */
-		public static function getCachedPackages():Vector.<PackageDefinitionFile>
+		public static function getPackages():Vector.<PackageDefinitionFile>
 		{
 			var cachedPackages:Vector.<PackageDefinitionFile> = new Vector.<PackageDefinitionFile>();
 			var packagesDir:File = new File( APM.config.packagesDirectory );
@@ -134,7 +132,7 @@ package com.apm.utils
 				{
 					if (packageDir.isDirectory)
 					{
-						var projectDefinitionFile:File = packageDir.resolvePath( PackageFileUtils.cacheDirName() + "/" + PackageDefinitionFile.DEFAULT_FILENAME );
+						var projectDefinitionFile:File = packageDir.resolvePath( PackageFileUtils.contentsDirName() + "/" + PackageDefinitionFile.DEFAULT_FILENAME );
 						if (projectDefinitionFile.exists)
 						{
 							var packageDefinition:PackageDefinitionFile = new PackageDefinitionFile().load( projectDefinitionFile );
@@ -145,19 +143,19 @@ package com.apm.utils
 			}
 			return cachedPackages;
 		}
-		
-		
+
+
 		/**
-		 * Find the cached PackageDefinitionFile for the specified identifier
+		 * Find the extracted <code>PackageDefinitionFile</code> for the specified identifier
 		 *
-		 * @param identifier The package identifier to search the cache for
+		 * @param identifier The package identifier to search the extracted contents for
 		 *
-		 * @return A PackageDefinitionFile representing the cached package or null if not found
+		 * @return A <code>PackageDefinitionFile</code> representing the extracted package or null if not found
 		 */
-		public static function getCachedPackage( identifier:String ):PackageDefinitionFile
+		public static function getPackage( identifier:String ):PackageDefinitionFile
 		{
-			var cachedPackages:Vector.<PackageDefinitionFile> = getCachedPackages();
-			for each (var cachedPackage:PackageDefinitionFile in cachedPackages)
+			var extractedPackages:Vector.<PackageDefinitionFile> = getPackages();
+			for each (var cachedPackage:PackageDefinitionFile in extractedPackages)
 			{
 				if (PackageIdentifier.isEquivalent( cachedPackage.packageDef.identifier, identifier ))
 				{
@@ -166,8 +164,8 @@ package com.apm.utils
 			}
 			return null;
 		}
-		
-		
+
+
 	}
-	
+
 }

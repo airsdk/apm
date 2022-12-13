@@ -60,7 +60,7 @@ package com.apm.client.commands.packages.processes
 			super.start( completeCallback, failureCallback );
 			APM.io.showSpinner( "Removing package : " + _packageDefinition.packageDef.identifier );
 			
-			var cacheDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDirectory, _packageDefinition.packageDef.identifier );
+			var cacheDir:File = PackageFileUtils.contentsDirForPackage( APM.config.packagesDirectory, _packageDefinition.packageDef.identifier );
 			for each (var ref:File in cacheDir.getDirectoryListing())
 			{
 				if (ref.isDirectory)

@@ -58,11 +58,11 @@ package com.apm.client.commands.packages.processes
 			super.start( completeCallback, failureCallback );
 			for each (var p:InstallPackageData in _installData.packagesToInstall)
 			{
-				var packageDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDirectory,
-																		   p.packageVersion.packageDef.identifier );
+				var packageDir:File = PackageFileUtils.contentsDirForPackage( APM.config.packagesDirectory,
+																			  p.packageVersion.packageDef.identifier );
 				if (packageDir == null || !packageDir.exists)
 				{
-					return failure( "Cache for package directory does not exist" );
+					return failure( "Contents directory for package does not exist" );
 				}
 				APM.io.showSpinner( "Deploying package: " + p.packageVersion.toStringWithIdentifier() );
 				for each (var ref:File in packageDir.getDirectoryListing())

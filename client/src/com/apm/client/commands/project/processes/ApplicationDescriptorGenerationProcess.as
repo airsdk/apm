@@ -21,7 +21,7 @@ package com.apm.client.commands.project.processes
 	import com.apm.data.packages.PackageIdentifier;
 	import com.apm.data.project.ApplicationDescriptor;
 	import com.apm.utils.FileUtils;
-	import com.apm.utils.PackageCacheUtils;
+	import com.apm.utils.ProjectPackageCache;
 
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
@@ -109,7 +109,7 @@ package com.apm.client.commands.project.processes
 					}
 				}
 
-				for each (var packageDefinition:PackageDefinitionFile in PackageCacheUtils.getCachedPackages())
+				for each (var packageDefinition:PackageDefinitionFile in ProjectPackageCache.getPackages())
 				{
 					if (packageDefinition.packageDef.type == PackageDefinition.TYPE_ANE)
 					{
