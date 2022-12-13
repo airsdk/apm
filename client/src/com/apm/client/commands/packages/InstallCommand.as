@@ -129,7 +129,7 @@ package com.apm.client.commands.packages
 			var lockFile:ProjectLock = APM.config.projectLock;
 
 			_installData = new InstallData();
-			_queue       = new ProcessQueue();
+			_queue = new ProcessQueue();
 
 			var packageIdentifierOrPath:String = null;
 			if (_parameters != null && _parameters.length > 0)
@@ -139,8 +139,7 @@ package com.apm.client.commands.packages
 				var version:String = (_parameters.length > 1) ? _parameters[1] : "latest";
 
 				// Check if ends in "airpackage"
-				if (packageIdentifierOrPath.indexOf( PackageFileUtils.AIRPACKAGEEXTENSION ) ==
-						packageIdentifierOrPath.length - PackageFileUtils.AIRPACKAGEEXTENSION.length)
+				if (PackageFileUtils.isAirPackagePath( packageIdentifierOrPath ))
 				{
 					// Install from a local air package file
 					var localPackageFile:File = FileUtils.getSourceForPath( packageIdentifierOrPath );

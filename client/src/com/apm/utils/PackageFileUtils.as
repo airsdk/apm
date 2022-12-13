@@ -92,6 +92,22 @@ package com.apm.utils
 		}
 
 
+		/**
+		 *
+		 * @param packageIdentifierOrPath
+		 * @return
+		 */
+		public static function isAirPackagePath( packageIdentifierOrPath:String ):Boolean
+		{
+			if (packageIdentifierOrPath.indexOf( PackageFileUtils.AIRPACKAGEEXTENSION ) > 0)
+			{
+				var extension:String = FileUtils.getExtension( packageIdentifierOrPath );
+				return extension == PackageFileUtils.AIRPACKAGEEXTENSION;
+			}
+			return false;
+		}
+
+
 		//
 		//	LOCAL CONTENTS
 		//
@@ -120,9 +136,6 @@ package com.apm.utils
 		{
 			return "contents";
 		}
-
-
-
 
 
 	}
