@@ -20,7 +20,7 @@ package com.apm.client.commands.packages.processes
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.packages.PackageDependency;
-	import com.apm.utils.PackageCacheUtils;
+	import com.apm.utils.ProjectPackageCache;
 	import com.apm.utils.PackageFileUtils;
 
 	import flash.filesystem.File;
@@ -85,7 +85,7 @@ package com.apm.client.commands.packages.processes
 			super.start( completeCallback, failureCallback );
 
 			// Check the specified package is installed
-			if (!PackageCacheUtils.isPackageInstalled( _packageIdentifier, _version ))
+			if (!ProjectPackageCache.isPackageInstalled( _packageIdentifier, _version ))
 			{
 				if (_failIfNotInstalled)
 				{
@@ -107,15 +107,15 @@ package com.apm.client.commands.packages.processes
 			// Start uninstallation
 			APM.io.writeLine( "Uninstall package : " + _packageIdentifier );
 
-			var uninstallingPackageDir:File = PackageFileUtils.cacheDirForPackage( APM.config.packagesDirectory,
-																				   _packageIdentifier );
+			var uninstallingPackageDir:File = PackageFileUtils.contentsDirForPackage( APM.config.packagesDirectory,
+																					  _packageIdentifier );
 
 			var f:File = uninstallingPackageDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 
 			var uninstallingPackageDefinition:PackageDefinitionFile = new PackageDefinitionFile().load( f );
 
 			// need to determine if this package is required by another package currently installed
-			if (_checkIfRequiredDependency && PackageCacheUtils.isPackageRequiredDependency(
+			if (_checkIfRequiredDependency && ProjectPackageCache.isPackageRequiredDependency(
 					_uninstallingPackageIdentifier,
 					_packageIdentifier ))
 			{

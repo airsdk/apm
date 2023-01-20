@@ -72,7 +72,10 @@ package com.apm.client.commands.project.processes
 					var regex:RegExp = new RegExp( "\\$\\{" + param.name + "\\}", "g" );
 					infoAdditionsProjectContent = infoAdditionsProjectContent.replace( regex, param.value );
 				}
-				infoAdditionsProjectContent = infoAdditionsProjectContent.replace( /\$\{applicationId\}/g, APM.config.projectDefinition.applicationId );
+				infoAdditionsProjectContent = infoAdditionsProjectContent.replace(
+						/\$\{applicationId\}/g,
+						APM.config.projectDefinition.getApplicationId( APM.config.buildType )
+				);
 				
 				FileUtils.writeStringAsFileContent( infoAdditionsFile, infoAdditionsProjectContent );
 			}

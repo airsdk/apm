@@ -120,13 +120,13 @@ package com.apm.data.project
 		}
 		
 		
-		public function updateFromProjectDefinition( project:ProjectDefinition ):void
+		public function updateFromProjectDefinition( project:ProjectDefinition, buildType:String=null ):void
 		{
 			if (_xml != null)
 			{
 				default xml namespace = _airNS;
 				
-				if (isPropertyValueValid( project.applicationId )) _xml.id = project.applicationId;
+				if (isPropertyValueValid( project.getApplicationId( buildType ) )) _xml.id = project.getApplicationId( buildType );
 				if (isPropertyValueValid( project.applicationName ))
 				{
 					if (project.applicationName is String)

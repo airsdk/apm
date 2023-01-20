@@ -237,7 +237,23 @@ package com.apm.data.project
 		//	CONFIGURATION PARAMETERS
 		//
 
-//		public function get configuration():Vector.<ProjectParameter> { return _configuration; }
+
+		public function getApplicationId( buildType:String ):String
+		{
+			if (buildType != null)
+			{
+				var projectBuildType:ProjectBuildType = getBuildType( buildType );
+				if (projectBuildType != null)
+				{
+					if (projectBuildType.applicationId != null)
+					{
+						return projectBuildType.applicationId;
+					}
+				}
+			}
+			return applicationId;
+		}
+
 
 		/**
 		 * Retrieves the configuration parameters for the specified build type

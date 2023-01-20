@@ -29,7 +29,7 @@ package com.apm.client.commands.packages
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.project.ProjectDefinition;
-	import com.apm.utils.PackageCacheUtils;
+	import com.apm.utils.ProjectPackageCache;
 
 	import flash.events.EventDispatcher;
 
@@ -121,7 +121,7 @@ package com.apm.client.commands.packages
 
 		public function execute():void
 		{
-			var includeDependencies:Boolean      = false;
+			var includeDependencies:Boolean = false;
 			var printUpdateAvailableOnly:Boolean = true;
 			if (_parameters != null)
 			{
@@ -175,7 +175,7 @@ package com.apm.client.commands.packages
 						var hasUpdatesAvailable:Boolean = false;
 						for each (var packageData:InstallPackageData in _queryData.packagesToInstall)
 						{
-							var cachedPackage:PackageDefinitionFile = PackageCacheUtils.getCachedPackage( packageData.request.packageIdentifier );
+							var cachedPackage:PackageDefinitionFile = ProjectPackageCache.getPackage( packageData.request.packageIdentifier );
 
 							hasUpdatesAvailable ||= cachedPackage == null ? true : packageData.packageVersion.version.greaterThan(
 									cachedPackage.version.version );
@@ -192,7 +192,7 @@ package com.apm.client.commands.packages
 
 							for each (var packageData:InstallPackageData in _queryData.packagesToInstall)
 							{
-								var cachedPackage:PackageDefinitionFile = PackageCacheUtils.getCachedPackage(
+								var cachedPackage:PackageDefinitionFile = ProjectPackageCache.getPackage(
 										packageData.request.packageIdentifier );
 
 								var updateAvailable:Boolean = cachedPackage == null ? true : packageData.packageVersion.version.greaterThan(

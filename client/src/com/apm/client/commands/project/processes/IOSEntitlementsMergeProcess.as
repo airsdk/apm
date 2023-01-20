@@ -73,7 +73,10 @@ package com.apm.client.commands.project.processes
 					var regex:RegExp = new RegExp( "\\$\\{" + param.name + "\\}", "g" );
 					entitlementsProjectContent = entitlementsProjectContent.replace( regex, param.value );
 				}
-				entitlementsProjectContent = entitlementsProjectContent.replace( /\$\{applicationId\}/g, APM.config.projectDefinition.applicationId );
+				entitlementsProjectContent = entitlementsProjectContent.replace(
+						/\$\{applicationId\}/g,
+						APM.config.projectDefinition.getApplicationId( APM.config.buildType )
+				);
 				
 				FileUtils.writeStringAsFileContent( entitlementsFile, entitlementsProjectContent );
 			}

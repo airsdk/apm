@@ -17,7 +17,7 @@ package com.apm.client.commands.project.processes
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.project.ProjectDefinition;
-	import com.apm.utils.PackageCacheUtils;
+	import com.apm.utils.ProjectPackageCache;
 	
 	import flash.filesystem.File;
 	
@@ -65,7 +65,7 @@ package com.apm.client.commands.project.processes
 			var packagesDir:File = new File( APM.config.packagesDirectory );
 			for (var i:int = 0; i < project.dependencies.length; i++)
 			{
-				if (!PackageCacheUtils.isPackageInstalled(
+				if (!ProjectPackageCache.isPackageInstalled(
 						project.dependencies[ i ].identifier,
 						project.dependencies[ i ].version
 				))

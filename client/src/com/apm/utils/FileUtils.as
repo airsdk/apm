@@ -15,38 +15,37 @@ package com.apm.utils
 {
 	import com.apm.client.APM;
 	import com.apm.client.logging.Log;
-	
+
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
-	
-	
+
 	public class FileUtils
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
-		
+
 		private static const TAG:String = "FileUtils";
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
-		
-		
+
+
 		private static var _tmpDirName:String;
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
-		
+
 		public function FileUtils()
 		{
 		}
-		
-		
+
+
 		/**
 		 * Returns a global location for files stored / downloaded / used by the client
 		 */
@@ -54,8 +53,8 @@ package com.apm.utils
 		{
 			return File.applicationStorageDirectory;
 		}
-		
-		
+
+
 		/**
 		 * Returns a global location for utilities used by the client
 		 */
@@ -63,8 +62,8 @@ package com.apm.utils
 		{
 			return appStorageDirectory.resolvePath( "tools" );
 		}
-		
-		
+
+
 		/**
 		 * Returns a global location for utilities used by the client
 		 */
@@ -75,8 +74,8 @@ package com.apm.utils
 //			if (!tmpDir.exists) tmpDir.createDirectory();
 			return tmpDir;
 		}
-		
-		
+
+
 		/**
 		 * Finds all files in a directory and subdirectores with the specified name
 		 * - lists the files before the directories.
@@ -111,8 +110,8 @@ package com.apm.utils
 			}
 			return files;
 		}
-		
-		
+
+
 		public static function countFiles( directory:File ):int
 		{
 			var count:int = 0;
@@ -129,8 +128,8 @@ package com.apm.utils
 			}
 			return count;
 		}
-		
-		
+
+
 		public static function countFilesByType( directory:File, type:String ):int
 		{
 			var count:int = 0;
@@ -147,12 +146,12 @@ package com.apm.utils
 			}
 			return count;
 		}
-		
-		
+
+
 		public static function copyDirectoryTo( src:File, dest:File, overwrite:Boolean = false ):void
 		{
 			if (!dest.exists) dest.createDirectory();
-			
+
 			var directory:Array = src.getDirectoryListing();
 			for each (var f:File in directory)
 			{
@@ -162,8 +161,8 @@ package com.apm.utils
 					f.copyTo( dest.resolvePath( f.name ), overwrite );
 			}
 		}
-		
-		
+
+
 		public static function removeEmptyDirectories( directory:File, recurse:Boolean = false ):void
 		{
 			if (directory != null && directory.exists)
@@ -191,8 +190,8 @@ package com.apm.utils
 				}
 			}
 		}
-		
-		
+
+
 		public static function readFileContentAsString( file:File ):String
 		{
 			var fs:FileStream = new FileStream();
@@ -201,8 +200,8 @@ package com.apm.utils
 			fs.close();
 			return content;
 		}
-		
-		
+
+
 		public static function writeStringAsFileContent( file:File, content:String ):void
 		{
 			var fileStream:FileStream = new FileStream();
@@ -210,8 +209,8 @@ package com.apm.utils
 			fileStream.writeUTFBytes( content );
 			fileStream.close();
 		}
-		
-		
+
+
 		/**
 		 * Determines the File reference specified by path by checking it as an
 		 * absolute path and then a relative path to the working directory.
@@ -235,7 +234,22 @@ package com.apm.utils
 			}
 			return new File( APM.config.workingDirectory + File.separator + path );
 		}
-		
+
+
+		/**
+		 * Extracts the extension of a file path
+		 *
+		 * @param path
+		 *
+		 * @return
+		 */
+		public static function getExtension( path:String ):String
+		{
+			var extension:String = path.substring( path.lastIndexOf( "." ) + 1 );
+			return extension.toLowerCase();
+		}
+
+
 	}
-	
+
 }

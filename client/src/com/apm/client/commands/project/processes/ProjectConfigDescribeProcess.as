@@ -21,7 +21,7 @@ package com.apm.client.commands.project.processes
 	import com.apm.data.packages.PackageParameter;
 	import com.apm.data.project.ProjectDefinition;
 	import com.apm.data.project.ProjectParameter;
-	import com.apm.utils.PackageCacheUtils;
+	import com.apm.utils.ProjectPackageCache;
 	
 	import flash.html.script.Package;
 	
@@ -76,7 +76,7 @@ package com.apm.client.commands.project.processes
 			
 			
 			var param:ProjectParameter = project.getConfigurationParam( _paramName, APM.config.buildType );
-			var paramPackage:PackageDefinitionFile = PackageCacheUtils.getCachedPackage( _paramName );
+			var paramPackage:PackageDefinitionFile = ProjectPackageCache.getPackage( _paramName );
 			
 			if (param != null)
 			{
@@ -103,7 +103,7 @@ package com.apm.client.commands.project.processes
 			var linePrefix:String = "# ";
 			var linePadding:String = "        ";
 			
-			var packages:Vector.<PackageDefinitionFile> = PackageCacheUtils.getCachedPackages();
+			var packages:Vector.<PackageDefinitionFile> = ProjectPackageCache.getPackages();
 			var descriptions:Array = [];
 			for each (var packageDef:PackageDefinitionFile in packages)
 			{

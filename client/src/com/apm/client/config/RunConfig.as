@@ -27,7 +27,7 @@ package com.apm.client.config
 	import com.apm.data.project.ProjectLock;
 	import com.apm.data.user.UserSettings;
 	import com.apm.utils.DeployFileUtils;
-	import com.apm.utils.PackageCacheUtils;
+	import com.apm.utils.ProjectPackageCache;
 	
 	import flash.filesystem.File;
 	import flash.system.Capabilities;
@@ -123,8 +123,8 @@ package com.apm.client.config
 		 */
 		public function get airDirectory():String { return _airDirectory; }
 		public function set airDirectory( value:String):void { _airDirectory = value; }
-		
-		
+
+
 		private var _uname:String = null;
 		/**
 		 * The unix name of the current terminal
@@ -195,13 +195,13 @@ package com.apm.client.config
 		{
 			var deployPackageCacheDir:File = DeployFileUtils.getDeployLocation(
 					this,
-					PackageCacheUtils.PACKAGE_CACHE_DIR
+					ProjectPackageCache.PACKAGE_CACHE_DIR
 			);
 			if (deployPackageCacheDir != null)
 			{
 				return deployPackageCacheDir.nativePath;
 			}
-			return workingDirectory + File.separator + PackageCacheUtils.PACKAGE_CACHE_DIR;
+			return workingDirectory + File.separator + ProjectPackageCache.PACKAGE_CACHE_DIR;
 		}
 		
 		
@@ -243,8 +243,30 @@ package com.apm.client.config
 				return File.userDirectory.nativePath;
 			}
 		}
-		
-		
+
+
+		/**
+		 * The path to the user's ".airsdk" directory for air sdk user config and cache
+		 */
+		public function get airSdkUserDirectory():File
+		{
+			var airSdkDir:File = new File( homeDirectory + File.separator + ".airsdk" );
+			if (!airSdkDir.exists) airSdkDir.createDirectory();
+			return airSdkDir;
+		}
+
+
+		/**
+		 * The path to the user's ".airsdk" cache directory
+		 */
+		public function get airSdkCacheDirectory():File
+		{
+			var airSdkCacheDir:File = airSdkUserDirectory.resolvePath( "cache" );
+			if (!airSdkCacheDir.exists) airSdkCacheDir.createDirectory();
+			return airSdkCacheDir;
+		}
+
+
 		/**
 		 * Attempts to find a java executable in the system.
 		 *
