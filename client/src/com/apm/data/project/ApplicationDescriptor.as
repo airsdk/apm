@@ -147,9 +147,9 @@ package com.apm.data.project
 					}
 				}
 				if (isPropertyValueValid( project.applicationFilename )) _xml.filename = project.applicationFilename;
-				if (isPropertyValueValid( project.version )) _xml.versionNumber = project.version;
-				if (isPropertyValueValid( project.versionLabel )) _xml.versionLabel = project.versionLabel;
-				
+				if (isPropertyValueValid( project.getVersion( buildType ) )) _xml.versionNumber = project.getVersion( buildType );
+				if (isPropertyValueValid( project.getVersionLabel( buildType ) )) _xml.versionLabel = project.getVersionLabel( buildType );
+
 			}
 		}
 		

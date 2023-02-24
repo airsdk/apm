@@ -15,50 +15,70 @@
  */
 package com.apm.data.project
 {
-	
-	public class ProjectBuildType
+
+	public class ProjectBuildType implements ProjectApplicationProperties
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
-		
+
 		private static const TAG:String = "ProjectBuildVariant";
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
-		
+
 		/**
 		 * The name of this build type eg debug
 		 */
 		public var name:String;
 
 
-		public var applicationId:String = null;
+		private var _applicationId:String = null;
+		public function get applicationId():String { return _applicationId; }
 
-		
+		public function set applicationId( value:String ):void { _applicationId = value; }
+
+		private var _version:String = null;
+		public function get version():String { return _version; }
+
+		public function set version( value:String ):void { _version = value; }
+
+		private var _versionLabel:String = null;
+		public function get versionLabel():String { return _versionLabel; }
+
+		public function set versionLabel( value:String ):void { _versionLabel = value; }
+
 		private var _configuration:Vector.<ProjectParameter>;
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
-		
+
 		public function ProjectBuildType( name:String )
 		{
 			this.name = name;
 			_configuration = new <ProjectParameter>[];
 		}
-		
-		
+
+
 		public function fromObject( data:Object ):ProjectBuildType
 		{
 			if (data != null)
 			{
-				if (data.hasOwnProperty("identifier"))
+				if (data.hasOwnProperty( "identifier" ))
 				{
 					applicationId = data.identifier;
+				}
+				if (data.hasOwnProperty( "version" ))
+				{
+					version = data.version;
+				}
+				if (data.hasOwnProperty( "versionLabel" ))
+				{
+					versionLabel = data.versionLabel;
 				}
 
 				if (data.hasOwnProperty( "configuration" ))
@@ -67,7 +87,7 @@ package com.apm.data.project
 					for (var key:String in data.configuration)
 					{
 						_configuration.push(
-								ProjectParameter.fromObject( key, data.configuration[ key ] )
+								ProjectParameter.fromObject( key, data.configuration[key] )
 						);
 					}
 					_configuration.sort( Array.CASEINSENSITIVE );
@@ -75,8 +95,8 @@ package com.apm.data.project
 			}
 			return this;
 		}
-		
-		
+
+
 		public function toObject():Object
 		{
 			var data:Object = {};
@@ -85,18 +105,26 @@ package com.apm.data.project
 			{
 				data["identifier"] = applicationId;
 			}
+			if (version != null)
+			{
+				data["version"] = version;
+			}
+			if (versionLabel != null)
+			{
+				data["versionLabel"] = versionLabel;
+			}
 
 			var configObject:Object = {};
 			for each (var param:ProjectParameter in _configuration)
 			{
-				configObject[ param.name ] = param.toObject( true );
+				configObject[param.name] = param.toObject( true );
 			}
-			data[ "configuration" ] = configObject;
+			data["configuration"] = configObject;
 
 			return data;
 		}
-		
-		
+
+
 		/**
 		 * Retrieves the specified configuration parameter
 		 *
@@ -115,8 +143,8 @@ package com.apm.data.project
 			}
 			return null;
 		}
-		
-		
+
+
 		/**
 		 * Sets a value for the configuration parameter
 		 *
@@ -128,6 +156,16 @@ package com.apm.data.project
 			if (key == "applicationId")
 			{
 				applicationId = value;
+				return;
+			}
+			if (key == "version")
+			{
+				version = value;
+				return;
+			}
+			if (key == "versionLabel")
+			{
+				versionLabel = value;
 				return;
 			}
 
@@ -146,7 +184,7 @@ package com.apm.data.project
 				param.value = value;
 			}
 		}
-		
+
 	}
-	
+
 }

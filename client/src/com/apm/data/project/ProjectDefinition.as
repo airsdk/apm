@@ -28,7 +28,7 @@ package com.apm.data.project
 	/**
 	 * Handles loading and saving a project definition file
 	 */
-	public class ProjectDefinition
+	public class ProjectDefinition implements ProjectApplicationProperties
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
@@ -63,10 +63,10 @@ package com.apm.data.project
 		{
 			_data = {};
 
-			_repositories  = new <RepositoryDefinition>[];
-			_dependencies  = new <PackageDependency>[];
+			_repositories = new <RepositoryDefinition>[];
+			_dependencies = new <PackageDependency>[];
 			_configuration = new <ProjectParameter>[];
-			_buildTypes    = new <ProjectBuildType>[];
+			_buildTypes = new <ProjectBuildType>[];
 			_deployOptions = {};
 		}
 
@@ -129,7 +129,7 @@ package com.apm.data.project
 			var data:Object = toObject();
 
 			// Ensures the output JSON format is in a familiar order
-			var keyOrder:Array  = [ "identifier", "name", "filename", "version", "versionLabel", "dependencies", "configuration", "buildTypes", "repositories" ];
+			var keyOrder:Array = [ "identifier", "name", "filename", "version", "versionLabel", "dependencies", "configuration", "buildTypes", "repositories" ];
 			var otherKeys:Array = JSONUtils.getMissingKeys( data, keyOrder );
 			otherKeys.sort();
 
@@ -141,10 +141,10 @@ package com.apm.data.project
 		{
 			var data:Object = {};
 
-			data["identifier"]   = applicationId;
-			data["name"]         = applicationName;
-			data["filename"]     = applicationFilename;
-			data["version"]      = version;
+			data["identifier"] = applicationId;
+			data["name"] = applicationName;
+			data["filename"] = applicationFilename;
+			data["version"] = version;
 			data["versionLabel"] = versionLabel;
 
 			var repos:Array = [];
@@ -238,7 +238,7 @@ package com.apm.data.project
 		//
 
 
-		public function getApplicationId( buildType:String ):String
+		public function getApplicationId( buildType:String = null ):String
 		{
 			if (buildType != null)
 			{
@@ -254,6 +254,71 @@ package com.apm.data.project
 			return applicationId;
 		}
 
+
+		public function setApplicationId( value:String, buildType:String = null ):void
+		{
+			if (buildType != null)
+			{
+				var projectBuildType:ProjectBuildType = getBuildType( buildType, true );
+				projectBuildType.applicationId = value;
+				return;
+			}
+			applicationId = value;
+		}
+
+		public function getVersion( buildType:String = null ):String
+		{
+			if (buildType != null)
+			{
+				var projectBuildType:ProjectBuildType = getBuildType( buildType );
+				if (projectBuildType != null)
+				{
+					if (projectBuildType.version != null)
+					{
+						return projectBuildType.version;
+					}
+				}
+			}
+			return version;
+		}
+
+		public function setVersion( value:String, buildType:String = null ):void
+		{
+			if (buildType != null)
+			{
+				var projectBuildType:ProjectBuildType = getBuildType( buildType, true );
+				projectBuildType.version = value;
+				return;
+			}
+			version = value;
+		}
+
+		public function getVersionLabel( buildType:String = null ):String
+		{
+			if (buildType != null)
+			{
+				var projectBuildType:ProjectBuildType = getBuildType( buildType );
+				if (projectBuildType != null)
+				{
+					if (projectBuildType.versionLabel != null)
+					{
+						return projectBuildType.versionLabel;
+					}
+				}
+			}
+			return versionLabel;
+		}
+
+		public function setVersionLabel( value:String, buildType:String = null ):void
+		{
+			if (buildType != null)
+			{
+				var projectBuildType:ProjectBuildType = getBuildType( buildType, true );
+				projectBuildType.versionLabel = value;
+				return;
+			}
+			versionLabel = value;
+		}
 
 		/**
 		 * Retrieves the configuration parameters for the specified build type
@@ -340,17 +405,8 @@ package com.apm.data.project
 		{
 			if (buildType != null && buildType != "null" && buildType.length > 0)
 			{
-				var projectBuildType:ProjectBuildType = getBuildType( buildType );
-				if (projectBuildType == null)
-				{
-					projectBuildType = new ProjectBuildType( buildType );
-					projectBuildType.setConfigurationParamValue( key, value );
-					_buildTypes.push( projectBuildType );
-				}
-				else
-				{
-					projectBuildType.setConfigurationParamValue( key, value );
-				}
+				var projectBuildType:ProjectBuildType = getBuildType( buildType, true );
+				projectBuildType.setConfigurationParamValue( key, value );
 			}
 			else
 			{
@@ -358,8 +414,8 @@ package com.apm.data.project
 				var param:ProjectParameter = getConfigurationParam( key, null );
 				if (param == null)
 				{
-					param       = new ProjectParameter();
-					param.name  = key;
+					param = new ProjectParameter();
+					param.name = key;
 					param.value = value;
 					_configuration.push( param );
 					_configuration.sort( Array.CASEINSENSITIVE );
@@ -383,10 +439,10 @@ package com.apm.data.project
 			if (param == null)
 			{
 				// New parameter
-				param          = new ProjectParameter();
-				param.name     = packageParam.name;
+				param = new ProjectParameter();
+				param.name = packageParam.name;
 				param.required = packageParam.required;
-				param.value    = packageParam.defaultValue;
+				param.value = packageParam.defaultValue;
 
 				_configuration.push( param );
 				_configuration.sort( Array.CASEINSENSITIVE );
@@ -408,14 +464,21 @@ package com.apm.data.project
 		//	BUILD TYPES
 		//
 
-		public function getBuildType( name:String ):ProjectBuildType
+		public function getBuildType( name:String, create:Boolean = false ):ProjectBuildType
 		{
-			for each (var buildType:ProjectBuildType in _buildTypes)
+			var buildType:ProjectBuildType;
+			for each (buildType in _buildTypes)
 			{
 				if (buildType.name == name)
 				{
 					return buildType;
 				}
+			}
+			if (create)
+			{
+				buildType = new ProjectBuildType( name );
+				_buildTypes.push( buildType );
+				return buildType;
 			}
 			return null;
 		}
@@ -462,9 +525,9 @@ package com.apm.data.project
 			}
 
 			var dep:PackageDependency = new PackageDependency();
-			dep.identifier            = packageVersion.packageDef.identifier;
-			dep.version               = SemVerRange.fromString( packageVersion.version.toString() );
-			dep.source                = packageVersion.source;
+			dep.identifier = packageVersion.packageDef.identifier;
+			dep.version = SemVerRange.fromString( packageVersion.version.toString() );
+			dep.source = packageVersion.source;
 
 			dependencies.push( dep );
 

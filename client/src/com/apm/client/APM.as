@@ -35,6 +35,7 @@ package com.apm.client
 	import com.apm.client.commands.project.GenerateAppDescriptorCommand;
 	import com.apm.client.commands.project.GenerateConfigCommand;
 	import com.apm.client.commands.project.InitCommand;
+	import com.apm.client.commands.project.ProjectCommand;
 	import com.apm.client.commands.project.ProjectConfigCommand;
 	import com.apm.client.config.RunConfig;
 	import com.apm.client.events.CommandEvent;
@@ -111,6 +112,7 @@ package com.apm.client
 			
 			// project commands
 			addCommand( InitCommand.NAME, InitCommand );
+			addCommand( ProjectCommand.NAME, ProjectCommand );
 			addCommand( ProjectConfigCommand.NAME, ProjectConfigCommand );
 			addCommand( GenerateAppDescriptorCommand.NAME, GenerateAppDescriptorCommand );
 			addCommand( GenerateConfigCommand.NAME, GenerateConfigCommand );
@@ -250,10 +252,13 @@ package com.apm.client
 						{
 							// Check for command
 							var CommandClass:Class = getCommand( arg );
-							if (CommandClass == null && i + 1 < arguments.length)
+							if (i + 1 < arguments.length)
 							{
-								CommandClass = getCommand( arg + "/" + arguments[ i + 1 ] )
-								if (CommandClass != null) i++;
+								var SubCommandClass:Class = getCommand( arg + "/" + arguments[ i + 1 ] )
+								if (SubCommandClass != null) {
+									CommandClass = SubCommandClass;
+									i++;
+								}
 							}
 							
 							if (CommandClass != null)
