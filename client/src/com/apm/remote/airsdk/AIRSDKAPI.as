@@ -34,7 +34,7 @@ package com.apm.remote.airsdk
 		
 		public static const DOWNLOAD_ENDPOINT:String = "https://airsdk.harman.com";
 		
-		public static const API_ENDPOINT:String = "https://dcdu3ujoji.execute-api.us-east-1.amazonaws.com/production";
+		public static const API_ENDPOINT:String = "https://api.airsdk.harman.com";
 		
 		
 		////////////////////////////////////////////////////////
