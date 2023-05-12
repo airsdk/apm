@@ -17,38 +17,37 @@ package com.apm.client.commands.project.processes
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.project.ProjectDefinition;
 	import com.apm.data.project.ProjectParameter;
-	
-	
+
 	public class ProjectGetProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
-		
+
 		private static const TAG:String = "ProjectGetProcess";
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
-		
+
 		private var _paramName:String;
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
-		
+
 		public function ProjectGetProcess( paramName:String )
 		{
 			_paramName = paramName;
 		}
-		
-		
+
+
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			
+
 			var project:ProjectDefinition = APM.config.projectDefinition;
 			if (project == null)
 			{
@@ -62,6 +61,8 @@ package com.apm.client.commands.project.processes
 				APM.io.writeLine( project.getApplicationId( APM.config.buildType ) + "@" + project.getVersion( APM.config.buildType ) + " " + APM.config.workingDirectory + "" );
 
 				APM.io.writeValue( "identifier", project.getApplicationId( APM.config.buildType ) );
+				APM.io.writeValue( "name", project.getApplicationName( APM.config.buildType ).toString() );
+				APM.io.writeValue( "filename", project.getApplicationFilename( APM.config.buildType ) );
 				APM.io.writeValue( "version", project.getVersion( APM.config.buildType ) );
 				APM.io.writeValue( "versionLabel", project.getVersionLabel( APM.config.buildType ) );
 
@@ -84,7 +85,7 @@ package com.apm.client.commands.project.processes
 					{
 						APM.io.writeLine(
 								(i == project.dependencies.length - 1 ? "└──" : "├──") +
-								project.dependencies[ i ].toString() );
+								project.dependencies[i].toString() );
 					}
 				}
 			}
@@ -95,6 +96,14 @@ package com.apm.client.commands.project.processes
 					case "id":
 					case "identifier":
 						APM.io.writeValue( "identifier", project.getApplicationId( APM.config.buildType ) );
+						break;
+
+					case "name":
+						APM.io.writeValue( "name", project.getApplicationName( APM.config.buildType ).toString() );
+						break;
+
+					case "filename":
+						APM.io.writeValue( "filename", project.getApplicationFilename( APM.config.buildType ) );
 						break;
 
 					case "version":
@@ -113,7 +122,7 @@ package com.apm.client.commands.project.processes
 
 			complete();
 		}
-	
+
 	}
 
 }

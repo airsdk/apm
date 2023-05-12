@@ -40,6 +40,16 @@ package com.apm.data.project
 
 		public function set applicationId( value:String ):void { _applicationId = value; }
 
+		private var _applicationName:Object = null;
+		public function get applicationName():Object { return _applicationName; }
+
+		public function set applicationName( value:Object ):void { _applicationName = value; }
+
+		private var _applicationFilename:String = null;
+		public function get applicationFilename(): String { return _applicationFilename; }
+
+		public function set applicationFilename( value:String ):void { _applicationFilename = value; }
+
 		private var _version:String = null;
 		public function get version():String { return _version; }
 
@@ -71,6 +81,14 @@ package com.apm.data.project
 				if (data.hasOwnProperty( "identifier" ))
 				{
 					applicationId = data.identifier;
+				}
+				if (data.hasOwnProperty( "name" ))
+				{
+					applicationName = data.name;
+				}
+				if (data.hasOwnProperty( "filename" ))
+				{
+					applicationFilename = data.filename;
 				}
 				if (data.hasOwnProperty( "version" ))
 				{
@@ -104,6 +122,14 @@ package com.apm.data.project
 			if (applicationId != null)
 			{
 				data["identifier"] = applicationId;
+			}
+			if (applicationName != null)
+			{
+				data["name"] = applicationName;
+			}
+			if (applicationFilename != null)
+			{
+				data["filename"] = applicationFilename;
 			}
 			if (version != null)
 			{
