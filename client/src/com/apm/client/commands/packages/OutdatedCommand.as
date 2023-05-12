@@ -173,12 +173,12 @@ package com.apm.client.commands.packages
 						var maxIdentifierLength:int = findMaxIdentifierLength( _queryData.packagesToInstall );
 
 						var hasUpdatesAvailable:Boolean = false;
-						for each (var packageData:InstallPackageData in _queryData.packagesToInstall)
+						for each (var packageToInstall:InstallPackageData in _queryData.packagesToInstall)
 						{
-							var cachedPackage:PackageDefinitionFile = ProjectPackageCache.getPackage( packageData.request.packageIdentifier );
+							var cachedPackageToInstall:PackageDefinitionFile = ProjectPackageCache.getPackage( packageToInstall.request.packageIdentifier );
 
-							hasUpdatesAvailable ||= cachedPackage == null ? true : packageData.packageVersion.version.greaterThan(
-									cachedPackage.version.version );
+							hasUpdatesAvailable ||= cachedPackageToInstall == null ? true : packageToInstall.packageVersion.version.greaterThan(
+									cachedPackageToInstall.version.version );
 						}
 
 						if (hasUpdatesAvailable || !printUpdateAvailableOnly)

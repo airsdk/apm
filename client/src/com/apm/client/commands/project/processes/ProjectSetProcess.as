@@ -91,6 +91,16 @@ package com.apm.client.commands.project.processes
 					project.setApplicationId( value, APM.config.buildType );
 					break;
 				}
+				case "filename":
+				{
+					project.setApplicationFilename( value, APM.config.buildType );
+					break;
+				}
+				case "name":
+				{
+					project.setApplicationName( value, APM.config.buildType );
+					break;
+				}
 				case "version":
 				{
 					project.setVersion( value, APM.config.buildType );

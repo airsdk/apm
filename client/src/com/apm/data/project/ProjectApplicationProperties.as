@@ -16,7 +16,9 @@ package com.apm.data.project
 {
 	public interface ProjectApplicationProperties
 	{
-        function get applicationId():String;
+		function get applicationId():String;
+		function get applicationName():Object;
+		function get applicationFilename():String;
         function get version():String;
         function get versionLabel():String;
 

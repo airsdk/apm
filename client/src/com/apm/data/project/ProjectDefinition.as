@@ -266,6 +266,64 @@ package com.apm.data.project
 			applicationId = value;
 		}
 
+
+		public function getApplicationName( buildType:String = null ):Object
+		{
+			if (buildType != null)
+			{
+				var projectBuildType:ProjectBuildType = getBuildType( buildType );
+				if (projectBuildType != null)
+				{
+					if (projectBuildType.applicationName != null)
+					{
+						return projectBuildType.applicationName;
+					}
+				}
+			}
+			return applicationName;
+		}
+
+		public function setApplicationName( value:Object, buildType:String = null ):void
+		{
+			if (buildType != null)
+			{
+				var projectBuildType:ProjectBuildType = getBuildType( buildType, true );
+				projectBuildType.applicationName = value;
+				return;
+			}
+			applicationName = value;
+		}
+
+
+		public function getApplicationFilename( buildType:String = null ):String
+		{
+			if (buildType != null)
+			{
+				var projectBuildType:ProjectBuildType = getBuildType( buildType );
+				if (projectBuildType != null)
+				{
+					if (projectBuildType.applicationFilename != null)
+					{
+						return projectBuildType.applicationFilename;
+					}
+				}
+			}
+			return applicationFilename;
+		}
+
+
+		public function setApplicationFilename( value:String, buildType:String = null ):void
+		{
+			if (buildType != null)
+			{
+				var projectBuildType:ProjectBuildType = getBuildType( buildType, true );
+				projectBuildType.applicationFilename = value;
+				return;
+			}
+			applicationFilename = value;
+		}
+
+
 		public function getVersion( buildType:String = null ):String
 		{
 			if (buildType != null)

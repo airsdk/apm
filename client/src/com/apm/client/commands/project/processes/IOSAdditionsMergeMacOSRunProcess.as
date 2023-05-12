@@ -16,19 +16,14 @@ package com.apm.client.commands.project.processes
 	import com.apm.client.APM;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
-	import com.apm.data.project.ApplicationDescriptor;
-	import com.apm.utils.FileUtils;
-	
+
 	import flash.desktop.NativeProcess;
 	import flash.desktop.NativeProcessStartupInfo;
 	import flash.events.IOErrorEvent;
 	import flash.events.NativeProcessExitEvent;
 	import flash.events.ProgressEvent;
 	import flash.filesystem.File;
-	import flash.filesystem.FileMode;
-	import flash.filesystem.FileStream;
-	
-	
+
 	/**
 	 * THIS PROCESS IS STILL IN DEVELOPMENT
 	 *
@@ -49,36 +44,31 @@ package com.apm.client.commands.project.processes
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
-		
+
 		private static const TAG:String = "IOSAdditionsMergeMacOSRunProcess";
-		
-		
-		
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
-		
+
 		private var _mergePlist:File;
 		private var _destPlist:File;
-		
+
 		private var _process:NativeProcess;
-		
-		
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
-		
+
 		public function IOSAdditionsMergeMacOSRunProcess( mergePlist:File, destPlist:File )
 		{
 			_mergePlist = mergePlist;
 			_destPlist = destPlist;
 		}
-		
-		
+
+
 		public static function get isSupported():Boolean
 		{
 			try
@@ -90,33 +80,32 @@ package com.apm.client.commands.project.processes
 			}
 			return false;
 		}
-		
-		
+
+
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			
+
 			if (!isSupported)
 			{
 				failure( "Plist merging not supported" );
 				return;
 			}
-			
+
 			if (!_mergePlist.exists || !_destPlist.exists)
 			{
 				failure( "Plist file doesn't exist" );
 				return;
 			}
-			
-			
-			
+
+
 			//
 			// DOESN'T WORK
 			// Unfortunately this doesn't merge duplicate entries - "Duplicate Entry Was Skipped:"...
 			//
-			
+
 			var pListBuddy:File = new File( "/usr/libexec/PlistBuddy" );
-			
+
 			if (NativeProcess.isSupported || !pListBuddy.exists)
 			{
 				var processArgs:Vector.<String> = new Vector.<String>();
@@ -124,20 +113,20 @@ package com.apm.client.commands.project.processes
 				processArgs.push( "-c" );
 				processArgs.push( "Merge " + _mergePlist.nativePath + "" );
 				processArgs.push( _destPlist.nativePath );
-				
+
 				var processStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
 				processStartupInfo.executable = pListBuddy;
 				processStartupInfo.arguments = processArgs;
-				
+
 				_process = new NativeProcess();
 				_process.addEventListener( NativeProcessExitEvent.EXIT, onExit );
 				_process.addEventListener( ProgressEvent.STANDARD_OUTPUT_DATA, onOutputData );
 				_process.addEventListener( ProgressEvent.STANDARD_ERROR_DATA, onErrorData );
 				_process.addEventListener( IOErrorEvent.STANDARD_OUTPUT_IO_ERROR, onIOError );
 				_process.addEventListener( IOErrorEvent.STANDARD_ERROR_IO_ERROR, onIOError );
-				
+
 				_process.start( processStartupInfo );
-				
+
 			}
 			else
 			{
@@ -145,20 +134,20 @@ package com.apm.client.commands.project.processes
 				failure( "Native process not supported - PlistBuddy tool cannot be run" );
 			}
 		}
-		
-		
+
+
 		private function onOutputData( event:ProgressEvent ):void
 		{
 			Log.d( TAG, _process.standardOutput.readUTFBytes( _process.standardOutput.bytesAvailable ) );
 		}
-		
-		
+
+
 		private function onErrorData( event:ProgressEvent ):void
 		{
 			Log.d( TAG, "ERROR: " + _process.standardError.readUTFBytes( _process.standardError.bytesAvailable ) );
 		}
-		
-		
+
+
 		private function onExit( event:NativeProcessExitEvent ):void
 		{
 			Log.d( TAG, "Process exited with: " + event.exitCode );
@@ -171,14 +160,14 @@ package com.apm.client.commands.project.processes
 				failure( "error" );
 			}
 		}
-		
-		
+
+
 		private function onIOError( event:IOErrorEvent ):void
 		{
 			Log.d( TAG, "IOError: " + event.toString() );
 		}
-		
-		
+
+
 	}
-	
+
 }
