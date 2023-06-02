@@ -21,6 +21,8 @@ package com.apm.client.commands.packages.processes
 	import com.apm.data.install.InstallData;
 	import com.apm.data.install.InstallPackageData;
 	import com.apm.data.install.InstallPackageDataGroup;
+	import com.apm.data.install.InstallRequest;
+	import com.apm.data.packages.PackageVersion;
 
 	public class InstallDataValidationProcess extends ProcessBase
 	{
@@ -92,11 +94,15 @@ package com.apm.client.commands.packages.processes
 					APM.io.writeError( "CONFLICT", confictGroup.packageIdentifier );
 					for (var i:int = 0; i < confictGroup.versions.length; i++)
 					{
-						APM.io.writeError( "CONFLICT",
-										   (i == confictGroup.versions.length - 1 ? "└── " : "├── ") +
-												   confictGroup.versions[i].packageVersion.toString() +
-												   " required by: " + confictGroup.versions[i].request.requiringPackage.toStringWithIdentifier()
-						);
+						var prefix:String = (i == confictGroup.versions.length - 1 ? "└── " : "├── ");
+
+						var version:String = confictGroup.versions[i].packageVersion.toString();
+
+						var request:InstallRequest = confictGroup.versions[i].request;
+						var requiringPackage:PackageVersion = request == null ? null : request.requiringPackage;
+						var requiredBy:String = (requiringPackage == null) ? "" : " required by: " + requiringPackage.toStringWithIdentifier();
+
+						APM.io.writeError( "CONFLICT", prefix + version + requiredBy );
 					}
 				}
 				failure();
