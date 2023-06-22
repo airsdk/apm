@@ -45,8 +45,8 @@ package com.apm.client.config
 		
 		private static const TAG:String = "RunConfig";
 		
-		public static const DEFAULT_REPOSITORY_URL:String = "http://localhost:3000";
-//		public static const DEFAULT_REPOSITORY_URL:String = "https://repository.airsdk.dev";
+//		public static const DEFAULT_REPOSITORY_URL:String = "http://localhost:3000";
+		public static const DEFAULT_REPOSITORY_URL:String = "https://repository.airsdk.dev";
 
 		
 		////////////////////////////////////////////////////////

@@ -163,7 +163,7 @@ package com.apm.data.packages
 			var data:Object = toObject();
 			
 			// Ensures the output JSON format is in a familiar order
-			var keyOrder:Array = ["id", "name", "url", "docUrl", "description", "type", "version", "sourceUrl", "publishedAt", "dependencies", "parameters", "tags"];
+			var keyOrder:Array = ["id", "name", "url", "docUrl", "description", "type", "version", "sourceUrl", "publishedAt", "dependencies", "parameters", "tags", "platforms", "license", "purchaseUrl", "status"];
 			JSONUtils.addMissingKeys( data, keyOrder );
 			
 			return JSON.stringify( data, keyOrder, 4 ) + "\n";

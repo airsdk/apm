@@ -24,7 +24,7 @@ package com.apm.client.commands.project.processes
 		//  CONSTANTS
 		//
 
-		private static const TAG:String = "ProjectSetProcess";
+		private static const TAG:String = "PackageSetProcess";
 
 
 		////////////////////////////////////////////////////////
