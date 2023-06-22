@@ -9,12 +9,13 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		24/6/21
+ * @created		24/6/2021
  */
 package com.apm.data.packages
 {
 	import com.apm.SemVer;
 	import com.apm.SemVerRange;
+	import com.apm.data.common.Platform;
 	import com.apm.utils.JSONUtils;
 	
 	import flash.filesystem.File;
@@ -118,6 +119,16 @@ package com.apm.data.packages
 					_packageVersion.parameters.push( new PackageParameter().fromObject( param ) );
 				}
 			}
+
+			if (data.hasOwnProperty( "platforms" ))
+			{
+				for each (var platform:Object in data.platforms)
+				{
+					var p:Platform = Platform.fromObject( platform );
+					if (p != null)
+						_packageVersion.platforms.push( p );
+				}
+			}
 			
 			if (data.hasOwnProperty( "dependencies" ))
 			{
@@ -195,6 +206,13 @@ package com.apm.data.packages
 				params.push( param.toObject( forceObjectOutput ) );
 			}
 			data.parameters = params;
+
+			var platforms:Array = [];
+			for each (var platform:Platform in _packageVersion.platforms)
+			{
+				platforms.push( platform.toObject( forceObjectOutput ));
+			}
+			data.platforms = platforms;
 			
 			var tags:Array = [];
 			for each (var tag:String in _packageDef.tags)

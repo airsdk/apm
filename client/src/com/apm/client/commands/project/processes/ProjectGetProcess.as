@@ -17,6 +17,7 @@ package com.apm.client.commands.project.processes
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.project.ProjectDefinition;
 	import com.apm.data.project.ProjectParameter;
+	import com.apm.data.common.Platform;
 
 	public class ProjectGetProcess extends ProcessBase
 	{
@@ -66,9 +67,24 @@ package com.apm.client.commands.project.processes
 				APM.io.writeValue( "version", project.getVersion( APM.config.buildType ) );
 				APM.io.writeValue( "versionLabel", project.getVersionLabel( APM.config.buildType ) );
 
+				APM.io.writeLine( "platforms" );
+				if (project.platforms.length == 0)
+				{
+					APM.io.writeLine( "└── (all)" );
+				}
+				else
+				{
+					for (var p:int = 0; p < project.platforms.length; p++)
+					{
+						APM.io.writeLine(
+								(p == project.platforms.length - 1 ? "└──" : "├──") +
+								project.platforms[p].toString() );
+					}
+				}
+
 				APM.io.writeLine( "" );
 				APM.io.writeLine( "configuration" );
-				for each (var param:ProjectParameter in APM.config.projectDefinition.getConfiguration( APM.config.buildType ))
+				for each (var param:ProjectParameter in project.getConfiguration( APM.config.buildType ))
 				{
 					APM.io.writeValue( param.name, param.value );
 				}
@@ -81,11 +97,11 @@ package com.apm.client.commands.project.processes
 				}
 				else
 				{
-					for (var i:int = 0; i < project.dependencies.length; i++)
+					for (var d:int = 0; d < project.dependencies.length; d++)
 					{
 						APM.io.writeLine(
-								(i == project.dependencies.length - 1 ? "└──" : "├──") +
-								project.dependencies[i].toString() );
+								(d == project.dependencies.length - 1 ? "└──" : "├──") +
+								project.dependencies[d].toString() );
 					}
 				}
 			}

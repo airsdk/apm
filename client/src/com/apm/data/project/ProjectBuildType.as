@@ -10,7 +10,7 @@
  *
  * @brief
  * @author 		marchbold
- * @created		24/11/21
+ * @created		24/11/2021
  * @copyright	http://distriqt.com/copyright/license.txt
  */
 package com.apm.data.project
@@ -46,7 +46,7 @@ package com.apm.data.project
 		public function set applicationName( value:Object ):void { _applicationName = value; }
 
 		private var _applicationFilename:String = null;
-		public function get applicationFilename(): String { return _applicationFilename; }
+		public function get applicationFilename():String { return _applicationFilename; }
 
 		public function set applicationFilename( value:String ):void { _applicationFilename = value; }
 

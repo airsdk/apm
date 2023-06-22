@@ -9,7 +9,7 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		28/5/21
+ * @created		28/5/2021
  */
 package com.apm.client.config
 {
@@ -45,8 +45,9 @@ package com.apm.client.config
 		
 		private static const TAG:String = "RunConfig";
 		
-		public static const DEFAULT_REPOSITORY_URL:String = "https://repository.airsdk.dev";
-		
+		public static const DEFAULT_REPOSITORY_URL:String = "http://localhost:3000";
+//		public static const DEFAULT_REPOSITORY_URL:String = "https://repository.airsdk.dev";
+
 		
 		////////////////////////////////////////////////////////
 		//  VARIABLES
