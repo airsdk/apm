@@ -9,12 +9,13 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		9/6/21
+ * @created		9/6/2021
  */
 package com.apm.data.packages
 {
 	import com.apm.SemVer;
 	import com.apm.SemVerRange;
+	import com.apm.data.common.Platform;
 
 	public class PackageVersion
 	{
@@ -39,6 +40,7 @@ package com.apm.data.packages
 
 		public var parameters:Vector.<PackageParameter>    = new Vector.<PackageParameter>();
 		public var dependencies:Vector.<PackageDependency> = new Vector.<PackageDependency>();
+		public var platforms:Vector.<Platform> = new Vector.<Platform>();
 
 		public var source:String = null;
 
@@ -78,7 +80,9 @@ package com.apm.data.packages
 		{
 			return version.toString()
 					+ " : " + publishedAt
-					+ (isReleaseVersion() ? "" : " [" + status + "]");
+					+ (isReleaseVersion() ? "" : " [" + status + "]")
+					+ (platforms.length == 0 ? "" : " [" + platforms.join(",") + "]")
+			;
 		}
 
 
@@ -116,6 +120,15 @@ package com.apm.data.packages
 				{
 					this.packageDef = new PackageDefinition().fromObject( data["package"] );
 				}
+				if (data.hasOwnProperty( "platforms" ))
+				{
+					for each (var platformObject:Object in data.platforms)
+					{
+						var p:Platform = Platform.fromObject( platformObject );
+						if (p != null)
+							platforms.push( p );
+					}
+				}
 			}
 			return this;
 		}
@@ -152,6 +165,13 @@ package com.apm.data.packages
 				parametersObject.push( p.toObject( forceObjectOutput ) );
 			}
 			data.parameters = parametersObject;
+
+			var platformsObject:Array = [];
+			for each (var platform:Platform in platforms)
+			{
+				platformsObject.push( platformsObject.toObject( forceObjectOutput ) );
+			}
+			data.platforms = platformsObject;
 
 			return data;
 		}

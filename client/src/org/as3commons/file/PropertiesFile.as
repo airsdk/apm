@@ -9,7 +9,7 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		5/10/21
+ * @created		5/10/2021
  */
 package org.as3commons.file
 {

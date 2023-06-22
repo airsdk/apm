@@ -9,7 +9,7 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		15/6/21
+ * @created		15/6/2021
  */
 package com.apm.client.commands.packages.processes
 {
@@ -99,7 +99,8 @@ package com.apm.client.commands.packages.processes
 				APM.io.writeLine( "- status:      " + f.version.status );
 				APM.io.writeLine( "- publishedAt: " + f.version.publishedAt );
 				APM.io.writeLine( "- sourceUrl:   " + f.version.sourceUrl );
-				
+				APM.io.writeLine( "- platforms:   " + f.version.platforms.join(",") );
+
 				
 				APM.io.showSpinner( "Verifying package content" );
 				

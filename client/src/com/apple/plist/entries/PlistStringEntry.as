@@ -9,7 +9,7 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		10/9/21
+ * @created		10/9/2021
  */
 package com.apple.plist.entries
 {

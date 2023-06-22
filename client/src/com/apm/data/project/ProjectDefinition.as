@@ -9,7 +9,7 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		18/5/21
+ * @created		18/5/2021
  */
 package com.apm.data.project
 {
@@ -18,6 +18,7 @@ package com.apm.data.project
 	import com.apm.data.packages.PackageIdentifier;
 	import com.apm.data.packages.PackageParameter;
 	import com.apm.data.packages.PackageVersion;
+	import com.apm.data.common.Platform;
 	import com.apm.data.packages.RepositoryDefinition;
 	import com.apm.utils.JSONUtils;
 
@@ -53,6 +54,7 @@ package com.apm.data.project
 		private var _configuration:Vector.<ProjectParameter>;
 		private var _buildTypes:Vector.<ProjectBuildType>;
 		private var _deployOptions:Object;
+		private var _platforms:Vector.<Platform>;
 
 
 		////////////////////////////////////////////////////////
@@ -68,6 +70,7 @@ package com.apm.data.project
 			_configuration = new <ProjectParameter>[];
 			_buildTypes = new <ProjectBuildType>[];
 			_deployOptions = {};
+			_platforms = new <Platform>[];
 		}
 
 
@@ -121,6 +124,17 @@ package com.apm.data.project
 			{
 				_deployOptions = _data.deployOptions;
 			}
+
+			if (_data.hasOwnProperty( "platforms" ))
+			{
+				for each (var platformObj:Object in _data.platforms)
+				{
+					var platform:Platform = Platform.fromObject( platformObj );
+					if (platform != null)
+						_platforms.push( platform );
+				}
+			}
+
 		}
 
 
@@ -129,7 +143,7 @@ package com.apm.data.project
 			var data:Object = toObject();
 
 			// Ensures the output JSON format is in a familiar order
-			var keyOrder:Array = [ "identifier", "name", "filename", "version", "versionLabel", "dependencies", "configuration", "buildTypes", "repositories" ];
+			var keyOrder:Array = [ "identifier", "name", "filename", "version", "versionLabel", "platforms", "dependencies", "configuration", "buildTypes", "repositories" ];
 			var otherKeys:Array = JSONUtils.getMissingKeys( data, keyOrder );
 			otherKeys.sort();
 
@@ -146,6 +160,13 @@ package com.apm.data.project
 			data["filename"] = applicationFilename;
 			data["version"] = version;
 			data["versionLabel"] = versionLabel;
+
+			var platformsArray:Array = [];
+			for each (var platform:Platform in _platforms)
+			{
+				platformsArray.push( platform.toObject() );
+			}
+			data["platforms"] = platformsArray;
 
 			var repos:Array = [];
 			for each (var repo:RepositoryDefinition in _repositories)
@@ -230,6 +251,15 @@ package com.apm.data.project
 				_dependencies = new Vector.<PackageDependency>();
 			}
 			return _dependencies;
+		}
+
+		public function get platforms():Vector.<Platform>
+		{
+			if (_platforms == null)
+			{
+				_platforms = new <Platform>[];
+			}
+			return _platforms;
 		}
 
 
@@ -663,6 +693,57 @@ package com.apm.data.project
 				}
 			}
 			return this;
+		}
+
+
+		public function shouldIncludePlatform( platform:String ):Boolean
+		{
+			if (platform == null || !Platform.isKnownPlatformName(platform) )
+				return true;
+
+			// If the project doesn't specify platforms then include all platforms
+			if (platforms.length == 0)
+				return true;
+
+			if (platform == "common")
+				return true;
+
+			for each (var pa:Platform in platforms)
+			{
+				if (pa.name == platform) return true;
+			}
+			return false;
+		}
+
+
+		/**
+		 * Checks whether the specified package version should be used with the
+		 * current project platform configuration
+		 */
+		public function shouldIncludePackage( packageVersion:PackageVersion ):Boolean
+		{
+			// If the project doesn't specify platforms then include all packages
+			if (platforms.length == 0)
+				return true;
+
+			// If the package doesn't specify platforms then include it in all
+			if (packageVersion.platforms.length == 0)
+				return true;
+
+			return findMatch( packageVersion.platforms, platforms );
+		}
+
+
+		private function findMatch( a:Vector.<Platform>, b:Vector.<Platform> ):Boolean
+		{
+			for each (var pa:Platform in a)
+			{
+				for each (var pb:Platform in b)
+				{
+					if (pa.equals( pb )) return true;
+				}
+			}
+			return false;
 		}
 
 

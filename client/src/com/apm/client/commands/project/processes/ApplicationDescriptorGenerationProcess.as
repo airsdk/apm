@@ -9,7 +9,7 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		23/8/21
+ * @created		23/8/2021
  */
 package com.apm.client.commands.project.processes
 {
@@ -113,9 +113,12 @@ package com.apm.client.commands.project.processes
 				{
 					if (packageDefinition.packageDef.type == PackageDefinition.TYPE_ANE)
 					{
-						_appDescriptor.addExtension(
-								PackageIdentifier.identifierWithoutVariant( packageDefinition.packageDef.identifier )
-						);
+						if (APM.config.projectDefinition.shouldIncludePackage( packageDefinition.version ))
+						{
+							_appDescriptor.addExtension(
+									PackageIdentifier.identifierWithoutVariant( packageDefinition.packageDef.identifier )
+							);
+						}
 					}
 				}
 

@@ -8,13 +8,14 @@
  *                           \/
  * http://distriqt.com
  *
- * @author 		Michael (https://github.com/marchbold)
+ * @author 		Michael Archbold (https://github.com/marchbold)
  * @created		24/2/2023
  */
 package com.apm.client.commands.project
 {
 	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
+	import com.apm.client.commands.project.processes.ProjectAddProcess;
 	import com.apm.client.commands.project.processes.ProjectGetProcess;
 	import com.apm.client.commands.project.processes.ProjectSetProcess;
 	import com.apm.client.events.CommandEvent;
@@ -94,9 +95,11 @@ package com.apm.client.commands.project
 			return description + "\n" +
 					"\n" +
 					"apm project                        Prints all project parameters \n" +
+					"apm project get <param>            Prints the project parameter value for the <param> parameter \n" +
 					"apm project set <param> <value>    Sets a <param> project parameter to the specified <value> \n" +
 					"apm project set <param>            Asks for input to set the value for the <param> project parameter \n" +
-					"apm project get <param>            Prints the project parameter value for the <param> parameter \n"
+					"apm project add <param> <value>    Adds the <value> to the specified <param> project parameter array \n" +
+					"apm project add <param>            Asks for input to add a value to the <param> project parameter array \n"
 					;
 		}
 
@@ -140,6 +143,23 @@ package com.apm.client.commands.project
 							{
 								queue.addProcess( new ProjectGetProcess( _parameters[1] ) );
 							}
+							break;
+						}
+
+						case "add":
+						{
+							if (_parameters.length < 2)
+							{
+								dispatchEvent( new CommandEvent( CommandEvent.PRINT_USAGE, name ) );
+								dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
+								return;
+							}
+
+							queue.addProcess( new ProjectAddProcess(
+									_parameters.length < 2 ? null : _parameters[1],
+									_parameters.length < 3 ? null : _parameters.slice( 2 ).join( " " )
+							) );
+
 							break;
 						}
 

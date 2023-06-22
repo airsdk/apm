@@ -8,8 +8,8 @@
  *                           \/
  * http://distriqt.com
  *
- * @author 		Michael (https://github.com/marchbold)
- * @created		24/2/2023
+ * @author 		Michael Archbold (https://github.com/marchbold)
+ * @created		16/6/2023
  */
 package com.apm.client.commands.project.processes
 {
@@ -18,13 +18,13 @@ package com.apm.client.commands.project.processes
 	import com.apm.data.project.ProjectDefinition;
 	import com.apm.data.common.Platform;
 
-	public class ProjectSetProcess extends ProcessBase
+	public class ProjectAddProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
 
-		private static const TAG:String = "ProjectSetProcess";
+		private static const TAG:String = "PackageSetProcess";
 
 
 		////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ package com.apm.client.commands.project.processes
 		//  FUNCTIONALITY
 		//
 
-		public function ProjectSetProcess( paramName:String, paramValue:String )
+		public function ProjectAddProcess( paramName:String, paramValue:String )
 		{
 			_paramName = paramName;
 			_paramValue = paramValue;
@@ -65,12 +65,12 @@ package com.apm.client.commands.project.processes
 			}
 			else if (_paramValue == null)
 			{
-				var value:String = APM.io.question( "Set", _paramName );
-				setProjectValue( project, _paramName, value )
+				var value:String = APM.io.question( "Add", _paramName );
+				addProjectValue( project, _paramName, value )
 			}
 			else
 			{
-				setProjectValue( project, _paramName, _paramValue )
+				addProjectValue( project, _paramName, _paramValue )
 			}
 
 			project.save();
@@ -78,55 +78,34 @@ package com.apm.client.commands.project.processes
 		}
 
 
-		private function setProjectValue( project:ProjectDefinition, name:String, value:String ):void
+		private function addProjectValue( project:ProjectDefinition, name:String, value:String ):void
 		{
 			switch (_paramName)
 			{
-				case "id":
-				case "identifier":
-				{
-					project.setApplicationId( value, APM.config.buildType );
-					break;
-				}
-				case "filename":
-				{
-					project.setApplicationFilename( value, APM.config.buildType );
-					break;
-				}
-				case "name":
-				{
-					project.setApplicationName( value, APM.config.buildType );
-					break;
-				}
-				case "version":
-				{
-					project.setVersion( value, APM.config.buildType );
-					break;
-				}
-				case "versionLabel":
-				{
-					project.setVersionLabel( value, APM.config.buildType );
-					break;
-				}
 				case "platforms":
 				{
-					project.platforms.length = 0;
-					var platforms:Array = value.split( "," );
-					for each (var platform:String in platforms)
+					var platformName:String = value.toLowerCase();
+					if (!Platform.isKnownPlatformName(platformName))
 					{
-						if (!Platform.isKnownPlatformName(platform))
-						{
-							APM.io.writeError( name, "Invalid platform name: " + platform );
-							continue;
-						}
-
-						project.platforms.push( new Platform( platform, true ) );
+						APM.io.writeError( name, "Invalid platform name" );
+						return;
 					}
+
+					for each (var platform:Platform in project.platforms)
+					{
+						if (platform.name == platformName)
+						{
+							APM.io.writeError( name, "This value already exists" );
+							return;
+						}
+					}
+
+					project.platforms.push( new Platform( platformName, true ) );
 					break;
 				}
 				default:
 				{
-					APM.io.writeError( name, "Invalid project parameter name" );
+					APM.io.writeError( name, "This parameter is not an array or is invalid" );
 				}
 			}
 		}

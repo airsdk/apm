@@ -9,7 +9,7 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		22/6/21
+ * @created		22/6/2021
  */
 package com.apm.client.commands.packages.processes
 {
@@ -58,6 +58,11 @@ package com.apm.client.commands.packages.processes
 			super.start( completeCallback, failureCallback );
 			for each (var p:InstallPackageData in _installData.packagesToInstall)
 			{
+				if (!APM.config.projectDefinition.shouldIncludePackage( p.packageVersion ))
+				{
+					continue;
+				}
+
 				var packageDir:File = PackageFileUtils.contentsDirForPackage( APM.config.packagesDirectory,
 																			  p.packageVersion.packageDef.identifier );
 				if (packageDir == null || !packageDir.exists)
@@ -73,8 +78,27 @@ package com.apm.client.commands.packages.processes
 						var deployLocation:File = DeployFileUtils.getDeployLocation( APM.config, ref.name );
 						if (deployLocation != null)
 						{
-							FileUtils.copyDirectoryTo( ref, deployLocation, true );
+							switch (ref.name)
+							{
+								case PackageFileUtils.AIRPACKAGE_ASSETS:
+									// Check each asset directory (named after the platform) for inclusion in project
+									for each (var assetsDir:File in ref.getDirectoryListing())
+									{
+										var assetsPlatform:String = assetsDir.name.toLowerCase();
+										var assetsDeployLocation:File = deployLocation.resolvePath( assetsPlatform );
+										if (APM.config.projectDefinition.shouldIncludePlatform( assetsPlatform ))
+										{
+											FileUtils.copyDirectoryTo( assetsDir, assetsDeployLocation, true );
+										}
+									}
+									break;
+
+								default:
+									FileUtils.copyDirectoryTo( ref, deployLocation, true );
+									break;
+							}
 						}
+
 					}
 				}
 				APM.io.stopSpinner( true, "Deployed: " + p.packageVersion.toStringWithIdentifier() );

@@ -9,7 +9,7 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		20/8/21
+ * @created		20/8/2021
  */
 package com.apm.client.commands.project
 {
@@ -30,7 +30,9 @@ package com.apm.client.commands.project
 	import com.apm.data.project.ProjectDefinition;
 	import airsdk.AIRSDKVersion;
 	import airsdk.AIRSDKVersion;
-	
+
+	import com.apm.data.common.Platform;
+
 	import flash.events.EventDispatcher;
 	import flash.filesystem.File;
 	
@@ -137,11 +139,21 @@ package com.apm.client.commands.project
 			}
 			else
 			{
-				_queue.addProcess( new GenerateConfigAndroidProcess() );
-				_queue.addProcess( new GenerateConfigIOSProcess() );
+				for each (var p:Platform in APM.config.projectDefinition.platforms)
+				{
+					switch (p.name)
+					{
+						case Platform.ANDROID:
+							_queue.addProcess( new GenerateConfigAndroidProcess() );
+							break;
+
+						case Platform.IOS:
+							_queue.addProcess( new GenerateConfigIOSProcess() );
+							break;
+					}
+				}
 			}
-			
-			
+
 			_queue.start(
 					function ():void {
 						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ) );

@@ -9,7 +9,7 @@
  * http://distriqt.com
  *
  * @author 		Michael (https://github.com/marchbold)
- * @created		20/8/21
+ * @created		20/8/2021
  */
 package com.apm.client.commands.project
 {
@@ -26,8 +26,10 @@ package com.apm.client.commands.project
 	import com.apm.client.events.CommandEvent;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessQueue;
+	import com.apm.data.common.Platform;
 	import com.apm.data.project.ApplicationDescriptor;
 	import com.apm.data.project.ProjectDefinition;
+	import com.apm.data.common.Platform;
 
 	import flash.events.EventDispatcher;
 	import flash.filesystem.File;
@@ -138,39 +140,40 @@ package com.apm.client.commands.project
 		{
 			Log.d( TAG, "execute(): " + (_parameters.length > 0 ? _parameters.join( "," ) : "...") + "\n" );
 
-			var excludeAndroid:Boolean = false;
-			var excludeIOS:Boolean = false;
+			var platforms:Vector.<Platform> = new <Platform>[];
 			var stripComments:Boolean = false;
 			for each (var option:String in _options)
 			{
 				switch (option)
 				{
 					case "--ios":
-					{
-						excludeAndroid = true;
-						break;
-					}
 					case "--android":
+					case "--windows":
+					case "--linux":
+					case "--macos":
 					{
-						excludeIOS = true;
+						platforms.push( new Platform( option.substr( 2 ), true ) );
 						break;
 					}
+
 					case "--exclude-android":
-					{
-						excludeAndroid = true;
-						break;
-					}
 					case "--exclude-ios":
 					{
-						excludeIOS = true;
+						APM.io.writeError( NAME, "Deprecated option: " + option + " Specify your required platforms instead" );
 						break;
 					}
+
 					case "--strip-comments":
 					{
 						stripComments = true;
 						break;
 					}
 				}
+			}
+
+			if (platforms.length == 0)
+			{
+				platforms = APM.config.projectDefinition.platforms;
 			}
 
 			// Get AIR SDK version for app descriptor
@@ -202,15 +205,16 @@ package com.apm.client.commands.project
 
 			_queue.addProcess( new ValidateProjectParametersProcess() );
 			_queue.addProcess( new ValidatePackageCacheProcess() );
-			if (!excludeAndroid)
+			if (shouldProcessPlatform( platforms, Platform.ANDROID ))
 			{
 				_queue.addProcess( new AndroidManifestMergeProcess( appDescriptor ) );
 			}
-			if (!excludeIOS)
+			if (shouldProcessPlatform( platforms, Platform.IOS ))
 			{
 				_queue.addProcess( new IOSAdditionsMergeProcess( appDescriptor ) );
 				_queue.addProcess( new IOSEntitlementsMergeProcess( appDescriptor ) );
 			}
+
 			_queue.addProcess( new ApplicationDescriptorGenerationProcess( appDescriptor, outputPath ) );
 
 			_queue.start(
@@ -245,6 +249,16 @@ package com.apm.client.commands.project
 				return "src/" + appName["en"].replace( / /g, "" ) + "-app.xml";
 			}
 			return "src/MyApplication-app.xml";
+		}
+
+
+		private function shouldProcessPlatform( platforms:Vector.<Platform>, platform:String ):Boolean
+		{
+			for each (var item:Platform in platforms)
+			{
+				if (item.name == platform) return true;
+			}
+			return false;
 		}
 
 
