@@ -254,6 +254,9 @@ package com.apm.client.commands.project
 
 		private function shouldProcessPlatform( platforms:Vector.<Platform>, platform:String ):Boolean
 		{
+			if (platforms.length == 0)
+				return true;
+
 			for each (var item:Platform in platforms)
 			{
 				if (item.name == platform) return true;
