@@ -548,6 +548,29 @@ package com.apm.data.project
 		}
 
 
+		/**
+		 * Removes the specified package parameter
+		 * @param paramName The name of the package parameter
+		 */
+		public function removePackageParameter( paramName:String ):void
+		{
+			var param:ProjectParameter = getConfigurationParam( paramName, null );
+			if (param == null)
+			{
+				return;
+			}
+
+			for (var i:int = _configuration.length-1; i >= 0; i--)
+			{
+				if (_configuration[i].name == paramName)
+				{
+					_configuration.removeAt(i);
+				}
+			}
+
+		}
+
+
 		//
 		//	BUILD TYPES
 		//

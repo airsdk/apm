@@ -20,8 +20,8 @@ package com.apm.client.commands.packages.processes
 	import com.apm.client.processes.ProcessQueue;
 	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.packages.PackageDependency;
-	import com.apm.utils.ProjectPackageCache;
 	import com.apm.utils.PackageFileUtils;
+	import com.apm.utils.ProjectPackageCache;
 
 	import flash.filesystem.File;
 
@@ -72,11 +72,11 @@ package com.apm.client.commands.packages.processes
 		{
 			super();
 			_uninstallingPackageIdentifier = uninstallingPackageIdentifier;
-			_packageIdentifier             = packageIdentifier;
-			_appDescriptorPath             = appDescriptorPath;
-			_version                       = version;
-			_failIfNotInstalled            = failIfNotInstalled;
-			_checkIfRequiredDependency     = checkIfRequiredDependency;
+			_packageIdentifier = packageIdentifier;
+			_appDescriptorPath = appDescriptorPath;
+			_version = version;
+			_failIfNotInstalled = failIfNotInstalled;
+			_checkIfRequiredDependency = checkIfRequiredDependency;
 		}
 
 
@@ -140,6 +140,7 @@ package com.apm.client.commands.packages.processes
 
 			var queue:ProcessQueue = new ProcessQueue();
 
+			queue.addProcess( new UninstallConfigForPackageProcess( uninstallingPackageDefinition ) );
 			queue.addProcess( new UninstallFilesForPackageProcess( uninstallingPackageDefinition ) );
 			if (_appDescriptorPath != null)
 			{
