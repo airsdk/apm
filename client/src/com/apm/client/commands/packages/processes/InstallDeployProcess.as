@@ -15,6 +15,7 @@ package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APM;
 	import com.apm.client.processes.ProcessBase;
+	import com.apm.data.common.Platform;
 	import com.apm.data.install.InstallData;
 	import com.apm.data.install.InstallPackageData;
 	import com.apm.utils.DeployFileUtils;
@@ -84,10 +85,10 @@ package com.apm.client.commands.packages.processes
 									// Check each asset directory (named after the platform) for inclusion in project
 									for each (var assetsDir:File in ref.getDirectoryListing())
 									{
-										var assetsPlatform:String = assetsDir.name.toLowerCase();
-										var assetsDeployLocation:File = deployLocation.resolvePath( assetsPlatform );
+										var assetsPlatform:String = Platform.getPlatformFromVariant( assetsDir.name );
 										if (APM.config.projectDefinition.shouldIncludePlatform( assetsPlatform ))
 										{
+											var assetsDeployLocation:File = deployLocation.resolvePath( assetsDir.name );
 											FileUtils.copyDirectoryTo( assetsDir, assetsDeployLocation, true );
 										}
 									}

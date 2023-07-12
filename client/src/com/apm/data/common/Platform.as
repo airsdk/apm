@@ -62,6 +62,40 @@ package com.apm.data.common
 		}
 
 
+		/**
+		 * This helper function retrieves the platform name from a sub-platform variant.
+		 *
+		 * Variants include sub-platforms like <code>ios_simulator</code>
+		 *
+		 * @param variant	The name of the sub-platform
+		 * @return
+		 */
+		public static function getPlatformFromVariant( variant:String ):String
+		{
+			var variantLowerCase:String = variant.toLowerCase();
+			if (variantLowerCase.substr(0, Platform.IOS.length) == Platform.IOS)
+			{
+				return Platform.IOS;
+			}
+			if (variantLowerCase.substr(0, Platform.ANDROID.length) == Platform.ANDROID)
+			{
+				return Platform.ANDROID;
+			}
+			if (variantLowerCase.substr(0, Platform.WINDOWS.length) == Platform.WINDOWS)
+			{
+				return Platform.WINDOWS;
+			}
+			if (variantLowerCase.substr(0, Platform.MACOS.length) == Platform.MACOS)
+			{
+				return Platform.MACOS;
+			}
+			if (variantLowerCase.substr(0, Platform.LINUX.length) == Platform.LINUX)
+			{
+				return Platform.LINUX;
+			}
+			return variantLowerCase;
+		}
+
 		public static function isKnownPlatformName( platform:String ):Boolean
 		{
 			switch (platform)
