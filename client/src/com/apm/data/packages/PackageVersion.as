@@ -169,7 +169,7 @@ package com.apm.data.packages
 			var platformsObject:Array = [];
 			for each (var platform:Platform in platforms)
 			{
-				platformsObject.push( platformsObject.toObject( forceObjectOutput ) );
+				platformsObject.push( platform.toObject( forceObjectOutput ) );
 			}
 			data.platforms = platformsObject;
 
