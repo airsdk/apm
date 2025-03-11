@@ -59,6 +59,10 @@ package com.apm.client.processes.generic
 			{
 				subprocess = new ChecksumWindowsProcess( APM.instance, _file );
 			}
+			else if (APM.config.isLinux)
+			{
+				subprocess = new ChecksumLinuxProcess( APM.instance, _file );
+			}
 			else
 			{
 				subprocess = new ChecksumAS3Process( APM.instance, _file );
