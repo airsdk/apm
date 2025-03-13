@@ -17,52 +17,48 @@ package com.apm.client.commands.project.processes
 	import com.apm.client.io.IOColour;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageDefinitionFile;
-	import com.apm.data.packages.PackageDefinitionFile;
 	import com.apm.data.packages.PackageParameter;
 	import com.apm.data.project.ProjectDefinition;
 	import com.apm.data.project.ProjectParameter;
 	import com.apm.utils.ProjectPackageCache;
-	
-	import flash.html.script.Package;
-	
-	
+
 	public class ProjectConfigDescribeProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
-		
+
 		private static const TAG:String = "ProjectConfigDescribeProcess";
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
-		
+
 		private var _paramName:String = null;
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
-		
+
 		public function ProjectConfigDescribeProcess( paramName:String )
 		{
 			_paramName = paramName;
 		}
-		
-		
+
+
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			
+
 			var project:ProjectDefinition = APM.config.projectDefinition;
 			if (project == null)
 			{
 				failure( "No project file found" );
 				return;
 			}
-			
+
 			if (_paramName == null)
 			{
 				// print all config
@@ -73,14 +69,16 @@ package com.apm.client.commands.project.processes
 				complete();
 				return;
 			}
-			
-			
+
+
 			var param:ProjectParameter = project.getConfigurationParam( _paramName, APM.config.buildType );
 			var paramPackage:PackageDefinitionFile = ProjectPackageCache.getPackage( _paramName );
-			
+
 			if (param != null)
 			{
 				describeParameter( param );
+				listParameter( param );
+				APM.io.writeLine( "" );
 			}
 			else if (paramPackage != null)
 			{
@@ -93,16 +91,16 @@ package com.apm.client.commands.project.processes
 			{
 				APM.io.writeError( "parameter", _paramName + " not found" );
 			}
-			
+
 			complete();
 		}
-		
-		
+
+
 		public static function describeParameter( param:ProjectParameter ):void
 		{
 			var linePrefix:String = "# ";
 			var linePadding:String = "        ";
-			
+
 			var packages:Vector.<PackageDefinitionFile> = ProjectPackageCache.getPackages();
 			var descriptions:Array = [];
 			for each (var packageDef:PackageDefinitionFile in packages)
@@ -123,24 +121,32 @@ package com.apm.client.commands.project.processes
 							{
 								descriptions.push(
 										(i == 0 ? "[" + packageDef.packageDef.identifier + "]: " : linePadding) +
-										lines[ i ]
+										lines[i]
 								);
 							}
 						}
 					}
 				}
 			}
-			
+
 			var description:String = "";
 			for each (var d:String in descriptions)
 			{
-				description += "\n" + linePrefix + d;
+				description += linePrefix + d + "\n";
 			}
-			
+			if (description.length > 1)
+			{
+				description = description.substring( 0, description.length - 1 );
+			}
 			APM.io.writeLine( description, IOColour.LIGHT_BLUE );
+		}
+
+
+		public static function listParameter( param:ProjectParameter ):void
+		{
 			APM.io.writeValue( param.name, param.value + (param.required ? " (required)" : "") );
 		}
-		
+
 	}
-	
+
 }

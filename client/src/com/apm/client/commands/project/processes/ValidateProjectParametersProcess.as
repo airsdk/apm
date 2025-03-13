@@ -18,8 +18,7 @@ package com.apm.client.commands.project.processes
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.project.ProjectDefinition;
 	import com.apm.data.project.ProjectParameter;
-	
-	
+
 	/**
 	 * This process does a quick check that the packages in the project definition
 	 * file are available in the package cache.
@@ -29,49 +28,58 @@ package com.apm.client.commands.project.processes
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
-		
+
 		private static const TAG:String = "ValidateProjectParametersProcess";
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
-		
+
 		public function ValidateProjectParametersProcess()
 		{
 		}
-		
-		
+
+
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			
+
 			Log.d( TAG, "Validating parameters in project definition" );
-			
+
 			var project:ProjectDefinition = APM.config.projectDefinition;
 			if (project == null)
 			{
 				failure( "No project file found" );
 				return;
 			}
-			
+
+			var isValid:Boolean = true;
 			for each (var param:ProjectParameter in APM.config.projectDefinition.getConfiguration( APM.config.buildType ))
 			{
 				if (!param.isValid())
 				{
-					failure( "Parameter not valid: " + param.name + "=" + param.value );
-					return;
+					isValid = false;
+					APM.io.writeError( "validation", "Parameter not valid: " + param.name + "=" + param.value );
+					ProjectConfigDescribeProcess.describeParameter( param );
+					APM.io.writeLine( "" );
 				}
 			}
-			
+
+			if (!isValid)
+			{
+				failure( "Invalid project configuration parameters" );
+				return;
+			}
+
 			complete();
 		}
-		
+
 	}
-	
+
 }
