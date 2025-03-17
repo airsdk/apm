@@ -16,7 +16,7 @@ package com.apm.client.commands.project.processes
 	
 	public class AndroidManifestMerge
 	{
-		public static const MERGE_TOOL_VERSION:String = "30.0.1";
+		public static const MERGE_TOOL_VERSION:String = "31.9.0";
 		
 		private static const MERGE_TOOL_FILENAME:String = "manifest-merger-@MERGE_TOOL_VERSION@.jar";
 	
