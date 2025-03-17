@@ -1,13 +1,4 @@
 /**
- *        __       __               __
- *   ____/ /_ ____/ /______ _ ___  / /_
- *  / __  / / ___/ __/ ___/ / __ `/ __/
- * / /_/ / (__  ) / / /  / / /_/ / /
- * \__,_/_/____/_/ /_/  /_/\__, /_/
- *                           / /
- *                           \/
- * http://distriqt.com
- *
  * @author 		Michael (https://github.com/marchbold)
  * @created		28/5/2021
  */
@@ -60,6 +51,10 @@ package com.apm.client.processes.generic
 			else if (APM.config.isWindows)
 			{
 				subprocess = new ExtractZipWindowsProcess( _zipFile, _outputDir, _showOutputs );
+			}
+			else if (APM.config.isLinux)
+			{
+				subprocess = new ExtractZipLinuxProcess( _zipFile, _outputDir, _showOutputs );
 			}
 			else
 			{

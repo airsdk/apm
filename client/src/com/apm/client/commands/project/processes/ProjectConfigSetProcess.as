@@ -20,48 +20,47 @@ package com.apm.client.commands.project.processes
 	import com.apm.data.project.ProjectDefinition;
 	import com.apm.data.project.ProjectParameter;
 	import com.apm.utils.ProjectPackageCache;
-	
-	
+
 	public class ProjectConfigSetProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
-		
+
 		private static const TAG:String = "ProjectConfigGetProcess";
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
-		
-		
+
+
 		private var _paramName:String;
 		private var _paramValue:String;
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
-		
+
 		public function ProjectConfigSetProcess( paramName:String, paramValue:String )
 		{
 			_paramName = paramName;
 			_paramValue = paramValue;
 		}
-		
-		
+
+
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			
+
 			var project:ProjectDefinition = APM.config.projectDefinition;
 			if (project == null)
 			{
 				failure( "No project file found" );
 				return;
 			}
-			
+
 			if (_paramName == null)
 			{
 				// set all config
@@ -74,16 +73,20 @@ package com.apm.client.commands.project.processes
 			{
 				var param:ProjectParameter = project.getConfigurationParam( _paramName, APM.config.buildType );
 				var paramPackage:PackageDefinitionFile = ProjectPackageCache.getPackage( _paramName );
-				
+
 				if (param != null)
 				{
+					APM.io.writeLine( "" );
 					ProjectConfigDescribeProcess.describeParameter( param );
+					ProjectConfigDescribeProcess.listParameter( param );
+
 					var value:String = APM.io.question( "Set", param.value );
 					if (value != null && value.length > 0 && value != param.value)
 					{
 						project.setConfigurationParamValue( _paramName, value, APM.config.buildType );
 						project.save();
 					}
+
 				}
 				else if (paramPackage != null)
 				{
@@ -105,10 +108,10 @@ package com.apm.client.commands.project.processes
 				project.setConfigurationParamValue( _paramName, _paramValue, APM.config.buildType );
 				project.save();
 			}
-			
+
 			complete();
 		}
-		
+
 	}
-	
+
 }

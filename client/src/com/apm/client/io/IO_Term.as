@@ -1,13 +1,4 @@
 /**
- *        __       __               __
- *   ____/ /_ ____/ /______ _ ___  / /_
- *  / __  / / ___/ __/ ___/ / __ `/ __/
- * / /_/ / (__  ) / / /  / / /_/ / /
- * \__,_/_/____/_/ /_/  /_/\__, /_/
- *                           / /
- *                           \/
- * http://distriqt.com
- *
  * @author 		Michael (https://github.com/marchbold)
  * @created		18/5/2021
  */
@@ -25,7 +16,7 @@ package com.apm.client.io
 	 * being able to display visual features such as spinners / progress bars
 	 * and handling input from the user (questions etc).
 	 */
-	public class IO_MacOS implements IO
+	public class IO_Term implements IO
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
@@ -58,7 +49,7 @@ package com.apm.client.io
 		//  FUNCTIONALITY
 		//
 		
-		public function IO_MacOS()
+		public function IO_Term()
 		{
 		}
 		

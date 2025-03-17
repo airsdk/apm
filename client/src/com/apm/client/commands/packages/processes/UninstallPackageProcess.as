@@ -47,6 +47,7 @@ package com.apm.client.commands.packages.processes
 		private var _version:SemVer;
 		private var _failIfNotInstalled:Boolean;
 		private var _checkIfRequiredDependency:Boolean;
+		private var _removeConfigWhenComplete:Boolean;
 
 
 		////////////////////////////////////////////////////////
@@ -57,9 +58,11 @@ package com.apm.client.commands.packages.processes
 		 *
 		 * @param uninstallingPackageIdentifier
 		 * @param packageIdentifier
+		 * @param appDescriptorPath
 		 * @param version
 		 * @param failIfNotInstalled
 		 * @param checkIfRequiredDependency
+		 * @param removeConfigWhenComplete
 		 */
 		public function UninstallPackageProcess(
 				uninstallingPackageIdentifier:String,
@@ -67,7 +70,8 @@ package com.apm.client.commands.packages.processes
 				appDescriptorPath:String,
 				version:SemVer                    = null,
 				failIfNotInstalled:Boolean        = true,
-				checkIfRequiredDependency:Boolean = true
+				checkIfRequiredDependency:Boolean = true,
+				removeConfigWhenComplete:Boolean  = true
 		)
 		{
 			super();
@@ -77,6 +81,7 @@ package com.apm.client.commands.packages.processes
 			_version = version;
 			_failIfNotInstalled = failIfNotInstalled;
 			_checkIfRequiredDependency = checkIfRequiredDependency;
+			_removeConfigWhenComplete = removeConfigWhenComplete;
 		}
 
 
@@ -134,32 +139,36 @@ package com.apm.client.commands.packages.processes
 								_appDescriptorPath,
 								null,
 								false,
-								_checkIfRequiredDependency )
+								_checkIfRequiredDependency,
+								_removeConfigWhenComplete )
 				);
 			}
 
 			var queue:ProcessQueue = new ProcessQueue();
 
-			queue.addProcess( new UninstallConfigForPackageProcess( uninstallingPackageDefinition ) );
+			// Only remove the config when required, may be update so don't want to lose config
+			if (_removeConfigWhenComplete)
+			{
+				queue.addProcess( new UninstallConfigForPackageProcess( uninstallingPackageDefinition ) );
+			}
 			queue.addProcess( new UninstallFilesForPackageProcess( uninstallingPackageDefinition ) );
 			if (_appDescriptorPath != null)
 			{
-				queue.addProcess( new UninstallPackageFromAppDescriptorProcess( uninstallingPackageDefinition,
-																				_appDescriptorPath ) );
+				queue.addProcess(
+						new UninstallPackageFromAppDescriptorProcess( uninstallingPackageDefinition,
+																	  _appDescriptorPath ) );
 			}
 
 			queue.start(
 					function ():void
 					{
 						APM.config.projectDefinition
-						   .removePackageDependency( _packageIdentifier )
-//								.save();
+						   .removePackageDependency( _packageIdentifier );
 
 						if (APM.config.projectLock != null)
 						{
 							APM.config.projectLock
-							   .removePackageDependency( _packageIdentifier )
-//									.save();
+							   .removePackageDependency( _packageIdentifier );
 						}
 
 						complete();

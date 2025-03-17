@@ -8,10 +8,8 @@
  *                           \/
  * http://distriqt.com
  *
- * @brief
- * @author 		marchbold
+ * @author 		Michael (https://github.com/marchbold)
  * @created		16/7/2021
- * @copyright	http://distriqt.com/copyright/license.txt
  */
 package com.apm.client.commands.packages.processes
 {
@@ -70,7 +68,8 @@ package com.apm.client.commands.packages.processes
 														 null,
 														 packageToRemove.packageVersion.version,
 														 false,
-														 packageToRemove.packageVersion.version == null )
+														 packageToRemove.packageVersion.version == null,
+														 false )
 					);
 				}
 				for each (var p:InstallPackageData in _installData.packagesToInstall)

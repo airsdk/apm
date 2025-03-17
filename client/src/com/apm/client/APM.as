@@ -41,7 +41,7 @@ package com.apm.client
 	import com.apm.client.config.RunConfig;
 	import com.apm.client.events.CommandEvent;
 	import com.apm.client.io.IO;
-	import com.apm.client.io.IO_MacOS;
+	import com.apm.client.io.IO_Term;
 	import com.apm.client.io.IO_Windows;
 	import com.apm.client.logging.Log;
 	import com.apm.client.repositories.PackageResolver;
@@ -89,7 +89,7 @@ package com.apm.client
 				}
 				else
 				{
-					_io = new IO_MacOS();
+					_io = new IO_Term();
 				}
 			}
 			return _io;
@@ -359,7 +359,7 @@ package com.apm.client
 		
 		private function processEnvironment():void
 		{
-			if (_config.isMacOS || _config.uname != "windows")
+			if (_config.isMacOS || _config.isLinux || _config.uname != "windows")
 			{
 				if (_config.env.hasOwnProperty( "TERM" ))
 				{

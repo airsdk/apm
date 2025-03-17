@@ -1,19 +1,12 @@
 /**
- *        __       __               __
- *   ____/ /_ ____/ /______ _ ___  / /_
- *  / __  / / ___/ __/ ___/ / __ `/ __/
- * / /_/ / (__  ) / / /  / / /_/ / /
- * \__,_/_/____/_/ /_/  /_/\__, /_/
- *                           / /
- *                           \/
- * http://distriqt.com
- *
  * @author 		Michael (https://github.com/marchbold)
  * @created		28/5/2021
  */
 package com.apm.client.config
 {
 	import com.apm.client.config.processes.CheckNetworkProcess;
+	import com.apm.client.config.processes.LoadLinuxEnvironmentVariablesProcess;
+	import com.apm.client.config.processes.LoadLinuxJavaHomeProcess;
 	import com.apm.client.config.processes.LoadMacOSEnvironmentVariablesProcess;
 	import com.apm.client.config.processes.LoadMacOSJavaHomeProcess;
 	import com.apm.client.config.processes.LoadProjectDefinitionProcess;
@@ -28,11 +21,11 @@ package com.apm.client.config
 	import com.apm.data.user.UserSettings;
 	import com.apm.utils.DeployFileUtils;
 	import com.apm.utils.ProjectPackageCache;
-	
+
 	import flash.filesystem.File;
 	import flash.system.Capabilities;
-	
-	
+
+
 	/**
 	 * Runtime configuration, includes environment variables, paths
 	 * and any global command line arguments
@@ -42,82 +35,82 @@ package com.apm.client.config
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
-		
+
 		private static const TAG:String = "RunConfig";
-		
+
 //		public static const DEFAULT_REPOSITORY_URL:String = "http://localhost:3000";
 		public static const DEFAULT_REPOSITORY_URL:String = "https://repository.airsdk.dev";
 
-		
+
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
-		
+
 		private var _loadQueue:ProcessQueue;
-		
-		
+
+
 		/**
 		 * The current project definition file
 		 */
 		public var projectDefinition:ProjectDefinition = null;
-		
-		
+
+
 		/**
 		 * The current project lock file
 		 */
 		public var projectLock:ProjectLock = null;
-		
-		
+
+
 		/**
 		 * Loaded environment variables
 		 */
 		public var env:Object = {};
-		
-		
+
+
 		/**
 		 * Settings loaded from the users' home directory
 		 */
 		public var user:UserSettings;
-		
-		
+
+
 		/**
 		 * Whether there is an active internet connection
 		 */
 		public var hasNetwork:Boolean = false;
-		
-		
+
+
 		/**
 		 * Specify an alternate build type for this process
 		 */
 		public var buildType:String = null;
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
-		
+
 		public function RunConfig()
 		{
 			user = new UserSettings();
 		}
-		
-		
+
+
 		private var _workingDirectory:String = File.workingDirectory.nativePath;
 		/**
 		 * The current working directory
 		 */
 		public function get workingDirectory():String { return _workingDirectory; }
 		public function set workingDirectory( value:String):void { _workingDirectory = value; }
-		
-		
+
+
 		private var _appDirectory:String = File.applicationDirectory.nativePath;
 		/**
 		 * The application directory containing apm etc
 		 */
 		public function get appDirectory():String { return _appDirectory; }
 		public function set appDirectory( value:String):void { _appDirectory = value; }
-		
-		
+
+
 		private var _airDirectory:String = null;
 		/**
 		 * The AIR SDK directory containing adl
@@ -132,9 +125,9 @@ package com.apm.client.config
 		 */
 		public function get uname():String { return _uname; }
 		public function set uname( value:String):void { _uname = value; }
-		
-		
-		
+
+
+
 		/**
 		 * This function loads any configuration / environment files and settings
 		 * and is called before any commands are executed.
@@ -144,10 +137,10 @@ package com.apm.client.config
 		 */
 		public function loadEnvironment( callback:Function, checkNetwork:Boolean = false ):void
 		{
-			Log.d( TAG, "loadEnvironment()" );
-			
+			Log.d( TAG, "loadEnvironment(): " + Capabilities.os );
+
 			_loadQueue = new ProcessQueue();
-			
+
 			// Platform specific
 			if (isMacOS)
 			{
@@ -160,13 +153,18 @@ package com.apm.client.config
 				_loadQueue.addProcess( new LoadWindowsPowershellVersionProcess( this ) );
 				_loadQueue.addProcess( new LoadWindowsJavaHomeProcess( this ) );
 			}
-			
+			if (isLinux)
+			{
+				_loadQueue.addProcess( new LoadLinuxEnvironmentVariablesProcess( this ) );
+				_loadQueue.addProcess( new LoadLinuxJavaHomeProcess( this ) );
+			}
+
 			// General
 			_loadQueue.addProcess( new LoadProjectDefinitionProcess( this ) );
 			_loadQueue.addProcess( new LoadUserSettingsProcess( this ) );
 //			_loadQueue.addProcess( new DebugDelayProcess( 3000 ) );
 			if (checkNetwork) _loadQueue.addProcess( new CheckNetworkProcess( this ) );
-			
+
 			Log.v( TAG, "load queue start" );
 			_loadQueue.start(
 					function ():void
@@ -187,8 +185,8 @@ package com.apm.client.config
 					}
 			);
 		}
-		
-		
+
+
 		/**
 		 * The directory for package storage (defaults to: apm_packages)
 		 */
@@ -204,8 +202,8 @@ package com.apm.client.config
 			}
 			return workingDirectory + File.separator + ProjectPackageCache.PACKAGE_CACHE_DIR;
 		}
-		
-		
+
+
 		/**
 		 * The directory for apm advanced config files (defaults to: config)
 		 */
@@ -221,14 +219,14 @@ package com.apm.client.config
 			}
 			return workingDirectory + File.separator + "config";
 		}
-		
-		
+
+
 		/**
 		 * The path to the user's "home" directory
 		 */
 		public function get homeDirectory():String
 		{
-			if (isMacOS)
+			if (isMacOS || isLinux)
 			{
 				if (env.hasOwnProperty( "HOME" ))
 				{
@@ -290,9 +288,8 @@ package com.apm.client.config
 				else
 				{
 					javaBinPath = "bin/java";
-					// TODO: Linux
 				}
-				
+
 				var java:File = new File( javaHome ).resolvePath( javaBinPath );
 				if (java.exists)
 				{
@@ -304,12 +301,12 @@ package com.apm.client.config
 				Log.l( TAG, "ERROR: Failed to find " + javaBinPath );
 				Log.e( TAG, e );
 			}
-			
+
 			throw new Error( "Failed to find '" + javaBinPath + "' in JAVA_HOME=" + javaHome
 							 + ". Point JAVA_HOME to your java installation." );
 		}
-		
-		
+
+
 		public function getDefaultRemoteRepositoryEndpoint():String
 		{
 			if (env[ "APM_REPOSITORY" ])
@@ -319,12 +316,12 @@ package com.apm.client.config
 			}
 			return DEFAULT_REPOSITORY_URL;
 		}
-		
-		
+
+
 		//
 		//	UTILITIES
 		//
-		
+
 		public static function get os():String
 		{
 			if ((Capabilities.os.indexOf( "Windows" ) >= 0))
@@ -335,23 +332,32 @@ package com.apm.client.config
 			{
 				return "macos";
 			}
-			// TODO:: Linux
+			else if ((Capabilities.os.indexOf("Linux") >= 0 ))
+			{
+				return "linux";
+			}
 			return "";
 		}
-		
-		
+
+
 		public function get isMacOS():Boolean
 		{
 			return os == "macos";
 		}
-		
-		
+
+
 		public function get isWindows():Boolean
 		{
 			return os == "windows";
 		}
-		
-		
+
+
+		public function get isLinux():Boolean
+		{
+			return os == "linux";
+		}
+
+
 	}
-	
+
 }
