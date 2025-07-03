@@ -1,5 +1,5 @@
 /**
- * @author 		Michael (https://github.com/marchbold)
+ * @author 		Michael Archbold (https://michaelarchbold.com)
  * @created		28/5/2021
  */
 package com.apm.client.processes.generic
