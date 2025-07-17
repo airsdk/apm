@@ -20,7 +20,6 @@ package com.apm.client.commands.project
 	import com.apm.data.common.Platform;
 	import com.apm.data.project.ApplicationDescriptor;
 	import com.apm.data.project.ProjectDefinition;
-	import com.apm.data.common.Platform;
 
 	import flash.events.EventDispatcher;
 	import flash.filesystem.File;
@@ -198,6 +197,7 @@ package com.apm.client.commands.project
 			_queue.addProcess( new ValidatePackageCacheProcess() );
 			if (shouldProcessPlatform( platforms, Platform.ANDROID ))
 			{
+//				_queue.addProcess( new AndroidPlatformConfigurationProcess( appDescriptor ) );
 				_queue.addProcess( new AndroidManifestMergeProcess( appDescriptor ) );
 			}
 			if (shouldProcessPlatform( platforms, Platform.IOS ))

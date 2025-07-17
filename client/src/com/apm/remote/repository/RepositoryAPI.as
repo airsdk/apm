@@ -96,8 +96,18 @@ package com.apm.remote.repository
 				}
 			} );
 		}
-		
-		
+
+
+		public function checkConnection( callback:Function = null ):void
+		{
+			// TODO:: Implement a proper connection check
+			if (callback != null)
+			{
+				callback( true );
+			}
+		}
+
+
 		public function search( query:String, options:RepositoryQueryOptions = null, callback:Function = null ):void
 		{
 			var vars:URLVariables = new URLVariables();
@@ -189,9 +199,9 @@ package com.apm.remote.repository
 				var packageDefinition:PackageDefinition = null;
 				try
 				{
-					var dataObject:Object = JSON.parse( data );
 					if (success)
 					{
+						var dataObject:Object = JSON.parse( data );
 						packageDefinition = new PackageDefinition().fromObject( dataObject );
 					}
 				}

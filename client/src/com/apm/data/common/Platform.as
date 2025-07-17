@@ -20,6 +20,9 @@ package com.apm.data.common
 		public static const COMMON:String = "common";
 		public static const UNSPECIFIED:String = "unspecified";
 
+		public static const ALL_PLATFORMS:Vector.<String> = new <String>[
+			ANDROID, IOS, MACOS, WINDOWS, LINUX
+		];
 
 		////////////////////////////////////////////////////////
 		//  VARIABLES
@@ -64,29 +67,36 @@ package com.apm.data.common
 		public static function getPlatformFromVariant( variant:String ):String
 		{
 			var variantLowerCase:String = variant.toLowerCase();
-			if (variantLowerCase.substr(0, Platform.IOS.length) == Platform.IOS)
+			if (variantLowerCase.substr( 0, Platform.IOS.length ) == Platform.IOS)
 			{
 				return Platform.IOS;
 			}
-			if (variantLowerCase.substr(0, Platform.ANDROID.length) == Platform.ANDROID)
+			if (variantLowerCase.substr( 0, Platform.ANDROID.length ) == Platform.ANDROID)
 			{
 				return Platform.ANDROID;
 			}
-			if (variantLowerCase.substr(0, Platform.WINDOWS.length) == Platform.WINDOWS)
+			if (variantLowerCase.substr( 0, Platform.WINDOWS.length ) == Platform.WINDOWS)
 			{
 				return Platform.WINDOWS;
 			}
-			if (variantLowerCase.substr(0, Platform.MACOS.length) == Platform.MACOS)
+			if (variantLowerCase.substr( 0, Platform.MACOS.length ) == Platform.MACOS)
 			{
 				return Platform.MACOS;
 			}
-			if (variantLowerCase.substr(0, Platform.LINUX.length) == Platform.LINUX)
+			if (variantLowerCase.substr( 0, Platform.LINUX.length ) == Platform.LINUX)
 			{
 				return Platform.LINUX;
 			}
 			return variantLowerCase;
 		}
 
+
+		/**
+		 * Checks if the given platform name is one of the known platform names.
+		 *
+		 * @param platform	The name of the platform to check
+		 * @return			<code>true</code> if the platform name is known, <code>false</code> otherwise
+		 */
 		public static function isKnownPlatformName( platform:String ):Boolean
 		{
 			switch (platform)

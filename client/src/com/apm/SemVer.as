@@ -24,7 +24,7 @@ package com.apm
 		
 		protected var _major:String = "0";
 		protected var _minor:String = "0";
-		protected var _patch:String = "0";
+		protected var _patch:String = "";
 		protected var _preview:String = null;
 		protected var _previewNum:int = 0;
 		
@@ -78,7 +78,7 @@ package com.apm
 			}
 			else
 			{
-				throw new Error( "Invalid version - fails SemVer format" );
+				throw new Error( "Invalid version - fails SemVer format: " + version );
 			}
 		}
 		
@@ -101,12 +101,20 @@ package com.apm
 		
 		public function toString():String
 		{
-			return _major + "." + _minor + "." + _patch +
-				   (
-						   (_preview == null) ? "" : ("-" + _preview +
-				   (_previewNum == 0 ? "" : ("." + _previewNum)))
-				   )
-					;
+			var versionString:String = _major + "." + _minor;
+			if (_patch != "")
+			{
+				versionString += "." + _patch;
+			}
+			if (_preview != null)
+			{
+				versionString += "-" + _preview;
+				if (_previewNum > 0)
+				{
+					versionString += "." + _previewNum;
+				}
+			}
+			return versionString;
 		}
 		
 		

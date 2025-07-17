@@ -7,6 +7,9 @@ package com.apm.client.commands.project.processes
 	import com.apm.client.APM;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
+	import com.apm.data.common.Platform;
+	import com.apm.data.common.PlatformConfiguration;
+	import com.apm.data.common.PlatformParameter;
 	import com.apm.data.project.ProjectDefinition;
 	import com.apm.data.project.ProjectParameter;
 
@@ -59,6 +62,22 @@ package com.apm.client.commands.project.processes
 					APM.io.writeError( "validation", "Parameter not valid: " + param.name + "=" + param.value );
 					ProjectConfigDescribeProcess.describeParameter( param );
 					APM.io.writeLine( "" );
+				}
+			}
+
+			for each (var platform:String in Platform.ALL_PLATFORMS)
+			{
+				if (!project.shouldIncludePlatform( platform )) continue;
+				var platformConfig:PlatformConfiguration = project.getPlatformConfiguration( platform );
+				if (platformConfig == null) continue;
+				for each (var platformParam:PlatformParameter in platformConfig.parameters)
+				{
+					if (!platformParam.isValid())
+					{
+						isValid = false;
+						APM.io.writeError( "validation", "Platform parameter not valid: " + platformParam.name + "=" + platformParam.value );
+						APM.io.writeLine( "" );
+					}
 				}
 			}
 

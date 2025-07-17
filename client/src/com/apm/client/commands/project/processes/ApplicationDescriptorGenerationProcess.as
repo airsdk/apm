@@ -41,7 +41,7 @@ package com.apm.client.commands.project.processes
 		public function ApplicationDescriptorGenerationProcess( appDescriptor:ApplicationDescriptor, outputPath:String )
 		{
 			_appDescriptor = appDescriptor;
-			_outputPath    = outputPath;
+			_outputPath = outputPath;
 		}
 
 
@@ -57,7 +57,7 @@ package com.apm.client.commands.project.processes
 
 				var configDescriptorPath:String = "application-descriptor.xml";
 
-				var configDescriptor:File    = new File( APM.config.configDirectory ).resolvePath( configDescriptorPath );
+				var configDescriptor:File = new File( APM.config.configDirectory ).resolvePath( configDescriptorPath );
 				var specifiedDescriptor:File = FileUtils.getSourceForPath( _outputPath );
 
 				if (configDescriptor.exists)
@@ -87,8 +87,6 @@ package com.apm.client.commands.project.processes
 				}
 
 				_appDescriptor.updateFromProjectDefinition( APM.config.projectDefinition, APM.config.buildType );
-				_appDescriptor.updateAndroidAdditions();
-				_appDescriptor.updateIOSAdditions();
 
 				if (APM.config.projectLock != null)
 				{

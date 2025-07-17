@@ -50,8 +50,8 @@ package com.apm.client.commands.packages.processes
 				failIfInstalled:Boolean = true )
 		{
 			super();
-			_installData     = data;
-			_request         = request;
+			_installData = data;
+			_request = request;
 			_failIfInstalled = failIfInstalled;
 		}
 
@@ -107,6 +107,12 @@ package com.apm.client.commands.packages.processes
 							);
 							try
 							{
+								if (!success)
+								{
+									failure( "Failed to locate package: " + _request.description() );
+									return;
+								}
+
 								if (foundVersion)
 								{
 									var packageVersionForInstall:PackageVersion = packageDefinition.versions[0];
@@ -173,7 +179,6 @@ package com.apm.client.commands.packages.processes
 														)
 												) );
 									}
-
 								}
 								else if (success)
 								{

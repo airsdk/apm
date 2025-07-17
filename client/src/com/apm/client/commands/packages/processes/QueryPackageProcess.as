@@ -6,16 +6,15 @@ package com.apm.client.commands.packages.processes
 {
 	import com.apm.SemVerRange;
 	import com.apm.client.APM;
-	import com.apm.data.install.InstallData;
-	import com.apm.data.install.InstallRequest;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.repositories.PackageResolver;
+	import com.apm.data.install.InstallData;
+	import com.apm.data.install.InstallRequest;
 	import com.apm.data.packages.PackageDefinition;
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.packages.PackageVersion;
-	
-	
+
 	/**
 	 * This process is to request the package and assemble the listed dependencies
 	 */
@@ -24,23 +23,23 @@ package com.apm.client.commands.packages.processes
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
-		
-		private static const TAG:String = "InstallQueryPackageProcess";
-		
-		
+
+		private static const TAG:String = "QueryPackageProcess";
+
+
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
-		
+
 		private var _installData:InstallData;
 		private var _request:InstallRequest;
 		private var _shouldQueryDependencies:Boolean;
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
-		
+
 		public function QueryPackageProcess(
 				data:InstallData,
 				request:InstallRequest,
@@ -51,8 +50,8 @@ package com.apm.client.commands.packages.processes
 			_request = request;
 			_shouldQueryDependencies = shouldQueryDependencies;
 		}
-		
-		
+
+
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
@@ -61,9 +60,9 @@ package com.apm.client.commands.packages.processes
 			{
 				return complete();
 			}
-			
+
 			Log.d( TAG, "start(): " + _request.description() );
-			
+
 			if (_request.source == "file")
 			{
 				// Handle file source - nothing to do
@@ -79,26 +78,32 @@ package com.apm.client.commands.packages.processes
 						null,
 						function ( success:Boolean, packageDefinition:PackageDefinition ):void
 						{
-							Log.d( TAG, "getPackageVersion(): success=" + success + " package:" + packageDefinition.toString() );
-							var foundVersion:Boolean = success && packageDefinition.versions.length > 0;
+							Log.d( TAG, "getPackageVersion(): success=" + success + " package:" + (packageDefinition == null ? "null" : packageDefinition.toString()) );
+							var foundVersion:Boolean = success && packageDefinition != null && packageDefinition.versions.length > 0;
 							var message:String = foundVersion ? "Found package: " + packageDefinition.toString() :
 									"No package found matching : " + _request.description();
 							APM.io.stopSpinner( foundVersion, message, foundVersion );
 							try
 							{
+								if (!success)
+								{
+									failure( "Failed to locate package: " + _request.description() );
+									return;
+								}
+
 								if (foundVersion)
 								{
-									var packageVersionForInstall:PackageVersion = packageDefinition.versions[ 0 ];
+									var packageVersionForInstall:PackageVersion = packageDefinition.versions[0];
 //									APM.io.writeLine( packageDefinition.toString() );
-									
+
 									// Update the request (in case this was a latest version request)
 									if (_request.version == "latest")
 									{
 										_request.version = packageVersionForInstall.version.toString();
 									}
-									
+
 									_installData.addPackage( packageVersionForInstall, _request );
-									
+
 									if (_shouldQueryDependencies)
 									{
 										// Queue dependencies for install
@@ -116,7 +121,7 @@ package com.apm.client.commands.packages.processes
 													) );
 										}
 									}
-									
+
 								}
 								else if (success)
 								{
@@ -133,10 +138,10 @@ package com.apm.client.commands.packages.processes
 						}
 				);
 			}
-			
+
 		}
-		
-		
+
+
 	}
-	
+
 }

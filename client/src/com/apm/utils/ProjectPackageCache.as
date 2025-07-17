@@ -53,8 +53,8 @@ package com.apm.utils
 		 */
 		public static function isPackageInstalled( packageIdentifier:String, version:SemVer = null ):Boolean
 		{
-			var uninstallingPackageDir:File = PackageFileUtils.contentsDirForPackage( APM.config.packagesDirectory, packageIdentifier );
-			var f:File = uninstallingPackageDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
+			var packageContentsDir:File = PackageFileUtils.contentsDirForPackage( APM.config.packagesDirectory, packageIdentifier );
+			var f:File = packageContentsDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 			if (!f.exists)
 			{
 				return false;

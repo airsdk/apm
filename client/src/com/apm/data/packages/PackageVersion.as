@@ -7,6 +7,7 @@ package com.apm.data.packages
 	import com.apm.SemVer;
 	import com.apm.SemVerRange;
 	import com.apm.data.common.Platform;
+	import com.apm.data.common.PlatformConfiguration;
 
 	public class PackageVersion
 	{
@@ -23,15 +24,16 @@ package com.apm.data.packages
 
 		public var packageDef:PackageDefinition;
 
-		public var sourceUrl:String   = "";
-		public var checksum:String    = "";
-		public var version:SemVer     = null;
+		public var sourceUrl:String = "";
+		public var checksum:String = "";
+		public var version:SemVer = null;
 		public var publishedAt:String = "";
-		public var status:String      = "release";
+		public var status:String = "release";
 
-		public var parameters:Vector.<PackageParameter>    = new Vector.<PackageParameter>();
+		public var parameters:Vector.<PackageParameter> = new Vector.<PackageParameter>();
 		public var dependencies:Vector.<PackageDependency> = new Vector.<PackageDependency>();
 		public var platforms:Vector.<Platform> = new Vector.<Platform>();
+		public var platformConfigurations:Vector.<PlatformConfiguration> = new Vector.<PlatformConfiguration>();
 
 		public var source:String = null;
 
@@ -72,8 +74,8 @@ package com.apm.data.packages
 			return version.toString()
 					+ " : " + publishedAt
 					+ (isReleaseVersion() ? "" : " [" + status + "]")
-					+ (platforms.length == 0 ? "" : " [" + platforms.join(",") + "]")
-			;
+					+ (platforms.length == 0 ? "" : " [" + platforms.join( "," ) + "]")
+					;
 		}
 
 
@@ -120,6 +122,17 @@ package com.apm.data.packages
 							platforms.push( p );
 					}
 				}
+				if (data.hasOwnProperty( "platformParameters" ))
+				{
+					for (var platform:String in data.platformParameters)
+					{
+						var platformConfiguration:PlatformConfiguration = PlatformConfiguration.fromObject(
+								platform,
+								data.platformParameters[platform] );
+						if (platformConfiguration != null)
+							platformConfigurations.push( platformConfiguration );
+					}
+				}
 			}
 			return this;
 		}
@@ -128,12 +141,12 @@ package com.apm.data.packages
 		public function toObject( forceObjectOutput:Boolean = false, addPackageDefinition:Boolean = false ):Object
 		{
 			var data:Object = {};
-			data.version    = version.toString();
+			data.version = version.toString();
 			if (source != null) data.source = source;
-			data.sourceUrl   = sourceUrl;
-			data.checksum    = checksum;
+			data.sourceUrl = sourceUrl;
+			data.checksum = checksum;
 			data.publishedAt = publishedAt;
-			data.status      = status;
+			data.status = status;
 
 			if (addPackageDefinition)
 			{
@@ -163,6 +176,13 @@ package com.apm.data.packages
 				platformsObject.push( platform.toObject( forceObjectOutput ) );
 			}
 			data.platforms = platformsObject;
+
+			var platformParametersObject:Object = {};
+			for each (var pp:PlatformConfiguration in platformConfigurations)
+			{
+				platformParametersObject[pp.platform.name] = pp.toObject();
+			}
+			data.platformParameters = platformParametersObject;
 
 			return data;
 		}
