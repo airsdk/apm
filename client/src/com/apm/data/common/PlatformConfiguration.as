@@ -140,7 +140,7 @@ package com.apm.data.common
 						new PlatformParameter( key, data[key] )
 				);
 			}
-			return platformParameters
+			return platformParameters;
 		}
 
 
