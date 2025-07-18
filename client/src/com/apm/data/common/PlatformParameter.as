@@ -20,7 +20,7 @@ package com.apm.data.common
 		public static const TYPE_STRING_ARRAY:String = "stringArray";
 		public static const TYPE_STRING:String = "string";
 		public static const TYPE_NUMBER:String = "number";
-		public static const TYPE_UNKOWN:String = "unknown";
+		public static const TYPE_UNKNOWN:String = "unknown";
 
 
 		////////////////////////////////////////////////////////
