@@ -19,6 +19,8 @@ package com.apm.data.project
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
 
+	import org.as3commons.lang.VectorUtils;
+
 	/**
 	 * Handles loading and saving a project definition file
 	 */
@@ -545,6 +547,7 @@ package com.apm.data.project
 				param.name = packageParam.name;
 				param.required = packageParam.required;
 				param.value = packageParam.defaultValue;
+				param.platforms = packageParam.platforms;
 
 				_configuration.push( param );
 				_configuration.sort( Array.CASEINSENSITIVE );
@@ -553,12 +556,14 @@ package com.apm.data.project
 			{
 				// Update existing parameter
 				param.required = param.required || packageParam.required;
-				if (!param.isValid())
+				param.platforms = Vector.<Platform>(
+						VectorUtils.mergeUnique( param.platforms, packageParam.platforms )
+				);
+				if (!param.isValid( param.platforms ))
 				{
 					param.value = packageParam.defaultValue;
 				}
 			}
-
 		}
 
 
@@ -581,10 +586,16 @@ package com.apm.data.project
 					_configuration.removeAt( i );
 				}
 			}
-
 		}
 
 
+		/**
+		 * Returns the platform configuration for the specified platform name.
+		 *
+		 * @param platformName The name of the platform to retrieve the configuration for.
+		 *
+		 * @return The <code>PlatformConfiguration</code> for the specified platform name, or <code>null</code> if not found.
+		 */
 		public function getPlatformConfiguration( platformName:String ):PlatformConfiguration
 		{
 			if (platformName == null || platformName.length == 0)
@@ -618,7 +629,6 @@ package com.apm.data.project
 				platformConfig.platform = platform;
 				_platformConfigurations.push( platformConfig );
 			}
-
 			platformConfig.updateParameter( param );
 		}
 
@@ -640,11 +650,16 @@ package com.apm.data.project
 				platformConfig.platform = platform;
 				_platformConfigurations.push( platformConfig );
 			}
-
 			platformConfig.setParameter( param );
 		}
 
 
+		/**
+		 * Removes the specified platform parameter from the project definition.
+		 *
+		 * @param platform The platform to remove the parameter from.
+		 * @param paramName The name of the parameter to remove.
+		 */
 		public function removePlatformParameter( platform:Platform, paramName:String ):void
 		{
 			if (platform == null || paramName == null || paramName.length == 0)

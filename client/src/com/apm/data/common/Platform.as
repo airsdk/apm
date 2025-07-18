@@ -4,7 +4,9 @@
  */
 package com.apm.data.common
 {
-	public class Platform
+	import org.as3commons.lang.IEquals;
+
+	public class Platform implements IEquals
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
@@ -14,6 +16,7 @@ package com.apm.data.common
 
 		public static const ANDROID:String = "android";
 		public static const IOS:String = "ios";
+		public static const TVOS:String = "tvos";
 		public static const MACOS:String = "macos";
 		public static const WINDOWS:String = "windows";
 		public static const LINUX:String = "linux";
@@ -21,7 +24,7 @@ package com.apm.data.common
 		public static const UNSPECIFIED:String = "unspecified";
 
 		public static const ALL_PLATFORMS:Vector.<String> = new <String>[
-			ANDROID, IOS, MACOS, WINDOWS, LINUX
+			ANDROID, TVOS, IOS, MACOS, WINDOWS, LINUX
 		];
 
 		////////////////////////////////////////////////////////
@@ -44,9 +47,13 @@ package com.apm.data.common
 		}
 
 
-		public function equals( p:Platform ):Boolean
+		public function equals( other:Object ):Boolean
 		{
-			return (p.name == name);
+			if (!(other is Platform))
+			{
+				return false;
+			}
+			return ((other as Platform).name == name);
 		}
 
 
@@ -70,6 +77,10 @@ package com.apm.data.common
 			if (variantLowerCase.substr( 0, Platform.IOS.length ) == Platform.IOS)
 			{
 				return Platform.IOS;
+			}
+			if (variantLowerCase.substr( 0, Platform.TVOS.length ) == Platform.TVOS)
+			{
+				return Platform.TVOS;
 			}
 			if (variantLowerCase.substr( 0, Platform.ANDROID.length ) == Platform.ANDROID)
 			{
@@ -103,6 +114,7 @@ package com.apm.data.common
 			{
 				case ANDROID:
 				case IOS:
+				case TVOS:
 				case MACOS:
 				case WINDOWS:
 				case LINUX:

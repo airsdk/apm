@@ -65,6 +65,14 @@ package com.apm.data.packages
 				{
 					data.description = description;
 				}
+				if (platforms.length > 0)
+				{
+					data.platforms = [];
+					for each (var platform:Platform in platforms)
+					{
+						data.platforms.push( platform.toObject() );
+					}
+				}
 				return data;
 			}
 		}

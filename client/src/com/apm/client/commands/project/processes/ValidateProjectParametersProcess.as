@@ -54,9 +54,9 @@ package com.apm.client.commands.project.processes
 			}
 
 			var isValid:Boolean = true;
-			for each (var param:ProjectParameter in APM.config.projectDefinition.getConfiguration( APM.config.buildType ))
+			for each (var param:ProjectParameter in project.getConfiguration( APM.config.buildType ))
 			{
-				if (!param.isValid())
+				if (!param.isValid( project.platforms ))
 				{
 					isValid = false;
 					APM.io.writeError( "validation", "Parameter not valid: " + param.name + "=" + param.value );

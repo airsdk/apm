@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.as3commons.lang {
+package org.as3commons.lang
+{
 
 	/**
 	 * Contains utility methods for working with Array objects.
@@ -21,8 +22,10 @@ package org.as3commons.lang {
 	 * @author Christophe Herreman
 	 * @author Simon Wacker
 	 * @author Martin Heidegger
+	 * @author Michael Archbold
 	 */
-	public final class ArrayUtils {
+	public final class ArrayUtils
+	{
 
 		/**
 		 * Clones an array.
@@ -30,7 +33,8 @@ package org.as3commons.lang {
 		 * @param array the array to clone
 		 * @return a clone of the passed-in <code>array</code>
 		 */
-		public static function clone(array:Array):Array {
+		public static function clone( array:Array ):Array
+		{
 			return array.concat();
 		}
 
@@ -39,13 +43,15 @@ package org.as3commons.lang {
 		 *
 		 * @param array the array to shuffle
 		 */
-		public static function shuffle(array:Array):void {
+		public static function shuffle( array:Array ):void
+		{
 			var len:Number = array.length;
 			var rand:Number;
 			var temp:*;
 
-			for (var i:Number = len - 1; i >= 0; i--) {
-				rand = Math.floor(Math.random() * len);
+			for (var i:Number = len - 1; i >= 0; i--)
+			{
+				rand = Math.floor( Math.random() * len );
 				temp = array[i];
 				array[i] = array[rand];
 				array[rand] = temp;
@@ -60,14 +66,17 @@ package org.as3commons.lang {
 		 * @param item the item to remove
 		 * @return List that contains the index of all removed occurances
 		 */
-		public static function removeItem(array:Array, item:*):Array {
+		public static function removeItem( array:Array, item:* ):Array
+		{
 			var i:Number = array.length;
 			var result:Array = [];
 
-			while (--i - (-1)) {
-				if (array[i] === item) {
-					result.unshift(i);
-					array.splice(i, 1);
+			while (--i - (-1))
+			{
+				if (array[i] === item)
+				{
+					result.unshift( i );
+					array.splice( i, 1 );
 				}
 			}
 			return result;
@@ -81,10 +90,12 @@ package org.as3commons.lang {
 		 * @param item the item to remove
 		 * @return <code>-1</code> if it could not be found, else the position where it has been deleted
 		 */
-		public static function removeLastOccurance(array:Array, item:*):int {
-			var idx:int = array.lastIndexOf(item);
-			if (idx > -1) {
-				array.splice(idx, 1);
+		public static function removeLastOccurance( array:Array, item:* ):int
+		{
+			var idx:int = array.lastIndexOf( item );
+			if (idx > -1)
+			{
+				array.splice( idx, 1 );
 			}
 			return idx;
 		}
@@ -97,10 +108,12 @@ package org.as3commons.lang {
 		 * @param item the item to remove
 		 * @return <code>-1</code> if it could not be found, else the position where it has been deleted
 		 */
-		public static function removeFirstOccurance(array:Array, item:*):int {
-			var idx:int = array.indexOf(item);
-			if (idx > -1) {
-				array.splice(idx, 1);
+		public static function removeFirstOccurance( array:Array, item:* ):int
+		{
+			var idx:int = array.indexOf( item );
+			if (idx > -1)
+			{
+				array.splice( idx, 1 );
 			}
 			return idx;
 		}
@@ -114,15 +127,19 @@ package org.as3commons.lang {
 		 * @return <code>true</code> if the two arrays contain the same values at the same
 		 * positions else <code>false</code>
 		 */
-		public static function isSame(array1:Array, array2:Array):Boolean {
+		public static function isSame( array1:Array, array2:Array ):Boolean
+		{
 			var i:Number = array1.length;
 
-			if (i != array2.length) {
+			if (i != array2.length)
+			{
 				return false;
 			}
 
-			while (--i - (-1)) {
-				if (array1[i] !== array2[i]) {
+			while (--i - (-1))
+			{
+				if (array1[i] !== array2[i])
+				{
 					return false;
 				}
 			}
@@ -136,12 +153,15 @@ package org.as3commons.lang {
 		 * @param type the class that the items should match
 		 * @return a new array with all items that match the given class
 		 */
-		public static function getItemsByType(items:Array, type:Class):Array {
+		public static function getItemsByType( items:Array, type:Class ):Array
+		{
 			var result:Array = [];
 
-			for (var i:int = 0; i < items.length; i++) {
-				if (items[i] is type) {
-					result.push(items[i]);
+			for (var i:int = 0; i < items.length; i++)
+			{
+				if (items[i] is type)
+				{
+					result.push( items[i] );
 				}
 			}
 			return result;
@@ -157,15 +177,19 @@ package org.as3commons.lang {
 		 * @param item the item to search for
 		 * @return The index of the item, or -1 if the item was not found or if either the array or the item are null
 		 */
-		public static function indexOfEquals(array:Array, item:IEquals):int {
-			if (!array || !item) {
+		public static function indexOfEquals( array:Array, item:IEquals ):int
+		{
+			if (!array || !item)
+			{
 				return -1;
 			}
 
 			var numItems:int = array.length;
 
-			for (var i:int = 0; i < numItems; i++) {
-				if (item.equals(array[i])) {
+			for (var i:int = 0; i < numItems; i++)
+			{
+				if (item.equals( array[i] ))
+				{
 					return i;
 				}
 			}
@@ -179,16 +203,81 @@ package org.as3commons.lang {
 		 * @param separator the array element separator
 		 * @return a string representation of the given array
 		 */
-		public static function toString(array:Array, separator:String = ", "):String {
-			return (!array) ? "" : array.join(separator);
+		public static function toString( array:Array, separator:String = ", " ):String
+		{
+			return (!array) ? "" : array.join( separator );
 		}
-		
+
 		/**
 		 * @return <code>true</code> if the array is empty or null
 		 */
-		public static function isEmpty(array:Array):Boolean {
+		public static function isEmpty( array:Array ):Boolean
+		{
 			return array == null || array.length == 0;
 		}
-		
+
+
+		/**
+		 * Merges multiple arrays into one
+		 *
+		 * @param arrays The arrays to merge
+		 * @return A new array containing items from all provided arrays
+		 */
+		public static function merge( ...arrays ):Array
+		{
+			var merged:Array = [];
+			for (var c:int = 0; c < arrays.length; c++)
+			{
+				if (arrays[c] != null)
+				{
+					merged = merged.concat( arrays[c] );
+				}
+			}
+			return merged;
+		}
+
+		/**
+		 * Merges multiple arrays into one, removing duplicates.
+		 *
+		 * @param arrays The arrays to merge
+		 * @return A new array containing unique items from all provided arrays
+		 */
+		public static function mergeUnique( ...arrays ):Array
+		{
+			var merged:Array = [];
+			for (var c:int = 0; c < arrays.length; c++)
+			{
+				if (arrays[c] != null)
+				{
+					merged = merged.concat( arrays[c] );
+				}
+			}
+			return filterUnique( merged );
+		}
+
+
+		/**
+		 * Filters the given array and returns a new array with only unique items.
+		 *
+		 * @param array The array to filter
+		 * @return A new array containing only unique items from the original array
+		 */
+		public static function filterUnique( array:Array ):Array
+		{
+			var unique:Array = [].concat( array );
+			for (var i:int = unique.length - 1; i >= 0; --i)
+			{
+				for (var j:int = i - 1; j >= 0; --j)
+				{
+					if (unique[i] == unique[j])
+					{
+						unique.splice( i, 1 );
+						break;
+					}
+				}
+			}
+			return unique;
+		}
+
 	}
 }
