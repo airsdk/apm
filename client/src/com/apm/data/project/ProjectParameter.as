@@ -111,8 +111,12 @@ package com.apm.data.project
 		//	VALIDATION
 		//
 
-		public function isValid( projectPlatforms:Vector.<Platform> ):Boolean
+		public function isValid( projectPlatforms:Vector.<Platform> = null ):Boolean
 		{
+			if (projectPlatforms == null)
+			{
+				projectPlatforms = new Vector.<Platform>();
+			}
 			if (required)
 			{
 				if (
