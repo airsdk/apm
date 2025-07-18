@@ -1,14 +1,5 @@
 /**
- *        __       __               __
- *   ____/ /_ ____/ /______ _ ___  / /_
- *  / __  / / ___/ __/ ___/ / __ `/ __/
- * / /_/ / (__  ) / / /  / / /_/ / /
- * \__,_/_/____/_/ /_/  /_/\__, /_/
- *                           / /
- *                           \/
- * http://distriqt.com
- *
- * @author 		Michael (https://github.com/marchbold)
+ * @author 		Michael Archbold (https://michaelarchbold.com)
  * @created		28/8/2021
  */
 package com.apm.utils
@@ -62,8 +53,8 @@ package com.apm.utils
 		 */
 		public static function isPackageInstalled( packageIdentifier:String, version:SemVer = null ):Boolean
 		{
-			var uninstallingPackageDir:File = PackageFileUtils.contentsDirForPackage( APM.config.packagesDirectory, packageIdentifier );
-			var f:File = uninstallingPackageDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
+			var packageContentsDir:File = PackageFileUtils.contentsDirForPackage( APM.config.packagesDirectory, packageIdentifier );
+			var f:File = packageContentsDir.resolvePath( PackageDefinitionFile.DEFAULT_FILENAME );
 			if (!f.exists)
 			{
 				return false;

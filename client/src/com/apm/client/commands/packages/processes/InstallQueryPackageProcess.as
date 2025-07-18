@@ -1,14 +1,5 @@
 /**
- *        __       __               __
- *   ____/ /_ ____/ /______ _ ___  / /_
- *  / __  / / ___/ __/ ___/ / __ `/ __/
- * / /_/ / (__  ) / / /  / / /_/ / /
- * \__,_/_/____/_/ /_/  /_/\__, /_/
- *                           / /
- *                           \/
- * http://distriqt.com
- *
- * @author 		Michael (https://github.com/marchbold)
+ * @author 		Michael Archbold (https://michaelarchbold.com)
  * @created		15/6/2021
  */
 package com.apm.client.commands.packages.processes
@@ -59,8 +50,8 @@ package com.apm.client.commands.packages.processes
 				failIfInstalled:Boolean = true )
 		{
 			super();
-			_installData     = data;
-			_request         = request;
+			_installData = data;
+			_request = request;
 			_failIfInstalled = failIfInstalled;
 		}
 
@@ -116,6 +107,12 @@ package com.apm.client.commands.packages.processes
 							);
 							try
 							{
+								if (!success)
+								{
+									failure( "Failed to locate package: " + _request.description() );
+									return;
+								}
+
 								if (foundVersion)
 								{
 									var packageVersionForInstall:PackageVersion = packageDefinition.versions[0];
@@ -182,7 +179,6 @@ package com.apm.client.commands.packages.processes
 														)
 												) );
 									}
-
 								}
 								else if (success)
 								{

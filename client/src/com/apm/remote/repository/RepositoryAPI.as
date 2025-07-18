@@ -1,14 +1,5 @@
 /**
- *        __       __               __
- *   ____/ /_ ____/ /______ _ ___  / /_
- *  / __  / / ___/ __/ ___/ / __ `/ __/
- * / /_/ / (__  ) / / /  / / /_/ / /
- * \__,_/_/____/_/ /_/  /_/\__, /_/
- *                           / /
- *                           \/
- * http://distriqt.com
- *
- * @author 		Michael (https://github.com/marchbold)
+ * @author 		Michael Archbold (https://michaelarchbold.com)
  * @created		18/5/2021
  */
 package com.apm.remote.repository
@@ -105,8 +96,18 @@ package com.apm.remote.repository
 				}
 			} );
 		}
-		
-		
+
+
+		public function checkConnection( callback:Function = null ):void
+		{
+			// TODO:: Implement a proper connection check
+			if (callback != null)
+			{
+				callback( true );
+			}
+		}
+
+
 		public function search( query:String, options:RepositoryQueryOptions = null, callback:Function = null ):void
 		{
 			var vars:URLVariables = new URLVariables();
@@ -198,9 +199,9 @@ package com.apm.remote.repository
 				var packageDefinition:PackageDefinition = null;
 				try
 				{
-					var dataObject:Object = JSON.parse( data );
 					if (success)
 					{
+						var dataObject:Object = JSON.parse( data );
 						packageDefinition = new PackageDefinition().fromObject( dataObject );
 					}
 				}

@@ -1,14 +1,5 @@
 /**
- *        __       __               __
- *   ____/ /_ ____/ /______ _ ___  / /_
- *  / __  / / ___/ __/ ___/ / __ `/ __/
- * / /_/ / (__  ) / / /  / / /_/ / /
- * \__,_/_/____/_/ /_/  /_/\__, /_/
- *                           / /
- *                           \/
- * http://distriqt.com
- *
- * @author 		Michael (https://github.com/marchbold)
+ * @author 		Michael Archbold (https://michaelarchbold.com)
  * @created		22/6/2021
  */
 package com.apm.client.commands.packages.processes
@@ -17,6 +8,8 @@ package com.apm.client.commands.packages.processes
 	import com.apm.client.APM;
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
+	import com.apm.data.common.PlatformConfiguration;
+	import com.apm.data.common.PlatformParameter;
 	import com.apm.data.install.InstallData;
 	import com.apm.data.install.InstallPackageData;
 	import com.apm.data.packages.PackageDependency;
@@ -86,6 +79,18 @@ package com.apm.client.commands.packages.processes
 					Log.d( TAG, "add package param: " + param.name );
 					APM.config.projectDefinition.addPackageParameter( param );
 				}
+
+				for each (var platformConfiguration:PlatformConfiguration in p.packageVersion.platformConfigurations)
+				{
+					if (APM.config.projectDefinition.shouldIncludePlatform( platformConfiguration.platform.name ))
+					{
+						for each (var platformParam:PlatformParameter in platformConfiguration.parameters)
+						{
+							APM.config.projectDefinition.updatePlatformParameter( platformConfiguration.platform, platformParam );
+						}
+					}
+				}
+
 			}
 
 			APM.config.projectDefinition.save();

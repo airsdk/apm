@@ -1,21 +1,17 @@
 /**
- *        __       __               __
- *   ____/ /_ ____/ /______ _ ___  / /_
- *  / __  / / ___/ __/ ___/ / __ `/ __/
- * / /_/ / (__  ) / / /  / / /_/ / /
- * \__,_/_/____/_/ /_/  /_/\__, /_/
- *                           / /
- *                           \/
- * http://distriqt.com
- *
- * @author 		Michael (https://github.com/marchbold)
+ * @author 		Michael Archbold (https://michaelarchbold.com)
  * @created		27/8/2021
  */
 package com.apm.data.project
 {
 	import airsdk.AIRSDKVersion;
 
+	import com.apm.SemVer;
+
 	import com.apm.client.logging.Log;
+	import com.apm.data.common.Platform;
+	import com.apm.data.common.PlatformConfiguration;
+	import com.apm.data.common.PlatformParameter;
 
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
@@ -149,6 +145,73 @@ package com.apm.data.project
 				if (isPropertyValueValid( project.getVersion( buildType ) )) _xml.versionNumber = project.getVersion( buildType );
 				if (isPropertyValueValid( project.getVersionLabel( buildType ) )) _xml.versionLabel = project.getVersionLabel( buildType );
 
+				for each (var platform:String in Platform.ALL_PLATFORMS)
+				{
+					if (!project.shouldIncludePlatform(platform)) continue;
+					var platformConfig:PlatformConfiguration = project.getPlatformConfiguration( platform );
+					if (platformConfig == null) continue;
+					var platformNode:String = getNodeForPlatform( platform );
+					for each (var param:PlatformParameter in platformConfig.parameters)
+					{
+						try
+						{
+							switch (param.valueType())
+							{
+								case PlatformParameter.TYPE_BOOLEAN:
+								{
+									_xml[platformNode][param.name] = param.asBoolean() ? "true" : "false";
+									break;
+								}
+
+								case PlatformParameter.TYPE_VERSION:
+								{
+									_xml[platformNode][param.name] = param.asVersion().toString();
+									break;
+								}
+
+								case PlatformParameter.TYPE_STRING_ARRAY:
+								case PlatformParameter.TYPE_STRING:
+								{
+									_xml[platformNode][param.name] = param.value;
+									break;
+								}
+							}
+						}
+						catch (error:Error)
+						{
+							throw new Error( "Error setting parameter '" + param.name + "' for platform '" + platform + "': " + error.message );
+						}
+					}
+				}
+
+				if (project.shouldIncludePlatform( Platform.ANDROID ))
+				{
+					updateAndroidAdditions();
+				}
+
+				if (project.shouldIncludePlatform( Platform.IOS ))
+				{
+					updateIOSAdditions();
+				}
+
+			}
+		}
+
+
+		public static function getNodeForPlatform( platform:String ):String
+		{
+			switch (platform)
+			{
+				case Platform.ANDROID:
+					return "android";
+				case Platform.IOS:
+					return "iPhone";
+				case Platform.MACOS:
+					return "macOS";
+				case Platform.WINDOWS:
+					return "windows";
+				default:
+					return platform;
 			}
 		}
 
@@ -209,6 +272,7 @@ package com.apm.data.project
 
 				_xml.android.manifestAdditions = manifestAdditions;
 			}
+
 		}
 
 

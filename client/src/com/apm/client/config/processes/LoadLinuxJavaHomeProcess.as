@@ -1,5 +1,5 @@
 /**
- * @author 		Michael (https://github.com/marchbold)
+ * @author 		Michael Archbold (https://michaelarchbold.com)
  * @created		11/3/2025
  */
 package com.apm.client.config.processes

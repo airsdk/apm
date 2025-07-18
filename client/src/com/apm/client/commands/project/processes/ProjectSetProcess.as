@@ -1,22 +1,14 @@
 /**
- *        __       __               __
- *   ____/ /_ ____/ /______ _ ___  / /_
- *  / __  / / ___/ __/ ___/ / __ `/ __/
- * / /_/ / (__  ) / / /  / / /_/ / /
- * \__,_/_/____/_/ /_/  /_/\__, /_/
- *                           / /
- *                           \/
- * http://distriqt.com
- *
- * @author 		Michael (https://github.com/marchbold)
+ * @author 		Michael Archbold (https://michaelarchbold.com)
  * @created		24/2/2023
  */
 package com.apm.client.commands.project.processes
 {
 	import com.apm.client.APM;
 	import com.apm.client.processes.ProcessBase;
-	import com.apm.data.project.ProjectDefinition;
 	import com.apm.data.common.Platform;
+	import com.apm.data.common.PlatformParameter;
+	import com.apm.data.project.ProjectDefinition;
 
 	public class ProjectSetProcess extends ProcessBase
 	{
@@ -34,6 +26,7 @@ package com.apm.client.commands.project.processes
 
 		private var _paramName:String;
 		private var _paramValue:String;
+		private var _platformName:String;
 
 
 		////////////////////////////////////////////////////////
@@ -58,19 +51,33 @@ package com.apm.client.commands.project.processes
 				return;
 			}
 
+
 			if (_paramName == null)
 			{
 				failure( "No parameter name specified" );
 				return;
 			}
-			else if (_paramValue == null)
+
+			if (_paramName.indexOf( "/" ) >= 0)
+			{
+				// This is a platform parameter
+				_platformName = _paramName.split( "/" )[0];
+				_paramName = _paramName.split( "/" )[1];
+				if (!Platform.isKnownPlatformName( _platformName ))
+				{
+					APM.io.writeError( "platform", "Invalid platform name: " + _platformName );
+					return;
+				}
+			}
+
+			if (_paramValue == null)
 			{
 				var value:String = APM.io.question( "Set", _paramName );
-				setProjectValue( project, _paramName, value )
+				setProjectValue( project, _platformName, _paramName, value )
 			}
 			else
 			{
-				setProjectValue( project, _paramName, _paramValue )
+				setProjectValue( project, _platformName, _paramName, _paramValue )
 			}
 
 			project.save();
@@ -78,9 +85,24 @@ package com.apm.client.commands.project.processes
 		}
 
 
-		private function setProjectValue( project:ProjectDefinition, name:String, value:String ):void
+		private function setProjectValue( project:ProjectDefinition, platform:String, name:String, value:String ):void
 		{
-			switch (_paramName)
+			if (platform != null)
+			{
+				var param:PlatformParameter = new PlatformParameter( name, value );
+				if (!param.isValid())
+				{
+					APM.io.writeError( name, "Invalid platform parameter: " + platform + " :: " + param.name + " = " + param.value );
+					return;
+				}
+				project.setPlatformParameter(
+						new Platform( platform ),
+						param
+				);
+				return;
+			}
+
+			switch (name)
 			{
 				case "id":
 				case "identifier":
@@ -112,15 +134,15 @@ package com.apm.client.commands.project.processes
 				{
 					project.platforms.length = 0;
 					var platforms:Array = value.split( "," );
-					for each (var platform:String in platforms)
+					for each (var p:String in platforms)
 					{
-						if (!Platform.isKnownPlatformName(platform))
+						if (!Platform.isKnownPlatformName( p ))
 						{
-							APM.io.writeError( name, "Invalid platform name: " + platform );
+							APM.io.writeError( name, "Invalid platform name: " + p );
 							continue;
 						}
 
-						project.platforms.push( new Platform( platform, true ) );
+						project.platforms.push( new Platform( p, true ) );
 					}
 					break;
 				}

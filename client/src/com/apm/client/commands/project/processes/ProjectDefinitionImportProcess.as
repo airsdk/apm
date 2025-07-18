@@ -1,14 +1,5 @@
 /**
- *        __       __               __
- *   ____/ /_ ____/ /______ _ ___  / /_
- *  / __  / / ___/ __/ ___/ / __ `/ __/
- * / /_/ / (__  ) / / /  / / /_/ / /
- * \__,_/_/____/_/ /_/  /_/\__, /_/
- *                           / /
- *                           \/
- * http://distriqt.com
- *
- * @author 		Michael (https://github.com/marchbold)
+ * @author 		Michael Archbold (https://michaelarchbold.com)
  * @created		29/9/2021
  */
 package com.apm.client.commands.project.processes
@@ -18,14 +9,15 @@ package com.apm.client.commands.project.processes
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.ProcessQueue;
+	import com.apm.data.common.Platform;
+	import com.apm.data.common.PlatformParameter;
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.packages.PackageVersion;
 	import com.apm.data.project.ApplicationDescriptor;
 	import com.apm.data.project.ProjectDefinition;
-	
+
 	import flash.filesystem.File;
-	
-	
+
 	/**
 	 * This process loads an application descriptor and attempts to
 	 * construct a project definition file from it.
@@ -35,28 +27,28 @@ package com.apm.client.commands.project.processes
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
-		
+
 		private static const TAG:String = "ProjectDefinitionImportProcess";
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
-		
+
 		private var _importAppDescriptor:File;
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
-		
+
 		public function ProjectDefinitionImportProcess( importAppDescriptor:File )
 		{
 			super();
 			_importAppDescriptor = importAppDescriptor;
 		}
-		
-		
+
+
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
@@ -65,7 +57,7 @@ package com.apm.client.commands.project.processes
 				if (APM.config.projectDefinition != null)
 				{
 					APM.io.writeLine( "Already have a config file " );
-					
+
 					var response:String = APM.io.question( "Overwrite? Y/n", "n" )
 					if (response.toLowerCase() != "y")
 					{
@@ -73,39 +65,39 @@ package com.apm.client.commands.project.processes
 						return;
 					}
 				}
-				
+
 				APM.io.writeLine( "Creating new project definition file from application descriptor: " + _importAppDescriptor.name );
-				
+
 				var appDescriptor:ApplicationDescriptor = new ApplicationDescriptor();
 				appDescriptor.load( _importAppDescriptor );
-				
+
 				if (!appDescriptor.isValid())
 				{
 					failure( "Invalid application descriptor: " + appDescriptor.validate() );
 					return;
 				}
-				
-				
+
+
 				//
 				//	Create project properties from descriptor
-				
+
 				default xml namespace = appDescriptor.namespace;
 				var xmlNs:Namespace = appDescriptor.xmlNamespace;
-				
+
 				var project:ProjectDefinition = new ProjectDefinition();
-				
+
 				project.applicationId = appDescriptor.xml.id.toString();
 				project.applicationFilename = appDescriptor.xml.filename.toString();
 				project.version = appDescriptor.xml.versionNumber.toString();
 				project.versionLabel = appDescriptor.xml.versionLabel.toString();
-				
+
 				var nameElements:XMLList = appDescriptor.xml.name..text;
 				if (nameElements.length() > 0)
 				{
 					var names:Object = {};
 					for each (var nameItem:XML in nameElements)
 					{
-						names[nameItem.@xmlNs::lang ] = nameItem.toString();
+						names[nameItem.@xmlNs::lang] = nameItem.toString();
 					}
 					project.applicationName = names;
 				}
@@ -113,19 +105,46 @@ package com.apm.client.commands.project.processes
 				{
 					project.applicationName = appDescriptor.xml.name.toString();
 				}
-				
-				
+
+
+				for each (var platform:String in Platform.ALL_PLATFORMS)
+				{
+					var platformNodeName:String = ApplicationDescriptor.getNodeForPlatform( platform );
+					if (appDescriptor.xml.hasOwnProperty( platformNodeName ))
+					{
+						var platformNode:XML = appDescriptor.xml[platformNodeName][0];
+						if (platformNode != null)
+						{
+							// Add all valid parameters from the descriptor to the project
+							for each (var param:XML in platformNode.children())
+							{
+								var platformParam:PlatformParameter = new PlatformParameter(
+										param.localName(),
+										param.toString()
+								);
+								if (platformParam.isValid())
+								{
+									project.updatePlatformParameter(
+											new Platform( platform ),
+											platformParam );
+								}
+							}
+						}
+					}
+				}
+
+
 				var subqueue:ProcessQueue = new ProcessQueue();
-				
+
 				var packageList:Vector.<PackageVersion> = new <PackageVersion>[];
-				
+
 				// Search for package matching extensionIDs
 				for each (var extensionIDNode:XML in appDescriptor.xml.extensions.extensionID)
 				{
 					var extensionID:String = extensionIDNode.toString();
 					subqueue.addProcess( new ProjectDefinitionImportGetExtensionProcess( extensionID, packageList ) );
 				}
-				
+
 				subqueue.addCallback(
 						function ():void
 						{
@@ -137,12 +156,12 @@ package com.apm.client.commands.project.processes
 								if (shouldAddPackageToProject( packageVersion, packageList ))
 								{
 									APM.io.writeResult( true, "ADDING   : Package: " + packageVersion.toStringWithIdentifier() );
-									
+
 									var dependency:PackageDependency = new PackageDependency();
 									dependency.identifier = packageVersion.packageDef.identifier;
 									dependency.version = SemVerRange.fromString( packageVersion.version.toString() );
 									dependency.source = packageVersion.source;
-									
+
 									project.addPackageDependency( dependency );
 								}
 								else
@@ -150,12 +169,12 @@ package com.apm.client.commands.project.processes
 									APM.io.writeResult( false, "SKIPPING : Dependency: " + packageVersion.toStringWithIdentifier() );
 								}
 							}
-							
+
 							var projectFile:File = new File( APM.config.workingDirectory + File.separator + ProjectDefinition.DEFAULT_FILENAME );
 							project.save( projectFile );
 						} );
 				subqueue.start( complete, failure );
-				
+
 			}
 			catch (e:Error)
 			{
@@ -163,8 +182,8 @@ package com.apm.client.commands.project.processes
 				failure( e.message );
 			}
 		}
-		
-		
+
+
 		/**
 		 * Checks to see if the "package to check" is a dependency of one of the other packages in the list
 		 *
@@ -175,7 +194,7 @@ package com.apm.client.commands.project.processes
 		 */
 		private static function shouldAddPackageToProject( packageVersionToCheck:PackageVersion, packageList:Vector.<PackageVersion> ):Boolean
 		{
-			if (isDependencyExtension( packageVersionToCheck.packageDef.identifier ) )
+			if (isDependencyExtension( packageVersionToCheck.packageDef.identifier ))
 			{
 				return false;
 			}
@@ -195,8 +214,8 @@ package com.apm.client.commands.project.processes
 			}
 			return true;
 		}
-		
-		
+
+
 		/**
 		 * Returns true if this package identifier is a common dependency
 		 * that shouldn't be directly added to the project. eg androidx.core
@@ -209,12 +228,12 @@ package com.apm.client.commands.project.processes
 		 */
 		private static function isDependencyExtension( identifier:String ):Boolean
 		{
-			if (identifier.indexOf("androidx") == 0) return true;
-			if (identifier.indexOf("com.distriqt.playservices") == 0) return true;
+			if (identifier.indexOf( "androidx" ) == 0) return true;
+			if (identifier.indexOf( "com.distriqt.playservices" ) == 0) return true;
 			if (COMMON_DEPENDENCY_IDENTIFIERS.indexOf( identifier ) >= 0) return true;
 			return false;
 		}
-		
+
 		private static var COMMON_DEPENDENCY_IDENTIFIERS:Array = [
 			"com.distriqt.Core",
 			"com.distriqt.Bolts",
@@ -238,8 +257,8 @@ package com.apm.client.commands.project.processes
 			"com.distriqt.square.okhttp3",
 			"com.distriqt.square.picasso"
 		];
-		
-		
+
+
 	}
-	
+
 }

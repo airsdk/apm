@@ -1,23 +1,16 @@
 /**
- *        __       __               __
- *   ____/ /_ ____/ /______ _ ___  / /_
- *  / __  / / ___/ __/ ___/ / __ `/ __/
- * / /_/ / (__  ) / / /  / / /_/ / /
- * \__,_/_/____/_/ /_/  /_/\__, /_/
- *                           / /
- *                           \/
- * http://distriqt.com
- *
- * @author 		Michael (https://github.com/marchbold)
+ * @author 		Michael Archbold (https://michaelarchbold.com)
  * @created		24/2/2023
  */
 package com.apm.client.commands.project.processes
 {
 	import com.apm.client.APM;
 	import com.apm.client.processes.ProcessBase;
+	import com.apm.data.common.Platform;
+	import com.apm.data.common.PlatformConfiguration;
+	import com.apm.data.common.PlatformParameter;
 	import com.apm.data.project.ProjectDefinition;
 	import com.apm.data.project.ProjectParameter;
-	import com.apm.data.common.Platform;
 
 	public class ProjectGetProcess extends ProcessBase
 	{
@@ -33,6 +26,7 @@ package com.apm.client.commands.project.processes
 		//
 
 		private var _paramName:String;
+		private var _platformName:String;
 
 
 		////////////////////////////////////////////////////////
@@ -56,6 +50,9 @@ package com.apm.client.commands.project.processes
 				return;
 			}
 
+
+			var platformConfig:PlatformConfiguration;
+			var platformParam:PlatformParameter;
 			if (_paramName == null)
 			{
 				// print all config
@@ -79,6 +76,20 @@ package com.apm.client.commands.project.processes
 						APM.io.writeLine(
 								(p == project.platforms.length - 1 ? "└──" : "├──") +
 								project.platforms[p].toString() );
+					}
+				}
+
+				APM.io.writeLine( "platformConfigurations" );
+				for each (var platform:String in Platform.ALL_PLATFORMS)
+				{
+					platformConfig = project.getPlatformConfiguration( platform );
+					if (platformConfig == null) continue;
+
+					APM.io.writeLine( "└──" + platform );
+					for (var pp:int = 0; pp < platformConfig.parameters.length; pp++)
+					{
+						platformParam = platformConfig.parameters[pp];
+						APM.io.writeValue( "  " + (pp == platformConfig.parameters.length - 1 ? "└──" : "├──") + platformParam.name, platformParam.value );
 					}
 				}
 
@@ -107,32 +118,62 @@ package com.apm.client.commands.project.processes
 			}
 			else
 			{
-				switch (_paramName)
+				if (_paramName.indexOf( "/" ) >= 0)
 				{
-					case "id":
-					case "identifier":
-						APM.io.writeValue( "identifier", project.getApplicationId( APM.config.buildType ) );
-						break;
+					// This is a platform parameter
+					_platformName = _paramName.split( "/" )[0];
+					_paramName = _paramName.split( "/" )[1];
+					if (!Platform.isKnownPlatformName( _platformName ))
+					{
+						failure( "Invalid platform name: " + _platformName );
+						return;
+					}
 
-					case "name":
-						APM.io.writeValue( "name", project.getApplicationName( APM.config.buildType ).toString() );
-						break;
+					platformConfig = project.getPlatformConfiguration( _platformName );
+					if (platformConfig == null)
+					{
+						failure( "Platform not found: " + _platformName );
+						return;
+					}
 
-					case "filename":
-						APM.io.writeValue( "filename", project.getApplicationFilename( APM.config.buildType ) );
-						break;
+					platformParam = platformConfig.getParameter( _paramName );
+					if (platformParam == null)
+					{
+						failure( "Parameter not found: " + _platformName + "/" + _paramName );
+						return;
+					}
 
-					case "version":
-						APM.io.writeValue( "version", project.getVersion( APM.config.buildType ) );
-						break;
+					APM.io.writeValue( _platformName + "/" + platformParam.name, platformParam.value );
+				}
+				else
+				{
+					switch (_paramName)
+					{
+						case "id":
+						case "identifier":
+							APM.io.writeValue( "identifier", project.getApplicationId( APM.config.buildType ) );
+							break;
 
-					case "versionLabel":
-						APM.io.writeValue( "versionLabel", project.getVersionLabel( APM.config.buildType ) );
-						break;
+						case "name":
+							APM.io.writeValue( "name", project.getApplicationName( APM.config.buildType ).toString() );
+							break;
 
-					default:
-						APM.io.writeError( "parameter", "not found" );
-						break;
+						case "filename":
+							APM.io.writeValue( "filename", project.getApplicationFilename( APM.config.buildType ) );
+							break;
+
+						case "version":
+							APM.io.writeValue( "version", project.getVersion( APM.config.buildType ) );
+							break;
+
+						case "versionLabel":
+							APM.io.writeValue( "versionLabel", project.getVersionLabel( APM.config.buildType ) );
+							break;
+
+						default:
+							APM.io.writeError( "parameter", "not found" );
+							break;
+					}
 				}
 			}
 

@@ -1,17 +1,6 @@
 /**
- *        __       __               __
- *   ____/ /_ ____/ /______ _ ___  / /_
- *  / __  / / ___/ __/ ___/ / __ `/ __/
- * / /_/ / (__  ) / / /  / / /_/ / /
- * \__,_/_/____/_/ /_/  /_/\__, /_/
- *                           / /
- *                           \/
- * http://distriqt.com
- *
- * @brief
- * @author 		marchbold
+ * @author 		Michael Archbold (https://michaelarchbold.com)
  * @created		24/11/2021
- * @copyright	http://distriqt.com/copyright/license.txt
  */
 package com.apm.data.project
 {

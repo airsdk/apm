@@ -1,14 +1,5 @@
 /**
- *        __       __               __
- *   ____/ /_ ____/ /______ _ ___  / /_
- *  / __  / / ___/ __/ ___/ / __ `/ __/
- * / /_/ / (__  ) / / /  / / /_/ / /
- * \__,_/_/____/_/ /_/  /_/\__, /_/
- *                           / /
- *                           \/
- * http://distriqt.com
- *
- * @author 		Michael (https://github.com/marchbold)
+ * @author 		Michael Archbold (https://michaelarchbold.com)
  * @created		23/8/2021
  */
 package com.apm.client.commands.project.processes
@@ -50,7 +41,7 @@ package com.apm.client.commands.project.processes
 		public function ApplicationDescriptorGenerationProcess( appDescriptor:ApplicationDescriptor, outputPath:String )
 		{
 			_appDescriptor = appDescriptor;
-			_outputPath    = outputPath;
+			_outputPath = outputPath;
 		}
 
 
@@ -66,7 +57,7 @@ package com.apm.client.commands.project.processes
 
 				var configDescriptorPath:String = "application-descriptor.xml";
 
-				var configDescriptor:File    = new File( APM.config.configDirectory ).resolvePath( configDescriptorPath );
+				var configDescriptor:File = new File( APM.config.configDirectory ).resolvePath( configDescriptorPath );
 				var specifiedDescriptor:File = FileUtils.getSourceForPath( _outputPath );
 
 				if (configDescriptor.exists)
@@ -96,8 +87,6 @@ package com.apm.client.commands.project.processes
 				}
 
 				_appDescriptor.updateFromProjectDefinition( APM.config.projectDefinition, APM.config.buildType );
-				_appDescriptor.updateAndroidAdditions();
-				_appDescriptor.updateIOSAdditions();
 
 				if (APM.config.projectLock != null)
 				{

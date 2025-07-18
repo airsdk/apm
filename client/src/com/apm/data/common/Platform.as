@@ -1,19 +1,12 @@
 /**
- *        __       __               __
- *   ____/ /_ ____/ /______ _ ___  / /_
- *  / __  / / ___/ __/ ___/ / __ `/ __/
- * / /_/ / (__  ) / / /  / / /_/ / /
- * \__,_/_/____/_/ /_/  /_/\__, /_/
- *                           / /
- *                           \/
- * http://distriqt.com
- *
- * @author 		Michael Archbold (https://github.com/marchbold)
+ * @author 		Michael Archbold (https://michaelarchbold.com)
  * @created		9/6/2023
  */
 package com.apm.data.common
 {
-	public class Platform
+	import org.as3commons.lang.IEquals;
+
+	public class Platform implements IEquals
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
@@ -23,12 +16,16 @@ package com.apm.data.common
 
 		public static const ANDROID:String = "android";
 		public static const IOS:String = "ios";
+		public static const TVOS:String = "tvos";
 		public static const MACOS:String = "macos";
 		public static const WINDOWS:String = "windows";
 		public static const LINUX:String = "linux";
 		public static const COMMON:String = "common";
 		public static const UNSPECIFIED:String = "unspecified";
 
+		public static const ALL_PLATFORMS:Vector.<String> = new <String>[
+			ANDROID, TVOS, IOS, MACOS, WINDOWS, LINUX
+		];
 
 		////////////////////////////////////////////////////////
 		//  VARIABLES
@@ -50,9 +47,13 @@ package com.apm.data.common
 		}
 
 
-		public function equals( p:Platform ):Boolean
+		public function equals( other:Object ):Boolean
 		{
-			return (p.name == name);
+			if (!(other is Platform))
+			{
+				return false;
+			}
+			return ((other as Platform).name == name);
 		}
 
 
@@ -73,35 +74,47 @@ package com.apm.data.common
 		public static function getPlatformFromVariant( variant:String ):String
 		{
 			var variantLowerCase:String = variant.toLowerCase();
-			if (variantLowerCase.substr(0, Platform.IOS.length) == Platform.IOS)
+			if (variantLowerCase.substr( 0, Platform.IOS.length ) == Platform.IOS)
 			{
 				return Platform.IOS;
 			}
-			if (variantLowerCase.substr(0, Platform.ANDROID.length) == Platform.ANDROID)
+			if (variantLowerCase.substr( 0, Platform.TVOS.length ) == Platform.TVOS)
+			{
+				return Platform.TVOS;
+			}
+			if (variantLowerCase.substr( 0, Platform.ANDROID.length ) == Platform.ANDROID)
 			{
 				return Platform.ANDROID;
 			}
-			if (variantLowerCase.substr(0, Platform.WINDOWS.length) == Platform.WINDOWS)
+			if (variantLowerCase.substr( 0, Platform.WINDOWS.length ) == Platform.WINDOWS)
 			{
 				return Platform.WINDOWS;
 			}
-			if (variantLowerCase.substr(0, Platform.MACOS.length) == Platform.MACOS)
+			if (variantLowerCase.substr( 0, Platform.MACOS.length ) == Platform.MACOS)
 			{
 				return Platform.MACOS;
 			}
-			if (variantLowerCase.substr(0, Platform.LINUX.length) == Platform.LINUX)
+			if (variantLowerCase.substr( 0, Platform.LINUX.length ) == Platform.LINUX)
 			{
 				return Platform.LINUX;
 			}
 			return variantLowerCase;
 		}
 
+
+		/**
+		 * Checks if the given platform name is one of the known platform names.
+		 *
+		 * @param platform	The name of the platform to check
+		 * @return			<code>true</code> if the platform name is known, <code>false</code> otherwise
+		 */
 		public static function isKnownPlatformName( platform:String ):Boolean
 		{
 			switch (platform)
 			{
 				case ANDROID:
 				case IOS:
+				case TVOS:
 				case MACOS:
 				case WINDOWS:
 				case LINUX:

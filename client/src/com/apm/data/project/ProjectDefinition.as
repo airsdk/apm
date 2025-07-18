@@ -1,30 +1,25 @@
 /**
- *        __       __               __
- *   ____/ /_ ____/ /______ _ ___  / /_
- *  / __  / / ___/ __/ ___/ / __ `/ __/
- * / /_/ / (__  ) / / /  / / /_/ / /
- * \__,_/_/____/_/ /_/  /_/\__, /_/
- *                           / /
- *                           \/
- * http://distriqt.com
- *
- * @author 		Michael (https://github.com/marchbold)
+ * @author 		Michael Archbold (https://michaelarchbold.com)
  * @created		18/5/2021
  */
 package com.apm.data.project
 {
 	import com.apm.SemVerRange;
+	import com.apm.data.common.Platform;
+	import com.apm.data.common.PlatformConfiguration;
+	import com.apm.data.common.PlatformParameter;
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.packages.PackageIdentifier;
 	import com.apm.data.packages.PackageParameter;
 	import com.apm.data.packages.PackageVersion;
-	import com.apm.data.common.Platform;
 	import com.apm.data.packages.RepositoryDefinition;
 	import com.apm.utils.JSONUtils;
 
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
+
+	import org.as3commons.lang.VectorUtils;
 
 	/**
 	 * Handles loading and saving a project definition file
@@ -55,6 +50,7 @@ package com.apm.data.project
 		private var _buildTypes:Vector.<ProjectBuildType>;
 		private var _deployOptions:Object;
 		private var _platforms:Vector.<Platform>;
+		private var _platformConfigurations:Vector.<PlatformConfiguration>;
 
 
 		////////////////////////////////////////////////////////
@@ -71,6 +67,7 @@ package com.apm.data.project
 			_buildTypes = new <ProjectBuildType>[];
 			_deployOptions = {};
 			_platforms = new <Platform>[];
+			_platformConfigurations = new <PlatformConfiguration>[];
 		}
 
 
@@ -135,6 +132,18 @@ package com.apm.data.project
 				}
 			}
 
+			if (_data.hasOwnProperty( "platformConfigurations" ))
+			{
+				for (var platformName:String in _data.platformConfigurations)
+				{
+					var platformConfig:PlatformConfiguration = PlatformConfiguration.fromObject(
+							platformName,
+							_data.platformConfigurations[platformName] );
+					if (platformConfig != null)
+						_platformConfigurations.push( platformConfig );
+				}
+			}
+
 		}
 
 
@@ -143,7 +152,7 @@ package com.apm.data.project
 			var data:Object = toObject();
 
 			// Ensures the output JSON format is in a familiar order
-			var keyOrder:Array = [ "identifier", "name", "filename", "version", "versionLabel", "platforms", "dependencies", "configuration", "buildTypes", "repositories" ];
+			var keyOrder:Array = [ "identifier", "name", "filename", "version", "versionLabel", "platforms", "platformConfigurations", "dependencies", "configuration", "buildTypes", "repositories" ];
 			var otherKeys:Array = JSONUtils.getMissingKeys( data, keyOrder );
 			otherKeys.sort();
 
@@ -167,6 +176,13 @@ package com.apm.data.project
 				platformsArray.push( platform.toObject() );
 			}
 			data["platforms"] = platformsArray;
+
+			var platformConfigurationsObject:Object = {};
+			for each (var platformConfig:PlatformConfiguration in _platformConfigurations)
+			{
+				platformConfigurationsObject[platformConfig.platform.name] = platformConfig.toObject();
+			}
+			data["platformConfigurations"] = platformConfigurationsObject;
 
 			var repos:Array = [];
 			for each (var repo:RepositoryDefinition in _repositories)
@@ -531,6 +547,7 @@ package com.apm.data.project
 				param.name = packageParam.name;
 				param.required = packageParam.required;
 				param.value = packageParam.defaultValue;
+				param.platforms = packageParam.platforms;
 
 				_configuration.push( param );
 				_configuration.sort( Array.CASEINSENSITIVE );
@@ -539,12 +556,14 @@ package com.apm.data.project
 			{
 				// Update existing parameter
 				param.required = param.required || packageParam.required;
-				if (!param.isValid())
+				param.platforms = Vector.<Platform>(
+						VectorUtils.mergeUnique( param.platforms, packageParam.platforms )
+				);
+				if (!param.isValid( param.platforms ))
 				{
 					param.value = packageParam.defaultValue;
 				}
 			}
-
 		}
 
 
@@ -560,14 +579,99 @@ package com.apm.data.project
 				return;
 			}
 
-			for (var i:int = _configuration.length-1; i >= 0; i--)
+			for (var i:int = _configuration.length - 1; i >= 0; i--)
 			{
 				if (_configuration[i].name == paramName)
 				{
-					_configuration.removeAt(i);
+					_configuration.removeAt( i );
 				}
 			}
+		}
 
+
+		/**
+		 * Returns the platform configuration for the specified platform name.
+		 *
+		 * @param platformName The name of the platform to retrieve the configuration for.
+		 *
+		 * @return The <code>PlatformConfiguration</code> for the specified platform name, or <code>null</code> if not found.
+		 */
+		public function getPlatformConfiguration( platformName:String ):PlatformConfiguration
+		{
+			if (platformName == null || platformName.length == 0)
+				return null;
+
+			for each (var config:PlatformConfiguration in _platformConfigurations)
+			{
+				if (config.platform.name == platformName)
+				{
+					return config;
+				}
+			}
+			return null;
+		}
+
+
+		/**
+		 * Updates a platform parameter to the specified platform.
+		 * This will create a new platform configuration if it doesn't already exist.
+		 * Existing parameters will be compared to the new parameter and updated to the "higher" value.
+		 *
+		 * @param platform
+		 * @param param
+		 */
+		public function updatePlatformParameter( platform:Platform, param:PlatformParameter ):void
+		{
+			var platformConfig:PlatformConfiguration = getPlatformConfiguration( platform.name );
+			if (platformConfig == null)
+			{
+				platformConfig = new PlatformConfiguration();
+				platformConfig.platform = platform;
+				_platformConfigurations.push( platformConfig );
+			}
+			platformConfig.updateParameter( param );
+		}
+
+
+		/**
+		 * Sets a platform parameter to the specified platform.
+		 * This will create a new platform configuration if it doesn't already exist.
+		 * Existing parameters will be replaced with the new parameter.
+		 *
+		 * @param platform
+		 * @param param
+		 */
+		public function setPlatformParameter( platform:Platform, param:PlatformParameter ):void
+		{
+			var platformConfig:PlatformConfiguration = getPlatformConfiguration( platform.name );
+			if (platformConfig == null)
+			{
+				platformConfig = new PlatformConfiguration();
+				platformConfig.platform = platform;
+				_platformConfigurations.push( platformConfig );
+			}
+			platformConfig.setParameter( param );
+		}
+
+
+		/**
+		 * Removes the specified platform parameter from the project definition.
+		 *
+		 * @param platform The platform to remove the parameter from.
+		 * @param paramName The name of the parameter to remove.
+		 */
+		public function removePlatformParameter( platform:Platform, paramName:String ):void
+		{
+			if (platform == null || paramName == null || paramName.length == 0)
+				return;
+
+			for (var i:int = _platformConfigurations.length - 1; i >= 0; --i)
+			{
+				if (_platformConfigurations[i].platform.equals( platform ))
+				{
+					_platformConfigurations[i].removeParameter( paramName );
+				}
+			}
 		}
 
 
@@ -721,7 +825,7 @@ package com.apm.data.project
 
 		public function shouldIncludePlatform( platform:String ):Boolean
 		{
-			if (platform == null || !Platform.isKnownPlatformName(platform) )
+			if (platform == null || !Platform.isKnownPlatformName( platform ))
 				return true;
 
 			// If the project doesn't specify platforms then include all platforms
