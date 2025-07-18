@@ -68,7 +68,7 @@ package com.apm.data.common
 				case TYPE_STRING_ARRAY:
 					return value != null && value != "";
 
-				case TYPE_UNKOWN:
+				case TYPE_UNKNOWN:
 				default:
 					return false;
 			}
