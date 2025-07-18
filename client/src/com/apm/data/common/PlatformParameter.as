@@ -143,7 +143,7 @@ package com.apm.data.common
 				}
 
 			}
-			return TYPE_UNKOWN;
+			return TYPE_UNKNOWN;
 		}
 
 
