@@ -6,7 +6,9 @@ package com.apm.client.commands.packages
 {
 	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
+	import com.apm.client.io.utils.ListOutput;
 	import com.apm.client.events.CommandEvent;
+	import com.apm.data.install.InstallPackageData;
 	import com.apm.data.project.ProjectDefinition;
 
 	import flash.events.EventDispatcher;
@@ -72,7 +74,7 @@ package com.apm.client.commands.packages
 
 		public function get description():String
 		{
-			return "lists dependencies currently added to your project";
+			return "lists packages currently added to your project";
 		}
 
 
@@ -80,7 +82,11 @@ package com.apm.client.commands.packages
 		{
 			return description + "\n" +
 					"\n" +
-					"apm list          list all the dependencies in your project\n"
+					"apm list          list all the packages in your project\n" +
+					"\n" +
+					"options: \n" +
+					"  --dependencies(--deps)  include package dependencies in the list\n" +
+					"                          (default will only list the project installed packages)\n"
 		}
 
 
@@ -94,20 +100,55 @@ package com.apm.client.commands.packages
 				return;
 			}
 
+			var includeDependencies:Boolean = false;
+			if (_parameters != null)
+			{
+				for each (var param:String in _parameters)
+				{
+					if (param == "--dependencies" || param == "--deps" || param == "--all")
+					{
+						includeDependencies = true;
+					}
+				}
+			}
+
 			APM.io.writeLine( project.getApplicationId( APM.config.buildType ) + "@" + project.getVersion( APM.config.buildType ) + " " + APM.config.workingDirectory + "" );
 			if (project.dependencies.length == 0)
 			{
-				APM.io.writeLine( "└── (empty)" );
+				APM.io.writeLine( ListOutput.marker() + "(empty)" );
 			}
 			else
 			{
-				for (var i:int = 0; i < project.dependencies.length; i++)
+				if (includeDependencies)
 				{
-					APM.io.writeLine(
-							(i == project.dependencies.length - 1 ? "└──" : "├──") +
-							project.dependencies[i].toString() );
+					if (APM.config.projectLock == null)
+					{
+						APM.io.writeLine( "ERROR: project lock not found, run 'apm install' first" );
+						dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_ERROR ) );
+						return;
+					}
+
+					var allDependencies:Vector.<InstallPackageData> = APM.config.projectLock.dependencies;
+					for (var j:int = 0; j < allDependencies.length; j++)
+					{
+						var installData:InstallPackageData = allDependencies[j];
+						APM.io.writeLine(
+								ListOutput.marker(j == allDependencies.length - 1 ) +
+								installData.packageVersion.toStringWithIdentifier()
+						);
+					}
+				}
+				else
+				{
+					for (var i:int = 0; i < project.dependencies.length; i++)
+					{
+						APM.io.writeLine(
+								ListOutput.marker(i == project.dependencies.length - 1 ) +
+								project.dependencies[i].toString() );
+					}
 				}
 			}
+
 			dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ) );
 
 		}

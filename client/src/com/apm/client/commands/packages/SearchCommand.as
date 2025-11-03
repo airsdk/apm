@@ -6,6 +6,7 @@ package com.apm.client.commands.packages
 {
 	import com.apm.client.APM;
 	import com.apm.client.commands.Command;
+	import com.apm.client.io.utils.ListOutput;
 	import com.apm.client.events.CommandEvent;
 	import com.apm.client.repositories.PackageResolver;
 	import com.apm.data.packages.PackageDefinition;
@@ -120,14 +121,14 @@ package com.apm.client.commands.packages
 								for (var i:int = 0; i < packages.length; i++)
 								{
 									APM.io.writeLine(
-											(i == packages.length - 1 ? "└──" : "├──") +
+											ListOutput.marker(i == packages.length - 1) +
 											packages[ i ].toDescriptiveString()
 									);
 								}
 							}
 							else
 							{
-								APM.io.writeLine( "└── no matching packages found" );
+								APM.io.writeLine( ListOutput.marker() + "no matching packages found" );
 							}
 							dispatchEvent( new CommandEvent( CommandEvent.COMPLETE, APM.CODE_OK ) );
 						}

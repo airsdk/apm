@@ -6,6 +6,7 @@ package com.apm.client.commands.packages.processes
 {
 	import com.apm.SemVerRange;
 	import com.apm.client.APM;
+	import com.apm.client.io.utils.ListOutput;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.repositories.PackageResolver;
 	import com.apm.data.packages.PackageDefinition;
@@ -77,11 +78,11 @@ package com.apm.client.commands.packages.processes
 				{
 					APM.io.writeLine( "license" );
 					APM.io.writeLine(
-							listMarker( packageDefinition.license.isPublic ) +
+							ListOutput.marker( packageDefinition.license.isPublic ) +
 							packageDefinition.license.toDescriptiveString() );
 					if (!packageDefinition.license.isPublic)
 					{
-						APM.io.writeLine( listMarker() + "more info: " + packageDefinition.purchaseUrl );
+						APM.io.writeLine( ListOutput.marker() + "more info: " + packageDefinition.purchaseUrl );
 					}
 				}
 
@@ -91,7 +92,7 @@ package com.apm.client.commands.packages.processes
 					tagsLine += tag + " ";
 				}
 				APM.io.writeLine( "tags" );
-				APM.io.writeLine( listMarker() + "[ " + tagsLine + " ]" );
+				APM.io.writeLine( ListOutput.marker() + "[ " + tagsLine + " ]" );
 
 				printVersions( packageDefinition.versions );
 			}
@@ -105,7 +106,7 @@ package com.apm.client.commands.packages.processes
 			var shouldPrintDependencies:Boolean = (versions.length == 1);
 			if (versions.length == 0)
 			{
-				APM.io.writeLine( listMarker() + "(empty)" );
+				APM.io.writeLine( ListOutput.marker() + "(empty)" );
 			}
 			else
 			{
@@ -113,7 +114,7 @@ package com.apm.client.commands.packages.processes
 				{
 					var v:PackageVersion = versions[i];
 					APM.io.writeLine(
-							listMarker( i == versions.length - 1 ) +
+							ListOutput.marker( i == versions.length - 1 ) +
 							v.toDescriptiveString() );
 					if (shouldPrintDependencies)
 					{
@@ -129,7 +130,7 @@ package com.apm.client.commands.packages.processes
 			APM.io.writeLine( prefix + "dependencies" );
 			if (dependencies.length == 0)
 			{
-				APM.io.writeLine( prefix + listMarker() + "(none)" );
+				APM.io.writeLine( prefix + ListOutput.marker() + "(none)" );
 			}
 			else
 			{
@@ -137,17 +138,14 @@ package com.apm.client.commands.packages.processes
 				{
 					APM.io.writeLine(
 							prefix +
-							listMarker( i == dependencies.length - 1 ) +
+							ListOutput.marker( i == dependencies.length - 1 ) +
 							dependencies[i].toString() );
 				}
 			}
 		}
 
 
-		private function listMarker( isLast:Boolean = true ):String
-		{
-			return (isLast ? "└── " : "├── ");
-		}
+
 
 	}
 

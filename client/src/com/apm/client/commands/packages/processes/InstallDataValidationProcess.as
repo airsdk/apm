@@ -6,6 +6,7 @@ package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APM;
 	import com.apm.client.commands.packages.utils.InstallDataValidator;
+	import com.apm.client.io.utils.ListOutput;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.install.InstallData;
 	import com.apm.data.install.InstallPackageData;
@@ -84,7 +85,7 @@ package com.apm.client.commands.packages.processes
 					APM.io.writeError( "CONFLICT", confictGroup.packageIdentifier );
 					for (var i:int = 0; i < confictGroup.versions.length; i++)
 					{
-						var prefix:String = (i == confictGroup.versions.length - 1 ? "└── " : "├── ");
+						var prefix:String = ListOutput.marker(i == confictGroup.versions.length - 1);
 
 						var version:String = confictGroup.versions[i].packageVersion.toString();
 

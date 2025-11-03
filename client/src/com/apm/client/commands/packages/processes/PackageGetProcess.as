@@ -5,6 +5,7 @@
 package com.apm.client.commands.packages.processes
 {
 	import com.apm.client.APM;
+	import com.apm.client.io.utils.ListOutput;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.packages.PackageDefinitionFile;
 
@@ -125,14 +126,14 @@ package com.apm.client.commands.packages.processes
 					APM.io.writeLine( "platforms" );
 					if (packageDefinitionFile.version.platforms.length == 0)
 					{
-						APM.io.writeLine( "└── (all)" );
+						APM.io.writeLine( ListOutput.marker() + "(all)" );
 					}
 					else
 					{
 						for (var p:int = 0; p < packageDefinitionFile.version.platforms.length; p++)
 						{
 							APM.io.writeLine(
-									(p == packageDefinitionFile.version.platforms.length - 1 ? "└──" : "├──") +
+									ListOutput.marker(p == packageDefinitionFile.version.platforms.length - 1) +
 									packageDefinitionFile.version.platforms[p].toString() );
 						}
 					}
@@ -145,14 +146,14 @@ package com.apm.client.commands.packages.processes
 					APM.io.writeLine( "dependencies" );
 					if (packageDefinitionFile.dependencies.length == 0)
 					{
-						APM.io.writeLine( "└── (none)" );
+						APM.io.writeLine( ListOutput.marker() + "(none)" );
 					}
 					else
 					{
 						for (var d:int = 0; d < packageDefinitionFile.dependencies.length; d++)
 						{
 							APM.io.writeLine(
-									(d == packageDefinitionFile.dependencies.length - 1 ? "└──" : "├──") +
+									ListOutput.marker(d == packageDefinitionFile.dependencies.length - 1) +
 									packageDefinitionFile.dependencies[d].toString() );
 						}
 					}
@@ -164,14 +165,14 @@ package com.apm.client.commands.packages.processes
 					APM.io.writeLine( "tags" );
 					if (packageDefinitionFile.packageDef.tags.length == 0)
 					{
-						APM.io.writeLine( "└── (none)" );
+						APM.io.writeLine( ListOutput.marker() + "(none)" );
 					}
 					else
 					{
 						for (var t:int = 0; t < packageDefinitionFile.packageDef.tags.length; t++)
 						{
 							APM.io.writeLine(
-									(t == packageDefinitionFile.packageDef.tags.length - 1 ? "└──" : "├──") +
+									ListOutput.marker(t == packageDefinitionFile.packageDef.tags.length - 1) +
 									packageDefinitionFile.packageDef.tags[t].toString() );
 						}
 					}
