@@ -105,7 +105,8 @@ package com.apm.client.commands.project.processes
 						if (APM.config.projectDefinition.shouldIncludePackage( packageDefinition.version ))
 						{
 							_appDescriptor.addExtension(
-									PackageIdentifier.identifierWithoutVariant( packageDefinition.packageDef.identifier )
+									PackageIdentifier.identifierWithoutVariant( packageDefinition.packageDef.identifier ),
+									APM.config.projectDefinition.shouldDelayLoadPackage( packageDefinition.packageDef.identifier, APM.config.buildType )
 							);
 						}
 					}
