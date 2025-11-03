@@ -5,6 +5,7 @@
 package com.apm.client.commands.project.processes
 {
 	import com.apm.client.APM;
+	import com.apm.client.io.utils.ListOutput;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.data.common.Platform;
 	import com.apm.data.common.PlatformConfiguration;
@@ -67,14 +68,14 @@ package com.apm.client.commands.project.processes
 				APM.io.writeLine( "platforms" );
 				if (project.platforms.length == 0)
 				{
-					APM.io.writeLine( "└── (all)" );
+					APM.io.writeLine( ListOutput.marker() + "(all)" );
 				}
 				else
 				{
 					for (var p:int = 0; p < project.platforms.length; p++)
 					{
 						APM.io.writeLine(
-								(p == project.platforms.length - 1 ? "└──" : "├──") +
+								ListOutput.marker(p == project.platforms.length - 1) +
 								project.platforms[p].toString() );
 					}
 				}
@@ -85,11 +86,11 @@ package com.apm.client.commands.project.processes
 					platformConfig = project.getPlatformConfiguration( platform );
 					if (platformConfig == null) continue;
 
-					APM.io.writeLine( "└──" + platform );
+					APM.io.writeLine( ListOutput.marker() + platform );
 					for (var pp:int = 0; pp < platformConfig.parameters.length; pp++)
 					{
 						platformParam = platformConfig.parameters[pp];
-						APM.io.writeValue( "  " + (pp == platformConfig.parameters.length - 1 ? "└──" : "├──") + platformParam.name, platformParam.value );
+						APM.io.writeValue( "  " + ListOutput.marker(pp == platformConfig.parameters.length - 1) + platformParam.name, platformParam.value );
 					}
 				}
 
@@ -104,14 +105,14 @@ package com.apm.client.commands.project.processes
 				APM.io.writeLine( "dependencies" );
 				if (project.dependencies.length == 0)
 				{
-					APM.io.writeLine( "└── (empty)" );
+					APM.io.writeLine( ListOutput.marker() + "(empty)" );
 				}
 				else
 				{
 					for (var d:int = 0; d < project.dependencies.length; d++)
 					{
 						APM.io.writeLine(
-								(d == project.dependencies.length - 1 ? "└──" : "├──") +
+								ListOutput.marker(d == project.dependencies.length - 1) +
 								project.dependencies[d].toString() );
 					}
 				}
