@@ -12,10 +12,10 @@ package com.apm.client.commands.packages.processes
 	import com.apm.data.common.PlatformParameter;
 	import com.apm.data.install.InstallData;
 	import com.apm.data.install.InstallPackageData;
-	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.packages.PackageParameter;
 	import com.apm.data.packages.PackageVersion;
 	import com.apm.data.project.ProjectLock;
+	import com.apm.data.project.ProjectPackageDependency;
 
 	import flash.filesystem.File;
 
@@ -65,7 +65,7 @@ package com.apm.client.commands.packages.processes
 
 				if (p.request.requiringPackage == null)
 				{
-					var dependency:PackageDependency = new PackageDependency();
+					var dependency:ProjectPackageDependency = new ProjectPackageDependency();
 					dependency.identifier            = packageVersion.packageDef.identifier;
 					dependency.version               = SemVerRange.fromString( p.request.version );
 					dependency.source                = p.request.source;

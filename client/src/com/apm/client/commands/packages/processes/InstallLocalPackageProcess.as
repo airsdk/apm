@@ -62,16 +62,17 @@ package com.apm.client.commands.packages.processes
 			subqueue.start(
 					function ():void
 					{
-						_installData.addPackage( packageDefinitionFile.version,
-												 new InstallRequest(
-														 packageDefinitionFile.packageDef.identifier,
-														 packageDefinitionFile.version.version.toString(),
-														 "file",
-														 null,
-														 true,
-														 _packageFile
-												 )
+						var request:InstallRequest = new InstallRequest(
+								packageDefinitionFile.packageDef.identifier,
+								packageDefinitionFile.version.version.toString(),
+								"file",
+								null,
+								true,
+								_packageFile
 						);
+
+						_installData.request = request;
+						_installData.addPackage( packageDefinitionFile.version, request );
 
 						// Queue dependencies for install
 						for each (var dep:PackageDependency in packageDefinitionFile.dependencies)

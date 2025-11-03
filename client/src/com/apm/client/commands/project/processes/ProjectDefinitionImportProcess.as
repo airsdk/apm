@@ -15,6 +15,7 @@ package com.apm.client.commands.project.processes
 	import com.apm.data.packages.PackageVersion;
 	import com.apm.data.project.ApplicationDescriptor;
 	import com.apm.data.project.ProjectDefinition;
+	import com.apm.data.project.ProjectPackageDependency;
 
 	import flash.filesystem.File;
 
@@ -157,7 +158,7 @@ package com.apm.client.commands.project.processes
 								{
 									APM.io.writeResult( true, "ADDING   : Package: " + packageVersion.toStringWithIdentifier() );
 
-									var dependency:PackageDependency = new PackageDependency();
+									var dependency:ProjectPackageDependency = new ProjectPackageDependency();
 									dependency.identifier = packageVersion.packageDef.identifier;
 									dependency.version = SemVerRange.fromString( packageVersion.version.toString() );
 									dependency.source = packageVersion.source;

@@ -13,6 +13,7 @@ package com.apm.data.project
 	import com.apm.data.packages.PackageParameter;
 	import com.apm.data.packages.PackageVersion;
 	import com.apm.data.packages.RepositoryDefinition;
+	import com.apm.data.project.ProjectPackageDependency;
 	import com.apm.utils.JSONUtils;
 
 	import flash.filesystem.File;
@@ -45,7 +46,7 @@ package com.apm.data.project
 		private var _sourceFile:File;
 
 		private var _repositories:Vector.<RepositoryDefinition>;
-		private var _dependencies:Vector.<PackageDependency>;
+		private var _dependencies:Vector.<ProjectPackageDependency>;
 		private var _configuration:Vector.<ProjectParameter>;
 		private var _buildTypes:Vector.<ProjectBuildType>;
 		private var _deployOptions:Object;
@@ -62,7 +63,7 @@ package com.apm.data.project
 			_data = {};
 
 			_repositories = new <RepositoryDefinition>[];
-			_dependencies = new <PackageDependency>[];
+			_dependencies = new <ProjectPackageDependency>[];
 			_configuration = new <ProjectParameter>[];
 			_buildTypes = new <ProjectBuildType>[];
 			_deployOptions = {};
@@ -86,10 +87,10 @@ package com.apm.data.project
 
 			if (_data.hasOwnProperty( "dependencies" ))
 			{
-				_dependencies = new Vector.<PackageDependency>();
+				_dependencies = new Vector.<ProjectPackageDependency>();
 				for each (var dep:Object in _data.dependencies)
 				{
-					_dependencies.push( new PackageDependency().fromObject( dep ) );
+					_dependencies.push( new ProjectPackageDependency().fromObject( dep ) );
 				}
 			}
 
@@ -260,11 +261,11 @@ package com.apm.data.project
 		public function get repositories():Vector.<RepositoryDefinition> { return _repositories; }
 
 
-		public function get dependencies():Vector.<PackageDependency>
+		public function get dependencies():Vector.<ProjectPackageDependency>
 		{
 			if (_dependencies == null)
 			{
-				_dependencies = new Vector.<PackageDependency>();
+				_dependencies = new Vector.<ProjectPackageDependency>();
 			}
 			return _dependencies;
 		}
@@ -720,7 +721,7 @@ package com.apm.data.project
 		 */
 		public function clearPackageDependencies():ProjectDefinition
 		{
-			_dependencies = new Vector.<PackageDependency>();
+			_dependencies = new Vector.<ProjectPackageDependency>();
 			return this;
 		}
 
@@ -757,7 +758,7 @@ package com.apm.data.project
 		 *
 		 * @return <code>ProjectDefinition</code> instance for chaining calls
 		 */
-		public function addPackageDependency( dependency:PackageDependency ):ProjectDefinition
+		public function addPackageDependency( dependency:ProjectPackageDependency ):ProjectDefinition
 		{
 			if (hasDependency( dependency.identifier ))
 			{
@@ -790,9 +791,9 @@ package com.apm.data.project
 		 *
 		 * @return The <code>PackageDependency</code> or <code>null</code> if not found.
 		 */
-		public function getPackageDependency( identifier:String ):PackageDependency
+		public function getPackageDependency( identifier:String ):ProjectPackageDependency
 		{
-			for each (var dep:PackageDependency in _dependencies)
+			for each (var dep:ProjectPackageDependency in _dependencies)
 			{
 				if (PackageIdentifier.isEquivalent( dep.identifier, identifier ))
 				{
@@ -869,6 +870,25 @@ package com.apm.data.project
 				{
 					if (pa.equals( pb )) return true;
 				}
+			}
+			return false;
+		}
+
+
+		public function shouldDelayLoadPackage( packageIdentifier:String, buildType:String = null ):Boolean
+		{
+			var dep:ProjectPackageDependency = getPackageDependency( packageIdentifier );
+			if (dep != null)
+			{
+				if (dep.delayLoad != "none")
+				{
+					return dep.delayLoad == "true";
+				}
+			}
+			var param:ProjectParameter = getConfigurationParam( "delayLoad", buildType );
+			if (param != null)
+			{
+				return (param.value == "true");
 			}
 			return false;
 		}

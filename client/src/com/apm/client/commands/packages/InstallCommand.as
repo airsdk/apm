@@ -19,6 +19,7 @@ package com.apm.client.commands.packages
 	import com.apm.data.packages.PackageDependency;
 	import com.apm.data.project.ProjectDefinition;
 	import com.apm.data.project.ProjectLock;
+	import com.apm.data.project.ProjectPackageDependency;
 	import com.apm.utils.FileUtils;
 	import com.apm.utils.PackageFileUtils;
 
@@ -46,7 +47,7 @@ package com.apm.client.commands.packages
 
 		private var _queue:ProcessQueue;
 		private var _installData:InstallData;
-
+		private var _options:Object = {};
 
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
@@ -104,8 +105,46 @@ package com.apm.client.commands.packages
 					"apm install <path/local.airpackage>  install a local airpackage at the specified path\n" +
 					"\n" +
 					"options: \n" +
-					"  --include-prerelease               includes pre-release package versions in the search"
+					"  --include-prerelease               includes pre-release package versions in the search\n"
+//					"  --delay-load                       marks the installed package as delay load in the project file"
 					;
+		}
+
+
+		private function processOption( optionLine:String, defaultValue:String = "" ):Object
+		{
+			var optionParts:Array = optionLine.substr( 2 ).split( "=" );
+			if (optionParts.length > 1)
+			{
+				return {
+					name : optionParts[0],
+					value: optionParts[1]
+				};
+			}
+			return {
+				name : optionLine.substr( 2 ),
+				value: defaultValue
+			};
+		}
+
+
+		private function processParametersForOptions( parameters:Array ):Object
+		{
+			var options:Object = {};
+			if (parameters != null)
+			{
+				for (var i:int = parameters.length - 1; i >= 0; --i)
+				{
+					var param:String = parameters[i];
+					if (param.indexOf( "--delay-load" ) == 0)
+					{
+						parameters.splice( i, 1 );
+						var option:Object = processOption( param, "true" );
+						options[option.name] = option.value;
+					}
+				}
+			}
+			return options;
 		}
 
 
@@ -121,6 +160,8 @@ package com.apm.client.commands.packages
 
 			_installData = new InstallData();
 			_queue = new ProcessQueue();
+
+			_installData.options = processParametersForOptions( _parameters );
 
 			var packageIdentifierOrPath:String = null;
 			if (_parameters != null && _parameters.length > 0)
@@ -195,6 +236,7 @@ package com.apm.client.commands.packages
 					}
 
 					// Install
+					_installData.request = request;
 					_queue.addProcess(
 							new InstallQueryPackageProcess(
 									_installData,
@@ -222,7 +264,7 @@ package com.apm.client.commands.packages
 			if (project.dependencies.length > 0)
 			{
 				// Install from list in project file
-				for each (var dep:PackageDependency in project.dependencies)
+				for each (var dep:ProjectPackageDependency in project.dependencies)
 				{
 					if (!_installData.containsPackage( dep.identifier ))
 					{

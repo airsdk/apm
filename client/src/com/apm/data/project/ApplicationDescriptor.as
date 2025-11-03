@@ -6,8 +6,6 @@ package com.apm.data.project
 {
 	import airsdk.AIRSDKVersion;
 
-	import com.apm.SemVer;
-
 	import com.apm.client.logging.Log;
 	import com.apm.data.common.Platform;
 	import com.apm.data.common.PlatformConfiguration;
@@ -147,7 +145,7 @@ package com.apm.data.project
 
 				for each (var platform:String in Platform.ALL_PLATFORMS)
 				{
-					if (!project.shouldIncludePlatform(platform)) continue;
+					if (!project.shouldIncludePlatform( platform )) continue;
 					var platformConfig:PlatformConfiguration = project.getPlatformConfiguration( platform );
 					if (platformConfig == null) continue;
 					var platformNode:String = getNodeForPlatform( platform );
@@ -330,7 +328,7 @@ package com.apm.data.project
 		//	EXTENSIONS
 		//
 
-		public function addExtension( extensionID:String ):void
+		public function addExtension( extensionID:String, delayLoad:Boolean = false ):void
 		{
 			default xml namespace = _airNS;
 
@@ -339,43 +337,70 @@ package com.apm.data.project
 				_xml.extensions = <extensions/>;
 			}
 
-			var extensionIDs:Array = [];
-			for each (var extensionIDNode:XML in _xml.extensions..extensionID)
+			var existingDelayLoad:Boolean = false;
+			var extensionList:XMLList = new XMLList();
+			for each (var existingNode:XML in _xml.extensions..extensionID)
 			{
 				// Filter duplicates
-				if (existsInArray( extensionIDs, extensionIDNode.toString() ))
+				if (xmlListContains( extensionList, existingNode.toString() ))
 					continue;
-				extensionIDs.push( extensionIDNode.toString() );
+				// Filter new extension
+				if (existingNode.toString() == extensionID)
+				{
+					if (existingNode.@delayLoad != undefined)
+					{
+						existingDelayLoad = (existingNode.@delayLoad.toString() == "true");
+					}
+					continue;
+				}
+				extensionList += existingNode;
 			}
-			if (!existsInArray( extensionIDs, extensionID ))
-			{
-				extensionIDs.push( extensionID );
-			}
-			extensionIDs.sort();
 
-			_xml.extensions = <extensions/>;
-			for each (var extID:String in extensionIDs)
-			{
-				_xml.extensions.appendChild( <extensionID>{extID}</extensionID> );
-			}
+			// Add new extension
+			var extensionNode:XML = <extensionID>{extensionID}</extensionID>
+			if (delayLoad) extensionNode.@delayLoad = true;
+			extensionList += extensionNode;
+
+			_xml.extensions = <extensions>{sortXMLListByString( extensionList )}</extensions>;
 		}
 
-		private function existsInArray( arr:Array, value:* ):Boolean
+
+		private function xmlListContains( xmlList:XMLList, value:String ):Boolean
 		{
-			if (arr == null) return false;
-			for each (var item:* in arr)
+			for each (var item:XML in xmlList)
 			{
-				if (value == item)
+				if (item.toString() == value)
 					return true;
 			}
 			return false;
 		}
 
 
+		private function sortXMLListByString( xmlList:XMLList ):XMLList
+		{
+			var arr:Array = [];
+			for each (var item:XML in xmlList)
+			{
+				arr.push( item );
+			}
+			arr.sort( function ( a:XML, b:XML ):int
+					  {
+						  var aStr:String = a.toString();
+						  var bStr:String = b.toString();
+						  return aStr.localeCompare( bStr );
+					  } );
+			var sortedXMLList:XMLList = new XMLList();
+			for each (var sortedItem:XML in arr)
+			{
+				sortedXMLList += sortedItem;
+			}
+			return sortedXMLList;
+		}
+
+
 		public function removeAllExtensions():void
 		{
 			default xml namespace = _airNS;
-
 			_xml.extensions = <extensions/>;
 		}
 

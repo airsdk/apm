@@ -65,16 +65,28 @@ package com.apm.data.install
 		public function get packagesConflicting():Vector.<InstallPackageDataGroup> { return _packagesConflicting; }
 
 
+		/**
+		 * The original install request that initiated this install data
+		 */
+		public var request:InstallRequest;
+
+
+		/**
+		 * Additional options for install process, eg delay load flag
+ 		 */
+		public var options:Object = {};
+
+
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
 
 		public function InstallData()
 		{
-			_packagesAll         = new Vector.<InstallPackageData>();
+			_packagesAll = new Vector.<InstallPackageData>();
 //			_packagesInstalled = new Vector.<InstallPackageData>();
-			_packagesToInstall   = new Vector.<InstallPackageData>();
-			_packagesToRemove    = new Vector.<InstallPackageData>();
+			_packagesToInstall = new Vector.<InstallPackageData>();
+			_packagesToRemove = new Vector.<InstallPackageData>();
 			_packagesConflicting = new Vector.<InstallPackageDataGroup>();
 		}
 
@@ -159,12 +171,18 @@ package com.apm.data.install
 
 		public function removePackageByIdentifier( identifier:String ):void
 		{
-			var packageDef:PackageDefinition  = new PackageDefinition();
-			packageDef.identifier             = identifier;
+			var packageDef:PackageDefinition = new PackageDefinition();
+			packageDef.identifier = identifier;
 			var packageVersion:PackageVersion = new PackageVersion();
-			packageVersion.packageDef         = packageDef;
+			packageVersion.packageDef = packageDef;
 
 			removePackage( packageVersion );
+		}
+
+
+		public function isSourceRequest( request:InstallRequest ):Boolean
+		{
+			return this.request.packageIdentifier == request.packageIdentifier;
 		}
 
 	}
