@@ -73,7 +73,7 @@ package com.apm.data.install
 
 		/**
 		 * Additional options for install process, eg delay load flag
- 		 */
+	 	 */
 		public var options:Object = {};
 
 
@@ -182,7 +182,7 @@ package com.apm.data.install
 
 		public function isSourceRequest( request:InstallRequest ):Boolean
 		{
-			return this.request.packageIdentifier == request.packageIdentifier;
+			return this.request != null && this.request.packageIdentifier == request.packageIdentifier;
 		}
 
 	}

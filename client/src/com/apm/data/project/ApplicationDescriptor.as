@@ -357,7 +357,7 @@ package com.apm.data.project
 			}
 
 			// Add new extension
-			var extensionNode:XML = <extensionID>{extensionID}</extensionID>
+			var extensionNode:XML = <extensionID>{extensionID}</extensionID>;
 			if (delayLoad) extensionNode.@delayLoad = true;
 			extensionList += extensionNode;
 
