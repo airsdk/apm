@@ -6,9 +6,7 @@ package com.apm.client.processes.generic
 {
 	import com.apm.client.APM;
 	import com.apm.client.logging.Log;
-	import com.apm.client.processes.ProcessBase;
-	import com.apm.client.processes.generic.ExtractZipAS3Process;
-	
+
 	import flash.desktop.NativeProcess;
 	import flash.desktop.NativeProcessStartupInfo;
 	import flash.events.IOErrorEvent;
@@ -65,7 +63,7 @@ package com.apm.client.processes.generic
 				
 				if (!processStartupInfo.executable.exists)
 				{
-					// Fall back to as3 implementation
+					// Fall back to AIR implementation
 					return super.start( complete, failure );
 				}
 				
