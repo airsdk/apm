@@ -54,55 +54,64 @@ package com.apm.client.processes.generic
 
 			if (NativeProcess.isSupported)
 			{
-				var powershell:File = WindowsShellPaths.getPowershell();
-				if (powershell == null || !powershell.exists)
+				try
 				{
-					Log.d( TAG, "powershell.exe not available - fall back to as3 implementation" );
-					return super.start( completeCallback, failureCallback );
-				}
+					var powershell:File = WindowsShellPaths.getPowershell();
+					if (powershell == null || !powershell.exists)
+					{
+						Log.d( TAG, "powershell.exe not available - fall back to AIR implementation" );
+						return super.start( completeCallback, failureCallback );
+					}
 
-				var powerShellVersion:String = APM.config.env["POWERSHELL_Version"];
-				Log.d( TAG, "powershell version: " + powerShellVersion );
-				if (powerShellVersion == null || Number( powerShellVersion.charAt( 0 ) ) < 4)
+					var powerShellVersion:String = APM.config.env["POWERSHELL_Version"];
+					Log.d( TAG, "powershell version: " + powerShellVersion );
+					if (powerShellVersion == null || Number( powerShellVersion.charAt( 0 ) ) < 4)
+					{
+						Log.d( TAG,
+						       "powershell version too old [" + powerShellVersion + "] - fall back to AIR implementation" );
+						return super.start( completeCallback, failureCallback );
+					}
+
+					if (_zipFile.extension != "zip")
+					{
+						// Powershell script can't handle non-zip extension archives so we copy to a .zip tmp file and delete after
+						_zipFileRef = new File( _zipFile.nativePath + ".zip" );
+						_zipFile.copyTo( _zipFileRef, true );
+						_deleteAfter = true;
+					}
+					else
+					{
+						_zipFileRef = _zipFile;
+					}
+
+					var processArgs:Vector.<String> = new Vector.<String>();
+					processArgs.push( "-command" );
+					processArgs.push( "& \"Expand-Archive\" -Force "
+											  + "'" + _zipFileRef.nativePath + "'" + " "
+											  + "'" + _outputDir.nativePath + "'" );
+
+					var processStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
+					processStartupInfo.executable                   = powershell;
+					processStartupInfo.arguments                    = processArgs;
+
+					Log.d( TAG, "Starting extraction" );
+					if (_showOutputs) APM.io.showSpinner( message );
+
+					_process = new NativeProcess();
+					_process.addEventListener( NativeProcessExitEvent.EXIT, onExit );
+					_process.addEventListener( ProgressEvent.STANDARD_OUTPUT_DATA, onOutputData );
+					_process.addEventListener( ProgressEvent.STANDARD_ERROR_DATA, onErrorData );
+					_process.addEventListener( IOErrorEvent.STANDARD_OUTPUT_IO_ERROR, onIOError );
+					_process.addEventListener( IOErrorEvent.STANDARD_ERROR_IO_ERROR, onIOError );
+
+					_process.start( processStartupInfo );
+				}
+				catch (e:Error)
 				{
-					Log.d( TAG,
-						   "powershell version too old [" + powerShellVersion + "] - fall back to as3 implementation" );
-					return super.start( completeCallback, failureCallback );
+					Log.e( TAG, e );
+					if (_showOutputs) APM.io.stopSpinner( false, "extraction failed" );
+					failure( e.message );
 				}
-
-				if (_zipFile.extension != "zip")
-				{
-					// Powershell script can't handle non-zip extension archives so we copy to a .zip tmp file and delete after
-					_zipFileRef = new File( _zipFile.nativePath + ".zip" );
-					_zipFile.copyTo( _zipFileRef, true );
-					_deleteAfter = true;
-				}
-				else
-				{
-					_zipFileRef = _zipFile;
-				}
-
-				var processArgs:Vector.<String> = new Vector.<String>();
-				processArgs.push( "-command" );
-				processArgs.push( "& \"Expand-Archive\" -Force "
-										  + "'" + _zipFileRef.nativePath + "'" + " "
-										  + "'" + _outputDir.nativePath + "'" );
-
-				var processStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
-				processStartupInfo.executable                   = powershell;
-				processStartupInfo.arguments                    = processArgs;
-
-				Log.d( TAG, "Starting extraction" );
-				if (_showOutputs) APM.io.showSpinner( message );
-				
-				_process = new NativeProcess();
-				_process.addEventListener( NativeProcessExitEvent.EXIT, onExit );
-				_process.addEventListener( ProgressEvent.STANDARD_OUTPUT_DATA, onOutputData );
-				_process.addEventListener( ProgressEvent.STANDARD_ERROR_DATA, onErrorData );
-				_process.addEventListener( IOErrorEvent.STANDARD_OUTPUT_IO_ERROR, onIOError );
-				_process.addEventListener( IOErrorEvent.STANDARD_ERROR_IO_ERROR, onIOError );
-
-				_process.start( processStartupInfo );
 			}
 			else
 			{
@@ -149,7 +158,7 @@ package com.apm.client.processes.generic
 
 			if (event.exitCode == 1 && _attemptFallback)
 			{
-				// Attempt fallback to as3 implementation
+				// Attempt fallback to AIR implementation
 				super.start( _completeCallback, _failureCallback );
 			}
 			else

@@ -44,7 +44,11 @@ package com.apm.client.processes.generic
 		{
 			super.start( completeCallback, failureCallback );
 			var subprocess:ProcessBase;
-			if (APM.config.isMacOS)
+			if (ExtractZipAIRProcess.isAvailable())
+			{
+				subprocess = new ExtractZipAIRProcess( _zipFile, _outputDir, _showOutputs );
+			}
+			else if (APM.config.isMacOS)
 			{
 				subprocess = new ExtractZipMacOSProcess( _zipFile, _outputDir, _showOutputs );
 			}
