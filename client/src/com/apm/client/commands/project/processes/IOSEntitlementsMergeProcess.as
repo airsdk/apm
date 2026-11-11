@@ -8,55 +8,57 @@ package com.apm.client.commands.project.processes
 	import com.apm.client.logging.Log;
 	import com.apm.client.processes.ProcessBase;
 	import com.apm.client.processes.ProcessQueue;
+	import com.apm.data.common.Platform;
 	import com.apm.data.project.ApplicationDescriptor;
 	import com.apm.data.project.ProjectParameter;
 	import com.apm.utils.FileUtils;
 	import com.apple.plist.Plist;
 	import com.apple.plist.entries.PlistBooleanEntry;
-	
+
 	import flash.filesystem.File;
-	
-	
+
 	public class IOSEntitlementsMergeProcess extends ProcessBase
 	{
 		////////////////////////////////////////////////////////
 		//  CONSTANTS
 		//
-		
-		private static const TAG:String = "IOSAdditionsMergeProcess";
-		
-		
+
+		private static const TAG:String = "IOSEntitlementsMergeProcess";
+
+
 		////////////////////////////////////////////////////////
 		//  VARIABLES
 		//
-		
+
 		private var _appDescriptor:ApplicationDescriptor;
+		private var _platform:String;
 		private var _subqueue:ProcessQueue;
-		
-		
+
+
 		////////////////////////////////////////////////////////
 		//  FUNCTIONALITY
 		//
-		
-		public function IOSEntitlementsMergeProcess( appDescriptor:ApplicationDescriptor )
+
+		public function IOSEntitlementsMergeProcess( appDescriptor:ApplicationDescriptor, platform:String = Platform.IOS )
 		{
 			_appDescriptor = appDescriptor;
+			_platform = platform;
 		}
-		
-		
+
+
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			super.start( completeCallback, failureCallback );
-			
+
 			if (!FileUtils.tmpDirectory.exists) FileUtils.tmpDirectory.createDirectory();
-			var entitlementsFile:File = FileUtils.tmpDirectory.resolvePath( "Entitlements.xml" );
-			
-			// Check if there's a file in the config dir or create an empty info additions file for merging
-			var entitlementsProjectFile:File = new File( APM.config.configDirectory ).resolvePath( "ios/Entitlements.xml" );
+			var entitlementsFile:File = FileUtils.tmpDirectory.resolvePath( _platform + "Entitlements.xml" );
+
+			// Check if there's a file in the config dir or create an empty entitlements file for merging
+			var entitlementsProjectFile:File = new File( APM.config.configDirectory ).resolvePath( _platform + "/Entitlements.xml" );
 			if (entitlementsProjectFile.exists)
 			{
-				APM.io.writeLine( "Merging with supplied info additions: " + entitlementsProjectFile.nativePath.substr( APM.config.workingDirectory.length + 1 ) );
-				
+				APM.io.writeLine( "Merging with supplied entitlements: " + entitlementsProjectFile.nativePath.substr( APM.config.workingDirectory.length + 1 ) );
+
 				// Read content and inject any config parameters
 				var entitlementsProjectContent:String = FileUtils.readFileContentAsString( entitlementsProjectFile );
 				for each (var param:ProjectParameter in APM.config.projectDefinition.getConfiguration( APM.config.buildType ))
@@ -68,25 +70,24 @@ package com.apm.client.commands.project.processes
 						/\$\{applicationId\}/g,
 						APM.config.projectDefinition.getApplicationId( APM.config.buildType )
 				);
-				
+
 				FileUtils.writeStringAsFileContent( entitlementsFile, entitlementsProjectContent );
 			}
 			else
 			{
 				new Plist().save( entitlementsFile ); // Just writes empty plist file
 			}
-			
-			
-			var packageInfoAdditions:Array = findPackageEntitlements();
+
+			APM.io.showSpinner( _platform + " entitlements merging" );
+
+			var packageEntitlements:Array = findPackageEntitlements( _platform );
 			_subqueue = new ProcessQueue();
-			for each (var packageInfoAdditionsFile:File in packageInfoAdditions)
+			for each (var packageEntitlementsFile:File in packageEntitlements)
 			{
-				Log.d( TAG, packageInfoAdditionsFile.nativePath );
-				_subqueue.addProcess( new IOSPlistMergeProcess( packageInfoAdditionsFile, entitlementsFile ) );
+				Log.d( TAG, packageEntitlementsFile.nativePath );
+				_subqueue.addProcess( new IOSPlistMergeProcess( packageEntitlementsFile, entitlementsFile ) );
 			}
-			
-			APM.io.showSpinner( "iOS entitlements merging" );
-			
+
 			_subqueue.start( function ():void
 							 {
 								 // Adjustment to remove beta-reports-active when its false
@@ -99,32 +100,38 @@ package com.apm.client.commands.project.processes
 										 entitlementsPlist.removeEntry( betaReportsActiveEntry.key );
 									 }
 								 }
-				
-								 _appDescriptor.iosEntitlements = entitlementsPlist.toXML().dict.children().toXMLString();
-				
-								 APM.io.stopSpinner( true, "iOS entitlements merge complete" );
+								 if (_platform == Platform.IOS)
+								 {
+									 _appDescriptor.iosEntitlements = entitlementsPlist.toXML().dict.children().toXMLString();
+								 }
+								 else if (_platform == Platform.MACOS)
+								 {
+									 _appDescriptor.macosEntitlements = entitlementsPlist.toXML().dict.children().toXMLString();
+								 }
+
+								 APM.io.stopSpinner( true, _platform + " entitlements merge complete" );
 								 complete();
 							 },
-							 function ( error:String ):void
+			                 function ( error:String ):void
 							 {
-								 APM.io.stopSpinner( false, "iOS entitlements merge failed: " + error );
+								 APM.io.stopSpinner( false, _platform + " entitlements merge failed: " + error );
 								 failure( error );
 							 }
 			);
-			
+
 		}
-		
-		
-		private function findPackageEntitlements():Array
+
+
+		private function findPackageEntitlements( platform:String ):Array
 		{
-			var infoAdditions:Array = FileUtils.getFilesByName(
-					"Entitlements.xml",
+			var entitlements:Array = FileUtils.getFilesMatchingPath(
+					"platforms/" + platform + "/Entitlements.xml",
 					new File( APM.config.packagesDirectory )
 			);
-			return infoAdditions;
+			return entitlements;
 		}
-		
-		
+
+
 	}
-	
+
 }

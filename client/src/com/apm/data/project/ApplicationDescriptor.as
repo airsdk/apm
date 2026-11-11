@@ -50,6 +50,11 @@ package com.apm.data.project
 				<Entitlements/>
 			</iPhone>
 
+			<macOS>
+				<InfoAdditions/>
+				<Entitlements/>
+			</macOS>
+
 			<extensions/>
 
 		</application>;
@@ -62,6 +67,8 @@ package com.apm.data.project
 		public var androidManifest:String = "";
 		public var iosInfoAdditions:String = "";
 		public var iosEntitlements:String = "";
+		public var macosInfoAdditions:String = "";
+		public var macosEntitlements:String = "";
 
 
 		private var _xml:XML;
@@ -192,6 +199,11 @@ package com.apm.data.project
 					updateIOSAdditions();
 				}
 
+				if (project.shouldIncludePlatform( Platform.MACOS ))
+				{
+					updateMacOSAdditions();
+				}
+
 			}
 		}
 
@@ -320,6 +332,27 @@ package com.apm.data.project
 			{
 				var entitlements:XML = new XML( "<Entitlements><![CDATA[\n" + iosEntitlements + "]]></Entitlements>" );
 				_xml.iPhone.Entitlements = entitlements;
+			}
+		}
+
+
+		//
+		//	macOS
+		//
+
+		public function updateMacOSAdditions():void
+		{
+			default xml namespace = _airNS;
+
+			if (macosInfoAdditions != null && macosInfoAdditions.length > 0 && _xml != null)
+			{
+				var infoAdditions:XML = new XML( "<InfoAdditions><![CDATA[\n" + macosInfoAdditions + "]]></InfoAdditions>" );
+				_xml.macOS.InfoAdditions = infoAdditions;
+			}
+			if (macosEntitlements != null && macosEntitlements.length > 0 && _xml != null)
+			{
+				var entitlements:XML = new XML( "<Entitlements><![CDATA[\n" + macosEntitlements + "]]></Entitlements>" );
+				_xml.macOS.Entitlements = entitlements;
 			}
 		}
 

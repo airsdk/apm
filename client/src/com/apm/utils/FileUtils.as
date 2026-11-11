@@ -68,8 +68,7 @@ package com.apm.utils
 
 
 		/**
-		 * Finds all files in a directory and subdirectores with the specified name
-		 * - lists the files before the directories.
+		 * Recursively finds all files in a directory with the specified name
 		 *
 		 * @param filename	The file name to search for
 		 * @param directory	The base directory to search
@@ -96,6 +95,46 @@ package com.apm.utils
 				{
 					files = files.concat(
 							getFilesByName( filename, dir )
+					);
+				}
+			}
+			return files;
+		}
+
+
+		/**
+		 * Recursively finds all files in a directory with a path that contains the specified pathMatch string
+		 * eg "parent/dir/filename.ext" will find all filename.ext files in a parent/dir directory.
+		 *
+		 * @param pathMatch The path string to match
+		 * @param directory The base directory to search
+		 * @return An Array of File objects
+		 */
+		public static function getFilesMatchingPath( pathMatch:String, directory:File ):Array
+		{
+			var isWindows:Boolean = APM.config != null && APM.config.isWindows;
+			pathMatch = pathMatch.replace( /\//g, File.separator );
+			if (isWindows) pathMatch = pathMatch.toLowerCase();
+			var files:Array = [];
+			if (directory != null && directory.exists)
+			{
+				var subdirectories:Array = [];
+				for each (var f:File in directory.getDirectoryListing())
+				{
+					var nativePath:String = (isWindows ? f.nativePath.toLowerCase() : f.nativePath);
+					if (f.isDirectory)
+					{
+						subdirectories.push( f );
+					}
+					else if (nativePath.indexOf( pathMatch ) != -1)
+					{
+						files.push( f );
+					}
+				}
+				for each (var dir:File in subdirectories)
+				{
+					files = files.concat(
+							getFilesMatchingPath( pathMatch, dir )
 					);
 				}
 			}
