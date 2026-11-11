@@ -202,8 +202,13 @@ package com.apm.client.commands.project
 			}
 			if (shouldProcessPlatform( platforms, Platform.IOS ))
 			{
-				_queue.addProcess( new IOSAdditionsMergeProcess( appDescriptor ) );
-				_queue.addProcess( new IOSEntitlementsMergeProcess( appDescriptor ) );
+				_queue.addProcess( new IOSAdditionsMergeProcess( appDescriptor, Platform.IOS ) );
+				_queue.addProcess( new IOSEntitlementsMergeProcess( appDescriptor, Platform.IOS ) );
+			}
+			if (shouldProcessPlatform( platforms, Platform.MACOS ))
+			{
+				_queue.addProcess( new IOSAdditionsMergeProcess( appDescriptor, Platform.MACOS ) );
+				_queue.addProcess( new IOSEntitlementsMergeProcess( appDescriptor, Platform.MACOS ) );
 			}
 
 			_queue.addProcess( new ApplicationDescriptorGenerationProcess( appDescriptor, outputPath ) );
