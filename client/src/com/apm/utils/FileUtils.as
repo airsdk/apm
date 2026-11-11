@@ -126,7 +126,7 @@ package com.apm.utils
 					{
 						subdirectories.push( f );
 					}
-					else if (nativePath.indexOf( pathMatch ) != -1)
+					else if (nativePath.slice( -(pathMatch.length + 1) ) == File.separator + pathMatch)
 					{
 						files.push( f );
 					}
