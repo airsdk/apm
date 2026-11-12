@@ -30,6 +30,7 @@ package com.apm.client.processes.generic
 		protected var _zipFile:File;
 		protected var _outputDir:File;
 		protected var _showOutputs:Boolean;
+		protected var _deleteDirectory:Boolean;
 
 		private var _zip:Object;
 		private var _zipDispatcher:IEventDispatcher;
@@ -40,11 +41,13 @@ package com.apm.client.processes.generic
 		//  FUNCTIONALITY
 		//
 
-		public function ExtractZipAIRProcess( zipFile:File, outputDir:File, showOutputs:Boolean = true )
+
+		public function ExtractZipAIRProcess( zipFile:File, outputDir:File, showOutputs:Boolean = true, deleteDirectory:Boolean = true )
 		{
 			_zipFile = zipFile;
 			_outputDir = outputDir;
 			_showOutputs = showOutputs;
+			_deleteDirectory = deleteDirectory;
 		}
 
 
@@ -79,7 +82,7 @@ package com.apm.client.processes.generic
 					return failure( "zip file not found" );
 				}
 
-				if (_outputDir.exists) _outputDir.deleteDirectory( true );
+				if (_outputDir.exists && _deleteDirectory) _outputDir.deleteDirectory( true );
 				_outputDir.createDirectory();
 
 				var zipArchiveClass:Class = getDefinitionByName( "air.utils.ZipArchive" ) as Class;

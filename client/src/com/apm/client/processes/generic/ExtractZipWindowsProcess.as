@@ -31,7 +31,7 @@ package com.apm.client.processes.generic
 		private var _process:NativeProcess;
 
 		private var _zipFileRef:File;
-		private var _deleteAfter:Boolean     = false;
+		private var _deleteAfter:Boolean = false;
 		private var _attemptFallback:Boolean = false;
 
 
@@ -39,16 +39,16 @@ package com.apm.client.processes.generic
 		//  FUNCTIONALITY
 		//
 
-		public function ExtractZipWindowsProcess( zipFile:File, outputDir:File, showOutputs:Boolean = true )
+		public function ExtractZipWindowsProcess( zipFile:File, outputDir:File, showOutputs:Boolean = true, deleteDirectory:Boolean = true )
 		{
-			super( zipFile, outputDir, showOutputs );
+			super( zipFile, outputDir, showOutputs, deleteDirectory );
 		}
 
 
 		override public function start( completeCallback:Function = null, failureCallback:Function = null ):void
 		{
 			_completeCallback = completeCallback;
-			_failureCallback  = failureCallback;
+			_failureCallback = failureCallback;
 
 			var message:String = "extracting " + _zipFile.nativePath;
 
@@ -91,8 +91,8 @@ package com.apm.client.processes.generic
 											  + "'" + _outputDir.nativePath + "'" );
 
 					var processStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
-					processStartupInfo.executable                   = powershell;
-					processStartupInfo.arguments                    = processArgs;
+					processStartupInfo.executable = powershell;
+					processStartupInfo.arguments = processArgs;
 
 					Log.d( TAG, "Starting extraction" );
 					if (_showOutputs) APM.io.showSpinner( message );
@@ -123,9 +123,9 @@ package com.apm.client.processes.generic
 		private function onOutputData( event:ProgressEvent ):void
 		{
 			var data:String = _process.standardOutput.readUTFBytes( _process.standardOutput.bytesAvailable )
-									  .replace( /\n/g, "" )
-									  .replace( /\r/g, "" )
-									  .replace( /\t/g, "" );
+			                          .replace( /\n/g, "" )
+			                          .replace( /\r/g, "" )
+			                          .replace( /\t/g, "" );
 
 			if (_showOutputs) APM.io.updateSpinner( "extracting : " + data );
 
